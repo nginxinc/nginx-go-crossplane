@@ -13,7 +13,7 @@ func TestBuild(t *testing.T) {
 	for _, test := range tests {
 		c, err := Build(test, 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %s", err.Error())
+			t.Errorf("test failed due to error being returned from Build %v", err)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
@@ -79,7 +79,7 @@ func TestBuildNestedAndMultipleArgs(t *testing.T) {
 
 		c, err := Build(string(out), 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %s", err.Error())
+			t.Errorf("test failed due to error being returned from Build %v", err)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
@@ -184,7 +184,7 @@ func TestBuildWithComments(t *testing.T) {
 
 		c, err := Build(string(out), 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %s", err.Error())
+			t.Errorf("test failed due to error being returned from Build %v", err)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
@@ -220,7 +220,7 @@ func TestBuildStartsWithComments(t *testing.T) {
 
 		c, err := Build(string(out), 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %s", err.Error())
+			t.Errorf("test failed due to error being returned from Build %v", err)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
@@ -250,7 +250,7 @@ func TestBuildWithQuotedUnicode(t *testing.T) {
 
 		c, err := Build(string(out), 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %s", err.Error())
+			t.Errorf("test failed due to error being returned from Build %v", err)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
@@ -285,7 +285,7 @@ func TestBuildFilesWithMissingStatusAndErrors(t *testing.T) {
 
 		c, err := BuildFiles(string(out), "none", 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %s", err.Error())
+			t.Errorf("test failed due to error being returned from Build %v", err)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
@@ -328,7 +328,7 @@ func TestBuildFilesWithUnicode(t *testing.T) {
 
 		c, err := BuildFiles(string(out), "none", 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %s", err.Error())
+			t.Errorf("test failed due to error being returned from Build %v", err)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
