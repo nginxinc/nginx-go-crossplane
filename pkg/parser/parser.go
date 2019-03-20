@@ -2,21 +2,24 @@ package parser
 
 // ParseArgs -
 type ParseArgs struct {
-	FileName    string
-	OnError     bool
+	FileName string
+	// onerror     bool
 	CatchErrors bool
 	Ignore      string
 	Single      bool
 	Comments    bool
 	Strict      bool
 	Combine     bool
-	CheckCtx    bool
-	CheckArgs   bool
+	// checkCtx    bool
+	// checkArgs bool
 }
+
+// ParsingError -
+type ParsingError string
 
 // Config -
 type Config struct {
-	Title  string
+	File   string
 	Status string
 	Errors []Errors
 	Parsed []Block
@@ -33,7 +36,7 @@ type Block struct {
 
 //Errors -
 type Errors struct {
-	Title string
+	File  string
 	Line  int
 	Error string
 }
@@ -42,4 +45,10 @@ type Errors struct {
 func Parse(args ParseArgs) (string, error) {
 
 	return "parse", nil
+}
+
+// Parsing -
+func Parsing(Config []Config) ParsingError {
+
+	
 }
