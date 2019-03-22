@@ -28,12 +28,12 @@ func TestAnalyzer(t *testing.T) {
 	}
 
 	for _, v1 := range goodContexts {
-		crossplane.analyzer.analyze(fname, statement1, ";", v1)
+		analyzer.analyze(fname, statement1, ";", v1)
 	}
 
 	//the state directive should not be in any of these contexts
 	badContext := []string{}
-	cntx := crossplane.analyser.CONTEXTS
+	cntx := analyser.CONTEXTS
 	next := 0
 	for key, value := range cntx {
 		isIn := false
@@ -51,7 +51,7 @@ func TestAnalyzer(t *testing.T) {
 	}
 
 	for _, v2 := range badContext {
-		err := crossplane.analyzer.analyze(fname, statement1, ";", v2)
+		err := analyzer.analyze(fname, statement1, ";", v2)
 		if err != nil {
 			t.Errorf("Error %v", err)
 		}
@@ -81,7 +81,7 @@ func TestAnalyzer(t *testing.T) {
 
 	for _, v := range goodArgs {
 		statement2.args = v
-		crossplane.analyzer.analyze(fname, statement2, ";", ctx)
+		analyzer.analyze(fname, statement2, ";", ctx)
 
 	}
 	badArgs := [5][1]string{
@@ -94,7 +94,7 @@ func TestAnalyzer(t *testing.T) {
 
 	for _, v := range badArgs {
 		statement2.args = v
-		err := crossplane.analyzer.analyze(fname, statement2, ";", ctx)
+		err := analyzer.analyze(fname, statement2, ";", ctx)
 		if err != nil {
 			t.Errorf("Error %v", err)
 		}
