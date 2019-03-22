@@ -46,6 +46,47 @@ func test_state_directive(){
 		}
 	}
 
-	
+	// test flag directive args 
+
+	// an NGINX_CONF_FLAG directive
+	statement2 := struct {
+		directive string
+		args []string
+        line      int // this is arbitrary
+    }{
+		"accept_mutex",
+		nil,
+        2,
+	}
+
+	good_args := [6][1]string{
+		[1]string{"on"},
+		[1]string{"off"},
+		[1]string{"On"},
+		[1]string{"Off"},
+		[1]string{"ON"},
+		[1]string{"OFF"},
+	}
+
+	for _,v := range good_args{
+		statement2.args = v 
+		crossplane.analyzer.analyze(fname, statement2, ";", ctx)
+
+	}
+	bad_args := [5][1]string{
+		[1]string{"1"},
+		[1]string{"0"},
+		[1]string{"true"},
+		[1]string{"okay"},
+		[1]string{""},
+	}
+
+	for _,v := range bad_args{
+		statement2.args = v 
+		err := crossplane.analyzer.analyze(fname, statement2, ";", ctx)
+		if err != nil{
+			log.Fatal(err)
+		}
+	}
 	
 }
