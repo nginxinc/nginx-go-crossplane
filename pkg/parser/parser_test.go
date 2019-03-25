@@ -37,7 +37,7 @@ func TestParsing(t *testing.T) {
 	}{
 		{
 			"simple",
-			payload: []Config{
+			[]Config{
 				{
 					File:   "nginx.conf",
 					Status: "ok",

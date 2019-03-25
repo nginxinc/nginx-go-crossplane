@@ -1,5 +1,7 @@
 package parser
 
+import "encoding/json"
+
 // ParseArgs -
 type ParseArgs struct {
 	FileName string
@@ -48,7 +50,11 @@ func Parse(args ParseArgs) (string, error) {
 }
 
 // Parsing -
-func Parsing(Config []Config) ParsingError {
-
-	
+func Parsing(config []Config) ParsingError {
+	data := Config{}
+	err := json.Marshal([]byte(config), &data)
+	if err != nil {
+		return "ParsingError"
+	}
+	return ""
 }
