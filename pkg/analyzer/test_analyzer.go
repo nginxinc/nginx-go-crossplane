@@ -1,24 +1,26 @@
-package analyse
+package analyzer
 
 import (
 	"testing"
 )
 
+type statement struct {
+	directive string
+	args      [1]string
+	line      int
+}
+
 func TestAnalyzer(t *testing.T) {
 	fname := "/path/to/nginx.conf"
-	ctx := [1]string{"events"}
+	ctx := []string{"events"}
+	a := newAnalyzer()
 
 	// testing state directive
 
 	// the state directive should not cause errors if it's in these contexts
-	statement1 := struct {
-		directive string
-		args      [1]string
-		line      int // this is arbitrary
-	}{
-		"state",
-		[1]string{"/path/to/state/file.conf"},
-		5,
+	statement1 := statement{directive: "state",
+		args: [1]string{"/path/to/state/file.conf"},
+		line: 5,
 	}
 	// the state directive should not cause errors if it's in these contexts
 	goodContexts := [3][]string{
@@ -28,31 +30,26 @@ func TestAnalyzer(t *testing.T) {
 	}
 
 	for _, v1 := range goodContexts {
-		analyzer.analyze(fname, statement1, ";", v1)
+		a.analyse(fname, statement1, v1)
 	}
 
 	//the state directive should not be in any of these contexts
-	badContext := []string{}
-	cntx := analyser.CONTEXTS
-	next := 0
-	for key, value := range cntx {
-		isIn := false
-		for v := range goodContexts {
-			if v == key {
-				isIn = true
-				break
-			}
-		}
-		if isIn {
-			badContext[next] = key
-			next++
-		}
-
+	badContext := [11][]string{
+		[]string{"events"},
+		[]string{"mail"},
+		[]string{"mail", "server"},
+		[]string{"stream"},
+		[]string{"stream", "server"},
+		[]string{"http"},
+		[]string{"http", "server"},
+		[]string{"http", "location"},
+		[]string{"http", "server", "if"},
+		[]string{"http", "location", "if"},
+		[]string{"http", "location", "limit_except"},
 	}
 
 	for _, v2 := range badContext {
-		err := analyzer.analyze(fname, statement1, ";", v2)
-		if err != nil {
+		if err := a.analyse(fname, statement1, v2); err != nil {
 			t.Errorf("Error %v", err)
 		}
 	}
@@ -60,14 +57,9 @@ func TestAnalyzer(t *testing.T) {
 	// test flag directive args
 
 	// an NGINX_CONF_FLAG directive
-	statement2 := struct {
-		directive string
-		args      [1]string
-		line      int // this is arbitrary
-	}{
-		"accept_mutex",
-		[1]string{},
-		2,
+	statement2 := statement{directive: "accept_mutex",
+		args: [1]string{},
+		line: 2,
 	}
 
 	goodArgs := [6][1]string{
@@ -81,7 +73,7 @@ func TestAnalyzer(t *testing.T) {
 
 	for _, v := range goodArgs {
 		statement2.args = v
-		analyzer.analyze(fname, statement2, ";", ctx)
+		a.analyse(fname, statement2, ctx)
 
 	}
 	badArgs := [5][1]string{
@@ -94,8 +86,7 @@ func TestAnalyzer(t *testing.T) {
 
 	for _, v := range badArgs {
 		statement2.args = v
-		err := analyzer.analyze(fname, statement2, ";", ctx)
-		if err != nil {
+		if err := a.analyse(fname, statement2, ctx); err != nil {
 			t.Errorf("Error %v", err)
 		}
 	}
