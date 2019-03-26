@@ -51,8 +51,7 @@ func Parse(args ParseArgs) (string, error) {
 
 // Parsing -
 func Parsing(config []Config) ParsingError {
-	data := Config{}
-	err := json.Marshal([]byte(config), &data)
+	err := json.Marshal(tests)
 	if err != nil {
 		return "ParsingError"
 	}

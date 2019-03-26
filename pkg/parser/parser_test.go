@@ -55,15 +55,16 @@ func TestParsing(t *testing.T) {
 						},
 					},
 				},
-				"",
 			},
+			"",
 		},
-		for _, test := range tests {
-			t.Log(test.title)
-			err := Parsing(test.payload)
-			if err != test.expected {
-				t.Errorf("Error: \t\nexpected: %v, \t\nactual: %v", test.expected, err)
-			}
+	}
+
+	for _, test := range tests {
+		t.Log(test.title)
+		err := Parsing(test.payload)
+		if err != test.expected {
+			t.Errorf("Error: \t\nexpected: %v, \t\nactual: %v", test.expected, err)
 		}
 	}
 }
