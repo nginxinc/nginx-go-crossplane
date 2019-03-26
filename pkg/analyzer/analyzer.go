@@ -7,12 +7,12 @@ import (
 
 type Analy struct {
 	MASKS      map[string]int
-	DIRECTIVES map[string]string
-	CONTEXT    map[string][]string
-	term string 	
+	DIRECTIVES map[string][]string
+	CONTEXT    map[[3]string]string
+	term       string
 }
 
-func newAnaly() *Analy{
+func newAnaly() *Analy {
 	a := new(Analy)
 	a.term = ";"
 	a.MASKS = map[string]int{
@@ -32,103 +32,125 @@ func newAnaly() *Analy{
 		"NGX_HTTP_LIF_CONF":    0x40000000, // http > location > if
 		"NGX_HTTP_LMT_CONF":    0x80000000,
 	}
-	a.CONTEXT = map[string][]string{
-		"NGX_MAIN_CONF":        []string{},
-		"NGX_EVENT_CONF":       []string{"events"},
-		"NGX_MAIL_MAIN_CONF":   []string{"mail"},
-		"NGX_MAIL_SRV_CONF":    []string{"mail", "server"},
-		"NGX_STREAM_MAIN_CONF": []string{"stream"},
-		"NGX_STREAM_SRV_CONF":  []string{"stream", "server"},
-		"NGX_STREAM_UPS_CONF":  []string{"stream", "upstream"},
-		"NGX_HTTP_MAIN_CONF":   []string{"http"},
-		"NGX_HTTP_SRV_CONF":    []string{"http", "server"},
-		"NGX_HTTP_LOC_CONF":    []string{"http", "location"},
-		"NGX_HTTP_UPS_CONF":    []string{"http", "upstream"},
-		"NGX_HTTP_SIF_CONF":    []string{"http", "server", "if"},
-		"NGX_HTTP_LIF_CONF":    []string{"http", "location", "if"},
-		"NGX_HTTP_LMT_CONF":    []string{"http", "location", "limit_except"},
+	a.CONTEXT = map[[3]string]string{
+		[3]string{}:                                   "NGX_MAIN_CONF",
+		[3]string{"events"}:                           "NGX_EVENT_CONF",
+		[3]string{"mail"}:                             "NGX_MAIL_MAIN_CONF",
+		[3]string{"mail", "server"}:                   "NGX_MAIL_SRV_CONF",
+		[3]string{"stream"}:                           "NGX_STREAM_MAIN_CONF",
+		[3]string{"stream", "server"}:                 "NGX_STREAM_SRV_CONF",
+		[3]string{"stream", "upstream"}:               "NGX_STREAM_UPS_CONF",
+		[3]string{"http"}:                             "NGX_HTTP_MAIN_CONF",
+		[3]string{"http", "server"}:                   "NGX_HTTP_SRV_CONF",
+		[3]string{"http", "location"}:                 "NGX_HTTP_LOC_CONF",
+		[3]string{"http", "upstream"}:                 "NGX_HTTP_UPS_CONF",
+		[3]string{"http", "server", "if"}:             "NGX_HTTP_SIF_CONF",
+		[3]string{"http", "location", "if"}:           "NGX_HTTP_LIF_CONF",
+		[3]string{"http", "location", "limit_except"}: "NGX_HTTP_LMT_CONF",
 	}
 
-	return a 
+	return a
 }
 
-func analyze(fname string, stmt statement,term string ctx []string, strict bool, check_ctx bool, check_arg bool) {
+func analyze(fname string, stmt statement, term string, ctx []string, strict bool, check_ctx bool, check_arg bool) {
 	directive := stmt.directive
 	a := newAnaly()
-	a.term = term 
+	a.term = term
 	line := stmt.line
-	dir := checkDirective(directive)
+	dir := checkDirective(directive, a.DIRECTIVES)
+
+	// if strict and directive isn't recognized then throw error
 	if strict && !dir {
 		errors.New("unknown directive " + directive)
 	}
 
-	ct := checkContext(ctx)
+	ct := checkContext(ctx, a.CONTEXT)
 
+	// if we don't know where this directive is allowed and how
+	// many arguments it can take then don't bother analyzing it
 	if !ct && !dir {
 		return
 	}
-	if len(stmt.args) != 0{
-		args := stmt.args 
+	if len(stmt.args) > 0 {
+		args := stmt.args
 	} else {
 		args := [1]string{}
 	}
-	
+
 	numArgs := len(args)
 
 	masks := a.DIRECTIVES[directive]
 
+	// if this directive can't be used in this context then throw an error
 	if check_ctx {
-		masks := func() []string {
-			b := []string{}
-			for m,b  := range masks {
-				if m & CONTEXT[ctx] != 0x00000000 {
-					b.append(m)
+		for _, mask := range masks {
+
+			//for every mask in masks
+			// compare it to the ctx mask (bitwise AND)
+		}
+		/*masks := func(ctx []string, mas string, context map[string][]string, MASKS map[string]int) []int {
+			b := []int{}
+			for m,v := range mas {
+				for _,x := range v{
+
+				}
+				for w,p := range context{
+					if len(p) == len(ctx){
+						for i := 0; i <= len(p); i++{
+							if p[i] == ctx[i]{
+								b = append()
+							}
+						}
+					}
 				}
 			}
-		}	return b 
-		if len(masks) == 0{
+			return b
+		}*/
+		if len(masks) == 0 {
 			errors.New(directive + " directive is not allowed here")
 		}
 	}
 
-	if !check_arg{
-		return 
+	if !check_arg {
+		return
 	}
 
-	validFlags := func(x string) bool{
+	validFlags := func(x string) bool {
 		x = strings.ToLower(x)
-		for _,v := range [2]string{"on", "off"}{
-			if x == v{
-				return true 
+		for _, v := range [2]string{"on", "off"} {
+			if x == v {
+				return true
 			}
 		}
-		return false 
+		return false
 	}
-
+	// do this in reverse because we only throw errors at the end if no masks
+	// are valid, and typically the first bit mask is what the parser expects
 	reason := ""
-	for i := len(masks); i >= 0; i--{
-		if masks[i] & a.MASK["NGX_CONF_BLOCK"] == 0x00000000 && a.term != "{"{
+	for i := len(masks); i >= 0; i-- {
+		// if the directive isn't a block but should be according to the mask
+		if masks[i]&a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != "{" {
 			reason = "directive " + directive + " has no opening '{'"
-			continue 
+			continue
 		}
-
-		if masks[i] & a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != ";"{
+		//if the directive is a block but shouldn't be according to the mask
+		if masks[i]&a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != ";" {
 			reason = "directive " + directive + " is not terminated by ';'"
-			continue 
+			continue
 		}
-
-		if (masks[i] >> numArgs & 1 != 0x00000000 && numArgs <= 7) || 
-		(masks[i] & a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs ==1 && validFlags(args[0])) ||
-		(masks[i] & a.MASKS["NGX_CONF_ANY"] != 0x00000000 && numArgs >= 0) ||
-		(masks[i] & a.MASKS["NGX_CONF_1MORE"] != 0x00000000 && numArgs >= 1) ||
-		(masks[i] & a.MASKS["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2){
+		// use mask to check the directive's arguments
+		if (masks[i]>>numArgs&1 != 0x00000000 && numArgs <= 7) || //NOARGS to TAKE7
+			(masks[i]&a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && validFlags(args[0])) ||
+			(masks[i]&a.MASKS["NGX_CONF_ANY"] != 0x00000000 && numArgs >= 0) ||
+			(masks[i]&a.MASKS["NGX_CONF_1MORE"] != 0x00000000 && numArgs >= 1) ||
+			(masks[i]&a.MASKS["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2) {
 			return
-		} else if masks[i] & a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(args[0]){
-			reason = "invalid value "+ args[0] +" in "+ directive + " directive, it must be 'on' or 'off'"
-			continue 
+		} else if masks[i]&a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(args[0]) {
+			reason = "invalid value " + args[0] + " in " + directive + " directive, it must be 'on' or 'off'"
+			continue
 		} else {
-			reason = "invalid number of arguements in "+ directive
-			continue 
+			reason = "invalid number of arguements in " + directive
+			continue
 		}
 
 	}
@@ -136,22 +158,32 @@ func analyze(fname string, stmt statement,term string ctx []string, strict bool,
 
 }
 
-func checkContext(cont []string, contexts map[string][]string){
-	for _,c := cont {
-		for k,v := range contexts{
-			if c == v {
-				return true 
+func checkContext(cont []string, contexts map[string][]string) bool {
+	isIn := true
+	for k, v := range contexts {
+		if len(v) != len(cont) {
+			for i, c := range cont {
+				if c != v[i] { //sort if necessary
+					isIn = false
+					break
+				} else {
+					isIn = true
+				}
+			}
+			if isIn {
+				return true
 			}
 		}
+
 	}
-	return false 
+	return false
 }
 
-func checkDirective(dir string, direct map[string]string){
-	for d,v := direct {
+func checkDirective(dir string, direct map[string][]string) bool {
+	for d, v := range direct {
 		if d == dir {
-			return true 
+			return true
 		}
 	}
-	return false 
+	return false
 }
