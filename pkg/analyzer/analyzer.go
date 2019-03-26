@@ -1,16 +1,21 @@
 package analyzer
 
-import "errors"
+import (
+	"errors"
+	"strings"
+)
 
 type Analy struct {
-	masks      map[string]int
+	MASKS      map[string]int
 	DIRECTIVES map[string]string
 	CONTEXT    map[string][]string
+	term string 	
 }
 
-func newAnaly() {
-	a = new(Analy)
-	a.masks = map[string]int{
+func newAnaly() *Analy{
+	a := new(Analy)
+	a.term = ";"
+	a.MASKS = map[string]int{
 		"NGX_DIRECT_CONF":      0x00010000,
 		"NGX_MAIN_CONF":        0x00040000,
 		"NGX_EVENT_CONF":       0x00080000, // events
@@ -43,33 +48,110 @@ func newAnaly() {
 		"NGX_HTTP_LIF_CONF":    []string{"http", "location", "if"},
 		"NGX_HTTP_LMT_CONF":    []string{"http", "location", "limit_except"},
 	}
+
+	return a 
 }
 
-func analyze(fname string, stmt statement, ctx []string, strict bool, check_ctx bool, check_arg bool) {
+func analyze(fname string, stmt statement,term string ctx []string, strict bool, check_ctx bool, check_arg bool) {
 	directive := stmt.directive
+	a := newAnaly()
+	a.term = term 
 	line := stmt.line
-	dir := check_directive(directive)
+	dir := checkDirective(directive)
 	if strict && !dir {
 		errors.New("unknown directive " + directive)
 	}
 
-	ct := check_context(ctx)
+	ct := checkContext(ctx)
 
 	if !ct && !dir {
 		return
 	}
+	if len(stmt.args) != 0{
+		args := stmt.args 
+	} else {
+		args := [1]string{}
+	}
+	
+	numArgs := len(args)
 
-	args := stmtm.args || []string{}
-	n_args := len(args)
-
-	masks = DIRECTIVES[directive]
+	masks := a.DIRECTIVES[directive]
 
 	if check_ctx {
 		masks := func() []string {
-			for _, m := range masks {
-				if m && CONTEXT[ctx]
+			b := []string{}
+			for m,b  := range masks {
+				if m & CONTEXT[ctx] != 0x00000000 {
+					b.append(m)
+				}
 			}
+		}	return b 
+		if len(masks) == 0{
+			errors.New(directive + " directive is not allowed here")
 		}
 	}
 
+	if !check_arg{
+		return 
+	}
+
+	validFlags := func(x string) bool{
+		x = strings.ToLower(x)
+		for _,v := range [2]string{"on", "off"}{
+			if x == v{
+				return true 
+			}
+		}
+		return false 
+	}
+
+	reason := ""
+	for i := len(masks); i >= 0; i--{
+		if masks[i] & a.MASK["NGX_CONF_BLOCK"] == 0x00000000 && a.term != "{"{
+			reason = "directive " + directive + " has no opening '{'"
+			continue 
+		}
+
+		if masks[i] & a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != ";"{
+			reason = "directive " + directive + " is not terminated by ';'"
+			continue 
+		}
+
+		if (masks[i] >> numArgs & 1 != 0x00000000 && numArgs <= 7) || 
+		(masks[i] & a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs ==1 && validFlags(args[0])) ||
+		(masks[i] & a.MASKS["NGX_CONF_ANY"] != 0x00000000 && numArgs >= 0) ||
+		(masks[i] & a.MASKS["NGX_CONF_1MORE"] != 0x00000000 && numArgs >= 1) ||
+		(masks[i] & a.MASKS["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2){
+			return
+		} else if masks[i] & a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(args[0]){
+			reason = "invalid value "+ args[0] +" in "+ directive + " directive, it must be 'on' or 'off'"
+			continue 
+		} else {
+			reason = "invalid number of arguements in "+ directive
+			continue 
+		}
+
+	}
+	return errors.New(reason)
+
+}
+
+func checkContext(cont []string, contexts map[string][]string){
+	for _,c := cont {
+		for k,v := range contexts{
+			if c == v {
+				return true 
+			}
+		}
+	}
+	return false 
+}
+
+func checkDirective(dir string, direct map[string]string){
+	for d,v := direct {
+		if d == dir {
+			return true 
+		}
+	}
+	return false 
 }
