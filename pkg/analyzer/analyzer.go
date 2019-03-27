@@ -14,7 +14,6 @@ type Analy struct {
 
 func newAnaly() *Analy {
 	a := new(Analy)
-	a.term = ";"
 	a.MASKS = map[string]int{
 		"NGX_DIRECT_CONF":      0x00010000, // main file (not used)
 		"NGX_MAIN_CONF":        0x00040000, // main context
