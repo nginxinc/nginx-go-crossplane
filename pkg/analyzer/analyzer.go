@@ -15,6 +15,7 @@ type Analy struct {
 func newAnaly() *Analy {
 	a := new(Analy)
 	a.MASKS = map[string]int{
+		// bit masks for different directive locations
 		"NGX_DIRECT_CONF":      0x00010000, // main file (not used)
 		"NGX_MAIN_CONF":        0x00040000, // main context
 		"NGX_EVENT_CONF":       0x00080000, // events
@@ -30,6 +31,22 @@ func newAnaly() *Analy {
 		"NGX_HTTP_SIF_CONF":    0x20000000, // http > server > if
 		"NGX_HTTP_LIF_CONF":    0x40000000, // http > location > if
 		"NGX_HTTP_LMT_CONF":    0x80000000,
+
+		// bit masks for different directive argument styles
+		"NGX_CONF_NOARGS": 0x00000001, // 0 args
+		"NGX_CONF_TAKE1":  0x00000002, // 1 args
+		"NGX_CONF_TAKE2":  0x00000004, // 2 args
+		"NGX_CONF_TAKE3":  0x00000008, // 3 args
+		"NGX_CONF_TAKE4":  0x00000010, // 4 args
+		"NGX_CONF_TAKE5":  0x00000020, // 5 args
+		"NGX_CONF_TAKE6":  0x00000040, // 6 args
+		"NGX_CONF_TAKE7":  0x00000080, // 7 args
+		"NGX_CONF_BLOCK":  0x00000100, // followed by block
+		"NGX_CONF_FLAG":   0x00000200, // 'on' or 'off'
+		"NGX_CONF_ANY":    0x00000400, // >=0 args
+		"NGX_CONF_1MORE":  0x00000800, // >=1 args
+		"NGX_CONF_2MORE":  0x00001000, // >=2 args
+
 	}
 	a.CONTEXT = map[[3]string]string{
 		[3]string{}:                                   "NGX_MAIN_CONF",
@@ -165,3 +182,13 @@ func enterBlockCTX(stmt statement, ctx [3]string) [3]string {
 	}
 	return ctx
 }
+
+/*func registerExternalDirectives(a *Analy, directives map[string]int) {
+	for d, b := range directives {
+		if b != 0x00000000 {
+			// either find mask name for b
+			// use pointers
+			a.DIRECTIVES[d] = b
+		}
+	}
+}*/
