@@ -52,7 +52,7 @@ func newAnaly() *Analy {
 	return a
 }
 
-func analyze(fname string, stmt statement, term string, ctx []string, strict bool, check_ctx bool, check_arg bool) {
+func analyze(fname string, stmt statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
 	directive := stmt.directive
 	a := newAnaly()
 	a.term = term
@@ -69,7 +69,7 @@ func analyze(fname string, stmt statement, term string, ctx []string, strict boo
 	// if we don't know where this directive is allowed and how
 	// many arguments it can take then don't bother analyzing it
 	if !ct && !dir {
-		return
+		return errors.New("problem here")
 	}
 	if len(stmt.args) > 0 {
 		args := stmt.args
@@ -77,42 +77,29 @@ func analyze(fname string, stmt statement, term string, ctx []string, strict boo
 		args := [1]string{}
 	}
 
-	numArgs := len(args)
+	numArgs := uint(len(stmt.args))
 
 	masks := a.DIRECTIVES[directive]
 
 	// if this directive can't be used in this context then throw an error
-	if check_ctx {
+
+	if checkCtx {
 		for _, mask := range masks {
+			bitmask := a.CONTEXT[ctx]
+			if a.MASKS[mask]&a.MASKS[bitmask] != 0x00000000 {
+				masks = append(masks, mask)
+			}
 
 			//for every mask in masks
 			// compare it to the ctx mask (bitwise AND)
 		}
-		/*masks := func(ctx []string, mas string, context map[string][]string, MASKS map[string]int) []int {
-			b := []int{}
-			for m,v := range mas {
-				for _,x := range v{
-
-				}
-				for w,p := range context{
-					if len(p) == len(ctx){
-						for i := 0; i <= len(p); i++{
-							if p[i] == ctx[i]{
-								b = append()
-							}
-						}
-					}
-				}
-			}
-			return b
-		}*/
 		if len(masks) == 0 {
 			errors.New(directive + " directive is not allowed here")
 		}
 	}
 
-	if !check_arg {
-		return
+	if !checkArg {
+		return errors.New("Big yikes")
 	}
 
 	validFlags := func(x string) bool {
@@ -128,25 +115,28 @@ func analyze(fname string, stmt statement, term string, ctx []string, strict boo
 	// are valid, and typically the first bit mask is what the parser expects
 	reason := ""
 	for i := len(masks); i >= 0; i-- {
+		msk := masks[i]
 		// if the directive isn't a block but should be according to the mask
-		if masks[i]&a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != "{" {
+		if a.MASKS[msk]&a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != "{" {
 			reason = "directive " + directive + " has no opening '{'"
 			continue
 		}
 		//if the directive is a block but shouldn't be according to the mask
-		if masks[i]&a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != ";" {
+		if a.MASKS[msk]&a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != ";" {
 			reason = "directive " + directive + " is not terminated by ';'"
 			continue
 		}
 		// use mask to check the directive's arguments
-		if (masks[i]>>numArgs&1 != 0x00000000 && numArgs <= 7) || //NOARGS to TAKE7
-			(masks[i]&a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && validFlags(args[0])) ||
-			(masks[i]&a.MASKS["NGX_CONF_ANY"] != 0x00000000 && numArgs >= 0) ||
-			(masks[i]&a.MASKS["NGX_CONF_1MORE"] != 0x00000000 && numArgs >= 1) ||
-			(masks[i]&a.MASKS["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2) {
-			return
-		} else if masks[i]&a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(args[0]) {
-			reason = "invalid value " + args[0] + " in " + directive + " directive, it must be 'on' or 'off'"
+		// convert to binary number
+
+		if ((a.MASKS[msk]>>numArgs)&1 != 0x00000000 && numArgs <= 7) || //NOARGS to TAKE7
+			(a.MASKS[msk]&a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && validFlags(stmt.args[0])) ||
+			(a.MASKS[msk]&a.MASKS["NGX_CONF_ANY"] != 0x00000000 && numArgs >= 0) ||
+			(a.MASKS[msk]&a.MASKS["NGX_CONF_1MORE"] != 0x00000000 && numArgs >= 1) ||
+			(a.MASKS[msk]&a.MASKS["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2) {
+			return errors.New("Big Problem")
+		} else if a.MASKS[msk]&a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(stmt.args[0]) {
+			reason = "invalid value " + stmt.args[0] + " in " + stmt.directive + " directive, it must be 'on' or 'off'"
 			continue
 		} else {
 			reason = "invalid number of arguements in " + directive
@@ -158,23 +148,9 @@ func analyze(fname string, stmt statement, term string, ctx []string, strict boo
 
 }
 
-func checkContext(cont []string, contexts map[string][]string) bool {
-	isIn := true
-	for k, v := range contexts {
-		if len(v) != len(cont) {
-			for i, c := range cont {
-				if c != v[i] { //sort if necessary
-					isIn = false
-					break
-				} else {
-					isIn = true
-				}
-			}
-			if isIn {
-				return true
-			}
-		}
-
+func checkContext(cont [3]string, contexts map[[3]string]string) bool {
+	if contexts[cont] != "" {
+		return true
 	}
 	return false
 }
