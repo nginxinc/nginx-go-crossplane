@@ -61,7 +61,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 
 	// if strict and directive isn't recognized then throw error
 	if strict && !dir {
-		errors.New("unknown directive " + directive)
+		return errors.New("unknown directive " + directive)
 	}
 
 	ct := checkContext(ctx, a.CONTEXT)
@@ -88,7 +88,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 			}
 		}
 		if len(masks) == 0 {
-			errors.New(directive + " directive is not allowed here")
+			return errors.New(directive + " directive is not allowed here")
 		}
 	}
 
@@ -152,4 +152,16 @@ func checkDirective(dir string, direct map[string][]string) bool {
 		}
 	}
 	return false
+}
+
+func enterBlockCTX(stmt statement, ctx [3]string) [3]string {
+	if len(ctx) != 0 && ctx[0] == "http" && stmt.directive == "location" {
+		return [3]string{"http", "location"}
+	}
+	for i, v := range ctx {
+		if v == "" {
+			ctx[i] = stmt.directive
+		}
+	}
+	return ctx
 }
