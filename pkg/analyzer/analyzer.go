@@ -138,7 +138,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 }
 
 func checkContext(cont [3]string, contexts map[[3]string]string) bool {
-	if contexts[cont] != "" {
+	if _, ok := contexts[cont]; ok {
 		return true
 	}
 	return false
