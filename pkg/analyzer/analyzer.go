@@ -92,7 +92,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 	}
 
 	if !checkArg {
-		return errors.New("Big yikes")
+		return nil
 	}
 
 	validFlags := func(x string) bool {
