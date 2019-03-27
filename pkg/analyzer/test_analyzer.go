@@ -12,8 +12,7 @@ type statement struct {
 
 func TestAnalyzer(t *testing.T) {
 	fname := "/path/to/nginx.conf"
-	ctx := []string{"events"}
-	a := newAnalyzer()
+	ctx := [3]string{"events"}
 
 	// testing state directive
 
@@ -23,33 +22,33 @@ func TestAnalyzer(t *testing.T) {
 		line: 5,
 	}
 	// the state directive should not cause errors if it's in these contexts
-	goodContexts := [3][]string{
-		[]string{"http", "upstream"},
-		[]string{"stream", "upstream"},
-		[]string{"some_third_part_context"},
+	goodContexts := [3][3]string{
+		[3]string{"http", "upstream"},
+		[3]string{"stream", "upstream"},
+		[3]string{"some_third_part_context"},
 	}
 
 	for _, v1 := range goodContexts {
-		a.analyse(fname, statement1, v1)
+		analyze(fname, statement1, ";", v1, true, true, false)
 	}
 
 	//the state directive should not be in any of these contexts
-	badContext := [11][]string{
-		[]string{"events"},
-		[]string{"mail"},
-		[]string{"mail", "server"},
-		[]string{"stream"},
-		[]string{"stream", "server"},
-		[]string{"http"},
-		[]string{"http", "server"},
-		[]string{"http", "location"},
-		[]string{"http", "server", "if"},
-		[]string{"http", "location", "if"},
-		[]string{"http", "location", "limit_except"},
+	badContext := [11][3]string{
+		[3]string{"events"},
+		[3]string{"mail"},
+		[3]string{"mail", "server"},
+		[3]string{"stream"},
+		[3]string{"stream", "server"},
+		[3]string{"http"},
+		[3]string{"http", "server"},
+		[3]string{"http", "location"},
+		[3]string{"http", "server", "if"},
+		[3]string{"http", "location", "if"},
+		[3]string{"http", "location", "limit_except"},
 	}
 
 	for _, v2 := range badContext {
-		if err := a.analyse(fname, statement1, v2); err != nil {
+		if err := analyze(fname, statement1, ";", v2, true, true, false); err != nil {
 			t.Errorf("Error %v", err)
 		}
 	}
@@ -73,7 +72,7 @@ func TestAnalyzer(t *testing.T) {
 
 	for _, v := range goodArgs {
 		statement2.args = v
-		a.analyse(fname, statement2, ctx)
+		analyze(fname, statement2, ";", ctx, true, false, true)
 
 	}
 	badArgs := [5][1]string{
@@ -86,7 +85,7 @@ func TestAnalyzer(t *testing.T) {
 
 	for _, v := range badArgs {
 		statement2.args = v
-		if err := a.analyse(fname, statement2, ctx); err != nil {
+		if err := analyze(fname, statement2, ";", ctx, true, false, true); err != nil {
 			t.Errorf("Error %v", err)
 		}
 	}
