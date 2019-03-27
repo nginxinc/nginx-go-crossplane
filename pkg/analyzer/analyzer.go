@@ -160,6 +160,7 @@ func enterBlockCTX(stmt statement, ctx [3]string) [3]string {
 	for i, v := range ctx {
 		if v == "" {
 			ctx[i] = stmt.directive
+			break
 		}
 	}
 	return ctx
