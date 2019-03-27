@@ -16,8 +16,8 @@ func newAnaly() *Analy {
 	a := new(Analy)
 	a.term = ";"
 	a.MASKS = map[string]int{
-		"NGX_DIRECT_CONF":      0x00010000,
-		"NGX_MAIN_CONF":        0x00040000,
+		"NGX_DIRECT_CONF":      0x00010000, // main file (not used)
+		"NGX_MAIN_CONF":        0x00040000, // main context
 		"NGX_EVENT_CONF":       0x00080000, // events
 		"NGX_MAIL_MAIN_CONF":   0x00100000, // mail
 		"NGX_MAIL_SRV_CONF":    0x00200000, // mail > server
@@ -77,21 +77,18 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 		args := [1]string{}
 	}
 
+	//  makes numArgs an unsigned int for bit shifting later
 	numArgs := uint(len(stmt.args))
 
 	masks := a.DIRECTIVES[directive]
 
 	// if this directive can't be used in this context then throw an error
-
 	if checkCtx {
 		for _, mask := range masks {
 			bitmask := a.CONTEXT[ctx]
 			if a.MASKS[mask]&a.MASKS[bitmask] != 0x00000000 {
 				masks = append(masks, mask)
 			}
-
-			//for every mask in masks
-			// compare it to the ctx mask (bitwise AND)
 		}
 		if len(masks) == 0 {
 			errors.New(directive + " directive is not allowed here")
