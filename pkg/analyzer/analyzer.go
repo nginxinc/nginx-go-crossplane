@@ -56,7 +56,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 	directive := stmt.directive
 	a := newAnaly()
 	a.term = term
-	line := stmt.line
+	//line := stmt.line
 	dir := checkDirective(directive, a.DIRECTIVES)
 
 	// if strict and directive isn't recognized then throw error
@@ -71,14 +71,11 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 	if !ct && !dir {
 		return errors.New("problem here")
 	}
-	if len(stmt.args) > 0 {
-		args := stmt.args
-	} else {
-		args := [1]string{}
-	}
+
+	args := stmt.args
 
 	//  makes numArgs an unsigned int for bit shifting later
-	numArgs := uint(len(stmt.args))
+	numArgs := uint(len(args))
 
 	masks := a.DIRECTIVES[directive]
 
@@ -124,8 +121,6 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 			continue
 		}
 		// use mask to check the directive's arguments
-		// convert to binary number
-
 		if ((a.MASKS[msk]>>numArgs)&1 != 0x00000000 && numArgs <= 7) || //NOARGS to TAKE7
 			(a.MASKS[msk]&a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && validFlags(stmt.args[0])) ||
 			(a.MASKS[msk]&a.MASKS["NGX_CONF_ANY"] != 0x00000000 && numArgs >= 0) ||
@@ -139,10 +134,8 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 			reason = "invalid number of arguements in " + directive
 			continue
 		}
-
 	}
 	return errors.New(reason)
-
 }
 
 func checkContext(cont [3]string, contexts map[[3]string]string) bool {
@@ -153,7 +146,7 @@ func checkContext(cont [3]string, contexts map[[3]string]string) bool {
 }
 
 func checkDirective(dir string, direct map[string][]string) bool {
-	for d, v := range direct {
+	for d := range direct {
 		if d == dir {
 			return true
 		}
