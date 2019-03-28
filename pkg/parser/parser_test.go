@@ -31,7 +31,7 @@ func TestIncludes(t *testing.T) {
 
 func TestParsing(t *testing.T) {
 	var tests = []struct {
-		tilte    string
+		title    string
 		payload  []Config
 		expected ParsingError
 	}{
