@@ -1322,14 +1322,13 @@ func enterBlockCTX(stmt statement, ctx [3]string) [3]string {
 	return ctx
 }
 
-/*func registerExternalDirectives(a *Analy, directives map[string]int) {
+func registerExternalDirectives(a *Analy, directives map[string][]string) {
 	for d, b := range directives {
-
-		if b != 0x00000000 {
-			// either find mask name for b
-			// use pointers
-			a.DIRECTIVES[d] = append()
+		a.DIRECTIVES[d] = []string{}
+		for _, v := range b {
+			if a.MASKS[v] != 0x00000000 {
+				a.DIRECTIVES[d] = append(a.DIRECTIVES[d], v)
+			}
 		}
 	}
 }
-*/
