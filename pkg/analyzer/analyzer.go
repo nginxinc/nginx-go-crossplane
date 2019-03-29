@@ -12,7 +12,26 @@ type statement struct {
 	line      int
 }
 
-// Directives -
+/*DIRECTIVES
+
+This dict maps directives to lists of bit masks that define their behavior.
+
+Each bit mask describes these behaviors:
+  - how many arguments the directive can take
+  - whether or not it is a block directive
+  - whether this is a flag (takes one argument that's either "on" or "off")
+  - which contexts it's allowed to be in
+
+Since some directives can have different behaviors in different contexts, we
+  use lists of bit masks, each describing a valid way to use the directive.
+
+Definitions for directives that're available in the open source version of
+  nginx were taken directively from the source code. In fact, the variable
+  names for the bit masks defined above were taken from the nginx source code.
+
+Definitions for directives that're only available for nginx+ were inferred
+  from the documentation at http://nginx.org/en/docs/.
+*/
 var Directives = map[string][]string{
 	"absolute_redirect": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
@@ -1146,7 +1165,7 @@ var Directives = map[string][]string{
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 }
 
-// Masks -
+// Masks - maps directive conf to bitmasks
 var Masks = map[string]uint{
 	// bit masks for different directive locations
 	"NGX_DIRECT_CONF":      0x00010000, // main file (not used)
@@ -1182,7 +1201,7 @@ var Masks = map[string]uint{
 
 }
 
-// Context -
+// Context - contexts to a key to its bitmasks in Mask
 var Context = map[[3]string]string{
 	{}:                                   "NGX_MAIN_CONF",
 	{"events"}:                           "NGX_EVENT_CONF",
@@ -1230,7 +1249,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 		}
 
 		if len(masks) == 0 {
-			return errors.New(directive + " directive is not allowed here")
+			return fmt.Errorf("%v directive is not allowed here", directive)
 		}
 	}
 
@@ -1270,16 +1289,16 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 			(Masks[msk]&Masks["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2) {
 			return nil
 		} else if Masks[msk]&Masks["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(stmt.args[0]) {
-			reason = "invalid value " + stmt.args[0] + " in " + stmt.directive + " directive, it must be 'on' or 'off'"
+			reason = fmt.Sprintf("invalid value %v in %v directive, it must be 'on' or 'off'", stmt.args[0], stmt.directive)
 			continue
 		} else {
-			reason = "invalid number of arguements in " + directive
+			reason = fmt.Sprintf("invalid number of arguements in %v", directive)
 		}
 	}
 	if reason == "" {
 		return nil
 	}
-	return errors.New(reason)
+	return fmt.Errorf(reason)
 }
 
 func checkContext(cont [3]string, contexts map[[3]string]string) bool {
