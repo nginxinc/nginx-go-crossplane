@@ -6,10 +6,16 @@ import (
 )
 
 type Analy struct {
-	MASKS      map[string]int
+	MASKS      map[string]uint
 	DIRECTIVES map[string][]string
 	CONTEXT    map[[3]string]string
 	term       string
+}
+
+type statement struct {
+	directive string
+	args      [1]string
+	line      int
 }
 
 func newAnaly() *Analy {
@@ -22,7 +28,7 @@ func newAnaly() *Analy {
 		"accept_mutex_delay": []string{
 			"NGX_EVENT_CONF", "NGX_CONF_TAKE1"},
 		"access_log": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_1MORE,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
 		"add_after_body": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"add_before_body": []string{
@@ -40,7 +46,7 @@ func newAnaly() *Analy {
 		"alias": []string{
 			"NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"allow": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ancient_browser": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 		"ancient_browser_value": []string{
@@ -112,7 +118,7 @@ func newAnaly() *Analy {
 		"default_type": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"deny": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"directio": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"directio_alignment": []string{
@@ -124,7 +130,7 @@ func newAnaly() *Analy {
 		"env": []string{
 			"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
 		"error_log": []string{
-			"NGX_MAIN_CONF", "NGX_CONF_1MORE,NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
+			"NGX_MAIN_CONF", "NGX_CONF_1MORE", "NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
 		"error_page": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_2MORE"},
 		"etag": []string{
@@ -232,13 +238,13 @@ func newAnaly() *Analy {
 		"flv": []string{
 			"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
 		"geo": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE12,NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE12"},
 		"geoip_city": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
 		"geoip_country": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
 		"geoip_org": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
 		"geoip_proxy": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1"},
 		"geoip_proxy_recursive": []string{
@@ -270,7 +276,7 @@ func newAnaly() *Analy {
 		"gzip_vary": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
 		"hash": []string{
-			"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12,NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
 		"http": []string{
 			"NGX_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS"},
 		"http2_body_preread_size": []string{
@@ -338,9 +344,9 @@ func newAnaly() *Analy {
 		"least_conn": []string{
 			"NGX_HTTP_UPS_CONF", "NGX_CONF_NOARGS,NGX_STREAM_UPS_CONF", "NGX_CONF_NOARGS"},
 		"limit_conn": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE2"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE2"},
 		"limit_conn_log_level": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"limit_conn_status": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"limit_conn_zone": []string{
@@ -366,7 +372,7 @@ func newAnaly() *Analy {
 		"lingering_timeout": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"listen": []string{
-			"NGX_HTTP_SRV_CONF", "NGX_CONF_1MORE,NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE,NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
+			"NGX_HTTP_SRV_CONF", "NGX_CONF_1MORE,NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
 		"load_module": []string{
 			"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
 		"location": []string{
@@ -382,7 +388,7 @@ func newAnaly() *Analy {
 		"mail": []string{
 			"NGX_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS"},
 		"map": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2,NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2"},
 		"map_hash_bucket_size": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
 		"map_hash_max_size": []string{
@@ -444,7 +450,7 @@ func newAnaly() *Analy {
 		"open_file_cache_valid": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"open_log_file_cache": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1234"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1234"},
 		"output_buffers": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
 		"override_charset": []string{
@@ -476,11 +482,11 @@ func newAnaly() *Analy {
 		"protocol": []string{
 			"NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_bind": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE12"},
 		"proxy_buffer": []string{
 			"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_buffer_size": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_buffering": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
 		"proxy_buffers": []string{
@@ -518,7 +524,7 @@ func newAnaly() *Analy {
 		"proxy_cache_valid": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 		"proxy_connect_timeout": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_cookie_domain": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
 		"proxy_cookie_path": []string{
@@ -548,15 +554,15 @@ func newAnaly() *Analy {
 		"proxy_method": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"proxy_next_upstream": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"proxy_next_upstream_timeout": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_next_upstream_tries": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_no_cache": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 		"proxy_pass": []string{
-			"NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1,NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_pass_error_message": []string{
 			"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG"},
 		"proxy_pass_header": []string{
@@ -588,29 +594,29 @@ func newAnaly() *Analy {
 		"proxy_ssl": []string{
 			"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"proxy_ssl_certificate": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_ssl_certificate_key": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_ssl_ciphers": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_ssl_crl": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_ssl_name": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_ssl_password_file": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_ssl_protocols": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
 		"proxy_ssl_server_name": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"proxy_ssl_session_reuse": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"proxy_ssl_trusted_certificate": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_ssl_verify": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"proxy_ssl_verify_depth": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_store": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"proxy_store_access": []string{
@@ -620,7 +626,7 @@ func newAnaly() *Analy {
 		"proxy_temp_path": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234"},
 		"proxy_timeout": []string{
-			"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"proxy_upload_rate": []string{
 			"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"random_index": []string{
@@ -642,11 +648,11 @@ func newAnaly() *Analy {
 		"reset_timedout_connection": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
 		"resolver": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
 		"resolver_timeout": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"return": []string{
-			"NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE12,NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"rewrite": []string{
 			"NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE23"},
 		"rewrite_log": []string{
@@ -756,7 +762,7 @@ func newAnaly() *Analy {
 		"sendfile_max_chunk": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"server": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS,NGX_HTTP_UPS_CONF", "NGX_CONF_1MORE,NGX_MAIL_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS,NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS,NGX_STREAM_UPS_CONF", "NGX_CONF_1MORE"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS", "NGX_HTTP_UPS_CONF", "NGX_CONF_1MORE", "NGX_MAIL_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS", "NGX_STREAM_UPS_CONF", "NGX_CONF_1MORE"},
 		"server_name": []string{
 			"NGX_HTTP_SRV_CONF", "NGX_CONF_1MORE,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
 		"server_name_in_redirect": []string{
@@ -770,7 +776,7 @@ func newAnaly() *Analy {
 		"set": []string{
 			"NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE2"},
 		"set_real_ip_from": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"slice": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"smtp_auth": []string{
@@ -784,7 +790,7 @@ func newAnaly() *Analy {
 		"spdy_headers_comp": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
 		"split_clients": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2,NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2"},
 		"ssi": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_FLAG"},
 		"ssi_last_modified": []string{
@@ -798,43 +804,43 @@ func newAnaly() *Analy {
 		"ssi_value_length": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
 		"ssl": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG"},
 		"ssl_buffer_size": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_certificate": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_certificate_key": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_ciphers": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_client_certificate": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_crl": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_dhparam": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_ecdh_curve": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_engine": []string{
 			"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
 		"ssl_handshake_timeout": []string{
 			"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_password_file": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_prefer_server_ciphers": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"ssl_preread": []string{
 			"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"ssl_protocols": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_1MORE,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_1MORE", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
 		"ssl_session_cache": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE12,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE12,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE12", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE12"},
 		"ssl_session_ticket_key": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_session_tickets": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"ssl_session_timeout": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_stapling": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG"},
 		"ssl_stapling_file": []string{
@@ -844,11 +850,11 @@ func newAnaly() *Analy {
 		"ssl_stapling_verify": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG"},
 		"ssl_trusted_certificate": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_verify_client": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"ssl_verify_depth": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"starttls": []string{
 			"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
 		"stream": []string{
@@ -864,7 +870,7 @@ func newAnaly() *Analy {
 		"sub_filter_types": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 		"tcp_nodelay": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG,NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
+			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
 		"tcp_nopush": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
 		"thread_pool": []string{
@@ -886,7 +892,7 @@ func newAnaly() *Analy {
 		"uninitialized_variable_warn": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_FLAG"},
 		"upstream": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1"},
 		"use": []string{
 			"NGX_EVENT_CONF", "NGX_CONF_TAKE1"},
 		"user": []string{
@@ -1024,9 +1030,9 @@ func newAnaly() *Analy {
 		"valid_referers": []string{
 			"NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 		"variables_hash_bucket_size": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
 		"variables_hash_max_size": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
 		"worker_aio_requests": []string{
 			"NGX_EVENT_CONF", "NGX_CONF_TAKE1"},
 		"worker_connections": []string{
@@ -1060,7 +1066,7 @@ func newAnaly() *Analy {
 		"xslt_types": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 		"zone": []string{
-			"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12,NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
 		"auth_jwt": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
 		"auth_jwt_claim_set": []string{
@@ -1076,7 +1082,7 @@ func newAnaly() *Analy {
 		"fastcgi_cache_purge": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 		"health_check": []string{
-			"NGX_HTTP_LOC_CONF", "NGX_CONF_ANY,NGX_STREAM_SRV_CONF", "NGX_CONF_ANY"},
+			"NGX_HTTP_LOC_CONF", "NGX_CONF_ANY", "NGX_STREAM_SRV_CONF", "NGX_CONF_ANY"},
 		"health_check_timeout": []string{
 			"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"hls": []string{
@@ -1098,17 +1104,17 @@ func newAnaly() *Analy {
 		"js_filter": []string{
 			"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"js_include": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
 		"js_preread": []string{
 			"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
 		"js_set": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE2,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE2"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE2", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE2"},
 		"least_time": []string{
-			"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12,NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
+			"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
 		"limit_zone": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE3"},
 		"match": []string{
-			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1"},
 		"memcached_force_ranges": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
 		"mp4_limit_rate": []string{
@@ -1130,7 +1136,7 @@ func newAnaly() *Analy {
 		"session_log_zone": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE23", "NGX_CONF_TAKE4", "NGX_CONF_TAKE5", "NGX_CONF_TAKE6"},
 		"state": []string{
-			"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE1,NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE1"},
+			"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE1"},
 		"status": []string{
 			"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
 		"status_format": []string{
@@ -1146,7 +1152,7 @@ func newAnaly() *Analy {
 		"uwsgi_cache_purge": []string{
 			"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 	}
-	a.MASKS = map[string]int{
+	a.MASKS = map[string]uint{
 		// bit masks for different directive locations
 		"NGX_DIRECT_CONF":      0x00010000, // main file (not used)
 		"NGX_MAIN_CONF":        0x00040000, // main context
@@ -1201,10 +1207,10 @@ func newAnaly() *Analy {
 }
 
 func analyze(fname string, stmt statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
-	directive := stmt.directive
 	a := newAnaly()
 	a.term = term
-	//line := stmt.line
+
+	directive := stmt.directive
 	dir := checkDirective(directive, a.DIRECTIVES)
 
 	// if strict and directive isn't recognized then throw error
@@ -1213,20 +1219,17 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 	}
 
 	ct := checkContext(ctx, a.CONTEXT)
-
 	// if we don't know where this directive is allowed and how
 	// many arguments it can take then don't bother analyzing it
-	if !ct && !dir {
+	if !ct || !dir {
 		return errors.New("problem here")
 	}
 
 	args := stmt.args
-
 	//  makes numArgs an unsigned int for bit shifting later
 	numArgs := uint(len(args))
 
 	masks := a.DIRECTIVES[directive]
-
 	// if this directive can't be used in this context then throw an error
 	if checkCtx {
 		for _, mask := range masks {
@@ -1235,6 +1238,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 				masks = append(masks, mask)
 			}
 		}
+
 		if len(masks) == 0 {
 			return errors.New(directive + " directive is not allowed here")
 		}
@@ -1256,7 +1260,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 	// do this in reverse because we only throw errors at the end if no masks
 	// are valid, and typically the first bit mask is what the parser expects
 	reason := ""
-	for i := len(masks); i >= 0; i-- {
+	for i := len(masks) - 1; i >= 0; i-- {
 		msk := masks[i]
 		// if the directive isn't a block but should be according to the mask
 		if a.MASKS[msk]&a.MASKS["NGX_CONF_BLOCK"] != 0x00000000 && a.term != "{" {
@@ -1274,14 +1278,17 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 			(a.MASKS[msk]&a.MASKS["NGX_CONF_ANY"] != 0x00000000 && numArgs >= 0) ||
 			(a.MASKS[msk]&a.MASKS["NGX_CONF_1MORE"] != 0x00000000 && numArgs >= 1) ||
 			(a.MASKS[msk]&a.MASKS["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2) {
-			return errors.New("Big Problem")
+			return nil
 		} else if a.MASKS[msk]&a.MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(stmt.args[0]) {
 			reason = "invalid value " + stmt.args[0] + " in " + stmt.directive + " directive, it must be 'on' or 'off'"
 			continue
 		} else {
 			reason = "invalid number of arguements in " + directive
-			continue
+
 		}
+	}
+	if reason == "" {
+		return nil
 	}
 	return errors.New(reason)
 }
@@ -1317,10 +1324,12 @@ func enterBlockCTX(stmt statement, ctx [3]string) [3]string {
 
 /*func registerExternalDirectives(a *Analy, directives map[string]int) {
 	for d, b := range directives {
+
 		if b != 0x00000000 {
 			// either find mask name for b
 			// use pointers
-			a.DIRECTIVES[d] = b
+			a.DIRECTIVES[d] = append()
 		}
 	}
-}*/
+}
+*/
