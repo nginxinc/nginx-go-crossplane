@@ -2,6 +2,7 @@ package analyzer
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -11,1139 +12,1142 @@ type statement struct {
 	line      int
 }
 
-var DIRECTIVES = map[string][]string{
-	"absolute_redirect": []string{
+// Directives -
+var Directives = map[string][]string{
+	"absolute_redirect": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"accept_mutex": []string{
+	"accept_mutex": {
 		"NGX_EVENT_CONF", "NGX_CONF_FLAG"},
-	"accept_mutex_delay": []string{
+	"accept_mutex_delay": {
 		"NGX_EVENT_CONF", "NGX_CONF_TAKE1"},
-	"access_log": []string{
+	"access_log": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
-	"add_after_body": []string{
+	"add_after_body": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"add_before_body": []string{
+	"add_before_body": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"add_header": []string{
+	"add_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE23"},
-	"add_trailer": []string{
+	"add_trailer": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE23"},
-	"addition_types": []string{
+	"addition_types": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"aio": []string{
+	"aio": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"aio_write": []string{
+	"aio_write": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"alias": []string{
+	"alias": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"allow": []string{
+	"allow": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ancient_browser": []string{
+	"ancient_browser": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"ancient_browser_value": []string{
+	"ancient_browser_value": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"auth_basic": []string{
+	"auth_basic": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1"},
-	"auth_basic_user_file": []string{
+	"auth_basic_user_file": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1"},
-	"auth_http": []string{
+	"auth_http": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
-	"auth_http_header": []string{
+	"auth_http_header": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE2"},
-	"auth_http_pass_client_cert": []string{
+	"auth_http_pass_client_cert": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG"},
-	"auth_http_timeout": []string{
+	"auth_http_timeout": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
-	"auth_request": []string{
+	"auth_request": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"auth_request_set": []string{
+	"auth_request_set": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"autoindex": []string{
+	"autoindex": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"autoindex_exact_size": []string{
+	"autoindex_exact_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"autoindex_format": []string{
+	"autoindex_format": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"autoindex_localtime": []string{
+	"autoindex_localtime": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"break": []string{
+	"break": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_NOARGS"},
-	"charset": []string{
+	"charset": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"charset_map": []string{
+	"charset_map": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2"},
-	"charset_types": []string{
+	"charset_types": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"chunked_transfer_encoding": []string{
+	"chunked_transfer_encoding": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"client_body_buffer_size": []string{
+	"client_body_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"client_body_in_file_only": []string{
+	"client_body_in_file_only": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"client_body_in_single_buffer": []string{
+	"client_body_in_single_buffer": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"client_body_temp_path": []string{
+	"client_body_temp_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234"},
-	"client_body_timeout": []string{
+	"client_body_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"client_header_buffer_size": []string{
+	"client_header_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"client_header_timeout": []string{
+	"client_header_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"client_max_body_size": []string{
+	"client_max_body_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"connection_pool_size": []string{
+	"connection_pool_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"create_full_put_path": []string{
+	"create_full_put_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"daemon": []string{
+	"daemon": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_FLAG"},
-	"dav_access": []string{
+	"dav_access": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE123"},
-	"dav_methods": []string{
+	"dav_methods": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"debug_connection": []string{
+	"debug_connection": {
 		"NGX_EVENT_CONF", "NGX_CONF_TAKE1"},
-	"debug_points": []string{
+	"debug_points": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"default_type": []string{
+	"default_type": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"deny": []string{
+	"deny": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"directio": []string{
+	"directio": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"directio_alignment": []string{
+	"directio_alignment": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"disable_symlinks": []string{
+	"disable_symlinks": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"empty_gif": []string{
+	"empty_gif": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
-	"env": []string{
+	"env": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"error_log": []string{
+	"error_log": {
 		"NGX_MAIN_CONF", "NGX_CONF_1MORE", "NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
-	"error_page": []string{
+	"error_page": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_2MORE"},
-	"etag": []string{
+	"etag": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"events": []string{
+	"events": {
 		"NGX_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS"},
-	"expires": []string{
+	"expires": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE12"},
-	"fastcgi_bind": []string{
+	"fastcgi_bind": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"fastcgi_buffer_size": []string{
+	"fastcgi_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_buffering": []string{
+	"fastcgi_buffering": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_buffers": []string{
+	"fastcgi_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"fastcgi_busy_buffers_size": []string{
+	"fastcgi_busy_buffers_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_cache": []string{
+	"fastcgi_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_cache_background_update": []string{
+	"fastcgi_cache_background_update": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_cache_bypass": []string{
+	"fastcgi_cache_bypass": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"fastcgi_cache_key": []string{
+	"fastcgi_cache_key": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_cache_lock": []string{
+	"fastcgi_cache_lock": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_cache_lock_age": []string{
+	"fastcgi_cache_lock_age": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_cache_lock_timeout": []string{
+	"fastcgi_cache_lock_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_cache_max_range_offset": []string{
+	"fastcgi_cache_max_range_offset": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_cache_methods": []string{
+	"fastcgi_cache_methods": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"fastcgi_cache_min_uses": []string{
+	"fastcgi_cache_min_uses": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_cache_path": []string{
+	"fastcgi_cache_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_2MORE"},
-	"fastcgi_cache_revalidate": []string{
+	"fastcgi_cache_revalidate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_cache_use_stale": []string{
+	"fastcgi_cache_use_stale": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"fastcgi_cache_valid": []string{
+	"fastcgi_cache_valid": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"fastcgi_catch_stderr": []string{
+	"fastcgi_catch_stderr": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_connect_timeout": []string{
+	"fastcgi_connect_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_force_ranges": []string{
+	"fastcgi_force_ranges": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_hide_header": []string{
+	"fastcgi_hide_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_ignore_client_abort": []string{
+	"fastcgi_ignore_client_abort": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_ignore_headers": []string{
+	"fastcgi_ignore_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"fastcgi_index": []string{
+	"fastcgi_index": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_intercept_errors": []string{
+	"fastcgi_intercept_errors": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_keep_conn": []string{
+	"fastcgi_keep_conn": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_limit_rate": []string{
+	"fastcgi_limit_rate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_max_temp_file_size": []string{
+	"fastcgi_max_temp_file_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_next_upstream": []string{
+	"fastcgi_next_upstream": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"fastcgi_next_upstream_timeout": []string{
+	"fastcgi_next_upstream_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_next_upstream_tries": []string{
+	"fastcgi_next_upstream_tries": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_no_cache": []string{
+	"fastcgi_no_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"fastcgi_param": []string{
+	"fastcgi_param": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE23"},
-	"fastcgi_pass": []string{
+	"fastcgi_pass": {
 		"NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_pass_header": []string{
+	"fastcgi_pass_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_pass_request_body": []string{
+	"fastcgi_pass_request_body": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_pass_request_headers": []string{
+	"fastcgi_pass_request_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_read_timeout": []string{
+	"fastcgi_read_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_request_buffering": []string{
+	"fastcgi_request_buffering": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"fastcgi_send_lowat": []string{
+	"fastcgi_send_lowat": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_send_timeout": []string{
+	"fastcgi_send_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_split_path_info": []string{
+	"fastcgi_split_path_info": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_store": []string{
+	"fastcgi_store": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_store_access": []string{
+	"fastcgi_store_access": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE123"},
-	"fastcgi_temp_file_write_size": []string{
+	"fastcgi_temp_file_write_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_temp_path": []string{
+	"fastcgi_temp_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234"},
-	"flv": []string{
+	"flv": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
-	"geo": []string{
+	"geo": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE12"},
-	"geoip_city": []string{
+	"geoip_city": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
-	"geoip_country": []string{
+	"geoip_country": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
-	"geoip_org": []string{
+	"geoip_org": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE12"},
-	"geoip_proxy": []string{
+	"geoip_proxy": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"geoip_proxy_recursive": []string{
+	"geoip_proxy_recursive": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_FLAG"},
-	"google_perftools_profiles": []string{
+	"google_perftools_profiles": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"gunzip": []string{
+	"gunzip": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"gunzip_buffers": []string{
+	"gunzip_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"gzip": []string{
+	"gzip": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_FLAG"},
-	"gzip_buffers": []string{
+	"gzip_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"gzip_comp_level": []string{
+	"gzip_comp_level": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"gzip_disable": []string{
+	"gzip_disable": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"gzip_http_version": []string{
+	"gzip_http_version": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"gzip_min_length": []string{
+	"gzip_min_length": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"gzip_proxied": []string{
+	"gzip_proxied": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"gzip_static": []string{
+	"gzip_static": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"gzip_types": []string{
+	"gzip_types": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"gzip_vary": []string{
+	"gzip_vary": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"hash": []string{
+	"hash": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
-	"http": []string{
+	"http": {
 		"NGX_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS"},
-	"http2_body_preread_size": []string{
+	"http2_body_preread_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"http2_chunk_size": []string{
+	"http2_chunk_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"http2_idle_timeout": []string{
+	"http2_idle_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"http2_max_concurrent_streams": []string{
+	"http2_max_concurrent_streams": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"http2_max_field_size": []string{
+	"http2_max_field_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"http2_max_header_size": []string{
+	"http2_max_header_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"http2_max_requests": []string{
+	"http2_max_requests": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"http2_recv_buffer_size": []string{
+	"http2_recv_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"http2_recv_timeout": []string{
+	"http2_recv_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"if": []string{
+	"if": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_BLOCK", "NGX_CONF_1MORE"},
-	"if_modified_since": []string{
+	"if_modified_since": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"ignore_invalid_headers": []string{
+	"ignore_invalid_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG"},
-	"image_filter": []string{
+	"image_filter": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE123"},
-	"image_filter_buffer": []string{
+	"image_filter_buffer": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"image_filter_interlace": []string{
+	"image_filter_interlace": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"image_filter_jpeg_quality": []string{
+	"image_filter_jpeg_quality": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"image_filter_sharpen": []string{
+	"image_filter_sharpen": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"image_filter_transparency": []string{
+	"image_filter_transparency": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"image_filter_webp_quality": []string{
+	"image_filter_webp_quality": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"imap_auth": []string{
+	"imap_auth": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE"},
-	"imap_capabilities": []string{
+	"imap_capabilities": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE"},
-	"imap_client_buffer": []string{
+	"imap_client_buffer": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
-	"include": []string{
+	"include": {
 		"NGX_ANY_CONF", "NGX_CONF_TAKE1"},
-	"index": []string{
+	"index": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"internal": []string{
+	"internal": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
-	"ip_hash": []string{
+	"ip_hash": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_NOARGS"},
-	"keepalive": []string{
+	"keepalive": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE1"},
-	"keepalive_disable": []string{
+	"keepalive_disable": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"keepalive_requests": []string{
+	"keepalive_requests": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"keepalive_timeout": []string{
+	"keepalive_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"large_client_header_buffers": []string{
+	"large_client_header_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE2"},
-	"least_conn": []string{
+	"least_conn": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_NOARGS,NGX_STREAM_UPS_CONF", "NGX_CONF_NOARGS"},
-	"limit_conn": []string{
+	"limit_conn": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE2"},
-	"limit_conn_log_level": []string{
+	"limit_conn_log_level": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"limit_conn_status": []string{
+	"limit_conn_status": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"limit_conn_zone": []string{
+	"limit_conn_zone": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE2,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE2"},
-	"limit_except": []string{
+	"limit_except": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_BLOCK", "NGX_CONF_1MORE"},
-	"limit_rate": []string{
+	"limit_rate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"limit_rate_after": []string{
+	"limit_rate_after": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"limit_req": []string{
+	"limit_req": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE123"},
-	"limit_req_log_level": []string{
+	"limit_req_log_level": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"limit_req_status": []string{
+	"limit_req_status": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"limit_req_zone": []string{
+	"limit_req_zone": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE3"},
-	"lingering_close": []string{
+	"lingering_close": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"lingering_time": []string{
+	"lingering_time": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"lingering_timeout": []string{
+	"lingering_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"listen": []string{
+	"listen": {
 		"NGX_HTTP_SRV_CONF", "NGX_CONF_1MORE,NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
-	"load_module": []string{
+	"load_module": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"location": []string{
+	"location": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE12"},
-	"lock_file": []string{
+	"lock_file": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"log_format": []string{
+	"log_format": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_2MORE,NGX_STREAM_MAIN_CONF", "NGX_CONF_2MORE"},
-	"log_not_found": []string{
+	"log_not_found": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"log_subrequest": []string{
+	"log_subrequest": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"mail": []string{
+	"mail": {
 		"NGX_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS"},
-	"map": []string{
+	"map": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2"},
-	"map_hash_bucket_size": []string{
+	"map_hash_bucket_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"map_hash_max_size": []string{
+	"map_hash_max_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1,NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"master_process": []string{
+	"master_process": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_FLAG"},
-	"max_ranges": []string{
+	"max_ranges": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"memcached_bind": []string{
+	"memcached_bind": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"memcached_buffer_size": []string{
+	"memcached_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"memcached_connect_timeout": []string{
+	"memcached_connect_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"memcached_gzip_flag": []string{
+	"memcached_gzip_flag": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"memcached_next_upstream": []string{
+	"memcached_next_upstream": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"memcached_next_upstream_timeout": []string{
+	"memcached_next_upstream_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"memcached_next_upstream_tries": []string{
+	"memcached_next_upstream_tries": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"memcached_pass": []string{
+	"memcached_pass": {
 		"NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"memcached_read_timeout": []string{
+	"memcached_read_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"memcached_send_timeout": []string{
+	"memcached_send_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"merge_slashes": []string{
+	"merge_slashes": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG"},
-	"min_delete_depth": []string{
+	"min_delete_depth": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"mirror": []string{
+	"mirror": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"mirror_request_body": []string{
+	"mirror_request_body": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"modern_browser": []string{
+	"modern_browser": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"modern_browser_value": []string{
+	"modern_browser_value": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"mp4": []string{
+	"mp4": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
-	"mp4_buffer_size": []string{
+	"mp4_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"mp4_max_buffer_size": []string{
+	"mp4_max_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"msie_padding": []string{
+	"msie_padding": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"msie_refresh": []string{
+	"msie_refresh": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"multi_accept": []string{
+	"multi_accept": {
 		"NGX_EVENT_CONF", "NGX_CONF_FLAG"},
-	"open_file_cache": []string{
+	"open_file_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"open_file_cache_errors": []string{
+	"open_file_cache_errors": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"open_file_cache_min_uses": []string{
+	"open_file_cache_min_uses": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"open_file_cache_valid": []string{
+	"open_file_cache_valid": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"open_log_file_cache": []string{
+	"open_log_file_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1234"},
-	"output_buffers": []string{
+	"output_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"override_charset": []string{
+	"override_charset": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_FLAG"},
-	"pcre_jit": []string{
+	"pcre_jit": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_FLAG"},
-	"perl": []string{
+	"perl": {
 		"NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1"},
-	"perl_modules": []string{
+	"perl_modules": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"perl_require": []string{
+	"perl_require": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"perl_set": []string{
+	"perl_set": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE2"},
-	"pid": []string{
+	"pid": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"pop3_auth": []string{
+	"pop3_auth": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE"},
-	"pop3_capabilities": []string{
+	"pop3_capabilities": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE"},
-	"port_in_redirect": []string{
+	"port_in_redirect": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"postpone_output": []string{
+	"postpone_output": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"preread_buffer_size": []string{
+	"preread_buffer_size": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"preread_timeout": []string{
+	"preread_timeout": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"protocol": []string{
+	"protocol": {
 		"NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_bind": []string{
+	"proxy_bind": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE12"},
-	"proxy_buffer": []string{
+	"proxy_buffer": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_buffer_size": []string{
+	"proxy_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_buffering": []string{
+	"proxy_buffering": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_buffers": []string{
+	"proxy_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"proxy_busy_buffers_size": []string{
+	"proxy_busy_buffers_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_cache": []string{
+	"proxy_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_cache_background_update": []string{
+	"proxy_cache_background_update": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_cache_bypass": []string{
+	"proxy_cache_bypass": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"proxy_cache_convert_head": []string{
+	"proxy_cache_convert_head": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_cache_key": []string{
+	"proxy_cache_key": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_cache_lock": []string{
+	"proxy_cache_lock": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_cache_lock_age": []string{
+	"proxy_cache_lock_age": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_cache_lock_timeout": []string{
+	"proxy_cache_lock_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_cache_max_range_offset": []string{
+	"proxy_cache_max_range_offset": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_cache_methods": []string{
+	"proxy_cache_methods": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"proxy_cache_min_uses": []string{
+	"proxy_cache_min_uses": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_cache_path": []string{
+	"proxy_cache_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_2MORE"},
-	"proxy_cache_revalidate": []string{
+	"proxy_cache_revalidate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_cache_use_stale": []string{
+	"proxy_cache_use_stale": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"proxy_cache_valid": []string{
+	"proxy_cache_valid": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"proxy_connect_timeout": []string{
+	"proxy_connect_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_cookie_domain": []string{
+	"proxy_cookie_domain": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"proxy_cookie_path": []string{
+	"proxy_cookie_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"proxy_download_rate": []string{
+	"proxy_download_rate": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_force_ranges": []string{
+	"proxy_force_ranges": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_headers_hash_bucket_size": []string{
+	"proxy_headers_hash_bucket_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_headers_hash_max_size": []string{
+	"proxy_headers_hash_max_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_hide_header": []string{
+	"proxy_hide_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_http_version": []string{
+	"proxy_http_version": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_ignore_client_abort": []string{
+	"proxy_ignore_client_abort": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_ignore_headers": []string{
+	"proxy_ignore_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"proxy_intercept_errors": []string{
+	"proxy_intercept_errors": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_limit_rate": []string{
+	"proxy_limit_rate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_max_temp_file_size": []string{
+	"proxy_max_temp_file_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_method": []string{
+	"proxy_method": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_next_upstream": []string{
+	"proxy_next_upstream": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"proxy_next_upstream_timeout": []string{
+	"proxy_next_upstream_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_next_upstream_tries": []string{
+	"proxy_next_upstream_tries": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_no_cache": []string{
+	"proxy_no_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"proxy_pass": []string{
+	"proxy_pass": {
 		"NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_pass_error_message": []string{
+	"proxy_pass_error_message": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG"},
-	"proxy_pass_header": []string{
+	"proxy_pass_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_pass_request_body": []string{
+	"proxy_pass_request_body": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_pass_request_headers": []string{
+	"proxy_pass_request_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_protocol": []string{
+	"proxy_protocol": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"proxy_protocol_timeout": []string{
+	"proxy_protocol_timeout": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_read_timeout": []string{
+	"proxy_read_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_redirect": []string{
+	"proxy_redirect": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"proxy_request_buffering": []string{
+	"proxy_request_buffering": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"proxy_responses": []string{
+	"proxy_responses": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_send_lowat": []string{
+	"proxy_send_lowat": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_send_timeout": []string{
+	"proxy_send_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_set_body": []string{
+	"proxy_set_body": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_set_header": []string{
+	"proxy_set_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"proxy_ssl": []string{
+	"proxy_ssl": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"proxy_ssl_certificate": []string{
+	"proxy_ssl_certificate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_ssl_certificate_key": []string{
+	"proxy_ssl_certificate_key": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_ssl_ciphers": []string{
+	"proxy_ssl_ciphers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_ssl_crl": []string{
+	"proxy_ssl_crl": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_ssl_name": []string{
+	"proxy_ssl_name": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_ssl_password_file": []string{
+	"proxy_ssl_password_file": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_ssl_protocols": []string{
+	"proxy_ssl_protocols": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
-	"proxy_ssl_server_name": []string{
+	"proxy_ssl_server_name": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"proxy_ssl_session_reuse": []string{
+	"proxy_ssl_session_reuse": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"proxy_ssl_trusted_certificate": []string{
+	"proxy_ssl_trusted_certificate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_ssl_verify": []string{
+	"proxy_ssl_verify": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"proxy_ssl_verify_depth": []string{
+	"proxy_ssl_verify_depth": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_store": []string{
+	"proxy_store": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_store_access": []string{
+	"proxy_store_access": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE123"},
-	"proxy_temp_file_write_size": []string{
+	"proxy_temp_file_write_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"proxy_temp_path": []string{
+	"proxy_temp_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234"},
-	"proxy_timeout": []string{
+	"proxy_timeout": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"proxy_upload_rate": []string{
+	"proxy_upload_rate": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"random_index": []string{
+	"random_index": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"read_ahead": []string{
+	"read_ahead": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"real_ip_header": []string{
+	"real_ip_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"real_ip_recursive": []string{
+	"real_ip_recursive": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"recursive_error_pages": []string{
+	"recursive_error_pages": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"referer_hash_bucket_size": []string{
+	"referer_hash_bucket_size": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"referer_hash_max_size": []string{
+	"referer_hash_max_size": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"request_pool_size": []string{
+	"request_pool_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"reset_timedout_connection": []string{
+	"reset_timedout_connection": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"resolver": []string{
+	"resolver": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
-	"resolver_timeout": []string{
+	"resolver_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"return": []string{
+	"return": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"rewrite": []string{
+	"rewrite": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE23"},
-	"rewrite_log": []string{
+	"rewrite_log": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_FLAG"},
-	"root": []string{
+	"root": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"satisfy": []string{
+	"satisfy": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_bind": []string{
+	"scgi_bind": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"scgi_buffer_size": []string{
+	"scgi_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_buffering": []string{
+	"scgi_buffering": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_buffers": []string{
+	"scgi_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"scgi_busy_buffers_size": []string{
+	"scgi_busy_buffers_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_cache": []string{
+	"scgi_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_cache_background_update": []string{
+	"scgi_cache_background_update": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_cache_bypass": []string{
+	"scgi_cache_bypass": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"scgi_cache_key": []string{
+	"scgi_cache_key": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_cache_lock": []string{
+	"scgi_cache_lock": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_cache_lock_age": []string{
+	"scgi_cache_lock_age": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_cache_lock_timeout": []string{
+	"scgi_cache_lock_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_cache_max_range_offset": []string{
+	"scgi_cache_max_range_offset": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_cache_methods": []string{
+	"scgi_cache_methods": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"scgi_cache_min_uses": []string{
+	"scgi_cache_min_uses": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_cache_path": []string{
+	"scgi_cache_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_2MORE"},
-	"scgi_cache_revalidate": []string{
+	"scgi_cache_revalidate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_cache_use_stale": []string{
+	"scgi_cache_use_stale": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"scgi_cache_valid": []string{
+	"scgi_cache_valid": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"scgi_connect_timeout": []string{
+	"scgi_connect_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_force_ranges": []string{
+	"scgi_force_ranges": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_hide_header": []string{
+	"scgi_hide_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_ignore_client_abort": []string{
+	"scgi_ignore_client_abort": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_ignore_headers": []string{
+	"scgi_ignore_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"scgi_intercept_errors": []string{
+	"scgi_intercept_errors": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_limit_rate": []string{
+	"scgi_limit_rate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_max_temp_file_size": []string{
+	"scgi_max_temp_file_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_next_upstream": []string{
+	"scgi_next_upstream": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"scgi_next_upstream_timeout": []string{
+	"scgi_next_upstream_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_next_upstream_tries": []string{
+	"scgi_next_upstream_tries": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_no_cache": []string{
+	"scgi_no_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"scgi_param": []string{
+	"scgi_param": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE23"},
-	"scgi_pass": []string{
+	"scgi_pass": {
 		"NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"scgi_pass_header": []string{
+	"scgi_pass_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_pass_request_body": []string{
+	"scgi_pass_request_body": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_pass_request_headers": []string{
+	"scgi_pass_request_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_read_timeout": []string{
+	"scgi_read_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_request_buffering": []string{
+	"scgi_request_buffering": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"scgi_send_timeout": []string{
+	"scgi_send_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_store": []string{
+	"scgi_store": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_store_access": []string{
+	"scgi_store_access": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE123"},
-	"scgi_temp_file_write_size": []string{
+	"scgi_temp_file_write_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"scgi_temp_path": []string{
+	"scgi_temp_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234"},
-	"secure_link": []string{
+	"secure_link": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"secure_link_md5": []string{
+	"secure_link_md5": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"secure_link_secret": []string{
+	"secure_link_secret": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"send_lowat": []string{
+	"send_lowat": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"send_timeout": []string{
+	"send_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"sendfile": []string{
+	"sendfile": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_FLAG"},
-	"sendfile_max_chunk": []string{
+	"sendfile_max_chunk": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"server": []string{
+	"server": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS", "NGX_HTTP_UPS_CONF", "NGX_CONF_1MORE", "NGX_MAIL_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS", "NGX_STREAM_UPS_CONF", "NGX_CONF_1MORE"},
-	"server_name": []string{
+	"server_name": {
 		"NGX_HTTP_SRV_CONF", "NGX_CONF_1MORE,NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
-	"server_name_in_redirect": []string{
+	"server_name_in_redirect": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"server_names_hash_bucket_size": []string{
+	"server_names_hash_bucket_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"server_names_hash_max_size": []string{
+	"server_names_hash_max_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"server_tokens": []string{
+	"server_tokens": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"set": []string{
+	"set": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE2"},
-	"set_real_ip_from": []string{
+	"set_real_ip_from": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"slice": []string{
+	"slice": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"smtp_auth": []string{
+	"smtp_auth": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE"},
-	"smtp_capabilities": []string{
+	"smtp_capabilities": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE"},
-	"source_charset": []string{
+	"source_charset": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"spdy_chunk_size": []string{
+	"spdy_chunk_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"spdy_headers_comp": []string{
+	"spdy_headers_comp": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"split_clients": []string{
+	"split_clients": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE2"},
-	"ssi": []string{
+	"ssi": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_FLAG"},
-	"ssi_last_modified": []string{
+	"ssi_last_modified": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"ssi_min_file_chunk": []string{
+	"ssi_min_file_chunk": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"ssi_silent_errors": []string{
+	"ssi_silent_errors": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"ssi_types": []string{
+	"ssi_types": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"ssi_value_length": []string{
+	"ssi_value_length": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"ssl": []string{
+	"ssl": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG"},
-	"ssl_buffer_size": []string{
+	"ssl_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_certificate": []string{
+	"ssl_certificate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_certificate_key": []string{
+	"ssl_certificate_key": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_ciphers": []string{
+	"ssl_ciphers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_client_certificate": []string{
+	"ssl_client_certificate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_crl": []string{
+	"ssl_crl": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_dhparam": []string{
+	"ssl_dhparam": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_ecdh_curve": []string{
+	"ssl_ecdh_curve": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_engine": []string{
+	"ssl_engine": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"ssl_handshake_timeout": []string{
+	"ssl_handshake_timeout": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_password_file": []string{
+	"ssl_password_file": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_prefer_server_ciphers": []string{
+	"ssl_prefer_server_ciphers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"ssl_preread": []string{
+	"ssl_preread": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"ssl_protocols": []string{
+	"ssl_protocols": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_1MORE", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_1MORE", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_1MORE"},
-	"ssl_session_cache": []string{
+	"ssl_session_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE12", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE12"},
-	"ssl_session_ticket_key": []string{
+	"ssl_session_ticket_key": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_session_tickets": []string{
+	"ssl_session_tickets": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"ssl_session_timeout": []string{
+	"ssl_session_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_stapling": []string{
+	"ssl_stapling": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG"},
-	"ssl_stapling_file": []string{
+	"ssl_stapling_file": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_stapling_responder": []string{
+	"ssl_stapling_responder": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_stapling_verify": []string{
+	"ssl_stapling_verify": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG"},
-	"ssl_trusted_certificate": []string{
+	"ssl_trusted_certificate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_verify_client": []string{
+	"ssl_verify_client": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"ssl_verify_depth": []string{
+	"ssl_verify_depth": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1", "NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"starttls": []string{
+	"starttls": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
-	"stream": []string{
+	"stream": {
 		"NGX_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS"},
-	"stub_status": []string{
+	"stub_status": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS", "NGX_CONF_TAKE1"},
-	"sub_filter": []string{
+	"sub_filter": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"sub_filter_last_modified": []string{
+	"sub_filter_last_modified": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"sub_filter_once": []string{
+	"sub_filter_once": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"sub_filter_types": []string{
+	"sub_filter_types": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"tcp_nodelay": []string{
+	"tcp_nodelay": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG", "NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_FLAG"},
-	"tcp_nopush": []string{
+	"tcp_nopush": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"thread_pool": []string{
+	"thread_pool": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE23"},
-	"timeout": []string{
+	"timeout": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_TAKE1"},
-	"timer_resolution": []string{
+	"timer_resolution": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"try_files": []string{
+	"try_files": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_2MORE"},
-	"types": []string{
+	"types": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_BLOCK", "NGX_CONF_NOARGS"},
-	"types_hash_bucket_size": []string{
+	"types_hash_bucket_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"types_hash_max_size": []string{
+	"types_hash_max_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"underscores_in_headers": []string{
+	"underscores_in_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_CONF_FLAG"},
-	"uninitialized_variable_warn": []string{
+	"uninitialized_variable_warn": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_SIF_CONF", "NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_FLAG"},
-	"upstream": []string{
+	"upstream": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1"},
-	"use": []string{
+	"use": {
 		"NGX_EVENT_CONF", "NGX_CONF_TAKE1"},
-	"user": []string{
+	"user": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE12"},
-	"userid": []string{
+	"userid": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"userid_domain": []string{
+	"userid_domain": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"userid_expires": []string{
+	"userid_expires": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"userid_mark": []string{
+	"userid_mark": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"userid_name": []string{
+	"userid_name": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"userid_p3p": []string{
+	"userid_p3p": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"userid_path": []string{
+	"userid_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"userid_service": []string{
+	"userid_service": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_bind": []string{
+	"uwsgi_bind": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"uwsgi_buffer_size": []string{
+	"uwsgi_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_buffering": []string{
+	"uwsgi_buffering": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_buffers": []string{
+	"uwsgi_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"uwsgi_busy_buffers_size": []string{
+	"uwsgi_busy_buffers_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_cache": []string{
+	"uwsgi_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_cache_background_update": []string{
+	"uwsgi_cache_background_update": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_cache_bypass": []string{
+	"uwsgi_cache_bypass": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"uwsgi_cache_key": []string{
+	"uwsgi_cache_key": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_cache_lock": []string{
+	"uwsgi_cache_lock": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_cache_lock_age": []string{
+	"uwsgi_cache_lock_age": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_cache_lock_timeout": []string{
+	"uwsgi_cache_lock_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_cache_max_range_offset": []string{
+	"uwsgi_cache_max_range_offset": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_cache_methods": []string{
+	"uwsgi_cache_methods": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"uwsgi_cache_min_uses": []string{
+	"uwsgi_cache_min_uses": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_cache_path": []string{
+	"uwsgi_cache_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_2MORE"},
-	"uwsgi_cache_revalidate": []string{
+	"uwsgi_cache_revalidate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_cache_use_stale": []string{
+	"uwsgi_cache_use_stale": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"uwsgi_cache_valid": []string{
+	"uwsgi_cache_valid": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"uwsgi_connect_timeout": []string{
+	"uwsgi_connect_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_force_ranges": []string{
+	"uwsgi_force_ranges": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_hide_header": []string{
+	"uwsgi_hide_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ignore_client_abort": []string{
+	"uwsgi_ignore_client_abort": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_ignore_headers": []string{
+	"uwsgi_ignore_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"uwsgi_intercept_errors": []string{
+	"uwsgi_intercept_errors": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_limit_rate": []string{
+	"uwsgi_limit_rate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_max_temp_file_size": []string{
+	"uwsgi_max_temp_file_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_modifier1": []string{
+	"uwsgi_modifier1": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_modifier2": []string{
+	"uwsgi_modifier2": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_next_upstream": []string{
+	"uwsgi_next_upstream": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"uwsgi_next_upstream_timeout": []string{
+	"uwsgi_next_upstream_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_next_upstream_tries": []string{
+	"uwsgi_next_upstream_tries": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_no_cache": []string{
+	"uwsgi_no_cache": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"uwsgi_param": []string{
+	"uwsgi_param": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE23"},
-	"uwsgi_pass": []string{
+	"uwsgi_pass": {
 		"NGX_HTTP_LOC_CONF", "NGX_HTTP_LIF_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_pass_header": []string{
+	"uwsgi_pass_header": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_pass_request_body": []string{
+	"uwsgi_pass_request_body": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_pass_request_headers": []string{
+	"uwsgi_pass_request_headers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_read_timeout": []string{
+	"uwsgi_read_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_request_buffering": []string{
+	"uwsgi_request_buffering": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_send_timeout": []string{
+	"uwsgi_send_timeout": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ssl_certificate": []string{
+	"uwsgi_ssl_certificate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ssl_certificate_key": []string{
+	"uwsgi_ssl_certificate_key": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ssl_ciphers": []string{
+	"uwsgi_ssl_ciphers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ssl_crl": []string{
+	"uwsgi_ssl_crl": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ssl_name": []string{
+	"uwsgi_ssl_name": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ssl_password_file": []string{
+	"uwsgi_ssl_password_file": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ssl_protocols": []string{
+	"uwsgi_ssl_protocols": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"uwsgi_ssl_server_name": []string{
+	"uwsgi_ssl_server_name": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_ssl_session_reuse": []string{
+	"uwsgi_ssl_session_reuse": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_ssl_trusted_certificate": []string{
+	"uwsgi_ssl_trusted_certificate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_ssl_verify": []string{
+	"uwsgi_ssl_verify": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"uwsgi_ssl_verify_depth": []string{
+	"uwsgi_ssl_verify_depth": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_store": []string{
+	"uwsgi_store": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_store_access": []string{
+	"uwsgi_store_access": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE123"},
-	"uwsgi_temp_file_write_size": []string{
+	"uwsgi_temp_file_write_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"uwsgi_temp_path": []string{
+	"uwsgi_temp_path": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1234"},
-	"valid_referers": []string{
+	"valid_referers": {
 		"NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"variables_hash_bucket_size": []string{
+	"variables_hash_bucket_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"variables_hash_max_size": []string{
+	"variables_hash_max_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"worker_aio_requests": []string{
+	"worker_aio_requests": {
 		"NGX_EVENT_CONF", "NGX_CONF_TAKE1"},
-	"worker_connections": []string{
+	"worker_connections": {
 		"NGX_EVENT_CONF", "NGX_CONF_TAKE1"},
-	"worker_cpu_affinity": []string{
+	"worker_cpu_affinity": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_1MORE"},
-	"worker_priority": []string{
+	"worker_priority": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"worker_processes": []string{
+	"worker_processes": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"worker_rlimit_core": []string{
+	"worker_rlimit_core": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"worker_rlimit_nofile": []string{
+	"worker_rlimit_nofile": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"worker_shutdown_timeout": []string{
+	"worker_shutdown_timeout": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"working_directory": []string{
+	"working_directory": {
 		"NGX_MAIN_CONF", "NGX_DIRECT_CONF", "NGX_CONF_TAKE1"},
-	"xclient": []string{
+	"xclient": {
 		"NGX_MAIL_MAIN_CONF", "NGX_MAIL_SRV_CONF", "NGX_CONF_FLAG"},
-	"xml_entities": []string{
+	"xml_entities": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"xslt_last_modified": []string{
+	"xslt_last_modified": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"xslt_param": []string{
+	"xslt_param": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"xslt_string_param": []string{
+	"xslt_string_param": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"xslt_stylesheet": []string{
+	"xslt_stylesheet": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"xslt_types": []string{
+	"xslt_types": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"zone": []string{
+	"zone": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
-	"auth_jwt": []string{
+	"auth_jwt": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"auth_jwt_claim_set": []string{
+	"auth_jwt_claim_set": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE2"},
-	"auth_jwt_header_set": []string{
+	"auth_jwt_header_set": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE2"},
-	"auth_jwt_key_file": []string{
+	"auth_jwt_key_file": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"f4f": []string{
+	"f4f": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
-	"f4f_buffer_size": []string{
+	"f4f_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"fastcgi_cache_purge": []string{
+	"fastcgi_cache_purge": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"health_check": []string{
+	"health_check": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_ANY", "NGX_STREAM_SRV_CONF", "NGX_CONF_ANY"},
-	"health_check_timeout": []string{
+	"health_check_timeout": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"hls": []string{
+	"hls": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
-	"hls_buffers": []string{
+	"hls_buffers": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE2"},
-	"hls_forward_args": []string{
+	"hls_forward_args": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"hls_fragment": []string{
+	"hls_fragment": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"hls_mp4_buffer_size": []string{
+	"hls_mp4_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"hls_mp4_max_buffer_size": []string{
+	"hls_mp4_max_buffer_size": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"js_access": []string{
+	"js_access": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"js_content": []string{
+	"js_content": {
 		"NGX_HTTP_LOC_CONF", "NGX_HTTP_LMT_CONF", "NGX_CONF_TAKE1"},
-	"js_filter": []string{
+	"js_filter": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"js_include": []string{
+	"js_include": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE1"},
-	"js_preread": []string{
+	"js_preread": {
 		"NGX_STREAM_MAIN_CONF", "NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"js_set": []string{
+	"js_set": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE2", "NGX_STREAM_MAIN_CONF", "NGX_CONF_TAKE2"},
-	"least_time": []string{
+	"least_time": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12", "NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE12"},
-	"limit_zone": []string{
+	"limit_zone": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE3"},
-	"match": []string{
+	"match": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1", "NGX_STREAM_MAIN_CONF", "NGX_CONF_BLOCK", "NGX_CONF_TAKE1"},
-	"memcached_force_ranges": []string{
+	"memcached_force_ranges": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_FLAG"},
-	"mp4_limit_rate": []string{
+	"mp4_limit_rate": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"mp4_limit_rate_after": []string{
+	"mp4_limit_rate_after": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"ntlm": []string{
+	"ntlm": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_NOARGS"},
-	"proxy_cache_purge": []string{
+	"proxy_cache_purge": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"queue": []string{
+	"queue": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE12"},
-	"scgi_cache_purge": []string{
+	"scgi_cache_purge": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
-	"session_log": []string{
+	"session_log": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE1"},
-	"session_log_format": []string{
+	"session_log_format": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_2MORE"},
-	"session_log_zone": []string{
+	"session_log_zone": {
 		"NGX_HTTP_MAIN_CONF", "NGX_CONF_TAKE23", "NGX_CONF_TAKE4", "NGX_CONF_TAKE5", "NGX_CONF_TAKE6"},
-	"state": []string{
+	"state": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE1", "NGX_STREAM_UPS_CONF", "NGX_CONF_TAKE1"},
-	"status": []string{
+	"status": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
-	"status_format": []string{
+	"status_format": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_TAKE12"},
-	"status_zone": []string{
+	"status_zone": {
 		"NGX_HTTP_SRV_CONF", "NGX_CONF_TAKE1,NGX_STREAM_SRV_CONF", "NGX_CONF_TAKE1"},
-	"sticky": []string{
+	"sticky": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_1MORE"},
-	"sticky_cookie_insert": []string{
+	"sticky_cookie_insert": {
 		"NGX_HTTP_UPS_CONF", "NGX_CONF_TAKE1234"},
-	"upstream_conf": []string{
+	"upstream_conf": {
 		"NGX_HTTP_LOC_CONF", "NGX_CONF_NOARGS"},
-	"uwsgi_cache_purge": []string{
+	"uwsgi_cache_purge": {
 		"NGX_HTTP_MAIN_CONF", "NGX_HTTP_SRV_CONF", "NGX_HTTP_LOC_CONF", "NGX_CONF_1MORE"},
 }
-var MASKS = map[string]uint{
+
+// Masks -
+var Masks = map[string]uint{
 	// bit masks for different directive locations
 	"NGX_DIRECT_CONF":      0x00010000, // main file (not used)
 	"NGX_MAIN_CONF":        0x00040000, // main context
@@ -1177,34 +1181,34 @@ var MASKS = map[string]uint{
 	"NGX_CONF_2MORE":  0x00001000, // >=2 args
 
 }
-var CONTEXT = map[[3]string]string{
-	[3]string{}:                                   "NGX_MAIN_CONF",
-	[3]string{"events"}:                           "NGX_EVENT_CONF",
-	[3]string{"mail"}:                             "NGX_MAIL_MAIN_CONF",
-	[3]string{"mail", "server"}:                   "NGX_MAIL_SRV_CONF",
-	[3]string{"stream"}:                           "NGX_STREAM_MAIN_CONF",
-	[3]string{"stream", "server"}:                 "NGX_STREAM_SRV_CONF",
-	[3]string{"stream", "upstream"}:               "NGX_STREAM_UPS_CONF",
-	[3]string{"http"}:                             "NGX_HTTP_MAIN_CONF",
-	[3]string{"http", "server"}:                   "NGX_HTTP_SRV_CONF",
-	[3]string{"http", "location"}:                 "NGX_HTTP_LOC_CONF",
-	[3]string{"http", "upstream"}:                 "NGX_HTTP_UPS_CONF",
-	[3]string{"http", "server", "if"}:             "NGX_HTTP_SIF_CONF",
-	[3]string{"http", "location", "if"}:           "NGX_HTTP_LIF_CONF",
-	[3]string{"http", "location", "limit_except"}: "NGX_HTTP_LMT_CONF",
+
+// Context -
+var Context = map[[3]string]string{
+	{}:                                   "NGX_MAIN_CONF",
+	{"events"}:                           "NGX_EVENT_CONF",
+	{"mail"}:                             "NGX_MAIL_MAIN_CONF",
+	{"mail", "server"}:                   "NGX_MAIL_SRV_CONF",
+	{"stream"}:                           "NGX_STREAM_MAIN_CONF",
+	{"stream", "server"}:                 "NGX_STREAM_SRV_CONF",
+	{"stream", "upstream"}:               "NGX_STREAM_UPS_CONF",
+	{"http"}:                             "NGX_HTTP_MAIN_CONF",
+	{"http", "server"}:                   "NGX_HTTP_SRV_CONF",
+	{"http", "location"}:                 "NGX_HTTP_LOC_CONF",
+	{"http", "upstream"}:                 "NGX_HTTP_UPS_CONF",
+	{"http", "server", "if"}:             "NGX_HTTP_SIF_CONF",
+	{"http", "location", "if"}:           "NGX_HTTP_LIF_CONF",
+	{"http", "location", "limit_except"}: "NGX_HTTP_LMT_CONF",
 }
 
 func analyze(fname string, stmt statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
-
 	directive := stmt.directive
-	dir := checkDirective(directive, DIRECTIVES)
+	dir := checkDirective(directive, Directives)
 
-	// if strict and directive isn't recognized then throw error
 	if strict && !dir {
 		return errors.New("unknown directive " + directive)
 	}
 
-	ct := checkContext(ctx, CONTEXT)
+	ct := checkContext(ctx, Context)
 	// if we don't know where this directive is allowed and how
 	// many arguments it can take then don't bother analyzing it
 	if !ct || !dir {
@@ -1212,15 +1216,15 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 	}
 
 	args := stmt.args
-	//  makes numArgs an unsigned int for bit shifting later
+	// makes numArgs an unsigned int for bit shifting later
 	numArgs := uint(len(args))
 
-	masks := DIRECTIVES[directive]
+	masks := Directives[directive]
 	// if this directive can't be used in this context then throw an error
 	if checkCtx {
 		for _, mask := range masks {
-			bitmask := CONTEXT[ctx]
-			if MASKS[mask]&MASKS[bitmask] != 0x00000000 {
+			bitmask := Context[ctx]
+			if Masks[mask]&Masks[bitmask] != 0x00000000 {
 				masks = append(masks, mask)
 			}
 		}
@@ -1249,28 +1253,27 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 	for i := len(masks) - 1; i >= 0; i-- {
 		msk := masks[i]
 		// if the directive isn't a block but should be according to the mask
-		if MASKS[msk]&MASKS["NGX_CONF_BLOCK"] != 0x00000000 && term != "{" {
-			reason = "directive " + directive + " has no opening '{'"
+		if Masks[msk]&Masks["NGX_CONF_BLOCK"] != 0x00000000 && term != "{" {
+			reason = fmt.Sprintf("diretive %v has no opening '{'", directive)
 			continue
 		}
 		//if the directive is a block but shouldn't be according to the mask
-		if MASKS[msk]&MASKS["NGX_CONF_BLOCK"] != 0x00000000 && term != ";" {
-			reason = "directive " + directive + " is not terminated by ';'"
+		if Masks[msk]&Masks["NGX_CONF_BLOCK"] != 0x00000000 && term != ";" {
+			reason = fmt.Sprintf("directive %v is not terminated by ';'", directive)
 			continue
 		}
 		// use mask to check the directive's arguments
-		if ((MASKS[msk]>>numArgs)&1 != 0x00000000 && numArgs <= 7) || //NOARGS to TAKE7
-			(MASKS[msk]&MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && validFlags(stmt.args[0])) ||
-			(MASKS[msk]&MASKS["NGX_CONF_ANY"] != 0x00000000 && numArgs >= 0) ||
-			(MASKS[msk]&MASKS["NGX_CONF_1MORE"] != 0x00000000 && numArgs >= 1) ||
-			(MASKS[msk]&MASKS["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2) {
+		if ((Masks[msk]>>numArgs)&1 != 0x00000000 && numArgs <= 7) || //NOARGS to TAKE7
+			(Masks[msk]&Masks["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && validFlags(stmt.args[0])) ||
+			(Masks[msk]&Masks["NGX_CONF_ANY"] != 0x00000000) ||
+			(Masks[msk]&Masks["NGX_CONF_1MORE"] != 0x00000000 && numArgs >= 1) ||
+			(Masks[msk]&Masks["NGX_CONF_2MORE"] != 0x00000000 && numArgs >= 2) {
 			return nil
-		} else if MASKS[msk]&MASKS["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(stmt.args[0]) {
+		} else if Masks[msk]&Masks["NGX_CONF_FLAG"] != 0x00000000 && numArgs == 1 && !validFlags(stmt.args[0]) {
 			reason = "invalid value " + stmt.args[0] + " in " + stmt.directive + " directive, it must be 'on' or 'off'"
 			continue
 		} else {
 			reason = "invalid number of arguements in " + directive
-
 		}
 	}
 	if reason == "" {
@@ -1310,10 +1313,10 @@ func enterBlockCTX(stmt statement, ctx [3]string) [3]string {
 
 func registerExternalDirectives(directives map[string][]string) {
 	for d, b := range directives {
-		DIRECTIVES[d] = []string{}
+		Directives[d] = []string{}
 		for _, v := range b {
-			if MASKS[v] != 0x00000000 {
-				DIRECTIVES[d] = append(DIRECTIVES[d], v)
+			if Masks[v] != 0x00000000 {
+				Directives[d] = append(Directives[d], v)
 			}
 		}
 	}
