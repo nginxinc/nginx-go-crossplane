@@ -4,12 +4,6 @@ import (
 	"testing"
 )
 
-type statement struct {
-	directive string
-	args      [1]string
-	line      int
-}
-
 func TestAnalyze(t *testing.T) {
 	fname := "/path/to/nginx.conf"
 	ctx := [3]string{"events"}
@@ -32,33 +26,28 @@ func TestAnalyze(t *testing.T) {
 		analyze(fname, statement1, ";", v1, true, true, false)
 	}
 
-	//the state directive should not be in any of these contexts
-	badContext := [11][3]string{
-		[3]string{"events"},
-		[3]string{"mail"},
-		[3]string{"mail", "server"},
-		[3]string{"stream"},
-		[3]string{"stream", "server"},
-		[3]string{"http"},
-		[3]string{"http", "server"},
-		[3]string{"http", "location"},
-		[3]string{"http", "server", "if"},
-		[3]string{"http", "location", "if"},
-		[3]string{"http", "location", "limit_except"},
+	badContext := [5][3]string{
+		[3]string{"noevents"},
+		[3]string{"femail"},
+		[3]string{"femail", "waitress"},
+		[3]string{"origin"},
+		[3]string{"https"},
 	}
-
 	for _, v2 := range badContext {
 		if err := analyze(fname, statement1, ";", v2, true, true, false); err != nil {
-			t.Errorf("Error %v", err)
+			continue
+		} else {
+			t.Errorf("Not throwing an error on contexts")
 		}
 	}
 
 	// test flag directive args
 
 	// an NGINX_CONF_FLAG directive
-	statement2 := statement{directive: "accept_mutex",
-		args: [1]string{},
-		line: 2,
+	statement2 := statement{
+		directive: "accept_mutex",
+		args:      [1]string{},
+		line:      2,
 	}
 
 	goodArgs := [6][1]string{
@@ -86,8 +75,11 @@ func TestAnalyze(t *testing.T) {
 	for _, v := range badArgs {
 		statement2.args = v
 		if err := analyze(fname, statement2, ";", ctx, true, false, true); err != nil {
-			t.Errorf("Error %v", err)
+			continue
+		} else {
+			t.Errorf("Not failing on bad args ")
 		}
+
 	}
 
 }
