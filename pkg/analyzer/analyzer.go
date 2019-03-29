@@ -1,7 +1,6 @@
 package analyzer
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 )
@@ -1224,14 +1223,14 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 	dir := checkDirective(directive, Directives)
 
 	if strict && !dir {
-		return errors.New("unknown directive " + directive)
+		return fmt.Errorf("unknown directive %v", directive)
 	}
 
 	ct := checkContext(ctx, Context)
 	// if we don't know where this directive is allowed and how
 	// many arguments it can take then don't bother analyzing it
 	if !ct || !dir {
-		return errors.New("context or directive in invalid")
+		return fmt.Errorf("context or directive in invalid")
 	}
 
 	args := stmt.args
