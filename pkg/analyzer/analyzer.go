@@ -5,13 +5,6 @@ import (
 	"strings"
 )
 
-//  type Analy struct {
-// 	MASKS      map[string]uint
-// 	DIRECTIVES map[string][]string
-// 	CONTEXT    map[[3]string]string
-// 	term       string
-// }
-
 type statement struct {
 	directive string
 	args      [1]string
