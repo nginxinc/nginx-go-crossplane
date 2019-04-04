@@ -1740,16 +1740,25 @@ var Directives = map[string][]Bits{
 	},
 
 	// nginx+ directives {definitions inferred from docs}
+	"api": {
+		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS, NGX_CONF_TAKE1,
+	},
 	"auth_jwt": {
 		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
 	},
 	"auth_jwt_claim_set": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE2,
+		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
 	},
 	"auth_jwt_header_set": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE2,
+		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
 	},
 	"auth_jwt_key_file": {
+		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+	},
+	"auth_jwt_key_request": {
+		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+	},
+	"auth_jwt_leeway": {
 		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
 	},
 	"f4f": {
@@ -1799,12 +1808,23 @@ var Directives = map[string][]Bits{
 		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
 		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE1,
 	},
+	"js_path": {
+		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
+	},
 	"js_preread": {
 		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
 	},
 	"js_set": {
 		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE2,
 		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE2,
+	},
+	"keyval": {
+		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE3,
+		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE3,
+	},
+	"keyval_zone": {
+		NGX_HTTP_MAIN_CONF, NGX_CONF_1MORE,
+		NGX_STREAM_MAIN_CONF, NGX_CONF_1MORE,
 	},
 	"least_time": {
 		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE12,
@@ -1872,6 +1892,66 @@ var Directives = map[string][]Bits{
 	},
 	"uwsgi_cache_purge": {
 		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+	},
+	"zone_sync": {
+		NGX_STREAM_SRV_CONF, NGX_CONF_NOARGS,
+	},
+	"zone_sync_buffers": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE2,
+	},
+	"zone_sync_connect_retry_interval": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_connect_timeout": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_interval": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_recv_buffer_size": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_server": {
+		NGX_STREAM_SRV_CONF, NGX_CONF_TAKE12,
+	},
+	"zone_sync_ssl": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+	},
+	"zone_sync_ssl_certificate": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_ssl_certificate_key": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_ssl_ciphers": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_ssl_crl": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_ssl_name": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_ssl_password_file": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_ssl_protocols": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_1MORE,
+	},
+	"zone_sync_ssl_server_name": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+	},
+	"zone_sync_ssl_trusted_certificate": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_ssl_verify": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+	},
+	"zone_sync_ssl_verify_depth": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+	},
+	"zone_sync_timeout": {
+		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
 	},
 }
 
