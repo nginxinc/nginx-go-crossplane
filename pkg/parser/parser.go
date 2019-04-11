@@ -105,41 +105,67 @@ func parse(a ParseArgs) (Config, error) {
 	}
 	for f, r := range includes {
 		p.File = f
-		v, _ := Parsing(data, a, r)
-		p.Parsed = v
+		w := 0
+		for w < len(data)-1 {
+			v, i := Parsing(w, data, a, r)
+			//fmt.Println("current index : ", i)
+			w += i
+			fmt.Println("W current value : ", w)
+			if v.Directive != "" {
+				p.Parsed = append(p.Parsed, v)
+			}
+
+		}
+		fmt.Println(p)
+
 	}
 	return p, nil
 }
 
 // Parsing -
-func Parsing(parsing []LexicalItem, a ParseArgs, ctx []string) ([]Block, int) {
+func Parsing(w int, parsing []LexicalItem, a ParseArgs, ctx []string) (Block, int) {
 	newb := Block{}
-	w := 0
-	for i, p := range parsing {
-		w = i
-		b := Block{
-			Directive: "",
-			Comment:   "",
-			Includes:  []int{},
-			Line:      p.lineNum,
-			File:      "",
-			Args:      []string{},
-			Block:     []Block{},
+	l := 1
+	p := parsing[w]
+	fmt.Println("P.item : ", p.item)
+	//fmt.Println("Currently working on ", p)
+	if isDirective(p.item) {
+		fmt.Println("IS A DIRECTIVE ")
+		newb.Directive = p.item
+		newb.Line = p.lineNum
+		fmt.Println("Inside directive newb ", newb)
+		args := []string{}
+		count := 0
+		p = parsing[w+count]
+		if p.item != "{" && p.item != ";" && p.item != "}" {
+			fmt.Println("entered for loop")
+
+			count++
+			p = parsing[w+count]
+			args = append(args, p.item)
 		}
-		if a.Combine {
-			b.File = a.FileName
+		newb.Args = args
+		l += count
+		//fmt.Println("Counter : ", count)
+		//break
+	} else if checkifParent(p.item) {
+		//fmt.Println("Its a parent ")
+		newb.Directive = p.item
+		newb.Line = p.lineNum
+		if parsing[w+1].item == "{" {
+			b, u := Parsing((w+1)+l, parsing, a, ctx)
+			if b.Directive != "" {
+				newb.Block = append(newb.Block, b)
+			}
+			l += u
 		}
 
-		if s := isDirective(p.item); s {
-			b.Directive = p.item
-		} else if s = checkifParent(p.item); s {
-			b.Directive = p.item
-		}
+	} else {
 		q := []byte{'#'}
 
 		if q[0] == p.item[0] {
 			if a.Comments {
-				b = Block{
+				newb = Block{
 					Directive: "#",
 					Comment:   string(p.item[1:]),
 					Args:      []string{},
@@ -150,47 +176,14 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx []string) ([]Block, int) {
 				}
 			}
 		}
-
-		args := []string{}
-		count := 0
-		if p.item != "{" && p.item != ";" && p.item != "}" && isDirective(p.item) {
-			count++
-			p = parsing[i+count]
-			args = append(args, p.item)
-
-		} else {
-			continue
-		}
-		b.Args = args
-
-		if p.item == "{" {
-			v, _ := Parsing(parsing[i+1:], a, ctx)
-			if isDirective(v[0].Directive) {
-				b.Block = v
-			}
-
-		} else if p.item == "}" {
-			// cna't do his part until analyze and parser code are on the same branch
-			/*stm := statement{
-				directive: b.Directive,
-				args:      b.Args,
-				line:      b.Line,
-			}
-			inner := analyzer.enterBlockCTX(stm, ctx)
-			b.Block, _ = Parsing(parsing, a, inner)*/
-			break
-		}
-
-		newb.Block = append(newb.Block, b)
-
 	}
-	fmt.Println("newb : ", newb.Block)
-	b := []Block{newb}
-	return b, w
+
+	fmt.Println("newb : ", newb)
+	return newb, l
 }
 
 func checkifParent(s string) bool {
-	fmt.Println(s)
+	//fmt.Println("Checking if parent : ", s)
 	if s == "http" || s == "server" || s == "location" || s == "events" {
 		return true
 	}
@@ -209,7 +202,7 @@ func isDirective(s string) bool {
 		"user",
 		"worker_connections",
 	}
-	fmt.Println(s)
+	//fmt.Println("check directive : ", s)
 	for _, t := range d {
 		if t == s {
 			return true
