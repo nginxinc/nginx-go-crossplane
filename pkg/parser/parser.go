@@ -108,9 +108,7 @@ func parse(a ParseArgs) (Config, error) {
 		w := 0
 		for w < len(data)-1 {
 			v, i := Parsing(w, data, a, r)
-			//fmt.Println("current index : ", i)
 			w += i
-			fmt.Println("W current value : ", w)
 			if v.Directive != "" {
 				p.Parsed = append(p.Parsed, v)
 			}
@@ -128,28 +126,24 @@ func Parsing(w int, parsing []LexicalItem, a ParseArgs, ctx []string) (Block, in
 	l := 1
 	p := parsing[w]
 	fmt.Println("P.item : ", p.item)
-	//fmt.Println("Currently working on ", p)
+
 	if isDirective(p.item) {
 		fmt.Println("IS A DIRECTIVE ")
 		newb.Directive = p.item
 		newb.Line = p.lineNum
-		fmt.Println("Inside directive newb ", newb)
 		args := []string{}
 		count := 0
 		p = parsing[w+count]
+		// need to be able to parse for multiple lines in a parent directive
 		if p.item != "{" && p.item != ";" && p.item != "}" {
 			fmt.Println("entered for loop")
-
 			count++
 			p = parsing[w+count]
 			args = append(args, p.item)
 		}
 		newb.Args = args
 		l += count
-		//fmt.Println("Counter : ", count)
-		//break
 	} else if checkifParent(p.item) {
-		//fmt.Println("Its a parent ")
 		newb.Directive = p.item
 		newb.Line = p.lineNum
 		if parsing[w+1].item == "{" {
@@ -183,7 +177,6 @@ func Parsing(w int, parsing []LexicalItem, a ParseArgs, ctx []string) (Block, in
 }
 
 func checkifParent(s string) bool {
-	//fmt.Println("Checking if parent : ", s)
 	if s == "http" || s == "server" || s == "location" || s == "events" {
 		return true
 	}
@@ -198,11 +191,11 @@ func isDirective(s string) bool {
 		"listen",
 		"error_log",
 		"default_type",
+		"server_name",
 		"access_log",
 		"user",
 		"worker_connections",
 	}
-	//fmt.Println("check directive : ", s)
 	for _, t := range d {
 		if t == s {
 			return true
