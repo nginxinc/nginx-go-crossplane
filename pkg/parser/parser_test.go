@@ -392,10 +392,8 @@ func TestParse(t *testing.T) {
 
 	for _, tes := range tests {
 
-		gen, err := parse(tes.parargs)
-		if err != nil {
-			panic(err)
-		}
+		gen := parse(tes.parargs)
+
 		dat, err := json.Marshal(tes.config)
 		if err != nil {
 			panic(err)
