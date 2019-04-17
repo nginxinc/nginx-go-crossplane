@@ -20,6 +20,7 @@ type ParseArgs struct {
 	Comments    bool
 	Strict      bool
 	Combine     bool
+	Comsume     bool
 	// checkCtx    bool
 	// checkArgs bool
 }
@@ -115,7 +116,7 @@ func parse(a ParseArgs) Config {
 			Parsed: []Block{},
 		}
 		// data to be changed to token
-		p.Parsed, _ = Parsing(data, a, r)
+		p.Parsed, _ = Parsing(data, a, r, false)
 	}
 	if a.Combine {
 		return p //combineParsedConfigs(p)
@@ -125,7 +126,7 @@ func parse(a ParseArgs) Config {
 }
 
 // Parsing -
-func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string) ([]Block, int) {
+func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([]Block, int) {
 	o := []Block{}
 	p := 0
 	for ; p < len(parsing); p++ {
@@ -133,6 +134,14 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string) ([]Block, int) {
 		if parsing[p].item == "}" {
 			p++
 			break
+		}
+
+		if consume {
+			if parsing[p].item == "}" {
+				_, i := Parsing(parsing[p:], a, ctx, true)
+				p += i
+			}
+			continue
 		}
 		directive := parsing[p].item
 		if a.Combine {
@@ -150,22 +159,25 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string) ([]Block, int) {
 			}
 		}
 		// comments in file
-		q := []byte{'#'}
+		if a.Comments {
+			q := []byte{'#'}
 
-		if q[0] == parsing[p].item[0] {
-			if a.Comments {
-				b = Block{
-					Directive: "#",
-					Comment:   string(parsing[p].item[1:]),
-					Args:      []string{},
-					Block:     []Block{},
-					File:      "",
-					Line:      parsing[p].lineNum,
-					Includes:  []int{},
+			if q[0] == parsing[p].item[0] {
+				if a.Comments {
+					b = Block{
+						Directive: "#",
+						Comment:   string(parsing[p].item[1:]),
+						Args:      []string{},
+						Block:     []Block{},
+						File:      "",
+						Line:      parsing[p].lineNum,
+						Includes:  []int{},
+					}
 				}
+				continue
 			}
-			continue
 		}
+
 		// args for directives
 		args := []string{}
 		p++
@@ -174,6 +186,16 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string) ([]Block, int) {
 		}
 		b.Args = args
 
+		if len(a.Ignore) > 0 {
+			for _, k := range a.Ignore {
+				if k == parsing[p].item {
+					_, i := Parsing(parsing[p:], a, ctx, true)
+					p += i
+				}
+			}
+			continue
+		}
+		// try analysing the directives
 		if parsing[p].item == "{" {
 			stmt := analyzer.Statement{
 				Directive: b.Directive,
@@ -182,7 +204,7 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string) ([]Block, int) {
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
 			l := 0
-			b.Block, l = Parsing(parsing[p+1:], a, inner)
+			b.Block, l = Parsing(parsing[p+1:], a, inner, false)
 			p += l
 		}
 		o = append(o, b)
