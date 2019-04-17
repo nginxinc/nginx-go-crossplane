@@ -1,7 +1,7 @@
 package parser
 
 import (
-	"fmt"
+	"github.com/nginxinc/crossplane-go/pkg/analyzer"
 )
 
 // LexicalItem -
@@ -68,7 +68,7 @@ type ParseErrors struct {
    :returns: a payload that describes the parsed nginx config
 */
 
-func parse(a ParseArgs) (Config, error) {
+func parse(a ParseArgs) Config {
 	data := []LexicalItem{
 		{item: "events", lineNum: 1},
 		{item: "{", lineNum: 1},
@@ -82,20 +82,23 @@ func parse(a ParseArgs) (Config, error) {
 		{item: "{", lineNum: 6},
 		{item: "listen", lineNum: 7},
 		{item: "127.0.0.1:8080", lineNum: 7},
+		{item: ";", lineNum: 7},
 		{item: "server_name", lineNum: 8},
 		{item: "default_server", lineNum: 8},
+		{item: ";", lineNum: 8},
 		{item: "location", lineNum: 9},
 		{item: "/", lineNum: 9},
 		{item: "{", lineNum: 9},
 		{item: "return", lineNum: 10},
 		{item: "200", lineNum: 10},
 		{item: "foo bar baz", lineNum: 10},
+		{item: ";", lineNum: 10},
 		{item: "}", lineNum: 11},
 		{item: "}", lineNum: 12},
 		{item: "}", lineNum: 13},
 	}
-	includes := map[string][]string{
-		a.FileName: []string{},
+	includes := map[string][3]string{
+		a.FileName: {},
 	}
 	p := Config{
 		File:   "",
@@ -104,102 +107,86 @@ func parse(a ParseArgs) (Config, error) {
 		Parsed: []Block{},
 	}
 	for f, r := range includes {
-		p.File = f
-		w := 0
-		for w < len(data)-1 {
-			v, i := Parsing(w, data, a, r)
-			w += i
-			if v.Directive != "" {
-				p.Parsed = append(p.Parsed, v)
-			}
-
+		//token := lex(f)
+		p := Config{
+			File:   f,
+			Status: "ok",
+			Errors: []ParseErrors{},
+			Parsed: []Block{},
 		}
-		fmt.Println(p)
-
+		// data to be changed to token
+		p.Parsed, _ = Parsing(data, a, r)
 	}
-	return p, nil
+	if a.Combine {
+		return p //combineParsedConfigs(p)
+	}
+	return p
+
 }
 
 // Parsing -
-func Parsing(w int, parsing []LexicalItem, a ParseArgs, ctx []string) (Block, int) {
-	newb := Block{}
-	l := 1
-	p := parsing[w]
-	fmt.Println("P.item : ", p.item)
-
-	if isDirective(p.item) {
-		fmt.Println("IS A DIRECTIVE ")
-		newb.Directive = p.item
-		newb.Line = p.lineNum
-		args := []string{}
-		count := 0
-		p = parsing[w+count]
-		// need to be able to parse for multiple lines in a parent directive
-		if p.item != "{" && p.item != ";" && p.item != "}" {
-			fmt.Println("entered for loop")
-			count++
-			p = parsing[w+count]
-			args = append(args, p.item)
+func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string) ([]Block, int) {
+	o := []Block{}
+	p := 0
+	for ; p < len(parsing); p++ {
+		b := Block{}
+		if parsing[p].item == "}" {
+			p++
+			break
 		}
-		newb.Args = args
-		l += count
-	} else if checkifParent(p.item) {
-		newb.Directive = p.item
-		newb.Line = p.lineNum
-		if parsing[w+1].item == "{" {
-			b, u := Parsing((w+1)+l, parsing, a, ctx)
-			if b.Directive != "" {
-				newb.Block = append(newb.Block, b)
+		directive := parsing[p].item
+		if a.Combine {
+			b = Block{
+				Directive: directive,
+				Line:      parsing[p].lineNum,
+				File:      a.FileName,
+				Args:      []string{},
 			}
-			l += u
+		} else {
+			b = Block{
+				Directive: directive,
+				Line:      parsing[p].lineNum,
+				Args:      []string{},
+			}
 		}
-
-	} else {
+		// comments in file
 		q := []byte{'#'}
 
-		if q[0] == p.item[0] {
+		if q[0] == parsing[p].item[0] {
 			if a.Comments {
-				newb = Block{
+				b = Block{
 					Directive: "#",
-					Comment:   string(p.item[1:]),
+					Comment:   string(parsing[p].item[1:]),
 					Args:      []string{},
 					Block:     []Block{},
 					File:      "",
-					Line:      p.lineNum,
+					Line:      parsing[p].lineNum,
 					Includes:  []int{},
 				}
 			}
+			continue
 		}
-	}
-
-	fmt.Println("newb : ", newb)
-	return newb, l
-}
-
-func checkifParent(s string) bool {
-	if s == "http" || s == "server" || s == "location" || s == "events" {
-		return true
-	}
-	return false
-}
-
-func isDirective(s string) bool {
-	d := []string{
-		"try_files",
-		"return",
-		"root",
-		"listen",
-		"error_log",
-		"default_type",
-		"server_name",
-		"access_log",
-		"user",
-		"worker_connections",
-	}
-	for _, t := range d {
-		if t == s {
-			return true
+		// args for directives
+		args := []string{}
+		p++
+		for ; parsing[p].item != ";" && parsing[p].item != "{" && parsing[p].item != "}"; p++ {
+			args = append(args, parsing[p].item)
 		}
+		b.Args = args
+
+		if parsing[p].item == "{" {
+			stmt := analyzer.Statement{
+				Directive: b.Directive,
+				Args:      b.Args,
+				Line:      b.Line,
+			}
+			inner := analyzer.EnterBlockCTX(stmt, ctx)
+			l := 0
+			b.Block, l = Parsing(parsing[p+1:], a, inner)
+			p += l
+		}
+		o = append(o, b)
+
 	}
-	return false
+	return o, p
 }
