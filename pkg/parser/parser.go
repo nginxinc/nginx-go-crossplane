@@ -80,34 +80,7 @@ type ParseErrors struct {
 */
 // Parse -
 func Parse(a ParseArgs) Payload {
-	data := []LexicalItem{
-		{item: "events", lineNum: 1},
-		{item: "{", lineNum: 1},
-		{item: "worker_connections", lineNum: 2},
-		{item: "1024", lineNum: 2},
-		{item: ";", lineNum: 2},
-		{item: "}", lineNum: 3},
-		{item: "http", lineNum: 5},
-		{item: "{", lineNum: 5},
-		{item: "server", lineNum: 6},
-		{item: "{", lineNum: 6},
-		{item: "listen", lineNum: 7},
-		{item: "127.0.0.1:8080", lineNum: 7},
-		{item: ";", lineNum: 7},
-		{item: "server_name", lineNum: 8},
-		{item: "default_server", lineNum: 8},
-		{item: ";", lineNum: 8},
-		{item: "location", lineNum: 9},
-		{item: "/", lineNum: 9},
-		{item: "{", lineNum: 9},
-		{item: "return", lineNum: 10},
-		{item: "200", lineNum: 10},
-		{item: "foo bar baz", lineNum: 10},
-		{item: ";", lineNum: 10},
-		{item: "}", lineNum: 11},
-		{item: "}", lineNum: 12},
-		{item: "}", lineNum: 13},
-	}
+
 	includes := map[string][3]string{
 		a.FileName: {},
 	}
@@ -117,7 +90,7 @@ func Parse(a ParseArgs) Payload {
 		Config: []Config{},
 	}
 	for f, r := range includes {
-		//token := lex(f)
+		token := lex(f)
 		p := Config{
 			File:   f,
 			Status: "ok",
@@ -125,7 +98,7 @@ func Parse(a ParseArgs) Payload {
 			Parsed: []Block{},
 		}
 		// data to be changed to token
-		p.Parsed, _ = parse(p, q, data, a, r, false)
+		p.Parsed, _ = parse(p, q, token, a, r, false)
 		q.Config = append(q.Config, p)
 	}
 	if a.Combine {
