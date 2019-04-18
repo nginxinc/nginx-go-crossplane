@@ -6,27 +6,13 @@ import (
 )
 
 func TestBuild(t *testing.T) {
-	var tests = []string{
-		`{"directive": "server"}`,
-	}
-
-	for _, test := range tests {
-		c, err := Build(test, 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-}
-
-func TestBuildNestedAndMultipleArgs(t *testing.T) {
 	var tests = []struct {
+		title   string
 		payload []Block
 	}{
 		{
-			payload: []Block{
+			"Build: NestedAndMultipleArgs",
+			[]Block{
 				{
 					Directive: "events",
 					Args:      []string{" "},
@@ -69,31 +55,9 @@ func TestBuildNestedAndMultipleArgs(t *testing.T) {
 				},
 			},
 		},
-	}
-
-	for _, test := range tests {
-		out, err := json.Marshal(test)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-
-		c, err := Build(string(out), 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-
-}
-
-func TestBuildWithComments(t *testing.T) {
-	var tests = []struct {
-		payload []Block
-	}{
 		{
-			payload: []Block{
+			"Build: WithComments",
+			[]Block{
 				{
 					Directive: "events",
 					Line:      1,
@@ -174,30 +138,9 @@ func TestBuildWithComments(t *testing.T) {
 				},
 			},
 		},
-	}
-
-	for _, test := range tests {
-		out, err := json.Marshal(test)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-
-		c, err := Build(string(out), 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-}
-
-func TestBuildStartsWithComments(t *testing.T) {
-	var tests = []struct {
-		payload []Block
-	}{
 		{
-			payload: []Block{
+			"Build: StartsWithComments",
+			[]Block{
 				{
 					Directive: "#",
 					Line:      1,
@@ -211,29 +154,9 @@ func TestBuildStartsWithComments(t *testing.T) {
 				},
 			},
 		},
-	}
-	for _, test := range tests {
-		out, err := json.Marshal(test)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-
-		c, err := Build(string(out), 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-}
-
-func TestBuildWithQuotedUnicode(t *testing.T) {
-	var tests = []struct {
-		payload []Block
-	}{
 		{
-			payload: []Block{
+			"Build: WithQuotedUnicode",
+			[]Block{
 				{
 					Directive: "env",
 					Line:      1,
@@ -250,7 +173,7 @@ func TestBuildWithQuotedUnicode(t *testing.T) {
 
 		c, err := Build(string(out), 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
+			t.Errorf("%v: test failed due to error being returned from Build", test.title)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
@@ -258,12 +181,14 @@ func TestBuildWithQuotedUnicode(t *testing.T) {
 	}
 }
 
-func TestBuildFilesWithMissingStatusAndErrors(t *testing.T) {
+func TestBuildFiles(t *testing.T) {
 	var tests = []struct {
+		title   string
 		payload []ConfFiles
 	}{
 		{
-			payload: []ConfFiles{
+			"BuildFiles: WithMissingStatusAndErrors",
+			[]ConfFiles{
 				{
 					File: "nginx.conf",
 					Parsed: []Block{
@@ -276,29 +201,9 @@ func TestBuildFilesWithMissingStatusAndErrors(t *testing.T) {
 				},
 			},
 		},
-	}
-	for _, test := range tests {
-		out, err := json.Marshal(test)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-
-		c, err := BuildFiles(string(out), "none", 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-}
-
-func TestBuildFilesWithUnicode(t *testing.T) {
-	var tests = []struct {
-		payload []ConfFiles
-	}{
 		{
-			payload: []ConfFiles{
+			"BuildFiles: WithUnicode",
+			[]ConfFiles{
 				{
 					Status: "ok",
 					Errors: " ",
