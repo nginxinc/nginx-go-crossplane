@@ -233,7 +233,7 @@ func TestBuildFiles(t *testing.T) {
 
 		c, err := BuildFiles(string(out), "none", 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
+			t.Errorf("%v: test failed due to error being returned from Build", test.title)
 		}
 		if c != "built" {
 			t.Errorf("expected %s but got %s", "built", c)
