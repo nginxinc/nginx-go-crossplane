@@ -1,6 +1,10 @@
 package parser
 
 import (
+	"fmt"
+	"log"
+	"strings"
+
 	"github.com/nginxinc/crossplane-go/pkg/analyzer"
 )
 
@@ -21,12 +25,18 @@ type ParseArgs struct {
 	Strict      bool
 	Combine     bool
 	Comsume     bool
-	// checkCtx    bool
-	// checkArgs bool
+	checkCtx    bool
+	checkArgs   bool
 }
 
 // ParsingError -
 type ParsingError string
+
+type Payload struct {
+	Status string
+	Errors []ParseErrors
+	Config []Config
+}
 
 // Config -
 type Config struct {
@@ -68,8 +78,8 @@ type ParseErrors struct {
    :param check_args: bool; if True, runs arg count analysis on directives
    :returns: a payload that describes the parsed nginx config
 */
-
-func parse(a ParseArgs) Config {
+// Parse -
+func Parse(a ParseArgs) Payload {
 	data := []LexicalItem{
 		{item: "events", lineNum: 1},
 		{item: "{", lineNum: 1},
@@ -101,11 +111,10 @@ func parse(a ParseArgs) Config {
 	includes := map[string][3]string{
 		a.FileName: {},
 	}
-	p := Config{
-		File:   "",
+	q := Payload{
 		Status: "ok",
 		Errors: []ParseErrors{},
-		Parsed: []Block{},
+		Config: []Config{},
 	}
 	for f, r := range includes {
 		//token := lex(f)
@@ -116,21 +125,30 @@ func parse(a ParseArgs) Config {
 			Parsed: []Block{},
 		}
 		// data to be changed to token
-		p.Parsed, _ = Parsing(data, a, r, false)
+		p.Parsed, _ = parse(p, q, data, a, r, false)
+		q.Config = append(q.Config, p)
 	}
 	if a.Combine {
-		return p //combineParsedConfigs(p)
+		return q //combineParsedConfigs(p)
 	}
-	return p
+	fmt.Println(q)
+	return q
 
 }
 
-// Parsing -
-func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([]Block, int) {
+func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([]Block, int) {
 	o := []Block{}
 	p := 0
 	for ; p < len(parsing); p++ {
-		b := Block{}
+		b := Block{
+			Directive: "",
+			Line:      0,
+			Args:      []string{},
+			Includes:  []int{},
+			File:      "",
+			Comment:   "",
+			Block:     []Block{},
+		}
 		if parsing[p].item == "}" {
 			p++
 			break
@@ -138,7 +156,7 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([
 
 		if consume {
 			if parsing[p].item == "}" {
-				_, i := Parsing(parsing[p:], a, ctx, true)
+				_, i := parse(parsed, pay, parsing[p:], a, ctx, true)
 				p += i
 			}
 			continue
@@ -189,11 +207,33 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([
 		if len(a.Ignore) > 0 {
 			for _, k := range a.Ignore {
 				if k == parsing[p].item {
-					_, i := Parsing(parsing[p:], a, ctx, true)
+					_, i := parse(parsed, pay, parsing[p:], a, ctx, true)
 					p += i
 				}
 			}
 			continue
+		}
+		stmt := analyzer.Statement{
+			Directive: b.Directive,
+			Args:      b.Args,
+			Line:      b.Line,
+		}
+		e := analyzer.Analyze(parsed.File, stmt, ";", ctx, a.Strict, a.checkCtx, a.checkArgs)
+		if e != nil {
+			if a.CatchErrors {
+				handle_errors(parsed, pay, e, parsing[p].lineNum)
+				if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
+					if parsing[p].item != "}" {
+						parse(parsed, pay, parsing[p:], a, ctx, true)
+					} else {
+						break
+					}
+				}
+				continue
+
+			} else {
+				log.Fatal(e)
+			}
 		}
 		// try analysing the directives
 		if parsing[p].item == "{" {
@@ -204,11 +244,33 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
 			l := 0
-			b.Block, l = Parsing(parsing[p+1:], a, inner, false)
+			b.Block, l = parse(parsed, pay, parsing[p+1:], a, inner, false)
 			p += l
 		}
 		o = append(o, b)
 
 	}
 	return o, p
+}
+
+func handle_errors(parsed Config, pay Payload, e error, line int) {
+	file := parsed.File
+	err := e.Error()
+
+	parseerr := ParseErrors{
+		Error: err,
+		Line:  line,
+		File:  "",
+	}
+	payloaderr := ParseErrors{
+		Error: err,
+		Line:  line,
+		File:  file,
+	}
+
+	parsed.Status = "failed"
+	parsed.Errors = append(parsed.Errors, parseerr)
+
+	pay.Status = "failed"
+	pay.Errors = append(pay.Errors, payloaderr)
 }
