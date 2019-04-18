@@ -156,7 +156,7 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 			if q[0] == parsing[p].item[0] {
 				if a.Comments {
 					b = Block{
-						Directive: "#",
+						Directive: "",
 						Comment:   string(parsing[p].item[1:]),
 						Args:      []string{},
 						Block:     []Block{},

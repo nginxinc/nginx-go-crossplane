@@ -134,6 +134,68 @@ func TestParse(t *testing.T) {
 				},
 			},
 		},
+		{
+			"Test : with Comments",
+			ParseArgs{
+				FileName:    "config/WithComments.conf",
+				CatchErrors: false,
+				Ignore:      []string{},
+				Single:      false,
+				Strict:      false,
+				Combine:     false,
+			},
+			"config/WithComments.conf",
+			[]LexicalItem{
+				{item: "http", lineNum: 1},
+				{item: "{", lineNum: 1},
+				{item: "server", lineNum: 2},
+				{item: "{", lineNum: 2},
+				{item: "listen", lineNum: 3},
+				{item: "127.0.0.2:8080", lineNum: 3},
+				{item: ";", lineNum: 3},
+				{item: "#listen", lineNum: 4},
+			},
+			[]Block{
+				{
+					Directive: "http",
+					Args:      []string{},
+					Line:      1,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block: []Block{
+						{
+							Directive: "server",
+							Args:      []string{},
+							Line:      2,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
+							Block: []Block{
+								{
+									Directive: "listen",
+									Args:      []string{"127.0.0.1:8080"},
+									Line:      3,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "",
+									Args:      []string{},
+									Line:      4,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "listen",
+									Block:     []Block{},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tes := range tests {
