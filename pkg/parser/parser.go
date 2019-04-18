@@ -176,8 +176,8 @@ func Parsing(parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([
 				}
 				continue
 			}
+			continue
 		}
-
 		// args for directives
 		args := []string{}
 		p++
