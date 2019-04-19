@@ -1893,7 +1893,8 @@ var Context = map[[3]string]Bits{
 	{"http", "location", "limit_except"}: NGX_HTTP_LMT_CONF,
 }
 
-func analyze(fname string, stmt Statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
+// Analyze -
+func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
 	directive := stmt.Directive
 	dir := checkDirective(directive, Directives)
 
