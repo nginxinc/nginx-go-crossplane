@@ -2,7 +2,6 @@ package parser
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/nginxinc/crossplane-go/pkg/analyzer"
@@ -32,6 +31,7 @@ type ParseArgs struct {
 // ParsingError -
 type ParsingError string
 
+// Payload -
 type Payload struct {
 	Status string
 	Errors []ParseErrors
@@ -90,7 +90,7 @@ func Parse(a ParseArgs) Payload {
 		Config: []Config{},
 	}
 	for f, r := range includes {
-		token := lex(f)
+		token := []LexicalItem{} // lex(f)
 		p := Config{
 			File:   f,
 			Status: "ok",
@@ -154,23 +154,23 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 			q := []byte{'#'}
 
 			if q[0] == parsing[p].item[0] {
-				if a.Comments {
-					b = Block{
-						Directive: "",
-						Comment:   string(parsing[p].item[1:]),
-						Args:      []string{},
-						Block:     []Block{},
-						File:      "",
-						Line:      parsing[p].lineNum,
-						Includes:  []int{},
-					}
+
+				b = Block{
+					Directive: "",
+					Comment:   string(parsing[p].item[1:]),
+					Args:      []string{},
+					Block:     []Block{},
+					File:      "",
+					Line:      parsing[p].lineNum,
+					Includes:  []int{},
 				}
-				continue
+
 			}
-			continue
+
 		}
 		// args for directives
 		args := []string{}
+
 		p++
 		for ; parsing[p].item != ";" && parsing[p].item != "{" && parsing[p].item != "}"; p++ {
 			args = append(args, parsing[p].item)
@@ -191,21 +191,25 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 			Args:      b.Args,
 			Line:      b.Line,
 		}
-		e := analyzer.Analyze(parsed.File, stmt, ";", ctx, a.Strict, a.checkCtx, a.checkArgs)
-		if e != nil {
-			if a.CatchErrors {
-				handle_errors(parsed, pay, e, parsing[p].lineNum)
-				if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
-					if parsing[p].item != "}" {
-						parse(parsed, pay, parsing[p:], a, ctx, true)
-					} else {
-						break
-					}
-				}
-				continue
+		if stmt.Directive != "" {
+			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, a.Strict, a.checkCtx, a.checkArgs)
 
-			} else {
-				log.Fatal(e)
+			if e != nil {
+				if a.CatchErrors {
+					handle_errors(parsed, pay, e, parsing[p].lineNum)
+					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
+						if parsing[p].item != "}" {
+							parse(parsed, pay, parsing[p:], a, ctx, true)
+						} else {
+							break
+						}
+					}
+					continue
+
+				} else {
+					fmt.Println("ERROR")
+					fmt.Println(e)
+				}
 			}
 		}
 		// try analysing the directives

@@ -1,8 +1,6 @@
 package parser
 
 import (
-	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -93,7 +91,7 @@ func TestParse(t *testing.T) {
 							Block: []Block{
 								{
 									Directive: "listen",
-									Args:      []string{"120.0.0.1:8080"},
+									Args:      []string{"127.0.0.1:8080"},
 									Line:      7,
 									Includes:  []int{},
 									File:      "",
@@ -143,6 +141,9 @@ func TestParse(t *testing.T) {
 				Single:      false,
 				Strict:      false,
 				Combine:     false,
+				checkArgs:   false,
+				checkCtx:    false,
+				Comments:    true,
 			},
 			"config/WithComments.conf",
 			[]LexicalItem{
@@ -151,9 +152,11 @@ func TestParse(t *testing.T) {
 				{item: "server", lineNum: 2},
 				{item: "{", lineNum: 2},
 				{item: "listen", lineNum: 3},
-				{item: "127.0.0.2:8080", lineNum: 3},
+				{item: "127.0.0.1:8080", lineNum: 3},
 				{item: ";", lineNum: 3},
 				{item: "#listen", lineNum: 4},
+				{item: "}", lineNum: 5},
+				{item: "}", lineNum: 6},
 			},
 			[]Block{
 				{
@@ -211,25 +214,54 @@ func TestParse(t *testing.T) {
 			Parsed: []Block{},
 		}
 		gen, _ := parse(q, p, tes.testdata, tes.arg, [3]string{}, false)
-		//g, e := json.Marshal(gen)
-		/*if e != nil {
-			panic(e)
-		}*/
-		fmt.Printf("%+v\n", gen[0].Args)
-
-		//dat, err := json.Marshal(tes.config)
-		fmt.Printf("%+v\n", tes.config[0].Args)
-		/*if err != nil {
-			panic(err)
-		}*/
-		isEqual := reflect.DeepEqual(tes.config[0].Args, gen[0].Args)
-		fmt.Println(isEqual)
-		if !isEqual {
-			t.Errorf("%v Failed : Generated Data is not the same", tes.title)
+		for p := 0; p < len(gen); p++ {
+			o := cmpare(gen[p], tes.config[p])
+			if o != "" {
+				t.Error(o)
+			}
 		}
-		// deep equals etcs
 
 	}
+}
+
+func cmpare(gen Block, config Block) string {
+	s := ""
+	if gen.Directive != config.Directive {
+		s += "Error with directives : " + gen.Directive + " && " + config.Directive
+	}
+	// loop over and compare
+	if len(gen.Args) == len(config.Args) {
+		for i := 0; i < len(gen.Args); i++ {
+			if gen.Args[i] != config.Args[i] {
+				s += "Problem with Args in Block " + gen.Directive + " && " + config.Directive
+			}
+		}
+	} else {
+		s += "Problem with Args in Block " + gen.Directive + " && " + config.Directive
+	}
+	if gen.Line != config.Line {
+		s += "Problem with Line in Block " + gen.Directive + " && " + config.Directive
+	}
+	if gen.File != config.File {
+		s += "Problem with File in Block " + gen.Directive + " && " + config.Directive
+	}
+	if gen.Comment != config.Comment {
+		s += "Problem with Comments in Block " + string(gen.Comment) + " && " + string(config.Comment)
+	}
+	if len(gen.Includes) == len(config.Includes) {
+		for i := 0; i < len(gen.Includes); i++ {
+			if gen.Includes[i] != config.Includes[i] {
+				s += "Problem with Includes in Block " + gen.Directive + " && " + config.Directive
+			}
+		}
+	} else {
+		s += "Problem with Comments in Block " + gen.Directive + " && " + config.Directive
+	}
+	for i := 0; i < len(gen.Block); i++ {
+		s += cmpare(gen.Block[i], config.Block[i])
+	}
+
+	return s
 }
 
 /*
