@@ -5,10 +5,10 @@ import (
 	"strings"
 )
 
-type statement struct {
-	directive string
-	args      [1]string
-	line      int
+type Statement struct {
+	Directive string
+	Args      []string
+	Line      int
 }
 type Bits uint
 
@@ -2104,8 +2104,9 @@ var Context = map[[3]string]Bits{
 	{"http", "location", "limit_except"}: NGX_HTTP_LMT_CONF,
 }
 
-func analyze(fname string, stmt statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
-	directive := stmt.directive
+// Analyze -
+func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
+	directive := stmt.Directive
 	dir := checkDirective(directive, Directives)
 
 	if strict && !dir {
@@ -2119,7 +2120,7 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 		return fmt.Errorf("context or directive in invalid")
 	}
 
-	args := stmt.args
+	args := stmt.Args
 	// makes numArgs an unsigned int for bit shifting later
 	numArgs := uint(len(args))
 
@@ -2168,13 +2169,13 @@ func analyze(fname string, stmt statement, term string, ctx [3]string, strict bo
 		}
 		// use mask to check the directive's arguments
 		if ((msk>>numArgs)&1 != 0x00000000 && numArgs <= 7) || //NOARGS to TAKE7
-			(msk&NGX_CONF_FLAG != 0x00000000 && numArgs == 1 && validFlags(stmt.args[0])) ||
+			(msk&NGX_CONF_FLAG != 0x00000000 && numArgs == 1 && validFlags(stmt.Args[0])) ||
 			(msk&NGX_CONF_ANY != 0x00000000) ||
 			(msk&NGX_CONF_1MORE != 0x00000000 && numArgs >= 1) ||
 			(msk&NGX_CONF_2MORE != 0x00000000 && numArgs >= 2) {
 			return nil
-		} else if msk&NGX_CONF_FLAG != 0x00000000 && numArgs == 1 && !validFlags(stmt.args[0]) {
-			reason = fmt.Sprintf("invalid value %v in %v directive, it must be 'on' or 'off'", stmt.args[0], stmt.directive)
+		} else if msk&NGX_CONF_FLAG != 0x00000000 && numArgs == 1 && !validFlags(stmt.Args[0]) {
+			reason = fmt.Sprintf("invalid value %v in %v directive, it must be 'on' or 'off'", stmt.Args[0], stmt.Directive)
 			continue
 		} else {
 			reason = fmt.Sprintf("invalid number of arguements in %v", directive)
@@ -2202,13 +2203,13 @@ func checkDirective(dir string, direct map[string][]Bits) bool {
 	return false
 }
 
-func enterBlockCTX(stmt statement, ctx [3]string) [3]string {
-	if len(ctx) != 0 && ctx[0] == "http" && stmt.directive == "location" {
+func EnterBlockCTX(stmt Statement, ctx [3]string) [3]string {
+	if len(ctx) != 0 && ctx[0] == "http" && stmt.Directive == "location" {
 		return [3]string{"http", "location"}
 	}
 	for i, v := range ctx {
 		if v == "" {
-			ctx[i] = stmt.directive
+			ctx[i] = stmt.Directive
 			break
 		}
 	}
