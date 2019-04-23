@@ -204,18 +204,18 @@ func TestParse(t *testing.T) {
 	for _, tes := range tests {
 		p := Payload{
 			Status: "ok",
-			Errors: []ParseErrors{},
+			Errors: []ParseError{},
 			Config: []Config{},
 		}
 		q := Config{
 			File:   tes.file,
 			Status: "ok",
-			Errors: []ParseErrors{},
+			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
 		gen, _, _ := parse(q, p, tes.testdata, tes.arg, [3]string{}, false)
 		for p := 0; p < len(gen); p++ {
-			o := cmpare(gen[p], tes.config[p])
+			o := compareBlocks(gen[p], tes.config[p])
 			if o != "" {
 				t.Error(o)
 			}
@@ -224,7 +224,7 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func cmpare(gen Block, config Block) string {
+func compareBlocks(gen Block, config Block) string {
 	s := ""
 	if gen.Directive != config.Directive {
 		s += "Error with directives : " + gen.Directive + " && " + config.Directive
@@ -246,7 +246,7 @@ func cmpare(gen Block, config Block) string {
 		s += "Problem with File in Block " + gen.Directive + " && " + config.Directive
 	}
 	if gen.Comment != config.Comment {
-		s += "Problem with Comments in Block " + string(gen.Comment) + " && " + string(config.Comment)
+		s += "Problem with Comments in Block " + gen.Comment + " && " + config.Comment
 	}
 	if len(gen.Includes) == len(config.Includes) {
 		for i := 0; i < len(gen.Includes); i++ {
@@ -258,7 +258,7 @@ func cmpare(gen Block, config Block) string {
 		s += "Problem with Comments in Block " + gen.Directive + " && " + config.Directive
 	}
 	for i := 0; i < len(gen.Block); i++ {
-		s += cmpare(gen.Block[i], config.Block[i])
+		s += compareBlocks(gen.Block[i], config.Block[i])
 	}
 
 	return s

@@ -33,7 +33,8 @@ type ParsingError string
 // Payload -
 type Payload struct {
 	Status string
-	Errors []ParseErrors
+	Errors []ParseError
+
 	Config []Config
 }
 
@@ -41,7 +42,7 @@ type Payload struct {
 type Config struct {
 	File   string
 	Status string
-	Errors []ParseErrors
+	Errors []ParseError
 	Parsed []Block
 }
 
@@ -56,17 +57,17 @@ type Block struct {
 	Comment   string
 }
 
-//ParseErrors -
-type ParseErrors struct {
+//ParseError -
+type ParseError struct {
 	File  string
 	Line  int
-	Error string
+	Error ParsingError
 }
 
 /*
    Parses an nginx config file and returns json payload
 
-   :param filename: string contianing the name of the config file to parse
+   :param filename: string containing the name of the config file to parse
    :param catch_errors: bool; if False, parse stops after first error
    :param ignore: list or slice of directives to exclude from the payload
    :param combine: bool; if True, use includes to create a single config obj
@@ -85,7 +86,7 @@ func Parse(a ParseArgs) (Payload, error) {
 	}
 	q := Payload{
 		Status: "ok",
-		Errors: []ParseErrors{},
+		Errors: []ParseError{},
 		Config: []Config{},
 	}
 	for f, r := range includes {
@@ -93,7 +94,7 @@ func Parse(a ParseArgs) (Payload, error) {
 		p := Config{
 			File:   f,
 			Status: "ok",
-			Errors: []ParseErrors{},
+			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
 		// data to be changed to token
@@ -111,12 +112,12 @@ func Parse(a ParseArgs) (Payload, error) {
 
 }
 
-func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([]Block, int, error) {
+func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, int, error) {
 	o := []Block{}
 	var e error
 	p := 0
 	for ; p < len(parsing); p++ {
-		b := Block{
+		block := Block{
 			Directive: "",
 			Line:      0,
 			Args:      []string{},
@@ -132,7 +133,7 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 
 		if consume {
 			if parsing[p].item == "}" {
-				_, i, e := parse(parsed, pay, parsing[p:], a, ctx, true)
+				_, i, e := parse(parsed, pay, parsing[p:], args, ctx, true)
 				if e != nil {
 					return o, p + i, e
 				}
@@ -141,29 +142,29 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 			continue
 		}
 		directive := parsing[p].item
-		if a.Combine {
-			b = Block{
+		if args.Combine {
+			block = Block{
 				Directive: directive,
 				Line:      parsing[p].lineNum,
-				File:      a.FileName,
+				File:      args.FileName,
 				Args:      []string{},
 			}
 		} else {
-			b = Block{
+			block = Block{
 				Directive: directive,
 				Line:      parsing[p].lineNum,
 				Args:      []string{},
 			}
 		}
 		// comments in file
-		if a.Comments {
+		if args.Comments {
 			q := []byte{'#'}
 
 			if q[0] == parsing[p].item[0] {
 
-				b = Block{
+				block = Block{
 					Directive: "",
-					Comment:   string(parsing[p].item[1:]),
+					Comment:   parsing[p].item[1:],
 					Args:      []string{},
 					Block:     []Block{},
 					File:      "",
@@ -175,18 +176,18 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 
 		}
 		// args for directives
-		args := []string{}
+		a := []string{}
 
 		p++
 		for ; parsing[p].item != ";" && parsing[p].item != "{" && parsing[p].item != "}"; p++ {
-			args = append(args, parsing[p].item)
+			a = append(a, parsing[p].item)
 		}
-		b.Args = args
+		block.Args = a
 
-		if len(a.Ignore) > 0 {
-			for _, k := range a.Ignore {
+		if len(args.Ignore) > 0 {
+			for _, k := range args.Ignore {
 				if k == parsing[p].item {
-					_, i, e := parse(parsed, pay, parsing[p:], a, ctx, true)
+					_, i, e := parse(parsed, pay, parsing[p:], args, ctx, true)
 					if e != nil {
 						return o, p + i, e
 					}
@@ -196,19 +197,19 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 			continue
 		}
 		stmt := analyzer.Statement{
-			Directive: b.Directive,
-			Args:      b.Args,
-			Line:      b.Line,
+			Directive: block.Directive,
+			Args:      block.Args,
+			Line:      block.Line,
 		}
 		if stmt.Directive != "" {
-			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, a.Strict, a.checkCtx, a.checkArgs)
+			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, args.Strict, args.checkCtx, args.checkArgs)
 
 			if e != nil {
-				if a.CatchErrors {
-					handle_errors(parsed, pay, e, parsing[p].lineNum)
+				if args.CatchErrors {
+					handleErrors(parsed, pay, e, parsing[p].lineNum)
 					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
 						if parsing[p].item != "}" {
-							parse(parsed, pay, parsing[p:], a, ctx, true)
+							parse(parsed, pay, parsing[p:], args, ctx, true)
 						} else {
 							break
 						}
@@ -223,43 +224,43 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 		// try analysing the directives
 		if parsing[p].item == "{" {
 			stmt := analyzer.Statement{
-				Directive: b.Directive,
-				Args:      b.Args,
-				Line:      b.Line,
+				Directive: block.Directive,
+				Args:      block.Args,
+				Line:      block.Line,
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
 			l := 0
 
-			b.Block, l, e = parse(parsed, pay, parsing[p+1:], a, inner, false)
+			block.Block, l, e = parse(parsed, pay, parsing[p+1:], args, inner, false)
 			if e != nil {
 				return o, p + l, e
 			}
 			p += l
 		}
-		o = append(o, b)
+		o = append(o, block)
 
 	}
 	return o, p, nil
 }
 
-func handle_errors(parsed Config, pay Payload, e error, line int) {
+func handleErrors(parsed Config, pay Payload, e error, line int) {
 	file := parsed.File
-	err := e.Error()
-
-	parseerr := ParseErrors{
+	erro := e.Error()
+	err := ParsingError(erro)
+	parseErr := ParseError{
 		Error: err,
 		Line:  line,
 		File:  "",
 	}
-	payloaderr := ParseErrors{
+	payloadErr := ParseError{
 		Error: err,
 		Line:  line,
 		File:  file,
 	}
 
 	parsed.Status = "failed"
-	parsed.Errors = append(parsed.Errors, parseerr)
+	parsed.Errors = append(parsed.Errors, parseErr)
 
 	pay.Status = "failed"
-	pay.Errors = append(pay.Errors, payloaderr)
+	pay.Errors = append(pay.Errors, payloadErr)
 }
