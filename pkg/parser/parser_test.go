@@ -213,7 +213,7 @@ func TestParse(t *testing.T) {
 			Errors: []ParseErrors{},
 			Parsed: []Block{},
 		}
-		gen, _ := parse(q, p, tes.testdata, tes.arg, [3]string{}, false)
+		gen, _, _ := parse(q, p, tes.testdata, tes.arg, [3]string{}, false)
 		for p := 0; p < len(gen); p++ {
 			o := cmpare(gen[p], tes.config[p])
 			if o != "" {

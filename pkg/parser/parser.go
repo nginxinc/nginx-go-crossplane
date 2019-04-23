@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/nginxinc/crossplane-go/pkg/analyzer"
@@ -79,8 +78,8 @@ type ParseErrors struct {
    :returns: a payload that describes the parsed nginx config
 */
 // Parse -
-func Parse(a ParseArgs) Payload {
-
+func Parse(a ParseArgs) (Payload, error) {
+	var e error
 	includes := map[string][3]string{
 		a.FileName: {},
 	}
@@ -98,19 +97,23 @@ func Parse(a ParseArgs) Payload {
 			Parsed: []Block{},
 		}
 		// data to be changed to token
-		p.Parsed, _ = parse(p, q, token, a, r, false)
+		p.Parsed, _, e = parse(p, q, token, a, r, false)
+		if e != nil {
+			return q, e
+		}
 		q.Config = append(q.Config, p)
 	}
 	if a.Combine {
-		return q //combineParsedConfigs(p)
+		return q, nil //combineParsedConfigs(p)
 	}
-	fmt.Println(q)
-	return q
+
+	return q, nil
 
 }
 
-func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([]Block, int) {
+func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [3]string, consume bool) ([]Block, int, error) {
 	o := []Block{}
+	var e error
 	p := 0
 	for ; p < len(parsing); p++ {
 		b := Block{
@@ -129,7 +132,10 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 
 		if consume {
 			if parsing[p].item == "}" {
-				_, i := parse(parsed, pay, parsing[p:], a, ctx, true)
+				_, i, e := parse(parsed, pay, parsing[p:], a, ctx, true)
+				if e != nil {
+					return o, p + i, e
+				}
 				p += i
 			}
 			continue
@@ -180,7 +186,10 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 		if len(a.Ignore) > 0 {
 			for _, k := range a.Ignore {
 				if k == parsing[p].item {
-					_, i := parse(parsed, pay, parsing[p:], a, ctx, true)
+					_, i, e := parse(parsed, pay, parsing[p:], a, ctx, true)
+					if e != nil {
+						return o, p + i, e
+					}
 					p += i
 				}
 			}
@@ -207,8 +216,7 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 					continue
 
 				} else {
-					fmt.Println("ERROR")
-					fmt.Println(e)
+					return o, p, e
 				}
 			}
 		}
@@ -221,13 +229,17 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, a ParseArgs, ctx [
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
 			l := 0
-			b.Block, l = parse(parsed, pay, parsing[p+1:], a, inner, false)
+
+			b.Block, l, e = parse(parsed, pay, parsing[p+1:], a, inner, false)
+			if e != nil {
+				return o, p + l, e
+			}
 			p += l
 		}
 		o = append(o, b)
 
 	}
-	return o, p
+	return o, p, nil
 }
 
 func handle_errors(parsed Config, pay Payload, e error, line int) {
