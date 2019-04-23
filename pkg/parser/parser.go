@@ -28,7 +28,7 @@ type ParseArgs struct {
 }
 
 // ParsingError -
-type ParsingError string
+type ParsingError error
 
 // Payload -
 type Payload struct {
@@ -57,7 +57,7 @@ type Block struct {
 	Comment   string
 }
 
-//ParseError -
+// ParseError -
 type ParseError struct {
 	File  string
 	Line  int
@@ -245,15 +245,14 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 
 func handleErrors(parsed Config, pay Payload, e error, line int) {
 	file := parsed.File
-	erro := e.Error()
-	err := ParsingError(erro)
+
 	parseErr := ParseError{
-		Error: err,
+		Error: e,
 		Line:  line,
 		File:  "",
 	}
 	payloadErr := ParseError{
-		Error: err,
+		Error: e,
 		Line:  line,
 		File:  file,
 	}
