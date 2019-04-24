@@ -52,7 +52,7 @@ func balanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 func consumeWord(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
-		if b == ' ' || b == '\n' || b == '\t' || b == '\r' {
+		if b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' {
 			return i, accum, nil
 		} else {
 			accum = append(accum, b)
@@ -77,7 +77,7 @@ func consumeWhitespace(data []byte) (int, []byte, error) {
 func consumeNum(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
-		if '0' <= b && b <= '9' {
+		if '0' <= b && b <= '9' || b == '.' {
 			accum = append(accum, b)
 		} else {
 			return i, accum, nil
@@ -104,6 +104,17 @@ func consumeString(data []byte) (int, []byte, error) {
 	return 0, nil, nil
 }
 
+func consumeComment(data []byte) (int, []byte, error) {
+	var accum []byte
+	var w int
+	for i, b := range data {
+		accum = append(accum, b)
+		w = i
+	}
+	return w, accum, nil
+
+}
+
 // Reader -
 type Reader struct {
 	*bufio.Scanner
@@ -117,7 +128,9 @@ func LexScanner(input string) ([]LexicalItem, error) {
 	res := []LexicalItem{}
 	for s.Scan() {
 		tok := s.Bytes()
-		res = append(res, LexicalItem{string(tok), 1})
+		if string(tok) != " " {
+			res = append(res, LexicalItem{string(tok), 1})
+		}
 	}
 	return res, nil
 }
@@ -138,6 +151,7 @@ func NewLexer(r io.Reader) *Reader {
 		if atEOF {
 			return
 		}
+		// needs to cater to comments
 		switch data[0] {
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
@@ -147,6 +161,8 @@ func NewLexer(r io.Reader) *Reader {
 			advance, token, err = consumeNum(data)
 		case ' ', '\n', '\r', '\t':
 			advance, token, err = 1, data[:1], nil
+		case '#':
+			advance, token, err = consumeComment(data)
 		default:
 			advance, token, err = consumeWord(data)
 		}

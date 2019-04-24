@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -68,6 +69,7 @@ func TestLexScanner(t *testing.T) {
 	for _, tt := range testCases {
 		t.Log(tt.title)
 		actual, err := LexScanner(tt.input)
+		fmt.Println(actual)
 		if err != nil {
 			t.Errorf("Test failed due to: %v", err)
 		}
