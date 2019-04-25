@@ -2,9 +2,89 @@ package builder
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 )
 
+func TestBuilderUltraSimple(t *testing.T) {
+	var tests = []struct {
+		title    string
+		input    []Block
+		expected string
+	}{
+		{
+			"basic: build with comments",
+			[]Block{
+				{
+					Directive: "http",
+					Args:      []string{},
+					Line:      1,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block: []Block{
+						{
+							Directive: "server",
+							Args:      []string{},
+							Line:      2,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
+							Block: []Block{
+								{
+									Directive: "listen",
+									Args:      []string{"127.0.0.1:8080"},
+									Line:      3,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "#",
+									Args:      []string{},
+									Line:      4,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "listen",
+									Block:     []Block{},
+								},
+							},
+						},
+					},
+				},
+			},
+			`
+			http {
+				server {
+					listen 127.0.0.1:8080;
+					#listen
+				}
+			}
+			`,
+		},
+	}
+
+	for _, test := range tests {
+		out, err := json.Marshal(test.input)
+		if err != nil {
+			t.Errorf("Error %v", err)
+		}
+
+		result, err := Build(string(out), 4, false, false)
+		if err != nil {
+			t.Error(test.title)
+		}
+		fmt.Println(result)
+		/*
+			if result != test.expected {
+				t.Error(test.title)
+			}
+		*/
+	}
+}
+
+/*
 func TestBuild(t *testing.T) {
 	var tests = []struct {
 		title   string
@@ -240,3 +320,4 @@ func TestBuildFiles(t *testing.T) {
 		}
 	}
 }
+*/
