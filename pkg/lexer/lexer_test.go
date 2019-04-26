@@ -65,6 +65,17 @@ func TestLexScanner(t *testing.T) {
 				{"http", 1}, {"{", 1}, {"user", 1}, {"nginx", 1}, {";", 1}, {"}", 1}, {"# a comment", 1},
 			},
 		},
+		{
+			"Messy: multiline file ",
+			`# hello\n\\n\\\n worlddd  \#\\#\\\# dfsf\n \\n \\\n \
+			http {#forteen
+    			access_log off;default_type text/plain; error_log off;
+				"return" 200 "Ser\" ' ' ver\\\\ \ $server_addr:\\$server_port\n\nTime: $time_local\n\n";
+    		}`,
+			[]LexicalItem{
+				{`# hello\n\\n\\\n worlddd  \#\\#\\\# dfsf\n \\n \\\n \`, 1}, {"http", 1}, {"{", 1}, {"#forteen", 1}, {"access_log", 1}, {"off", 1}, {";", 1}, {"default_type", 1}, {"text/plain", 1}, {";", 1}, {"error_log", 1}, {"off", 1}, {";", 1}, {"return", 1}, {"200", 1}, {`Ser\" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n`, 1}, {";", 1}, {"}", 1},
+			},
+		},
 	}
 	for _, tt := range testCases {
 		t.Log(tt.title)

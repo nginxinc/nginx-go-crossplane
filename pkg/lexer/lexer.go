@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -106,12 +107,15 @@ func consumeString(data []byte) (int, []byte, error) {
 
 func consumeComment(data []byte) (int, []byte, error) {
 	var accum []byte
-	var w int
+
 	for i, b := range data {
-		accum = append(accum, b)
-		w = i
+		if b != '\n' && i+1 < len(data) {
+			accum = append(accum, b)
+		} else {
+			return i, accum, nil
+		}
 	}
-	return w, accum, nil
+	return 0, nil, nil
 
 }
 
@@ -128,7 +132,7 @@ func LexScanner(input string) ([]LexicalItem, error) {
 	res := []LexicalItem{}
 	for s.Scan() {
 		tok := s.Bytes()
-		if string(tok) != " " {
+		if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
 			res = append(res, LexicalItem{string(tok), 1})
 		}
 	}
@@ -152,10 +156,11 @@ func NewLexer(r io.Reader) *Reader {
 			return
 		}
 		// needs to cater to comments
+		fmt.Println("data : ", string(data))
 		switch data[0] {
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
-		case '"', '\'': // TODO(jwall): Rune data?
+		case '"': // TODO(jwall): Rune data?
 			advance, token, err = consumeString(data)
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			advance, token, err = consumeNum(data)
