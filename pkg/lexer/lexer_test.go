@@ -72,8 +72,8 @@ func TestLexScanner(t *testing.T) {
 				"return" 200 "Ser\" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n";
     		}`,
 			[]LexicalItem{
-				{`# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n `, 1}, {"http", 1}, {"{", 1}, {"#forteen", 1}, {"access_log", 1}, {"off", 1}, {";", 1}, {"default_type", 1}, {"text/plain", 1}, {";", 1}, {"error_log", 1}, {"off", 1}, {";", 1}, {"return", 1}, {"200", 1},
-				{`Ser\" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`, 1}, {";", 1}, {"}", 1},
+				{`# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n `, 1}, {"http", 2}, {"{", 2}, {"#forteen", 2}, {"access_log", 3}, {"off", 3}, {";", 3}, {"default_type", 3}, {"text/plain", 3}, {";", 3}, {"error_log", 3}, {"off", 3}, {";", 3}, {"return", 4}, {"200", 4},
+				{`Ser\" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`, 4}, {";", 4}, {"}", 5},
 			},
 		},
 	}

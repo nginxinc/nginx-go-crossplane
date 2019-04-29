@@ -154,7 +154,7 @@ func LexScanner(input string) ([]LexicalItem, error) {
 	for s.Scan() {
 		tok := s.Bytes()
 		if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
-			res = append(res, LexicalItem{string(tok), 1})
+			res = append(res, LexicalItem{string(tok), s.l})
 		}
 	}
 	return res, nil
