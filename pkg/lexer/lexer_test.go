@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -67,26 +66,30 @@ func TestLexScanner(t *testing.T) {
 		},
 		{
 			"Messy: multiline file ",
-			`# hello\n\\n\\\n worlddd  \#\\#\\\# dfsf\n \\n \\\n \
+			`# hello\n\\n\\\n worlddd  \#\\#\\\# dfsf\n \\n \\\n 
 			http {#forteen
     			access_log off;default_type text/plain; error_log off;
-				"return" 200 "Ser\" ' ' ver\\\\ \ $server_addr:\\$server_port\n\nTime: $time_local\n\n";
+				"return" 200 "Ser\" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n";
     		}`,
 			[]LexicalItem{
-				{`# hello\n\\n\\\n worlddd  \#\\#\\\# dfsf\n \\n \\\n \`, 1}, {"http", 1}, {"{", 1}, {"#forteen", 1}, {"access_log", 1}, {"off", 1}, {";", 1}, {"default_type", 1}, {"text/plain", 1}, {";", 1}, {"error_log", 1}, {"off", 1}, {";", 1}, {"return", 1}, {"200", 1}, {`Ser\" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n`, 1}, {";", 1}, {"}", 1},
+				{`# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n `, 1}, {"http", 1}, {"{", 1}, {"#forteen", 1}, {"access_log", 1}, {"off", 1}, {";", 1}, {"default_type", 1}, {"text/plain", 1}, {";", 1}, {"error_log", 1}, {"off", 1}, {";", 1}, {"return", 1}, {"200", 1},
+				{`Ser\" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`, 1}, {";", 1}, {"}", 1},
 			},
 		},
 	}
 	for _, tt := range testCases {
 		t.Log(tt.title)
 		actual, err := LexScanner(tt.input)
-		fmt.Println(actual)
 		if err != nil {
 			t.Errorf("Test failed due to: %v", err)
 		}
-		result := reflect.DeepEqual(tt.expected, actual)
-		if !result {
-			t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected, actual)
+		for i := 0; i < len(actual); i++ {
+			result := reflect.DeepEqual(tt.expected[i], actual[i])
+			if !result {
+				t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected[i], actual[i])
+
+			}
 		}
+
 	}
 }

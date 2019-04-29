@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strings"
 	"sync"
@@ -50,14 +49,37 @@ func balanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 
 }
 
+func iterescape(data string) []byte {
+	var b []byte
+	d := []byte(data)
+	for i, v := range d {
+		if v == '\\' && i+1 < len(d) {
+			if d[i+1] != '"' && d[i+1] != '\'' {
+				b = append(b, '\\')
+			}
+		} else if v == '\'' {
+			b = append(b, '\\')
+		}
+		b = append(b, v)
+	}
+	if len(b) < len(d) {
+		b = append(b, data[len(b):]...)
+	}
+	if len(b) < 1 {
+		return d
+	}
+	return b
+}
+
 func consumeWord(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
 		if b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' {
 			return i, accum, nil
-		} else {
-			accum = append(accum, b)
+		} else if b == '\'' {
+			accum = append(accum, '\\')
 		}
+		accum = append(accum, b)
 	}
 	return 0, nil, nil
 }
@@ -90,7 +112,7 @@ func consumeNum(data []byte) (int, []byte, error) {
 func consumeString(data []byte) (int, []byte, error) {
 	delim := data[0]
 	skip := false
-	accum := []byte{data[0]}
+	accum := []byte{}
 	for i, b := range data[1:] {
 		if b == delim && !skip {
 			return i + 2, accum, nil
@@ -98,7 +120,6 @@ func consumeString(data []byte) (int, []byte, error) {
 		skip = false
 		if b == '\\' {
 			skip = true
-			continue
 		}
 		accum = append(accum, b)
 	}
@@ -109,7 +130,7 @@ func consumeComment(data []byte) (int, []byte, error) {
 	var accum []byte
 
 	for i, b := range data {
-		if b != '\n' && i+1 < len(data) {
+		if b != '\n' && i < len(data) {
 			accum = append(accum, b)
 		} else {
 			return i, accum, nil
@@ -128,7 +149,7 @@ type Reader struct {
 
 // LexScanner -
 func LexScanner(input string) ([]LexicalItem, error) {
-	s := NewLexer(strings.NewReader(input))
+	s := NewLexer(strings.NewReader(string(iterescape(input))))
 	res := []LexicalItem{}
 	for s.Scan() {
 		tok := s.Bytes()
@@ -156,11 +177,11 @@ func NewLexer(r io.Reader) *Reader {
 			return
 		}
 		// needs to cater to comments
-		fmt.Println("data : ", string(data))
 		switch data[0] {
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
 		case '"': // TODO(jwall): Rune data?
+
 			advance, token, err = consumeString(data)
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			advance, token, err = consumeNum(data)
@@ -182,7 +203,6 @@ func NewLexer(r io.Reader) *Reader {
 				rdr.col++
 			}
 		}
-
 		return
 	}
 	s.Split(split)
