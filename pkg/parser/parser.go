@@ -67,27 +67,23 @@ type ParseError struct {
 	Error ParsingError
 }
 
-/*
-   Parses an nginx config file and returns json payload
+var included = []string{}
+var includes = map[string][3]string{}
 
-   :param filename: string containing the name of the config file to parse
-   :param catch_errors: bool; if False, parse stops after first error
-   :param ignore: list or slice of directives to exclude from the payload
-   :param combine: bool; if True, use includes to create a single config obj
-   :param single: bool; if True, including from other files doesn't happen
-   :param comments: bool; if True, including comments to json payload
-   :param strict: bool; if True, unrecognized directives raise errors
-   :param check_ctx: bool; if True, runs context analysis on directives
-   :param check_args: bool; if True, runs arg count analysis on directives
-   :returns: a payload that describes the parsed nginx config
-*/
-// Parse -
+// Parse - Parses an nginx config file and returns json payload
+//   :param filename: string containing the name of the config file to parse
+//   :param catch_errors: bool; if False, parse stops after first error
+//   :param ignore: list or slice of directives to exclude from the payload
+//   :param combine: bool; if True, use includes to create a single config obj
+//   :param single: bool; if True, including from other files doesn't happen
+//   :param comments: bool; if True, including comments to json payload
+//   :param strict: bool; if True, unrecognized directives raise errors
+//   :param check_ctx: bool; if True, runs context analysis on directives
+//   :param check_args: bool; if True, runs arg count analysis on directives
+//   :returns: a payload that describes the parsed nginx config
 func Parse(a ParseArgs) (Payload, error) {
 	var e error
-	included := []string{}
-	includes := map[string][3]string{
-		a.FileName: {},
-	}
+	includes[a.FileName] = [3]string{}
 	q := Payload{
 		Status: "ok",
 		Errors: []ParseError{},
@@ -102,7 +98,7 @@ func Parse(a ParseArgs) (Payload, error) {
 			Parsed: []Block{},
 		}
 		// data to be changed to token
-		p.Parsed, _, e = parse(included, includes, p, q, token, a, r, false)
+		p.Parsed, _, e = parse(p, q, token, a, r, false)
 		if e != nil {
 			return q, e
 		}
@@ -116,7 +112,7 @@ func Parse(a ParseArgs) (Payload, error) {
 
 }
 
-func parse(included []string, includes map[string][3]string, parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, int, error) {
+func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, int, error) {
 	o := []Block{}
 	var e error
 	p := 0
@@ -137,7 +133,7 @@ func parse(included []string, includes map[string][3]string, parsed Config, pay 
 
 		if consume {
 			if parsing[p].item == "}" {
-				_, i, e := parse(included, includes, parsed, pay, parsing[p:], args, ctx, true)
+				_, i, e := parse(parsed, pay, parsing[p:], args, ctx, true)
 				if e != nil {
 					return o, p + i, e
 				}
@@ -191,7 +187,7 @@ func parse(included []string, includes map[string][3]string, parsed Config, pay 
 		if len(args.Ignore) > 0 {
 			for _, k := range args.Ignore {
 				if k == parsing[p].item {
-					_, i, e := parse(included, includes, parsed, pay, parsing[p:], args, ctx, true)
+					_, i, e := parse(parsed, pay, parsing[p:], args, ctx, true)
 					if e != nil {
 						return o, p + i, e
 					}
@@ -212,7 +208,7 @@ func parse(included []string, includes map[string][3]string, parsed Config, pay 
 					handleErrors(parsed, pay, e, parsing[p].lineNum)
 					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
 						if parsing[p].item != "}" {
-							parse(included, includes, parsed, pay, parsing[p:], args, ctx, true)
+							parse(parsed, pay, parsing[p:], args, ctx, true)
 						} else {
 							break
 						}
@@ -234,7 +230,7 @@ func parse(included []string, includes map[string][3]string, parsed Config, pay 
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
 			l := 0
 
-			block.Block, l, e = parse(included, includes, parsed, pay, parsing[p+1:], args, inner, false)
+			block.Block, l, e = parse(parsed, pay, parsing[p+1:], args, inner, false)
 			if e != nil {
 				return o, p + l, e
 			}
@@ -277,7 +273,6 @@ func parse(included []string, includes map[string][3]string, parsed Config, pay 
 				if b {
 					fnames = []string{pattern}
 				}
-
 			}
 
 			for _, fname := range fnames {

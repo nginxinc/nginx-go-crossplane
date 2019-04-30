@@ -213,9 +213,7 @@ func TestParse(t *testing.T) {
 			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
-		included := []string{}
-		includes := map[string][3]string{}
-		gen, _, e := parse(included, includes, q, p, tes.testdata, tes.arg, [3]string{}, false)
+		gen, _, e := parse(q, p, tes.testdata, tes.arg, [3]string{}, false)
 		if e != nil {
 			t.Error(e)
 		}
