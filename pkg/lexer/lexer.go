@@ -176,12 +176,10 @@ func NewLexer(r io.Reader) *Reader {
 		if atEOF {
 			return
 		}
-		// needs to cater to comments
 		switch data[0] {
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
-		case '"': // TODO(jwall): Rune data?
-
+		case '"':
 			advance, token, err = consumeString(data)
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			advance, token, err = consumeNum(data)
