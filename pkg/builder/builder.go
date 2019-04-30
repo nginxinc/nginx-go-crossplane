@@ -42,7 +42,7 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 	}
 	var result string
 	var output string
-	result = BuildBlock(output, data, 0, 0)
+	result = BuildBlock(output, data, 0, 5)
 
 	return result, nil
 }
@@ -51,8 +51,7 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 func BuildBlock(output string, block []Block, depth, lastline int) string {
 	var built string
 	for _, stmt := range block {
-		//directive := stmt.Directive
-		var line int
+		line := stmt.Line
 		if stmt.Directive == "#" && line == lastline {
 			output += " #" + stmt.Comment
 			continue
@@ -73,7 +72,8 @@ func BuildBlock(output string, block []Block, depth, lastline int) string {
 				built = BuildBlock(built, stmt.Block, depth, line)
 				built += "\n }"
 			}
-			output += " " + built
+
+			output += "\n " + built
 			lastline = line
 		}
 	}

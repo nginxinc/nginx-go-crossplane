@@ -43,10 +43,37 @@ func TestBuilderUltraSimple(t *testing.T) {
 								{
 									Directive: "#",
 									Args:      []string{},
-									Line:      4,
+									Line:      3,
 									Includes:  []int{},
 									File:      "",
 									Comment:   "listen",
+									Block:     []Block{},
+								},
+								{
+									Directive: "server_name",
+									Args:      []string{"default_server"},
+									Line:      4,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "location",
+									Args:      []string{"/"},
+									Line:      5,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "#",
+									Args:      []string{},
+									Line:      5,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "# this is brace",
 									Block:     []Block{},
 								},
 							},
@@ -57,8 +84,9 @@ func TestBuilderUltraSimple(t *testing.T) {
 			`
 			http {
 				server {
-					listen 127.0.0.1:8080;
-					#listen;
+					listen 127.0.0.1:8080; #listen
+					server_name default_server;
+					location / ## this is brace
 				}
 			}
 			`,
