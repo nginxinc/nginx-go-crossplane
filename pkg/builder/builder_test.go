@@ -86,7 +86,7 @@ func TestBuilderUltraSimple(t *testing.T) {
 				server {
 					listen 127.0.0.1:8080; #listen
 					server_name default_server;
-					location / ## this is brace
+					location /; ## this is brace
 				}
 			}
 			`,
@@ -104,11 +104,10 @@ func TestBuilderUltraSimple(t *testing.T) {
 			t.Error(test.title)
 		}
 		fmt.Println(result)
-		/*
-			if result != test.expected {
-				t.Error(test.title)
-			}
-		*/
+		fmt.Println(test.expected)
+		if result != test.expected {
+			t.Error(test.title)
+		}
 	}
 }
 
