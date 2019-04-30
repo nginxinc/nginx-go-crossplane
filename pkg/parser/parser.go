@@ -67,6 +67,7 @@ type ParseError struct {
 	Error ParsingError
 }
 
+// list of conf files to be parsed
 var included = []string{}
 var includes = map[string][3]string{}
 
