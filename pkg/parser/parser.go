@@ -203,12 +203,17 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			}
 			continue
 		}
+
+		if block.Directive == "if" {
+			block.Args = removeBrackets(block.Args)
+		}
+
 		stmt := analyzer.Statement{
 			Directive: block.Directive,
 			Args:      block.Args,
 			Line:      block.Line,
 		}
-		if stmt.Directive != "" {
+		if stmt.Directive != "" && stmt.Directive != "if" {
 			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, args.Strict, args.checkCtx, args.checkArgs)
 			if e != nil {
 				if args.CatchErrors {
@@ -295,6 +300,13 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 
 	}
 	return o, p, nil
+}
+
+func removeBrackets(s []string) []string {
+	if s[0] == "(" && s[len(s)-1] == ")" {
+		s = s[1 : len(s)-2]
+	}
+	return s
 }
 
 func checkIncluded(fname string, included []string) bool {
