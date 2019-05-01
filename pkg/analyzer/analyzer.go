@@ -70,2032 +70,2032 @@ const (
 //  from the documentation at http://nginx.org/en/docs/.
 var Directives = map[string][]Bits{
 	"absolute_redirect": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"accept_mutex": {
-		NGX_EVENT_CONF, NGX_CONF_FLAG,
+		ngxEventConf, ngxConfFlag,
 	},
 	"accept_mutex_delay": {
-		NGX_EVENT_CONF, NGX_CONF_TAKE1,
+		ngxEventConf, ngxConfTake1,
 	},
 	"access_log": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_HTTP_LMT_CONF, NGX_CONF_1MORE,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxHttpLmtConf, ngxConf1More,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConf1More,
 	},
 	"add_after_body": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"add_before_body": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"add_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE23,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake23,
 	},
 	"add_trailer": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE23,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake23,
 	},
 	"addition_types": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"aio": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"aio_write": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"alias": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxConfTake1,
 	},
 	"allow": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LMT_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLmtConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ancient_browser": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"ancient_browser_value": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"auth_basic": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LMT_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLmtConf, ngxConfTake1,
 	},
 	"auth_basic_user_file": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LMT_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLmtConf, ngxConfTake1,
 	},
 	"auth_http": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"auth_http_header": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE2,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake2,
 	},
 	"auth_http_pass_client_cert": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_FLAG,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfFlag,
 	},
 	"auth_http_timeout": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"auth_request": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"auth_request_set": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"autoindex": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"autoindex_exact_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"autoindex_format": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"autoindex_localtime": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"break": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_SIF_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_NOARGS,
+		ngxHttpSrvConf, ngxHttpSifConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfNoArgs,
 	},
 	"charset": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"charset_map": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxConfBlock, ngxConfTake2,
 	},
 	"charset_types": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"chunked_transfer_encoding": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"client_body_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"client_body_in_file_only": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"client_body_in_single_buffer": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"client_body_temp_path": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1234,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1234,
 	},
 	"client_body_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"client_header_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"client_header_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"client_max_body_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"connection_pool_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"create_full_put_path": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"daemon": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_FLAG,
+		ngxMainConf, ngxDirectConf, ngxConfFlag,
 	},
 	"dav_access": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE123,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake123,
 	},
 	"dav_methods": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"debug_connection": {
-		NGX_EVENT_CONF, NGX_CONF_TAKE1,
+		ngxEventConf, ngxConfTake1,
 	},
 	"debug_points": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"default_type": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"deny": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LMT_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLmtConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"directio": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"directio_alignment": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"disable_symlinks": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"empty_gif": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS,
+		ngxHttpLocConf, ngxConfNoArgs,
 	},
 	"env": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"error_log": {
-		NGX_MAIN_CONF, NGX_CONF_1MORE,
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_1MORE,
+		ngxMainConf, ngxConf1More,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConf1More,
 	},
 	"error_page": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConf2More,
 	},
 	"etag": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"events": {
-		NGX_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_NOARGS,
+		ngxMainConf, ngxConfBlock, ngxConfNoArgs,
 	},
 	"expires": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake12,
 	},
 	"fastcgi_bind": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"fastcgi_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_buffering": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"fastcgi_busy_buffers_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_cache_background_update": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_cache_bypass": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"fastcgi_cache_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_cache_lock": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_cache_lock_age": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_cache_lock_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_cache_max_range_offset": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_cache_methods": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"fastcgi_cache_min_uses": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_cache_path": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxConf2More,
 	},
 	"fastcgi_cache_revalidate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_cache_use_stale": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"fastcgi_cache_valid": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"fastcgi_catch_stderr": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_connect_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_force_ranges": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_hide_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_ignore_client_abort": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_ignore_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"fastcgi_index": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_intercept_errors": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_keep_conn": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_limit_rate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_max_temp_file_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_next_upstream": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"fastcgi_next_upstream_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_next_upstream_tries": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_no_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"fastcgi_param": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE23,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake23,
 	},
 	"fastcgi_pass": {
-		NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"fastcgi_pass_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_pass_request_body": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_pass_request_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_read_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_request_buffering": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"fastcgi_send_lowat": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_send_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_split_path_info": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_store": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_store_access": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE123,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake123,
 	},
 	"fastcgi_temp_file_write_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_temp_path": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1234,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1234,
 	},
 	"fastcgi_socket_keepalive": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"flv": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS,
+		ngxHttpLocConf, ngxConfNoArgs,
 	},
 	"geo": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE12,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxConfBlock, ngxConfTake12,
+		ngxStreamMainConf, ngxConfBlock, ngxConfTake12,
 	},
 	"geoip_city": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxConfTake12,
+		ngxStreamMainConf, ngxConfTake12,
 	},
 	"geoip_country": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxConfTake12,
+		ngxStreamMainConf, ngxConfTake12,
 	},
 	"geoip_org": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxConfTake12,
+		ngxStreamMainConf, ngxConfTake12,
 	},
 	"geoip_proxy": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
 	},
 	"geoip_proxy_recursive": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxConfFlag,
 	},
 	"google_perftools_profiles": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 
 	"grpc_bind": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"grpc_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_connect_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_hide_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_ignore_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"grpc_intercept_errors": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"grpc_next_upstream": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"grpc_next_upstream_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_next_upstream_tries": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_pass": {
-		NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"grpc_pass_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_read_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_send_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_set_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"grpc_socket_keepalive": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"grpc_ssl_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_ssl_certificate_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_ssl_ciphers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_ssl_crl": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_ssl_name": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_ssl_password_file": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_ssl_protocols": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"grpc_ssl_server_name": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"grpc_ssl_session_reuse": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"grpc_ssl_trusted_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"grpc_ssl_verify": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"grpc_ssl_verify_depth": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 
 	"gunzip": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"gunzip_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"gzip": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfFlag,
 	},
 	"gzip_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"gzip_comp_level": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"gzip_disable": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"gzip_http_version": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"gzip_min_length": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"gzip_proxied": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"gzip_static": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"gzip_types": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"gzip_vary": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"hash": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_UPS_CONF, NGX_CONF_TAKE12,
+		ngxHttpUpsConf, ngxConfTake12,
+		ngxStreamUpsConf, ngxConfTake12,
 	},
 	"http": {
-		NGX_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_NOARGS,
+		ngxMainConf, ngxConfBlock, ngxConfNoArgs,
 	},
 	"http2_body_preread_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"http2_chunk_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"http2_idle_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"http2_max_concurrent_streams": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"http2_max_field_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"http2_max_header_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"http2_max_requests": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"http2_recv_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
 	},
 	"http2_recv_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"http2_push": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"http2_push_preload": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"http2_max_concurrent_pushes": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"if": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_BLOCK, NGX_CONF_1MORE,
+		ngxHttpSrvConf, ngxHttpLocConf, ngxConfBlock, ngxConf1More,
 	},
 	"if_modified_since": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"ignore_invalid_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
 	},
 	"image_filter": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_TAKE123,
+		ngxHttpLocConf, ngxConfTake123,
 	},
 	"image_filter_buffer": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"image_filter_interlace": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"image_filter_jpeg_quality": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"image_filter_sharpen": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"image_filter_transparency": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"image_filter_webp_quality": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"imap_auth": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
 	},
 	"imap_capabilities": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
 	},
 	"imap_client_buffer": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"include": {
-		NGX_ANY_CONF, NGX_CONF_TAKE1,
+		NGX_ANY_CONF, ngxConfTake1,
 	},
 	"index": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"internal": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS,
+		ngxHttpLocConf, ngxConfNoArgs,
 	},
 	"ip_hash": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_NOARGS,
+		ngxHttpUpsConf, ngxConfNoArgs,
 	},
 	"keepalive": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE1,
+		ngxHttpUpsConf, ngxConfTake1,
 	},
 	"keepalive_disable": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"keepalive_requests": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxHttpUpsConf, ngxConfTake1,
 	},
 	"keepalive_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
+		ngxHttpUpsConf, ngxConfTake1,
 	},
 	"large_client_header_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake2,
 	},
 	"least_conn": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_NOARGS,
-		NGX_STREAM_UPS_CONF, NGX_CONF_NOARGS,
+		ngxHttpUpsConf, ngxConfNoArgs,
+		ngxStreamUpsConf, ngxConfNoArgs,
 	},
 	"limit_conn": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake2,
 	},
 	"limit_conn_log_level": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"limit_conn_status": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"limit_conn_zone": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE2,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxConfTake2,
+		ngxStreamMainConf, ngxConfTake2,
 	},
 	"limit_except": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_BLOCK, NGX_CONF_1MORE,
+		ngxHttpLocConf, ngxConfBlock, ngxConf1More,
 	},
 	"limit_rate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"limit_rate_after": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"limit_req": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE123,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake123,
 	},
 	"limit_req_log_level": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"limit_req_status": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"limit_req_zone": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE3,
+		ngxHttpMainConf, ngxConfTake3,
 	},
 	"lingering_close": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"lingering_time": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"lingering_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"listen": {
-		NGX_HTTP_SRV_CONF, NGX_CONF_1MORE,
-		NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
-		NGX_STREAM_SRV_CONF, NGX_CONF_1MORE,
+		ngxHttpSrvConf, ngxConf1More,
+		ngxMailSrvConf, ngxConf1More,
+		ngxStreamSrvConf, ngxConf1More,
 	},
 	"load_module": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"location": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE12,
+		ngxHttpSrvConf, ngxHttpLocConf, ngxConfBlock, ngxConfTake12,
 	},
 	"lock_file": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"log_format": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxConf2More,
+		ngxStreamMainConf, ngxConf2More,
 	},
 	"log_not_found": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"log_subrequest": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"mail": {
-		NGX_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_NOARGS,
+		ngxMainConf, ngxConfBlock, ngxConfNoArgs,
 	},
 	"map": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE2,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxConfBlock, ngxConfTake2,
+		ngxStreamMainConf, ngxConfBlock, ngxConfTake2,
 	},
 	"map_hash_bucket_size": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
+		ngxStreamMainConf, ngxConfTake1,
 	},
 	"map_hash_max_size": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
+		ngxStreamMainConf, ngxConfTake1,
 	},
 	"master_process": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_FLAG,
+		ngxMainConf, ngxDirectConf, ngxConfFlag,
 	},
 	"max_ranges": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"memcached_bind": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"memcached_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"memcached_connect_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"memcached_gzip_flag": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"memcached_next_upstream": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"memcached_next_upstream_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"memcached_next_upstream_tries": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"memcached_pass": {
-		NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"memcached_read_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"memcached_send_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"memcached_socket_keepalive": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"merge_slashes": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
 	},
 	"min_delete_depth": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"mirror": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"mirror_request_body": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"modern_browser": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"modern_browser_value": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"mp4": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS,
+		ngxHttpLocConf, ngxConfNoArgs,
 	},
 	"mp4_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"mp4_max_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"msie_padding": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"msie_refresh": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"multi_accept": {
-		NGX_EVENT_CONF, NGX_CONF_FLAG,
+		ngxEventConf, ngxConfFlag,
 	},
 	"open_file_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"open_file_cache_errors": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"open_file_cache_min_uses": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"open_file_cache_valid": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"open_log_file_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1234,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1234,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1234,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1234,
 	},
 	"output_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"override_charset": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfFlag,
 	},
 	"pcre_jit": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_FLAG,
+		ngxMainConf, ngxDirectConf, ngxConfFlag,
 	},
 	"perl": {
-		NGX_HTTP_LOC_CONF, NGX_HTTP_LMT_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxHttpLmtConf, ngxConfTake1,
 	},
 	"perl_modules": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
 	},
 	"perl_require": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
 	},
 	"perl_set": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxConfTake2,
 	},
 	"pid": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"pop3_auth": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
 	},
 	"pop3_capabilities": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
 	},
 	"port_in_redirect": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"postpone_output": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"preread_buffer_size": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"preread_timeout": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"protocol": {
-		NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailSrvConf, ngxConfTake1,
 	},
 	"proxy_bind": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake12,
 	},
 	"proxy_buffer": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"proxy_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_buffering": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"proxy_busy_buffers_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_cache_background_update": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_cache_bypass": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"proxy_cache_convert_head": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_cache_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_cache_lock": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_cache_lock_age": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_cache_lock_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_cache_max_range_offset": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_cache_methods": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"proxy_cache_min_uses": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_cache_path": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxConf2More,
 	},
 	"proxy_cache_revalidate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_cache_use_stale": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"proxy_cache_valid": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"proxy_connect_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_cookie_domain": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"proxy_cookie_path": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"proxy_download_rate": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_force_ranges": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_headers_hash_bucket_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_headers_hash_max_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_hide_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_http_version": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_ignore_client_abort": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_ignore_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"proxy_intercept_errors": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_limit_rate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_max_temp_file_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_method": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_next_upstream": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"proxy_next_upstream_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_next_upstream_tries": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_no_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"proxy_pass": {
-		NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_HTTP_LMT_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxHttpLifConf, ngxHttpLmtConf, ngxConfTake1,
+		ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_pass_error_message": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_FLAG,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfFlag,
 	},
 	"proxy_pass_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_pass_request_body": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_pass_request_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_protocol": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"proxy_protocol_timeout": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_read_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_redirect": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"proxy_request_buffering": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"proxy_responses": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_send_lowat": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_send_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_set_body": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_set_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"proxy_ssl": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"proxy_ssl_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_ssl_certificate_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_ssl_ciphers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_ssl_crl": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_ssl_name": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_ssl_password_file": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_ssl_protocols": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConf1More,
 	},
 	"proxy_ssl_server_name": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"proxy_ssl_session_reuse": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"proxy_ssl_trusted_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_ssl_verify": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"proxy_ssl_verify_depth": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_store": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_store_access": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE123,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake123,
 	},
 	"proxy_temp_file_write_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"proxy_temp_path": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1234,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1234,
 	},
 	"proxy_timeout": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"proxy_upload_rate": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"random": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_NOARGS, NGX_CONF_TAKE12,
-		NGX_STREAM_UPS_CONF, NGX_CONF_NOARGS, NGX_CONF_TAKE12,
+		ngxHttpUpsConf, ngxConfNoArgs, ngxConfTake12,
+		ngxStreamUpsConf, ngxConfNoArgs, ngxConfTake12,
 	},
 	"random_index": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpLocConf, ngxConfFlag,
 	},
 	"read_ahead": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"real_ip_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"real_ip_recursive": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"recursive_error_pages": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"referer_hash_bucket_size": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"referer_hash_max_size": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"request_pool_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"reset_timedout_connection": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"resolver": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConf1More,
 	},
 	"resolver_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"return": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_SIF_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpSrvConf, ngxHttpSifConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake12,
+		ngxStreamSrvConf, ngxConfTake1,
 	},
 	"rewrite": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_SIF_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE23,
+		ngxHttpSrvConf, ngxHttpSifConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake23,
 	},
 	"rewrite_log": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_SIF_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpSifConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfFlag,
 	},
 	"root": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"satisfy": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_bind": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"scgi_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_buffering": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"scgi_busy_buffers_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_cache_background_update": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_cache_bypass": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"scgi_cache_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_cache_lock": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_cache_lock_age": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_cache_lock_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_cache_max_range_offset": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_cache_methods": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"scgi_cache_min_uses": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_cache_path": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxConf2More,
 	},
 	"scgi_cache_revalidate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_cache_use_stale": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"scgi_cache_valid": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"scgi_connect_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_force_ranges": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_hide_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_ignore_client_abort": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_ignore_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"scgi_intercept_errors": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_limit_rate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_max_temp_file_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_next_upstream": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"scgi_next_upstream_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_next_upstream_tries": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_no_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"scgi_param": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE23,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake23,
 	},
 	"scgi_pass": {
-		NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"scgi_pass_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_pass_request_body": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_pass_request_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_read_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_request_buffering": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"scgi_send_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_store": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_store_access": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE123,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake123,
 	},
 	"scgi_temp_file_write_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"scgi_temp_path": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1234,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1234,
 	},
 	"secure_link": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"secure_link_md5": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"secure_link_secret": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"send_lowat": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"send_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"sendfile": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfFlag,
 	},
 	"sendfile_max_chunk": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"server": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_NOARGS,
-		NGX_HTTP_UPS_CONF, NGX_CONF_1MORE,
-		NGX_MAIL_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_NOARGS,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_NOARGS,
-		NGX_STREAM_UPS_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxConfBlock, ngxConfNoArgs,
+		ngxHttpUpsConf, ngxConf1More,
+		ngxMailMainConf, ngxConfBlock, ngxConfNoArgs,
+		ngxStreamMainConf, ngxConfBlock, ngxConfNoArgs,
+		ngxStreamUpsConf, ngxConf1More,
 	},
 	"server_name": {
-		NGX_HTTP_SRV_CONF, NGX_CONF_1MORE,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpSrvConf, ngxConf1More,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"server_name_in_redirect": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"server_names_hash_bucket_size": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
 	},
 	"server_names_hash_max_size": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
 	},
 	"server_tokens": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"set": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_SIF_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE2,
+		ngxHttpSrvConf, ngxHttpSifConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake2,
 	},
 	"set_real_ip_from": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"slice": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"smtp_auth": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
 	},
 	"smtp_capabilities": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
 	},
 	"smtp_client_buffer": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"smtp_greeting_delay": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"source_charset": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"spdy_chunk_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"spdy_headers_comp": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"split_clients": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE2,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxConfBlock, ngxConfTake2,
+		ngxStreamMainConf, ngxConfBlock, ngxConfTake2,
 	},
 	"ssi": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfFlag,
 	},
 	"ssi_last_modified": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"ssi_min_file_chunk": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"ssi_silent_errors": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"ssi_types": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"ssi_value_length": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"ssl": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfFlag,
 	},
 	"ssl_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"ssl_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_certificate_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_ciphers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_client_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_crl": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_dhparam": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_early_data": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
 	},
 	"ssl_ecdh_curve": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_engine": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"ssl_handshake_timeout": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_password_file": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_prefer_server_ciphers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_FLAG,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfFlag,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"ssl_preread": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"ssl_protocols": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_1MORE,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_1MORE,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConf1More,
+		ngxMailMainConf, ngxMailSrvConf, ngxConf1More,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConf1More,
 	},
 	"ssl_session_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE12,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake12,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake12,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake12,
 	},
 	"ssl_session_ticket_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_session_tickets": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_FLAG,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfFlag,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"ssl_session_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_stapling": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
 	},
 	"ssl_stapling_file": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"ssl_stapling_responder": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
 	},
 	"ssl_stapling_verify": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
 	},
 	"ssl_trusted_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_verify_client": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"ssl_verify_depth": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfTake1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"starttls": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"stream": {
-		NGX_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_NOARGS,
+		ngxMainConf, ngxConfBlock, ngxConfNoArgs,
 	},
 	"stub_status": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS, NGX_CONF_TAKE1,
+		ngxHttpSrvConf, ngxHttpLocConf, ngxConfNoArgs, ngxConfTake1,
 	},
 	"sub_filter": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"sub_filter_last_modified": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"sub_filter_once": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"sub_filter_types": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"subrequest_output_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"tcp_nodelay": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"tcp_nopush": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"thread_pool": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE23,
+		ngxMainConf, ngxDirectConf, ngxConfTake23,
 	},
 	"timeout": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_TAKE1,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"timer_resolution": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"try_files": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_2MORE,
+		ngxHttpSrvConf, ngxHttpLocConf, ngxConf2More,
 	},
 	"types": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_BLOCK, NGX_CONF_NOARGS,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfBlock, ngxConfNoArgs,
 	},
 	"types_hash_bucket_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"types_hash_max_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"underscores_in_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxConfFlag,
 	},
 	"uninitialized_variable_warn": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_SIF_CONF, NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpSifConf, ngxHttpLocConf, ngxHttpLifConf, ngxConfFlag,
 	},
 	"upstream": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfBlock, ngxConfTake1,
+		ngxStreamMainConf, ngxConfBlock, ngxConfTake1,
 	},
 	"use": {
-		NGX_EVENT_CONF, NGX_CONF_TAKE1,
+		ngxEventConf, ngxConfTake1,
 	},
 	"user": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE12,
+		ngxMainConf, ngxDirectConf, ngxConfTake12,
 	},
 	"userid": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"userid_domain": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"userid_expires": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"userid_mark": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"userid_name": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"userid_p3p": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"userid_path": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"userid_service": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_bind": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"uwsgi_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_buffering": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"uwsgi_busy_buffers_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_cache_background_update": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_cache_bypass": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"uwsgi_cache_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_cache_lock": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_cache_lock_age": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_cache_lock_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_cache_max_range_offset": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_cache_methods": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"uwsgi_cache_min_uses": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_cache_path": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxConf2More,
 	},
 	"uwsgi_cache_revalidate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_cache_use_stale": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"uwsgi_cache_valid": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"uwsgi_connect_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_force_ranges": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_hide_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_ignore_client_abort": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_ignore_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"uwsgi_intercept_errors": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_limit_rate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_max_temp_file_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_modifier1": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_modifier2": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_next_upstream": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"uwsgi_next_upstream_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_next_upstream_tries": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_no_cache": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"uwsgi_param": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE23,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake23,
 	},
 	"uwsgi_pass": {
-		NGX_HTTP_LOC_CONF, NGX_HTTP_LIF_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxHttpLifConf, ngxConfTake1,
 	},
 	"uwsgi_pass_header": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_pass_request_body": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_pass_request_headers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_read_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_request_buffering": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_send_timeout": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_socket_keepalive": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_ssl_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_ssl_certificate_key": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_ssl_ciphers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_ssl_crl": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_ssl_name": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_ssl_password_file": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_ssl_protocols": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"uwsgi_ssl_server_name": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_ssl_session_reuse": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_ssl_trusted_certificate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_ssl_verify": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"uwsgi_ssl_verify_depth": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_store": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_store_access": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE123,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake123,
 	},
 	"uwsgi_temp_file_write_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"uwsgi_temp_path": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1234,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1234,
 	},
 	"valid_referers": {
-		NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"variables_hash_bucket_size": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
+		ngxStreamMainConf, ngxConfTake1,
 	},
 	"variables_hash_max_size": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
+		ngxStreamMainConf, ngxConfTake1,
 	},
 	"worker_aio_requests": {
-		NGX_EVENT_CONF, NGX_CONF_TAKE1,
+		ngxEventConf, ngxConfTake1,
 	},
 	"worker_connections": {
-		NGX_EVENT_CONF, NGX_CONF_TAKE1,
+		ngxEventConf, ngxConfTake1,
 	},
 	"worker_cpu_affinity": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_1MORE,
+		ngxMainConf, ngxDirectConf, ngxConf1More,
 	},
 	"worker_priority": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"worker_processes": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"worker_rlimit_core": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"worker_rlimit_nofile": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"worker_shutdown_timeout": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"working_directory": {
-		NGX_MAIN_CONF, NGX_DIRECT_CONF, NGX_CONF_TAKE1,
+		ngxMainConf, ngxDirectConf, ngxConfTake1,
 	},
 	"xclient": {
-		NGX_MAIL_MAIN_CONF, NGX_MAIL_SRV_CONF, NGX_CONF_FLAG,
+		ngxMailMainConf, ngxMailSrvConf, ngxConfFlag,
 	},
 	"xml_entities": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"xslt_last_modified": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"xslt_param": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"xslt_string_param": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"xslt_stylesheet": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpLocConf, ngxConf1More,
 	},
 	"xslt_types": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"zone": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_UPS_CONF, NGX_CONF_TAKE12,
+		ngxHttpUpsConf, ngxConfTake12,
+		ngxStreamUpsConf, ngxConfTake12,
 	},
 
 	// nginx+ directives {definitions inferred from docs}
 	"api": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxConfNoArgs, ngxConfTake1,
 	},
 	"auth_jwt": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"auth_jwt_claim_set": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxConf2More,
 	},
 	"auth_jwt_header_set": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxConf2More,
 	},
 	"auth_jwt_key_file": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"auth_jwt_key_request": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"auth_jwt_leeway": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"f4f": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS,
+		ngxHttpLocConf, ngxConfNoArgs,
 	},
 	"f4f_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"fastcgi_cache_purge": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"health_check": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_ANY,
-		NGX_STREAM_SRV_CONF, NGX_CONF_ANY,
+		ngxHttpLocConf, ngxConfAny,
+		ngxStreamSrvConf, ngxConfAny,
 	},
 	"health_check_timeout": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"hls": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS,
+		ngxHttpLocConf, ngxConfNoArgs,
 	},
 	"hls_buffers": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake2,
 	},
 	"hls_forward_args": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"hls_fragment": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"hls_mp4_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"hls_mp4_max_buffer_size": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"js_access": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"js_content": {
-		NGX_HTTP_LOC_CONF, NGX_HTTP_LMT_CONF, NGX_CONF_TAKE1,
+		ngxHttpLocConf, ngxHttpLmtConf, ngxConfTake1,
 	},
 	"js_filter": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"js_include": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
+		ngxStreamMainConf, ngxConfTake1,
 	},
 	"js_path": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfTake1,
 	},
 	"js_preread": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"js_set": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE2,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE2,
+		ngxHttpMainConf, ngxConfTake2,
+		ngxStreamMainConf, ngxConfTake2,
 	},
 	"keyval": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE3,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_TAKE3,
+		ngxHttpMainConf, ngxConfTake3,
+		ngxStreamMainConf, ngxConfTake3,
 	},
 	"keyval_zone": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_1MORE,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxConf1More,
+		ngxStreamMainConf, ngxConf1More,
 	},
 	"least_time": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE12,
-		NGX_STREAM_UPS_CONF, NGX_CONF_TAKE12,
+		ngxHttpUpsConf, ngxConfTake12,
+		ngxStreamUpsConf, ngxConfTake12,
 	},
 	"limit_zone": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE3,
+		ngxHttpMainConf, ngxConfTake3,
 	},
 	"match": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE1,
-		NGX_STREAM_MAIN_CONF, NGX_CONF_BLOCK, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxConfBlock, ngxConfTake1,
+		ngxStreamMainConf, ngxConfBlock, ngxConfTake1,
 	},
 	"memcached_force_ranges": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"mp4_limit_rate": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"mp4_limit_rate_after": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"ntlm": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_NOARGS,
+		ngxHttpUpsConf, ngxConfNoArgs,
 	},
 	"proxy_cache_purge": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"proxy_socket_keepalive": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"proxy_requests": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"queue": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE12,
+		ngxHttpUpsConf, ngxConfTake12,
 	},
 	"scgi_cache_purge": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"scgi_socket_keepalive": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfFlag,
 	},
 	"session_log": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE1,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake1,
 	},
 	"session_log_format": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_2MORE,
+		ngxHttpMainConf, ngxConf2More,
 	},
 	"session_log_zone": {
-		NGX_HTTP_MAIN_CONF, NGX_CONF_TAKE23, NGX_CONF_TAKE4, NGX_CONF_TAKE5, NGX_CONF_TAKE6,
+		ngxHttpMainConf, ngxConfTake23, ngxConfTake4, ngxConfTake5, ngxConfTake6,
 	},
 	"state": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_UPS_CONF, NGX_CONF_TAKE1,
+		ngxHttpUpsConf, ngxConfTake1,
+		ngxStreamUpsConf, ngxConfTake1,
 	},
 	"status": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS,
+		ngxHttpLocConf, ngxConfNoArgs,
 	},
 	"status_format": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_TAKE12,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConfTake12,
 	},
 	"status_zone": {
-		NGX_HTTP_SRV_CONF, NGX_CONF_TAKE1,
-		NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxHttpSrvConf, ngxConfTake1,
+		ngxStreamSrvConf, ngxConfTake1,
 	},
 	"sticky": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_1MORE,
+		ngxHttpUpsConf, ngxConf1More,
 	},
 	"sticky_cookie_insert": {
-		NGX_HTTP_UPS_CONF, NGX_CONF_TAKE1234,
+		ngxHttpUpsConf, ngxConfTake1234,
 	},
 	"upstream_conf": {
-		NGX_HTTP_LOC_CONF, NGX_CONF_NOARGS,
+		ngxHttpLocConf, ngxConfNoArgs,
 	},
 	"uwsgi_cache_purge": {
-		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_1MORE,
+		ngxHttpMainConf, ngxHttpSrvConf, ngxHttpLocConf, ngxConf1More,
 	},
 	"zone_sync": {
-		NGX_STREAM_SRV_CONF, NGX_CONF_NOARGS,
+		ngxStreamSrvConf, ngxConfNoArgs,
 	},
 	"zone_sync_buffers": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE2,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake2,
 	},
 	"zone_sync_connect_retry_interval": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_connect_timeout": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_interval": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_recv_buffer_size": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_server": {
-		NGX_STREAM_SRV_CONF, NGX_CONF_TAKE12,
+		ngxStreamSrvConf, ngxConfTake12,
 	},
 	"zone_sync_ssl": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"zone_sync_ssl_certificate": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_ssl_certificate_key": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_ssl_ciphers": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_ssl_crl": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_ssl_name": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_ssl_password_file": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_ssl_protocols": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_1MORE,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConf1More,
 	},
 	"zone_sync_ssl_server_name": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"zone_sync_ssl_trusted_certificate": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_ssl_verify": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_FLAG,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
 	},
 	"zone_sync_ssl_verify_depth": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"zone_sync_timeout": {
-		NGX_STREAM_MAIN_CONF, NGX_STREAM_SRV_CONF, NGX_CONF_TAKE1,
+		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 }
 
 // Context - contexts to a key to its bitmasks in Mask
 var Context = map[[3]string]Bits{
-	{}:                                   NGX_MAIN_CONF,
-	{"events"}:                           NGX_EVENT_CONF,
-	{"mail"}:                             NGX_MAIL_MAIN_CONF,
-	{"mail", "server"}:                   NGX_MAIL_SRV_CONF,
-	{"stream"}:                           NGX_STREAM_MAIN_CONF,
-	{"stream", "server"}:                 NGX_STREAM_SRV_CONF,
-	{"stream", "upstream"}:               NGX_STREAM_UPS_CONF,
-	{"http"}:                             NGX_HTTP_MAIN_CONF,
-	{"http", "server"}:                   NGX_HTTP_SRV_CONF,
-	{"http", "location"}:                 NGX_HTTP_LOC_CONF,
-	{"http", "upstream"}:                 NGX_HTTP_UPS_CONF,
-	{"http", "server", "if"}:             NGX_HTTP_SIF_CONF,
-	{"http", "location", "if"}:           NGX_HTTP_LIF_CONF,
-	{"http", "location", "limit_except"}: NGX_HTTP_LMT_CONF,
+	{}:                                   ngxMainConf,
+	{"events"}:                           ngxEventConf,
+	{"mail"}:                             ngxMailMainConf,
+	{"mail", "server"}:                   ngxMailSrvConf,
+	{"stream"}:                           ngxStreamMainConf,
+	{"stream", "server"}:                 ngxStreamSrvConf,
+	{"stream", "upstream"}:               ngxStreamUpsConf,
+	{"http"}:                             ngxHttpMainConf,
+	{"http", "server"}:                   ngxHttpSrvConf,
+	{"http", "location"}:                 ngxHttpLocConf,
+	{"http", "upstream"}:                 ngxHttpUpsConf,
+	{"http", "server", "if"}:             ngxHttpSifConf,
+	{"http", "location", "if"}:           ngxHttpLifConf,
+	{"http", "location", "limit_except"}: ngxHttpLmtConf,
 }
 
 func analyze(fname string, stmt statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
