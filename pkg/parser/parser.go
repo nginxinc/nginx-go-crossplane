@@ -37,7 +37,7 @@ type ParsingError error
 type Payload struct {
 	Status string
 	Errors []ParseError
-
+	File   string
 	Config []Config
 }
 
@@ -89,15 +89,23 @@ func Parse(a ParseArgs) (Payload, error) {
 		Status: "ok",
 		Errors: []ParseError{},
 		Config: []Config{},
+		File:   a.FileName,
 	}
 	for f, r := range includes {
-		token := []LexicalItem{} // lex(f)
 		p := Config{
 			File:   f,
 			Status: "ok",
 			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
+
+		/*s, err := ioutil.ReadFile(f)
+		if err != nil {
+			handleErrors(p, q, err, 0)
+			s = []byte{}
+		}*/
+		token := []LexicalItem{} // LexScanner(string(s))
+
 		// data to be changed to token
 		p.Parsed, _, e = parse(p, q, token, a, r, false)
 		if e != nil {
@@ -106,7 +114,7 @@ func Parse(a ParseArgs) (Payload, error) {
 		q.Config = append(q.Config, p)
 	}
 	if a.Combine {
-		return q, nil //combineParsedConfigs(p)
+		return combineParsedConfigs(q), nil
 	}
 
 	return q, nil
@@ -122,7 +130,6 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			Directive: "",
 			Line:      0,
 			Args:      []string{},
-			Includes:  []int{},
 			File:      "",
 			Comment:   "",
 			Block:     []Block{},
@@ -170,7 +177,6 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 					Block:     []Block{},
 					File:      "",
 					Line:      parsing[p].lineNum,
-					Includes:  []int{},
 				}
 
 			}
@@ -267,7 +273,7 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 					log.Fatal(err)
 				}
 			} else {
-				b, e := canRead(p, pattern, included, includes, args, parsed, pay, parsing)
+				b, e := canRead(p, pattern, args, parsed, pay, parsing)
 				if e != nil {
 					log.Fatal(e)
 				}
@@ -300,7 +306,7 @@ func checkIncluded(fname string, included []string) bool {
 	return true
 }
 
-func canRead(p int, pattern string, included []string, includes map[string][3]string, a ParseArgs, parsed Config, pay Payload, parsing []LexicalItem) (bool, error) {
+func canRead(p int, pattern string, a ParseArgs, parsed Config, pay Payload, parsing []LexicalItem) (bool, error) {
 	f, err := os.Open(pattern)
 	if err != nil {
 		if a.CatchErrors {
@@ -332,4 +338,65 @@ func handleErrors(parsed Config, pay Payload, e error, line int) {
 
 	pay.Status = "failed"
 	pay.Errors = append(pay.Errors, payloadErr)
+}
+
+func combineParsedConfigs(p Payload) Payload {
+	oldConfig := p.Config
+	var performIncludes func(b []Block) Block
+	performIncludes = func(b []Block) Block {
+		for _, block := range b {
+			if len(block.Block) > 0 {
+				a := performIncludes(block.Block)
+				block.Block = append(block.Block, a)
+			}
+			if block.Directive == "include" {
+				for _, f := range block.Args {
+					config := findFile(f, oldConfig)
+					g := performIncludes(config)
+					for _, blo := range g.Block {
+						return blo
+
+					}
+				}
+			} else {
+				return block
+			}
+		}
+		return Block{}
+	}
+
+	combineConfig := Config{
+		File:   oldConfig[0].File,
+		Status: "ok",
+		Errors: []ParseError{},
+		Parsed: []Block{},
+	}
+
+	for _, config := range oldConfig {
+		for _, e := range config.Errors {
+			combineConfig.Errors = append(combineConfig.Errors, e)
+		}
+		if config.Status != "ok" {
+			combineConfig.Status = "failed"
+		}
+	}
+	firstConfig := oldConfig[0].Parsed
+	combineConfig.Parsed = append(combineConfig.Parsed, performIncludes(firstConfig))
+
+	combinePayload := Payload{
+		Status: p.Status,
+		Errors: p.Errors,
+		File:   p.File,
+		Config: []Config{combineConfig},
+	}
+	return combinePayload
+}
+
+func findFile(f string, config []Config) []Block {
+	for _, i := range config {
+		if i.File == f {
+			return i.Parsed
+		}
+	}
+	return []Block{}
 }
