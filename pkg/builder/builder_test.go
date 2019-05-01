@@ -3,6 +3,7 @@ package builder
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -82,13 +83,76 @@ func TestBuilderUltraSimple(t *testing.T) {
 				},
 			},
 			`
-			http {
-				server {
-					listen 127.0.0.1:8080; #listen
-					server_name default_server;
-					location /; ## this is brace
+				http {
+					server {
+						listen 127.0.0.1:8080; #listen
+						server_name default_server;
+						location /; ## this is brace
+					}
 				}
-			}
+			`,
+		},
+		{
+			"basic: build nested and multiple args",
+			[]Block{
+				{
+					Directive: "events",
+					Args:      []string{},
+					Line:      1,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block: []Block{
+						{
+							Directive: "worker_connections",
+							Args:      []string{"1024"},
+							Line:      2,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
+							Block:     []Block{},
+						},
+					},
+				},
+				{
+					Directive: "http",
+					Args:      []string{},
+					Line:      4,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block: []Block{
+						{
+							Directive: "server",
+							Args:      []string{},
+							Line:      5,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
+							Block: []Block{
+								{
+									Directive: "listen",
+									Args:      []string{"127.0.0.1:8080"},
+									Line:      6,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+							},
+						},
+					},
+				},
+			},
+			`
+				events {
+					worker_connections 1024;
+				}
+				http {
+					server {
+						listen 127.0.0.1:8080;
+					}
+				}
 			`,
 		},
 	}
@@ -103,10 +167,15 @@ func TestBuilderUltraSimple(t *testing.T) {
 		if err != nil {
 			t.Error(test.title)
 		}
+
 		fmt.Println(result)
 		fmt.Println(test.expected)
+
+		reflect.DeepEqual(result, test.expected)
 		if result != test.expected {
 			t.Error(test.title)
+		} else {
+			fmt.Println("Success")
 		}
 	}
 }
