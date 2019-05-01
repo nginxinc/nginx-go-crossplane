@@ -13,45 +13,45 @@ type statement struct {
 type Bits uint
 
 const (
-	NGX_DIRECT_CONF      Bits = 0x00010000 // main file (not used)
-	NGX_MAIN_CONF        Bits = 0x00040000 // main context
-	NGX_EVENT_CONF       Bits = 0x00080000 // events
-	NGX_MAIL_MAIN_CONF   Bits = 0x00100000 // mail
-	NGX_MAIL_SRV_CONF    Bits = 0x00200000 // mail > server
-	NGX_STREAM_MAIN_CONF Bits = 0x00400000 // stream
-	NGX_STREAM_SRV_CONF  Bits = 0x00800000 // stream > server
-	NGX_STREAM_UPS_CONF  Bits = 0x01000000 // stream > upstream
-	NGX_HTTP_MAIN_CONF   Bits = 0x02000000 // http
-	NGX_HTTP_SRV_CONF    Bits = 0x04000000 // http > server
-	NGX_HTTP_LOC_CONF    Bits = 0x08000000 // http > location
-	NGX_HTTP_UPS_CONF    Bits = 0x10000000 // http > upstream
-	NGX_HTTP_SIF_CONF    Bits = 0x20000000 // http > server > if
-	NGX_HTTP_LIF_CONF    Bits = 0x40000000 // http > location > if
-	NGX_HTTP_LMT_CONF    Bits = 0x80000000
-	NGX_CONF_TAKE12      Bits = (NGX_CONF_TAKE1 | NGX_CONF_TAKE2)
-	NGX_CONF_TAKE13      Bits = (NGX_CONF_TAKE1 | NGX_CONF_TAKE3)
-	NGX_CONF_TAKE23      Bits = (NGX_CONF_TAKE2 | NGX_CONF_TAKE3)
-	NGX_CONF_TAKE123     Bits = (NGX_CONF_TAKE12 | NGX_CONF_TAKE3)
-	NGX_CONF_TAKE1234    Bits = (NGX_CONF_TAKE123 | NGX_CONF_TAKE4)
+	ngxDirectConf     Bits = 0x00010000 // main file (not used)
+	ngxMainConf       Bits = 0x00040000 // main context
+	ngxEventConf      Bits = 0x00080000 // events
+	ngxMailMainConf   Bits = 0x00100000 // mail
+	ngxMailSrvConf    Bits = 0x00200000 // mail > server
+	ngxStreamMainConf Bits = 0x00400000 // stream
+	ngxStreamSrvConf  Bits = 0x00800000 // stream > server
+	ngxStreamUpsConf  Bits = 0x01000000 // stream > upstream
+	ngxHttpMainConf   Bits = 0x02000000 // http
+	ngxHttpSrvConf    Bits = 0x04000000 // http > server
+	ngxHttpLocConf    Bits = 0x08000000 // http > location
+	ngxHttpUpsConf    Bits = 0x10000000 // http > upstream
+	ngxHttpSifConf    Bits = 0x20000000 // http > server > if
+	ngxHttpLifConf    Bits = 0x40000000 // http > location > if
+	ngxHttpLmtConf    Bits = 0x80000000
+	ngxConfTake12     Bits = (ngxConfTake1 | ngxConfTake2)
+	ngxConfTake13     Bits = (ngxConfTake1 | ngxConfTake3)
+	ngxConfTake23     Bits = (ngxConfTake2 | ngxConfTake3)
+	ngxConfTake123    Bits = (ngxConfTake12 | ngxConfTake3)
+	ngxConfTake1234   Bits = (ngxConfTake123 | ngxConfTake4)
 
 	// bit masks for different directive argument styles
-	NGX_CONF_NOARGS Bits = 0x00000001 // 0 args
-	NGX_CONF_TAKE1  Bits = 0x00000002 // 1 args
-	NGX_CONF_TAKE2  Bits = 0x00000004 // 2 args
-	NGX_CONF_TAKE3  Bits = 0x00000008 // 3 args
-	NGX_CONF_TAKE4  Bits = 0x00000010 // 4 args
-	NGX_CONF_TAKE5  Bits = 0x00000020 // 5 args
-	NGX_CONF_TAKE6  Bits = 0x00000040 // 6 args
-	NGX_CONF_TAKE7  Bits = 0x00000080 // 7 args
-	NGX_CONF_BLOCK  Bits = 0x00000100 // followed by block
-	NGX_CONF_FLAG   Bits = 0x00000200 // 'on' or 'off'
-	NGX_CONF_ANY    Bits = 0x00000400 // >=0 args
-	NGX_CONF_1MORE  Bits = 0x00000800 // >=1 args
-	NGX_CONF_2MORE  Bits = 0x00001000 // >=2 args
+	ngxConfNoArgs Bits = 0x00000001 // 0 args
+	ngxConfTake1  Bits = 0x00000002 // 1 args
+	ngxConfTake2  Bits = 0x00000004 // 2 args
+	ngxConfTake3  Bits = 0x00000008 // 3 args
+	ngxConfTake4  Bits = 0x00000010 // 4 args
+	ngxConfTake5  Bits = 0x00000020 // 5 args
+	ngxConfTake6  Bits = 0x00000040 // 6 args
+	ngxConfTake7  Bits = 0x00000080 // 7 args
+	ngxConfBlock  Bits = 0x00000100 // followed by block
+	ngxConfFlag   Bits = 0x00000200 // 'on' or 'off'
+	ngxConfAny    Bits = 0x00000400 // >=0 args
+	ngxConf1More  Bits = 0x00000800 // >=1 args
+	ngxConf2More  Bits = 0x00001000 // >=2 args
 
-	NGX_ANY_CONF Bits = (NGX_MAIN_CONF | NGX_EVENT_CONF | NGX_MAIL_MAIN_CONF | NGX_MAIL_SRV_CONF |
-		NGX_STREAM_MAIN_CONF | NGX_STREAM_SRV_CONF | NGX_STREAM_UPS_CONF |
-		NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_HTTP_UPS_CONF)
+	ngxAnyConf Bits = (ngxMainConf | ngxEventConf | ngxMailMainConf | ngxMailSrvConf |
+		ngxStreamMainConf | ngxStreamSrvConf | ngxStreamUpsConf |
+		ngxHttpMainConf | ngxHttpSrvConf | ngxHttpLocConf | ngxHttpUpsConf)
 )
 
 // Directives -
