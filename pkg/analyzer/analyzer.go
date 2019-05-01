@@ -54,26 +54,20 @@ const (
 		NGX_HTTP_MAIN_CONF | NGX_HTTP_SRV_CONF | NGX_HTTP_LOC_CONF | NGX_HTTP_UPS_CONF)
 )
 
-/*DIRECTIVES
-
-This dict maps directives to lists of bit masks that define their behavior.
-
-Each bit mask describes these behaviors:
-  - how many arguments the directive can take
-  - whether or not it is a block directive
-  - whether this is a flag (takes one argument that's either "on" or "off")
-  - which contexts it's allowed to be in
-
-Since some directives can have different behaviors in different contexts, we
-  use lists of bit masks, each describing a valid way to use the directive.
-
-Definitions for directives that're available in the open source version of
-  nginx were taken directively from the source code. In fact, the variable
-  names for the bit masks defined above were taken from the nginx source code.
-
-Definitions for directives that're only available for nginx+ were inferred
-  from the documentation at http://nginx.org/en/docs/.
-*/
+// Directives -
+// This dict maps directives to lists of bit masks that define their behavior.
+//Each bit mask describes these behaviors:
+//  - how many arguments the directive can take
+//  - whether or not it is a block directive
+//  - whether this is a flag (takes one argument that's either "on" or "off")
+//  - which contexts it's allowed to be in
+// Since some directives can have different behaviors in different contexts, we
+//  use lists of bit masks, each describing a valid way to use the directive.
+//Definitions for directives that're available in the open source version of
+//  nginx were taken directively from the source code. In fact, the variable
+//  names for the bit masks defined above were taken from the nginx source code.
+//Definitions for directives that're only available for nginx+ were inferred
+//  from the documentation at http://nginx.org/en/docs/.
 var Directives = map[string][]Bits{
 	"absolute_redirect": {
 		NGX_HTTP_MAIN_CONF, NGX_HTTP_SRV_CONF, NGX_HTTP_LOC_CONF, NGX_CONF_FLAG,
