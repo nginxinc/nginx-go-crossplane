@@ -35,16 +35,19 @@ type ParseError struct {
 // Build takes a string representing NGINX configuration
 // builds it into conf format and returns that as a string
 func Build(payload string, indent int, tabs, header bool) (string, error) {
-	//padding := strings.Repeat("\t ", indent)
-
 	data := []Block{}
 	err := json.Unmarshal([]byte(payload), &data)
 	if err != nil {
 		return "", fmt.Errorf("error unmarshalling payload: %v", err)
 	}
-
-	body := " "
-	//result = strings.Repeat("\t ", indent)
+	/*
+		if tabs {
+			padding := "\t"
+		} else {
+			padding := strings.Repeat(" ", indent)
+		}
+	*/
+	var body string
 	body = BuildBlock(body, data, 4, 0)
 
 	return body, nil
@@ -54,6 +57,7 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 func BuildBlock(output string, block []Block, depth, lastline int) string {
 	var built string
 	margin := strings.Repeat("\t", depth)
+	//margin := depth
 
 	for _, stmt := range block {
 		line := stmt.Line
@@ -79,7 +83,7 @@ func BuildBlock(output string, block []Block, depth, lastline int) string {
 			}
 
 			if output != " " {
-				output += "\n " + margin + built
+				output += "\n" + margin + built
 			} else {
 				output += " " + margin + built
 			}

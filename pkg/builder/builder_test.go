@@ -3,7 +3,6 @@ package builder
 import (
 	"encoding/json"
 	"fmt"
-	"reflect"
 	"testing"
 )
 
@@ -89,8 +88,7 @@ func TestBuilderUltraSimple(t *testing.T) {
 						server_name default_server;
 						location /; ## this is brace
 					}
-				}
-			`,
+				}`,
 		},
 		{
 			"basic: build nested and multiple args",
@@ -152,8 +150,7 @@ func TestBuilderUltraSimple(t *testing.T) {
 					server {
 						listen 127.0.0.1:8080;
 					}
-				}
-			`,
+				}`,
 		},
 	}
 
@@ -167,16 +164,16 @@ func TestBuilderUltraSimple(t *testing.T) {
 		if err != nil {
 			t.Error(test.title)
 		}
+		if result != test.expected {
+			t.Error(test.title)
+		}
 
 		fmt.Println(result)
 		fmt.Println(test.expected)
+		//fmt.Println(strings.Compare(result, test.expected))
 
-		reflect.DeepEqual(result, test.expected)
-		if result != test.expected {
-			t.Error(test.title)
-		} else {
-			fmt.Println("Success")
-		}
+		//s := fmt.Sprintf("%q is %q", result, test.expected)
+		//fmt.Println(s)
 	}
 }
 
