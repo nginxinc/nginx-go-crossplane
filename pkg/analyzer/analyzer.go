@@ -5,11 +5,14 @@ import (
 	"strings"
 )
 
-type statement struct {
+// Statement struct used for analysing directives and other information
+type Statement struct {
 	directive string
 	args      [1]string
 	line      int
 }
+
+// Bits type for constant bit vars
 type Bits uint
 
 const (
@@ -2098,7 +2101,8 @@ var Context = map[[3]string]Bits{
 	{"http", "location", "limit_except"}: ngxHTTPLmtConf,
 }
 
-func analyze(fname string, stmt statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
+// Analyze Directives and args in nginc.conf file
+func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
 	directive := stmt.directive
 	dir := checkDirective(directive, Directives)
 
@@ -2196,7 +2200,7 @@ func checkDirective(dir string, direct map[string][]Bits) bool {
 	return false
 }
 
-func enterBlockCTX(stmt statement, ctx [3]string) [3]string {
+func enterBlockCTX(stmt Statement, ctx [3]string) [3]string {
 	if len(ctx) != 0 && ctx[0] == "http" && stmt.directive == "location" {
 		return [3]string{"http", "location"}
 	}
