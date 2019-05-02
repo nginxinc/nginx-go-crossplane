@@ -2,7 +2,7 @@ package builder
 
 import (
 	"encoding/json"
-	"fmt"
+	"strings"
 	"testing"
 )
 
@@ -82,13 +82,13 @@ func TestBuilderUltraSimple(t *testing.T) {
 				},
 			},
 			`
-				http {
-					server {
-						listen 127.0.0.1:8080; #listen
-						server_name default_server;
-						location /; ## this is brace
-					}
-				}`,
+http {
+	server {
+		listen 127.0.0.1:8080; #listen
+		server_name default_server;
+		location /; ## this is brace
+	}
+}`,
 		},
 		{
 			"basic: build nested and multiple args",
@@ -143,14 +143,14 @@ func TestBuilderUltraSimple(t *testing.T) {
 				},
 			},
 			`
-				events {
-					worker_connections 1024;
-				}
-				http {
-					server {
-						listen 127.0.0.1:8080;
-					}
-				}`,
+events {
+	worker_connections 1024;
+}
+http {
+	server {
+		listen 127.0.0.1:8080;
+	}
+}`,
 		},
 	}
 
@@ -159,8 +159,10 @@ func TestBuilderUltraSimple(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error %v", err)
 		}
-
 		result, err := Build(string(out), 4, false, false)
+
+		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+
 		if err != nil {
 			t.Error(test.title)
 		}
@@ -168,9 +170,8 @@ func TestBuilderUltraSimple(t *testing.T) {
 			t.Error(test.title)
 		}
 
-		fmt.Println(result)
-		fmt.Println(test.expected)
-		//fmt.Println(strings.Compare(result, test.expected))
+		//fmt.Println(result)
+		//fmt.Println(test.expected)
 
 		//s := fmt.Sprintf("%q is %q", result, test.expected)
 		//fmt.Println(s)
