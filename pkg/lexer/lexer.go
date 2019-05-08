@@ -82,19 +82,6 @@ func consumeWord(data []byte) (int, []byte, error) {
 	return 0, nil, nil
 }
 
-func consumeWhitespace(data []byte) (int, []byte, error) {
-	var accum []byte
-	for i, b := range data {
-		if b == ' ' || b == '\n' || b == '\t' || b == '\r' {
-			accum = append(accum, b)
-		} else {
-			return i, accum, nil
-			// return i, data[len(accum):len(data)], nil
-		}
-	}
-	return 0, nil, nil
-}
-
 func consumeNum(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
