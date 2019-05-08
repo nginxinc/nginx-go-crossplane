@@ -68,17 +68,19 @@ func BuildBlock(output string, block []Block, depth, lastline int) string {
 		} else if stmt.Directive == "#" {
 			built = "#" + stmt.Comment
 		} else {
+
 			if stmt.Directive == "if" {
-				built = "if (" + " " + strings.Join(stmt.Args, "") + ")"
-			} else if stmt.Args != nil {
-				built = stmt.Directive + " " + strings.Join(stmt.Args, "")
+				built = "if (" + strings.Join(stmt.Args, " ") + ")"
+			} else if len(stmt.Args) > 0 {
+				built = stmt.Directive + " " + strings.Join(stmt.Args, " ")
 			} else {
 				built = stmt.Directive
 			}
+
 			if len(stmt.Block) <= 0 {
 				built += ";"
 			} else {
-				built += "{"
+				built += " {"
 				built = BuildBlock(built, stmt.Block, depth+1, line)
 				built += "\n" + margin + "}"
 			}

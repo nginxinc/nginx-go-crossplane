@@ -2,6 +2,7 @@ package builder
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -137,6 +138,34 @@ http {
 									Comment:   "",
 									Block:     []Block{},
 								},
+								{
+									Directive: "server_name",
+									Args:      []string{"default_server"},
+									Line:      7,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "location",
+									Args:      []string{"/"},
+									Line:      8,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block: []Block{
+										{
+											Directive: "return",
+											Args:      []string{"200", "foo bar baz"},
+											Line:      9,
+											Includes:  []int{},
+											File:      "",
+											Comment:   "",
+											Block:     []Block{},
+										},
+									},
+								},
 							},
 						},
 					},
@@ -149,6 +178,10 @@ events {
 http {
 	server {
 		listen 127.0.0.1:8080;
+		server_name default_server;
+		location / {
+			return 200 foo bar baz;
+		}
 	}
 }`,
 		},
@@ -170,8 +203,8 @@ http {
 			t.Error(test.title)
 		}
 
-		//fmt.Println(result)
-		//fmt.Println(test.expected)
+		fmt.Println(result)
+		fmt.Println(test.expected)
 
 		//s := fmt.Sprintf("%q is %q", result, test.expected)
 		//fmt.Println(s)
