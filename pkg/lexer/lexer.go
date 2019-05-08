@@ -33,10 +33,8 @@ func balanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 			switch i.item {
 			case "{":
 				balance = balance + 1
-				break
 			case "}":
 				balance = balance - 1
-				break
 			}
 			mu.Unlock()
 		}(lexicalItem)
