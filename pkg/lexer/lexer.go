@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"sync"
 )
 
 // LexicalItem -
@@ -17,29 +16,18 @@ type LexicalItem struct {
 // BalanceBraces found in a lexical item array.
 // returns an error if lexemes right and left braces are not balanced
 func BalanceBraces(lexicalItems []LexicalItem) error {
-	var (
-		mu      sync.Mutex
-		wg      sync.WaitGroup
-		balance int
-	)
-
+	balance := 0
 	for _, lexicalItem := range lexicalItems {
-		wg.Add(1)
-		go func(i LexicalItem) {
-			defer wg.Done()
-			mu.Lock()
-			switch i.item {
-			case "{":
-				balance = balance + 1
-			case "}":
-				balance = balance - 1
-			}
-			mu.Unlock()
-		}(lexicalItem)
+
+		switch lexicalItem.item {
+		case "{":
+			balance = balance + 1
+		case "}":
+			balance = balance - 1
+		}
 	}
-	wg.Wait()
 	if balance != 0 {
-		fmt.Errorf("UnbalancedBracesError: braces are not balanced")
+		return fmt.Errorf("UnbalancedBracesError: braces are not balanced")
 	}
 	return nil
 
