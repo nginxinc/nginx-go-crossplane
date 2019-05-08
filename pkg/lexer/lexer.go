@@ -14,9 +14,9 @@ type LexicalItem struct {
 	lineNum int
 }
 
-// balance braces found in a lexical item array.
+// BalanceBraces found in a lexical item array.
 // returns an error if lexemes right and left braces are not balanced
-func balanceBraces(lexicalItems []LexicalItem) error {
+func BalanceBraces(lexicalItems []LexicalItem) error {
 	var (
 		mu      sync.Mutex
 		wg      sync.WaitGroup
