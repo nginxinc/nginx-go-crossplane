@@ -39,12 +39,13 @@ func TestBalanceBraces(t *testing.T) {
 				{"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1},
 				{"}", 2}, {"}", 2}, {"}", 2}, {"}", 2}, {"{", 2}, {"}", 2}, {"}", 2}, {"}", 2},
 			},
-			"UnbalancedBracesError: braces are not balanced",
+			UnbalancedBracesError("UnbalancedBracesError: braces are not balanced"),
 		},
 	}
 	for _, tt := range testCases {
 		t.Log(tt.title)
-		err := balanceBraces(tt.input)
+		err := BalanceBraces(tt.input)
+
 		if err != tt.expected {
 			t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected, err)
 		}

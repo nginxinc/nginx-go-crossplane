@@ -2,10 +2,12 @@ package lexer
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strings"
 )
+
+// UnbalancedBracesError -
+type UnbalancedBracesError string
 
 // LexicalItem -
 type LexicalItem struct {
@@ -15,7 +17,7 @@ type LexicalItem struct {
 
 // BalanceBraces found in a lexical item array.
 // returns an error if lexemes right and left braces are not balanced
-func BalanceBraces(lexicalItems []LexicalItem) error {
+func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	balance := 0
 	for _, lexicalItem := range lexicalItems {
 
@@ -27,10 +29,9 @@ func BalanceBraces(lexicalItems []LexicalItem) error {
 		}
 	}
 	if balance != 0 {
-		return fmt.Errorf("UnbalancedBracesError: braces are not balanced")
+		return UnbalancedBracesError("UnbalancedBracesError: braces are not balanced")
 	}
-	return nil
-
+	return UnbalancedBracesError("")
 }
 
 func iterescape(data string) []byte {
