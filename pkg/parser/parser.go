@@ -85,7 +85,6 @@ var includes = map[string][3]string{}
 func Parse(file string, catcherr bool, ignore []string, single bool, comment bool, strict bool,
 	combine bool, consume bool, checkctx bool, checkargs bool) (Payload, error) {
 	var e error
-
 	a := ParseArgs{
 		FileName:    file,
 		CatchErrors: catcherr,
@@ -113,14 +112,8 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			Parsed: []Block{},
 		}
 
-		/*s, err := ioutil.ReadFile(f)
-		if err != nil {
-			handleErrors(p, q, err, 0)
-			s = []byte{}
-		}*/
 		token := []LexicalItem{} // LexScanner(string(s))
 
-		// data to be changed to token
 		p.Parsed, _, e = parse(p, q, token, a, r, false)
 		if e != nil {
 			return q, e
@@ -198,7 +191,6 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 		}
 		// args for directives
 		a := []string{}
-
 		p++
 		for ; parsing[p].item != ";" && parsing[p].item != "{" && parsing[p].item != "}"; p++ {
 			a = append(a, parsing[p].item)
@@ -263,7 +255,6 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			p += l
 		}
 
-		// run glob
 		if args.Single && block.Directive == "include" {
 			configDir := filepath.Dir(args.FileName)
 			pattern := block.Args[0]
@@ -272,7 +263,6 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			if filepath.IsAbs(pattern) {
 				pattern = filepath.Join(configDir, pattern)
 			}
-			// create a list of special chars *?\[] etc and check if they're in pattern
 
 			hasMagic := func(pat string) bool {
 				magic := []byte{'*', '?', ']', '[', '{', '}', '(', ')'}
@@ -307,7 +297,6 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 					includes[fname] = ctx
 				}
 			}
-
 		}
 
 		o = append(o, block)
