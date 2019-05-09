@@ -11,7 +11,7 @@ func TestAnalyze(t *testing.T) {
 	// testing state directive
 
 	// the state directive should not cause errors if it's in these contexts
-	statement1 := statement{directive: "state",
+	statement1 := Statement{directive: "state",
 		args: [1]string{"/path/to/state/file.conf"},
 		line: 5,
 	}
@@ -22,7 +22,7 @@ func TestAnalyze(t *testing.T) {
 	}
 
 	for _, v1 := range goodContexts {
-		if err := analyze(fname, statement1, ";", v1, true, true, false); err != nil {
+		if err := Analyze(fname, statement1, ";", v1, true, true, false); err != nil {
 			t.Errorf("Throwing an error on contexts %v", v1)
 		}
 	}
@@ -35,7 +35,7 @@ func TestAnalyze(t *testing.T) {
 		{"https"},
 	}
 	for _, v2 := range badContext {
-		if err := analyze(fname, statement1, ";", v2, true, true, false); err != nil {
+		if err := Analyze(fname, statement1, ";", v2, true, true, false); err != nil {
 			continue
 		} else {
 			t.Errorf("Not throwing an error on contexts")
@@ -45,7 +45,7 @@ func TestAnalyze(t *testing.T) {
 	// test flag directive args
 
 	// an NGINX_CONF_FLAG directive
-	statement2 := statement{
+	statement2 := Statement{
 		directive: "accept_mutex",
 		args:      [1]string{},
 		line:      2,
@@ -62,7 +62,7 @@ func TestAnalyze(t *testing.T) {
 
 	for _, v := range goodArgs {
 		statement2.args = v
-		if err := analyze(fname, statement2, ";", ctx, true, false, true); err != nil {
+		if err := Analyze(fname, statement2, ";", ctx, true, false, true); err != nil {
 			t.Errorf("Throwing an error on good args: %v", v)
 		}
 
@@ -77,7 +77,7 @@ func TestAnalyze(t *testing.T) {
 
 	for _, v := range badArgs {
 		statement2.args = v
-		if err := analyze(fname, statement2, ";", ctx, true, false, true); err != nil {
+		if err := Analyze(fname, statement2, ";", ctx, true, false, true); err != nil {
 			continue
 		} else {
 			t.Errorf("Not failing on bad args: %v", v)

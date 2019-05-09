@@ -67,6 +67,7 @@ type ParseError struct {
 	Error ParsingError
 }
 
+
 // list of conf files to be parsed
 var included = []string{}
 var includes = map[string][3]string{}
@@ -98,6 +99,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 		checkArgs:   checkargs,
 	}
 	includes[a.FileName] = [3]string{}
+
 	q := Payload{
 		Status: "ok",
 		Errors: []ParseError{},
@@ -105,6 +107,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 		File:   a.FileName,
 	}
 	for f, r := range includes {
+
 		p := Config{
 			File:   f,
 			Status: "ok",
@@ -113,7 +116,6 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 		}
 
 		token := []LexicalItem{} // LexScanner(string(s))
-
 		p.Parsed, _, e = parse(p, q, token, a, r, false)
 		if e != nil {
 			return q, e
@@ -136,7 +138,7 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 		block := Block{
 			Directive: "",
 			Line:      0,
-			Args:      []string{},
+			Args:      []string{}
 			File:      "",
 			Comment:   "",
 			Block:     []Block{},
@@ -209,16 +211,15 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			}
 			continue
 		}
-
 		if block.Directive == "if" {
 			block.Args = removeBrackets(block.Args)
 		}
-
 		stmt := analyzer.Statement{
 			Directive: block.Directive,
 			Args:      block.Args,
 			Line:      block.Line,
 		}
+
 		if stmt.Directive != "" && stmt.Directive != "if" {
 			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, args.Strict, args.checkCtx, args.checkArgs)
 			if e != nil {
@@ -299,11 +300,13 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			}
 		}
 
+
 		o = append(o, block)
 
 	}
 	return o, p, nil
 }
+
 
 func removeBrackets(s []string) []string {
 	if s[0] == "(" && s[len(s)-1] == ")" {
