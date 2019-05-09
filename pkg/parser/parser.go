@@ -25,7 +25,7 @@ type ParseArgs struct {
 	Comments    bool
 	Strict      bool
 	Combine     bool
-	Comsume     bool
+	Consume     bool
 	checkCtx    bool
 	checkArgs   bool
 }
@@ -82,8 +82,22 @@ var includes = map[string][3]string{}
 //   :param check_ctx: bool; if True, runs context analysis on directives
 //   :param check_args: bool; if True, runs arg count analysis on directives
 //   :returns: a payload that describes the parsed nginx config
-func Parse(a ParseArgs) (Payload, error) {
+func Parse(file string, catcherr bool, ignore []string, single bool, comment bool, strict bool,
+	combine bool, consume bool, checkctx bool, checkargs bool) (Payload, error) {
 	var e error
+
+	a := ParseArgs{
+		FileName:    file,
+		CatchErrors: catcherr,
+		Ignore:      ignore,
+		Single:      single,
+		Comments:    comment,
+		Strict:      strict,
+		Combine:     combine,
+		Consume:     consume,
+		checkCtx:    checkctx,
+		checkArgs:   checkargs,
+	}
 	includes[a.FileName] = [3]string{}
 	q := Payload{
 		Status: "ok",
