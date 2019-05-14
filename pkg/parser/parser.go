@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -121,7 +122,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 		q.Config = append(q.Config, p)
 	}
 	if a.Combine {
-		return combineParsedConfigs(q), nil
+		return combineParsedConfigs(q)
 	}
 
 	return q, nil
@@ -355,7 +356,10 @@ func handleErrors(parsed Config, pay Payload, e error, line int) {
 	pay.Errors = append(pay.Errors, payloadErr)
 }
 
-func combineParsedConfigs(p Payload) Payload {
+func combineParsedConfigs(p Payload) (Payload, error) {
+	if p.Config == nil {
+		return Payload{}, errors.New("Input pyload config is nil")
+	}
 	oldConfig := p.Config
 	var performIncludes func(b []Block) Block
 	performIncludes = func(b []Block) Block {
@@ -404,7 +408,7 @@ func combineParsedConfigs(p Payload) Payload {
 		File:   p.File,
 		Config: []Config{combineConfig},
 	}
-	return combinePayload
+	return combinePayload, nil
 }
 
 func findFile(f string, config []Config) []Block {
