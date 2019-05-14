@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"io/ioutil"
+	"fmt"
 	"log"
 	"testing"
 
@@ -23,8 +23,8 @@ func TestParseAndBuild(t *testing.T) {
 				Comments:    false,
 				Strict:      false,
 				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+				CheckCtx:    true,
+				CheckArgs:   true,
 			},
 		},
 		{
@@ -37,8 +37,8 @@ func TestParseAndBuild(t *testing.T) {
 				Comments:    false,
 				Strict:      false,
 				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+				CheckCtx:    true,
+				CheckArgs:   true,
 			},
 		},
 		{
@@ -51,8 +51,8 @@ func TestParseAndBuild(t *testing.T) {
 				Comments:    false,
 				Strict:      false,
 				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+				CheckCtx:    true,
+				CheckArgs:   true,
 			},
 		},
 		{
@@ -61,192 +61,193 @@ func TestParseAndBuild(t *testing.T) {
 				FileName:    "",
 				CatchErrors: true,
 				Ignore:      []string{},
-				Single:      false,
+				Single:      true,
 				Comments:    false,
 				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+				Combine:     true,
+				CheckCtx:    true,
+				CheckArgs:   true,
 			},
-		},
-		{
-			"includes-regular",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+		}, /*
+			{
+				"includes-regular",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"lua-block-larger",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"lua-block-larger",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"lua-block-simple",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"lua-block-simple",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"lua-block-tricky",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"lua-block-tricky",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"messy",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    true,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"messy",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    true,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"missing-semicolon",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"missing-semicolon",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"quote-behavior",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"quote-behavior",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"quoted-right-brace",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"quoted-right-brace",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"russian-text",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"russian-text",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"simple",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"simple",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"spelling-mistake",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
+			{
+				"spelling-mistake",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"with-comments",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    true,
-				Strict:      false,
-				Combine:     false,
-				checkCtx:    true,
-				checkArgs:   true,
-			},
-		},
+			{
+				"with-comments",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    true,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
+			},*/
 	}
 
 	for _, t := range tests {
-		file, err := ioutil.ReadFile("configs/" + t.name + "/nginx.conf")
+		t.args.FileName = "configs/" + t.name + "/nginx.conf"
+		parsed, err := parser.Parse(t.args)
 		if err != nil {
 			log.Fatal(err)
 		}
-		t.args.FileName = file
-		// parse file - calls lexer as well
-		parsed := parser.Parse(t.args)
+
+		fmt.Println("PARSED : ", parsed)
+		fmt.Println()
 		// build the file back up
 
 	}

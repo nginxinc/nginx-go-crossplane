@@ -81,6 +81,8 @@ var payload Payload
 //   :returns: a payload that describes the parsed nginx config
 func Parse(a ParseArgs) (Payload, error) {
 	var e error
+	included = []string{}
+	includes = map[string][3]string{}
 	includes[a.FileName] = [3]string{}
 
 	payload = Payload{
@@ -90,7 +92,6 @@ func Parse(a ParseArgs) (Payload, error) {
 		File:   a.FileName,
 	}
 	for f, r := range includes {
-
 		p := Config{
 			File:   "",
 			Status: "ok",
@@ -157,7 +158,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				Args:      []string{},
 			}
 		}
-		if parsing[p+1].Item == "{" {
+		//fmt.Println("im directive : ", block.Directive)
+		if string(parsing[p+1].Item) == "{" {
 			stmt := analyzer.Statement{
 				Directive: block.Directive,
 				Args:      block.Args,
@@ -165,7 +167,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
 			l := 0
-			block.Block, l, e = parse(parsed, pay, parsing[p+1:], args, inner, false)
+			block.Block, l, e = parse(parsed, pay, parsing[p+2:], args, inner, false)
 			if e != nil {
 				return o, p + l, e
 			}
@@ -197,7 +199,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			block.Args = append(block.Args, token.Item)
 			token = <-tokens
 		}
-
 		if len(args.Ignore) > 0 {
 			for _, k := range args.Ignore {
 				if k == token.Item {
@@ -217,8 +218,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			Args:      block.Args,
 			Line:      block.Line,
 		}
-
-		if stmt.Directive != "" && stmt.Directive != "if" {
+		//fmt.Println("wbnfe : ", block.Directive)
+		if stmt.Directive != "" && stmt.Directive != "if" && args.Strict {
 			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, args.Strict, args.CheckCtx, args.CheckArgs)
 			if e != nil {
 				if args.CatchErrors {
@@ -227,7 +228,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 						if parsing[p].Item != "}" {
 							parse(parsed, pay, parsing[p:], args, ctx, true)
 						} else {
-							break
+							continue
 						}
 					}
 					continue
@@ -237,16 +238,15 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				}
 			}
 		}
-
 		if args.Single && block.Directive == "include" {
 			configDir := filepath.Dir(args.FileName)
 			pattern := a[0]
 			var fnames []string
 			var err error
-			if filepath.IsAbs(pattern) {
+
+			if !filepath.IsAbs(pattern) {
 				pattern = filepath.Join(configDir, pattern)
 			}
-
 			hasMagic := func(pat string) bool {
 				magic := []byte{'*', '?', ']', '[', '{', '}', '(', ')'}
 				for _, m := range magic {
@@ -270,14 +270,16 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 					log.Fatal(e)
 				}
 				if b {
+
 					fnames = []string{pattern}
 				}
 			}
 
 			for _, fname := range fnames {
-				if !checkIncluded(fname, included) {
+				if checkIncluded(fname, included) {
 					included = append(included, fname)
 					includes[fname] = ctx
+
 				}
 			}
 		}
