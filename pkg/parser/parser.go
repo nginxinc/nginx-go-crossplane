@@ -2,7 +2,6 @@ package parser
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -103,7 +102,6 @@ func Parse(a ParseArgs) (Payload, error) {
 			return Payload{}, err
 		}
 		token, err := lexer.LexScanner(string(contents))
-		fmt.Println(token)
 		if err != nil {
 			return Payload{}, err
 		}
@@ -159,8 +157,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				Args:      []string{},
 			}
 		}
-		if string(parsing[p+1].Item) == "{" {
-			fmt.Println("TRUE")
+		if parsing[p+1].Item == "{" {
 			stmt := analyzer.Statement{
 				Directive: block.Directive,
 				Args:      block.Args,
@@ -168,8 +165,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
 			l := 0
-			block.Block, l, e = parse(parsed, pay, parsing[p+2:], args, inner, false)
-			fmt.Println("Block : ", block.Block)
+			block.Block, l, e = parse(parsed, pay, parsing[p+1:], args, inner, false)
 			if e != nil {
 				return o, p + l, e
 			}
