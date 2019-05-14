@@ -94,8 +94,9 @@ func Parse(a ParseArgs) (Payload, error) {
 		File:   a.FileName,
 	}
 	for f, r := range includes {
+		//fmt.Println("file name : ", f)
 		p := Config{
-			File:   "",
+			File:   f,
 			Status: "ok",
 			Errors: []ParseError{},
 			Parsed: []Block{},
@@ -284,6 +285,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 
 			for _, fname := range fnames {
 				if checkIncluded(fname, included) {
+					//fmt.Println(fname)
 					included = append(included, fname)
 					includes[fname] = ctx
 
@@ -369,23 +371,21 @@ func combineParsedConfigs(filename string, p Payload) (Payload, error) {
 		configDir := filepath.Dir(filename)
 		for _, block := range b {
 			if block.Directive == "include" {
-
 				for _, f := range block.Args {
-					fpath := filepath.Join(configDir, f)
-					files, err := filepath.Glob(fpath)
+					fmt.Println(f)
+					files, err := filepath.Glob(f)
 					if err != nil {
 						continue
 					}
 					for _, file := range files {
-						if checkFile(file, y) {
-							c, err := findFile(file, oldConfig)
-							if err != nil {
-								continue
-							}
-							c = performIncludes(filename, c)
-							y = append(y, c...)
+						config := findFile(file, oldConfig)
+						g := performIncludes(config)
+						for _, blo := range g.Block {
+							return blo
+
 						}
 					}
+
 				}
 				fmt.Println(b)
 			} else if len(block.Block) != 0 {
