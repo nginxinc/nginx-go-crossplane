@@ -245,6 +245,9 @@ func TestParseAndBuild(t *testing.T) {
 			log.Fatal(err)
 		}
 		t.args.FileName = file
+		// parse file - calls lexer as well
+		parsed := parser.Parse(t.args)
+		// build the file back up
 
 	}
 
