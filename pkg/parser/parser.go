@@ -2,6 +2,7 @@ package parser
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -92,8 +93,9 @@ func Parse(a ParseArgs) (Payload, error) {
 		File:   a.FileName,
 	}
 	for f, r := range includes {
+		//fmt.Println("file name : ", f)
 		p := Config{
-			File:   "",
+			File:   f,
 			Status: "ok",
 			Errors: []ParseError{},
 			Parsed: []Block{},
@@ -113,6 +115,7 @@ func Parse(a ParseArgs) (Payload, error) {
 		}
 		payload.Config = append(payload.Config, c)
 	}
+
 	if a.Combine {
 		return combineParsedConfigs(payload)
 	}
@@ -258,7 +261,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				}
 				return false
 			}
-
 			if hasMagic(pattern) {
 				fnames, err = filepath.Glob(pattern)
 				if err != nil {
@@ -277,6 +279,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 
 			for _, fname := range fnames {
 				if checkIncluded(fname, included) {
+					//fmt.Println(fname)
 					included = append(included, fname)
 					includes[fname] = ctx
 
@@ -375,12 +378,20 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 			}
 			if block.Directive == "include" {
 				for _, f := range block.Args {
-					config := findFile(f, oldConfig)
-					g := performIncludes(config)
-					for _, blo := range g.Block {
-						return blo
-
+					fmt.Println(f)
+					files, err := filepath.Glob(f)
+					if err != nil {
+						continue
 					}
+					for _, file := range files {
+						config := findFile(file, oldConfig)
+						g := performIncludes(config)
+						for _, blo := range g.Block {
+							return blo
+
+						}
+					}
+
 				}
 			} else {
 				return block

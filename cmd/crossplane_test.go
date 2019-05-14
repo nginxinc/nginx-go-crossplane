@@ -245,7 +245,6 @@ func TestParseAndBuild(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-
 		fmt.Println("PARSED : ", parsed)
 		fmt.Println()
 		// build the file back up
