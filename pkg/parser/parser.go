@@ -94,7 +94,6 @@ func Parse(a ParseArgs) (Payload, error) {
 		File:   a.FileName,
 	}
 	for f, r := range includes {
-
 		p := Config{
 			File:   "",
 			Status: "ok",
@@ -164,7 +163,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				Args:      []string{},
 			}
 		}
-		if parsing[p+1].Item == "{" {
+		//fmt.Println("im directive : ", block.Directive)
+		if string(parsing[p+1].Item) == "{" {
 			stmt := analyzer.Statement{
 				Directive: block.Directive,
 				Args:      block.Args,
@@ -172,7 +172,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
 			l := 0
-			block.Block, l, e = parse(parsed, pay, parsing[p+1:], args, inner, false)
+			block.Block, l, e = parse(parsed, pay, parsing[p+2:], args, inner, false)
 			if e != nil {
 				return o, p + l, e
 			}
@@ -276,6 +276,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 					log.Fatal(e)
 				}
 				if b {
+
 					fnames = []string{pattern}
 					block.File = pattern
 				}
@@ -285,10 +286,16 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				if checkIncluded(fname, included) {
 					included = append(included, fname)
 					includes[fname] = ctx
+
 				}
 			}
 		}
-		o = append(o, block)
+		if block.Directive != "{" && block.Directive != ";" {
+			o = append(o, block)
+		} else {
+			continue
+		}
+
 	}
 	return o, nil
 }

@@ -308,7 +308,7 @@ func TestParseAndBuild(t *testing.T) {
 				},
 			},
 			{
-				"lua-block-simple",
+				"lua-block-tricky",
 				parser.ParseArgs{
 					FileName:    "",
 					CatchErrors: true,
