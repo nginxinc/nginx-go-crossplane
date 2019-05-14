@@ -632,6 +632,7 @@ var Directives = map[string][]Bits{
 	},
 	"include": {
 		ngxAnyConf, ngxConfTake1,
+		ngxAnyConf, ngxConfTake1,
 	},
 	"index": {
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConf1More,
