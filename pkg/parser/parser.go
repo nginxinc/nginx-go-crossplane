@@ -13,17 +13,9 @@ import (
 	"github.com/nginxinc/crossplane-go/pkg/lexer"
 )
 
-//LexicalItem -
-type LexicalItem struct {
-	item    string
-	lineNum int
-}
-
-//type LexicalItem lexer.LexicalItem
 // ParseArgs -
 type ParseArgs struct {
-	FileName string
-	//onerror
+	FileName    string
 	CatchErrors bool
 	Ignore      []string
 	Single      bool
@@ -31,8 +23,8 @@ type ParseArgs struct {
 	Strict      bool
 	Combine     bool
 	Consume     bool
-	checkCtx    bool
-	checkArgs   bool
+	CheckCtx    bool
+	CheckArgs   bool
 }
 
 // ParsingError -
@@ -59,10 +51,10 @@ type Block struct {
 	Directive string
 	Line      int
 	Args      []string
-	Includes  []int
-	Block     []Block
-	File      string
-	Comment   string
+	//Includes  []int
+	Block   []Block
+	File    string
+	Comment string
 }
 
 // ParseError -
@@ -88,23 +80,8 @@ var payload Payload
 //   :param check_ctx: bool; if True, runs context analysis on directives
 //   :param check_args: bool; if True, runs arg count analysis on directives
 //   :returns: a payload that describes the parsed nginx config
-func Parse(file string, catcherr bool, ignore []string, single bool, comment bool, strict bool,
-	combine bool, consume bool, checkctx bool, checkargs bool) (Payload, error) {
-	included = []string{}
-	includes = map[string][3]string{}
+func Parse(a ParseArgs) (Payload, error) {
 	var e error
-	a := ParseArgs{
-		FileName:    file,
-		CatchErrors: catcherr,
-		Ignore:      ignore,
-		Single:      single,
-		Comments:    comment,
-		Strict:      strict,
-		Combine:     combine,
-		Consume:     consume,
-		checkCtx:    checkctx,
-		checkArgs:   checkargs,
-	}
 	includes[a.FileName] = [3]string{}
 
 	payload = Payload{
@@ -115,20 +92,22 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 	}
 	for f, r := range includes {
 
-		c := Config{
-			File:   f,
+		p := Config{
+			File:   "",
 			Status: "ok",
 			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
-		re, err := ioutil.ReadFile(f)
+		contents, err := ioutil.ReadFile(f)
 		if err != nil {
-			fmt.Println(err)
-			return payload, nil
+			return Payload{}, err
 		}
-		// we should probably pass a file?
-		tokens := lexer.LexScanner(string(re))
-		c.Parsed, e = parse(c, tokens, a, r, false)
+		token, err := lexer.LexScanner(string(contents))
+		fmt.Println(token)
+		if err != nil {
+			return Payload{}, err
+		}
+		p.Parsed, _, e = parse(p, q, token, a, r, false)
 		if e != nil {
 			log.Println("error parsing")
 			return payload, e
@@ -180,6 +159,24 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				Args:      []string{},
 			}
 		}
+		if string(parsing[p+1].Item) == "{" {
+			fmt.Println("TRUE")
+			stmt := analyzer.Statement{
+				Directive: block.Directive,
+				Args:      block.Args,
+				Line:      block.Line,
+			}
+			inner := analyzer.EnterBlockCTX(stmt, ctx)
+			l := 0
+			block.Block, l, e = parse(parsed, pay, parsing[p+2:], args, inner, false)
+			fmt.Println("Block : ", block.Block)
+			if e != nil {
+				return o, p + l, e
+			}
+			p += l
+			o = append(o, block)
+			continue
+		}
 		// comments in file
 		if strings.HasPrefix(directive, "#") {
 			if args.Comments {
@@ -226,13 +223,13 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		}
 
 		if stmt.Directive != "" && stmt.Directive != "if" {
-			e := analyzer.Analyze(parsing.File, stmt, ";", ctx, args.Strict, args.checkCtx, args.checkArgs)
+			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, args.Strict, args.CheckCtx, args.CheckArgs)
 			if e != nil {
 				if args.CatchErrors {
-					handleErrors(parsing, e, token.LineNum)
+					handleErrors(parsed, pay, e, parsing[p].LineNum)
 					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
-						if token.Item != "}" {
-							parse(parsing, tokens, args, ctx, true)
+						if parsing[p].Item != "}" {
+							parse(parsed, pay, parsing[p:], args, ctx, true)
 						} else {
 							break
 						}
@@ -304,7 +301,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		}
 
 		o = append(o, block)
-
 	}
 	return o, nil
 }
