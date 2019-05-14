@@ -93,9 +93,10 @@ func Parse(a ParseArgs) (Payload, error) {
 		Config: []Config{},
 		File:   a.FileName,
 	}
-	for i := 0; i <= len(included)-1; i++ {
+	for f, r := range includes {
+
 		p := Config{
-			File:   f,
+			File:   "",
 			Status: "ok",
 			Errors: []ParseError{},
 			Parsed: []Block{},
@@ -287,21 +288,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				}
 			}
 		}
-		// try analysing the directives
-		if token.Item == "{" {
-			stmt := analyzer.Statement{
-				Directive: block.Directive,
-				Args:      block.Args,
-				Line:      block.Line,
-			}
-			inner := analyzer.EnterBlockCTX(stmt, ctx)
-
-			block.Block, e = parse(parsing, tokens, args, inner, false)
-			if e != nil {
-				return o, e
-			}
-		}
-
+		fmt.Println(block)
 		o = append(o, block)
 	}
 	return o, nil
