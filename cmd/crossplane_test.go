@@ -61,7 +61,7 @@ func TestParseAndBuild(t *testing.T) {
 				FileName:    "",
 				CatchErrors: true,
 				Ignore:      []string{},
-				Single:      true,
+				Single:      false,
 				Comments:    false,
 				Strict:      false,
 				Combine:     true,
@@ -245,7 +245,11 @@ func TestParseAndBuild(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Println("PARSED : ", parsed)
+		for _, p := range parsed.Config {
+			for _, q := range p.Parsed {
+				fmt.Println(q)
+			}
+		}
 		fmt.Println()
 		// build the file back up
 

@@ -93,7 +93,6 @@ func Parse(a ParseArgs) (Payload, error) {
 		File:   a.FileName,
 	}
 	for f, r := range includes {
-		//fmt.Println("file name : ", f)
 		p := Config{
 			File:   f,
 			Status: "ok",
@@ -161,7 +160,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				Args:      []string{},
 			}
 		}
-		//fmt.Println("im directive : ", block.Directive)
 		if string(parsing[p+1].Item) == "{" {
 			stmt := analyzer.Statement{
 				Directive: block.Directive,
@@ -221,7 +219,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			Args:      block.Args,
 			Line:      block.Line,
 		}
-		//fmt.Println("wbnfe : ", block.Directive)
 		if stmt.Directive != "" && stmt.Directive != "if" && args.Strict {
 			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, args.Strict, args.CheckCtx, args.CheckArgs)
 			if e != nil {
@@ -241,7 +238,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				}
 			}
 		}
-		if args.Single && block.Directive == "include" {
+		if !args.Single && block.Directive == "include" {
+
 			configDir := filepath.Dir(args.FileName)
 			pattern := a[0]
 			var fnames []string
@@ -272,14 +270,13 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 					log.Fatal(e)
 				}
 				if b {
-
 					fnames = []string{pattern}
+					block.File = pattern
 				}
 			}
 
 			for _, fname := range fnames {
 				if checkIncluded(fname, included) {
-					//fmt.Println(fname)
 					included = append(included, fname)
 					includes[fname] = ctx
 
@@ -364,40 +361,52 @@ func handleErrors(parsed Config, e error, line int) {
 	payload.Errors = append(payload.Errors, payloadErr)
 }
 
-func combineParsedConfigs(p Payload) (Payload, error) {
+func combineParsedConfigs(filename string, p Payload) (Payload, error) {
 	if p.Config == nil {
 		return Payload{}, errors.New("Input pyload config is nil")
 	}
 	oldConfig := p.Config
-	var performIncludes func(b []Block) Block
-	performIncludes = func(b []Block) Block {
+	var performIncludes func(firlename string, b []Block) []Block
+	performIncludes = func(filename string, b []Block) []Block {
+		y := []Block{}
+		configDir := filepath.Dir(filename)
 		for _, block := range b {
-			if len(block.Block) > 0 {
-				a := performIncludes(block.Block)
-				block.Block = append(block.Block, a)
-			}
 			if block.Directive == "include" {
+
 				for _, f := range block.Args {
-					fmt.Println(f)
-					files, err := filepath.Glob(f)
+					fpath := filepath.Join(configDir, f)
+					files, err := filepath.Glob(fpath)
 					if err != nil {
 						continue
 					}
 					for _, file := range files {
-						config := findFile(file, oldConfig)
-						g := performIncludes(config)
-						for _, blo := range g.Block {
-							return blo
-
-						}
+						c := findFile(file, oldConfig)
+						c = performIncludes(filename, c)
+						y = append(y, c...)
 					}
-
 				}
+				fmt.Println(b)
+			} else if len(block.Block) != 0 {
+				block.Block = performIncludes(filename, block.Block)
+			}
+			y = append(y, block)
+
+		}
+
+		s := []Block{}
+		for _, block := range y {
+			fmt.Println()
+			if block.Directive != "include" {
+				s = append(s, block)
 			} else {
-				return block
+				fmt.Println("REMOVING : ", block)
+				fmt.Println()
+				fmt.Println()
 			}
 		}
-		return Block{}
+		y = s
+		fmt.Println("Y : ", y)
+		return y
 	}
 
 	combineConfig := Config{
@@ -415,8 +424,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 			combineConfig.Status = "failed"
 		}
 	}
-	firstConfig := oldConfig[0].Parsed
-	combineConfig.Parsed = append(combineConfig.Parsed, performIncludes(firstConfig))
+	combineConfig.Parsed = performIncludes(filename, oldConfig[0].Parsed)
 
 	combinePayload := Payload{
 		Status: p.Status,
