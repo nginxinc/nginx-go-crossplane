@@ -2,7 +2,6 @@ package builder
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"testing"
 )
@@ -271,9 +270,6 @@ func TestBuilder(t *testing.T) {
 		result, err := Build(string(out), 4, false, false)
 
 		test.expected = strings.Replace(test.expected, "\t", padding, -1)
-
-		fmt.Println(result)
-		fmt.Println(test.expected)
 
 		if err != nil {
 			t.Error(test.title)
