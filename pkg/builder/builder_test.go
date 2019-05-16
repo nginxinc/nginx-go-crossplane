@@ -2,6 +2,7 @@ package builder
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 )
@@ -222,6 +223,44 @@ func TestBuilder(t *testing.T) {
 					include conf.d/server.conf;
 				}`,
 		},
+		{
+			"basic: start with comment",
+			[]Block{
+				{
+					Directive: "#",
+					Args:      []string{},
+					Line:      1,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "comment",
+					Block:     []Block{},
+				},
+				{
+					Directive: "http",
+					Args:      []string{},
+					Line:      2,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block: []Block{
+						{
+							Directive: "server",
+							Args:      []string{},
+							Line:      3,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
+							Block:     []Block{},
+						},
+					},
+				},
+			},
+			`
+				#comment
+				http {
+					server;
+				}`,
+		},
 	}
 
 	for _, test := range tests {
@@ -232,6 +271,9 @@ func TestBuilder(t *testing.T) {
 		result, err := Build(string(out), 4, false, false)
 
 		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+
+		fmt.Println(result)
+		fmt.Println(test.expected)
 
 		if err != nil {
 			t.Error(test.title)

@@ -33,6 +33,7 @@ type ParseError struct {
 }
 
 var padding string
+var spacing int
 
 // Build takes a string representing NGINX configuration
 // builds it into conf format and returns that as a string
@@ -49,6 +50,8 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 		padding = strings.Repeat(" ", indent)
 	}
 
+	spacing = indent
+
 	var body string
 	body = BuildBlock(body, data, 0, 0)
 
@@ -59,15 +62,16 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 func BuildBlock(output string, block []Block, depth, lastline int) string {
 	var built string
 	margin := strings.Repeat(padding, depth)
-	tab := strings.Repeat("\t", 4)
+	tab := strings.Repeat("\t", spacing)
 
 	for _, stmt := range block {
 		line := 0
-		if stmt.Directive == "#" && line == lastline {
+
+		if stmt.Directive == "#" && line == lastline && stmt.Line != 1 {
 			output += " #" + stmt.Comment
 			continue
-		} else if stmt.Directive == "#" {
-			built = "#" + stmt.Comment
+		} else if stmt.Directive == "#" && stmt.Line == 1 {
+			output = "\n" + tab + "#" + stmt.Comment
 		} else {
 
 			if stmt.Directive == "if" {
@@ -108,3 +112,33 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 
 	return "built", nil
 }
+
+/*
+// EscapeChar -
+func EscapeChar(s string) string {
+	prev := s[:1]
+	char := s[:2]
+	var result string
+
+	if prev == "\\" || (prev+char) == "${" {
+		prev += char
+		result = prev
+	} else if prev == "$" {
+		result = prev
+	} else if char != "\\" || char != "$" {
+		result = char
+	}
+	prev = char
+
+	if char == "\\" || char == "$" {
+		result = char
+	}
+
+	return result
+}
+
+//NeedsQuotes -
+func NeedsQuotes(s string) string, bool {
+	return built, true
+}
+*/
