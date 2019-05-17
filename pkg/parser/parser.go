@@ -84,6 +84,7 @@ func Parse(a ParseArgs) (Payload, error) {
 	var e error
 	included = []string{}
 	includes = map[string][3]string{}
+	included = append(included, a.FileName)
 	includes[a.FileName] = [3]string{}
 
 	payload = Payload{
@@ -92,14 +93,14 @@ func Parse(a ParseArgs) (Payload, error) {
 		Config: []Config{},
 		File:   a.FileName,
 	}
-	for f, r := range includes {
+	for i := 0; i <= len(included)-1; i++ {
 		p := Config{
 			File:   f,
 			Status: "ok",
 			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
-		contents, err := ioutil.ReadFile(f)
+		contents, err := ioutil.ReadFile(included[i])
 		if err != nil {
 			return Payload{}, err
 		}
@@ -107,7 +108,7 @@ func Parse(a ParseArgs) (Payload, error) {
 		if err != nil {
 			return Payload{}, err
 		}
-		p.Parsed, _, e = parse(p, q, token, a, r, false)
+		p.Parsed, _, e = parse(p, q, token, a, includes[included[i]], false)
 		if e != nil {
 			log.Println("error parsing")
 			return payload, e
@@ -279,7 +280,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				if checkIncluded(fname, included) {
 					included = append(included, fname)
 					includes[fname] = ctx
-
 				}
 			}
 		}
@@ -395,17 +395,11 @@ func combineParsedConfigs(filename string, p Payload) (Payload, error) {
 
 		s := []Block{}
 		for _, block := range y {
-			fmt.Println()
 			if block.Directive != "include" {
 				s = append(s, block)
-			} else {
-				fmt.Println("REMOVING : ", block)
-				fmt.Println()
-				fmt.Println()
 			}
 		}
 		y = s
-		fmt.Println("Y : ", y)
 		return y
 	}
 
@@ -435,11 +429,25 @@ func combineParsedConfigs(filename string, p Payload) (Payload, error) {
 	return combinePayload, nil
 }
 
-func findFile(f string, config []Config) []Block {
-	for _, i := range config {
-		if i.File == f {
-			return i.Parsed
+func checkFile(f string, y []Block) bool {
+	for _, blo := range y {
+		if blo.File == f {
+			return false
 		}
 	}
-	return []Block{}
+	return true
+}
+
+func findFile(f string, config []Config) ([]Block, error) {
+	for _, c := range config {
+		if c.File == f {
+			return c.Parsed, nil
+		} /*
+			for _, block := range c.Parsed {
+				if block.File == f {
+					return block
+				}
+			}*/
+	}
+	return []Block{}, errors.New("Config not found")
 }
