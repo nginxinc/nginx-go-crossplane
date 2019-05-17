@@ -380,9 +380,14 @@ func combineParsedConfigs(filename string, p Payload) (Payload, error) {
 						continue
 					}
 					for _, file := range files {
-						c := findFile(file, oldConfig)
-						c = performIncludes(filename, c)
-						y = append(y, c...)
+						if checkFile(file, y) {
+							c, err := findFile(file, oldConfig)
+							if err != nil {
+								continue
+							}
+							c = performIncludes(filename, c)
+							y = append(y, c...)
+						}
 					}
 				}
 				fmt.Println(b)
