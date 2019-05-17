@@ -447,12 +447,7 @@ func findFile(f string, config []Config) ([]Block, error) {
 	for _, c := range config {
 		if c.File == f {
 			return c.Parsed, nil
-		} /*
-			for _, block := range c.Parsed {
-				if block.File == f {
-					return block
-				}
-			}*/
+		}
 	}
 	return []Block{}, errors.New("Config not found")
 }
