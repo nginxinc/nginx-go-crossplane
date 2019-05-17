@@ -112,33 +112,3 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 
 	return "built", nil
 }
-
-/*
-// EscapeChar -
-func EscapeChar(s string) string {
-	prev := s[:1]
-	char := s[:2]
-	var result string
-
-	if prev == "\\" || (prev+char) == "${" {
-		prev += char
-		result = prev
-	} else if prev == "$" {
-		result = prev
-	} else if char != "\\" || char != "$" {
-		result = char
-	}
-	prev = char
-
-	if char == "\\" || char == "$" {
-		result = char
-	}
-
-	return result
-}
-
-//NeedsQuotes -
-func NeedsQuotes(s string) string, bool {
-	return built, true
-}
-*/
