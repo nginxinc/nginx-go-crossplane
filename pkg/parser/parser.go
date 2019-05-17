@@ -93,7 +93,7 @@ func Parse(a ParseArgs) (Payload, error) {
 		Config: []Config{},
 		File:   a.FileName,
 	}
-	for f, r := range includes {
+	for i := 0; i <= len(included)-1; i++ {
 		p := Config{
 			File:   f,
 			Status: "ok",
@@ -284,7 +284,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				if checkIncluded(fname, included) {
 					included = append(included, fname)
 					includes[fname] = ctx
-
 				}
 			}
 		}
@@ -380,7 +379,6 @@ func combineParsedConfigs(filename string, p Payload) (Payload, error) {
 						y = append(y, c...)
 					}
 				}
-				fmt.Println(b)
 			} else if len(block.Block) != 0 {
 				block.Block = performIncludes(filename, block.Block)
 			}
