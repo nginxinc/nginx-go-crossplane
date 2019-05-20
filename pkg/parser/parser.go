@@ -68,7 +68,6 @@ type ParseError struct {
 	Error ParsingError
 }
 
-
 // list of conf files to be parsed
 var included = []string{}
 var includes = map[string][3]string{}
@@ -139,7 +138,7 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 		block := Block{
 			Directive: "",
 			Line:      0,
-			Args:      []string{}
+			Args:      []string{},
 			File:      "",
 			Comment:   "",
 			Block:     []Block{},
@@ -301,13 +300,11 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			}
 		}
 
-
 		o = append(o, block)
 
 	}
 	return o, p, nil
 }
-
 
 func removeBrackets(s []string) []string {
 	if s[0] == "(" && s[len(s)-1] == ")" {

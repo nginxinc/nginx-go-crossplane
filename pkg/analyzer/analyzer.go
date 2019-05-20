@@ -5,12 +5,11 @@ import (
 	"strings"
 )
 
-
 // Statement struct used for analysing directives and other information
 type Statement struct {
-	directive string
-	args      [1]string
-	line      int
+	Directive string
+	Args      []string
+	Line      int
 }
 
 // Bits type for constant bit vars
@@ -32,12 +31,11 @@ const (
 	ngxHTTPSifConf    Bits = 0x20000000 // http > server > if
 	ngxHTTPLifConf    Bits = 0x40000000 // http > location > if
 	ngxHTTPLmtConf    Bits = 0x80000000
-	ngxConfTake12      Bits = (ngxConfTake1 | ngxConfTake2)
-	ngxConfTake13      Bits = (ngxConfTake1 | ngxConfTake3)
-	ngxConfTake23      Bits = (ngxConfTake2 | ngxConfTake3)
-	ngxConfTake123     Bits = (ngxConfTake12 | ngxConfTake3)
-	ngxConfTake1234    Bits = (ngxConfTake123 | ngxConfTake4)
-
+	ngxConfTake12     Bits = (ngxConfTake1 | ngxConfTake2)
+	ngxConfTake13     Bits = (ngxConfTake1 | ngxConfTake3)
+	ngxConfTake23     Bits = (ngxConfTake2 | ngxConfTake3)
+	ngxConfTake123    Bits = (ngxConfTake12 | ngxConfTake3)
+	ngxConfTake1234   Bits = (ngxConfTake123 | ngxConfTake4)
 
 	// bit masks for different directive argument styles
 	ngxConfNoArgs Bits = 0x00000001 // 0 args
@@ -53,7 +51,6 @@ const (
 	ngxConfAny    Bits = 0x00000400 // >=0 args
 	ngxConf1More  Bits = 0x00000800 // >=1 args
 	ngxConf2More  Bits = 0x00001000 // >=2 args
-
 
 	ngxAnyConf Bits = (ngxMainConf | ngxEventConf | ngxMailMainConf | ngxMailSrvConf |
 		ngxStreamMainConf | ngxStreamSrvConf | ngxStreamUpsConf |
@@ -405,9 +402,6 @@ var Directives = map[string][]Bits{
 	"fastcgi_socket_keepalive": {
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfFlag,
 	},
-	"fastcgi_socket_keepalive": {
-		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfFlag,
-	},
 	"flv": {
 		ngxHTTPLocConf, ngxConfNoArgs,
 	},
@@ -597,15 +591,6 @@ var Directives = map[string][]Bits{
 	"http2_max_concurrent_pushes": {
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxConfTake1,
 	},
-	"http2_push": {
-		ngcHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfTake1,
-	},
-	"http2_push_preload": {
-		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfFlag,
-	},
-	"http2_max_concurrent_pushes": {
-		ngxHTTPMainConf, ngxHTTPSrvConf, ngxConfTake1,
-	},
 	"if": {
 		ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfBlock, ngxConf1More,
 	},
@@ -646,7 +631,6 @@ var Directives = map[string][]Bits{
 		ngxMailMainConf, ngxMailSrvConf, ngxConfTake1,
 	},
 	"include": {
-		NGX_ANY_CONF, ngxConfTake1,
 		ngxAnyConf, ngxConfTake1,
 	},
 	"index": {
@@ -666,9 +650,8 @@ var Directives = map[string][]Bits{
 	},
 	"keepalive_requests": {
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfTake1,
-  }
+	},
 	"keepalive_timeout": {
-		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfTake12,
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfTake12,
 		ngxHTTPUpsConf, ngxConfTake1,
 	},
@@ -1871,7 +1854,7 @@ var Directives = map[string][]Bits{
 	},
 
 	// nginx+ directives {definitions inferred from docs}
-  "api": {
+	"api": {
 		ngxHTTPLocConf, ngxConfNoArgs, ngxConfTake1,
 	},
 	"auth_jwt": {
@@ -1884,12 +1867,6 @@ var Directives = map[string][]Bits{
 		ngxHTTPMainConf, ngxConf2More,
 	},
 	"auth_jwt_key_file": {
-		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfTake1,
-	},
-	"auth_jwt_key_request": {
-		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfTake1,
-	},
-	"auth_jwt_leeway": {
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfTake1,
 	},
 	"auth_jwt_key_request": {
@@ -1948,23 +1925,12 @@ var Directives = map[string][]Bits{
 	"js_path": {
 		ngxHTTPMainConf, ngxConfTake1,
 	},
-	"js_path": {
-		ngxHTTPMainConf, ngxConfTake1,
-	},
 	"js_preread": {
 		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
 	"js_set": {
 		ngxHTTPMainConf, ngxConfTake2,
 		ngxStreamMainConf, ngxConfTake2,
-	},
-	"keyval": {
-		ngxHTTPMainConf, ngxConfTake3,
-		ngxStreamMainConf, ngxConfTake3,
-	},
-	"keyval_zone": {
-		ngxHTTPMainConf, ngxConf1More,
-		ngxStreamMainConf, ngxConf1More,
 	},
 	"keyval": {
 		ngxHTTPMainConf, ngxConfTake3,
@@ -2007,21 +1973,11 @@ var Directives = map[string][]Bits{
 	"proxy_requests": {
 		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
-	"proxy_socket_keepalive": {
-		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfFlag,
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
-	},
-	"proxy_requests": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
 	"queue": {
 		ngxHTTPUpsConf, ngxConfTake12,
 	},
 	"scgi_cache_purge": {
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConf1More,
-	},
-	"scgi_socket_keepalive": {
-		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfFlag,
 	},
 	"scgi_socket_keepalive": {
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConfFlag,
@@ -2121,66 +2077,6 @@ var Directives = map[string][]Bits{
 	"zone_sync_timeout": {
 		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
 	},
-	"zone_sync": {
-		ngxStreamSrvConf, ngxConfNoArgs,
-	},
-	"zone_sync_buffers": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake2,
-	},
-	"zone_sync_connect_retry_interval": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_connect_timeout": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_interval": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_recv_buffer_size": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_server": {
-		ngxStreamMainConf, ngxConfTake12,
-	},
-	"zone_sync_ssl": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
-	},
-	"zone_sync_ssl_certificate": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_ssl_certificate_key": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_ssl_ciphers": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_ssl_crl": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_ssl_name": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_ssl_password_file": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_ssl_protocols": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConf1More,
-	},
-	"zone_sync_ssl_server_name": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
-	},
-	"zone_sync_ssl_trusted_certificate": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_ssl_verify": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfFlag,
-	},
-	"zone_sync_ssl_verify_depth": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
-	"zone_sync_timeout": {
-		ngxStreamMainConf, ngxStreamSrvConf, ngxConfTake1,
-	},
 }
 
 // Context - contexts to a key to its bitmasks in Mask
@@ -2203,7 +2099,7 @@ var Context = map[[3]string]Bits{
 
 // Analyze Directives and args in nginc.conf file
 func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
-	directive := stmt.directive
+	directive := stmt.Directive
 	dir := checkDirective(directive, Directives)
 
 	if strict && !dir {
@@ -2265,14 +2161,14 @@ func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bo
 			continue
 		}
 		// use mask to check the directive's arguments
-		if ((msk>>numArgs)&1 != 0x00000000 && numArgs <= 7) || 
-			(msk&ngxConfFlag != 0x00000000 && numArgs == 1 && validFlags(stmt.args[0])) ||
+		if ((msk>>numArgs)&1 != 0x00000000 && numArgs <= 7) ||
+			(msk&ngxConfFlag != 0x00000000 && numArgs == 1 && validFlags(stmt.Args[0])) ||
 			(msk&ngxConfAny != 0x00000000) ||
 			(msk&ngxConf1More != 0x00000000 && numArgs >= 1) ||
 			(msk&ngxConf2More != 0x00000000 && numArgs >= 2) {
 			return nil
-		} else if msk&ngxConfFlag != 0x00000000 && numArgs == 1 && !validFlags(stmt.args[0]) {
-			reason = fmt.Sprintf("invalid value %v in %v directive, it must be 'on' or 'off'", stmt.args[0], stmt.directive)
+		} else if msk&ngxConfFlag != 0x00000000 && numArgs == 1 && !validFlags(stmt.Args[0]) {
+			reason = fmt.Sprintf("invalid value %v in %v directive, it must be 'on' or 'off'", stmt.Args[0], stmt.Directive)
 			continue
 		} else {
 			reason = fmt.Sprintf("invalid number of arguements in %v", directive)
