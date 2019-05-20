@@ -51,9 +51,9 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 	}
 
 	spacing = indent
+	var b string
 
-	var body string
-	body = BuildBlock(body, data, 0, 0)
+	body := BuildBlock(b, data, 0, 0)
 
 	return body, nil
 }
