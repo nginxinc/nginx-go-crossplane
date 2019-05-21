@@ -82,7 +82,7 @@ func BuildBlock(output string, block []Block, depth, lastline int) string {
 				built = stmt.Directive
 			}
 
-			if len(stmt.Block) <= 0 {
+			if len(stmt.Block) < 1 {
 				built += ";"
 			} else {
 				built += " {"
