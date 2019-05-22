@@ -69,7 +69,7 @@ type ParseError struct {
 }
 
 // list of conf files to be parsed
-var included = []string{}
+var included []string
 var includes = map[string][3]string{}
 
 // Parse - Parses an nginx config file and returns json payload
@@ -115,7 +115,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			Parsed: []Block{},
 		}
 
-		token := []LexicalItem{} // LexScanner(string(s))
+		var token []LexicalItem // LexScanner(string(s))
 		p.Parsed, _, e = parse(p, q, token, a, r, false)
 		if e != nil {
 			return q, e
@@ -131,7 +131,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 }
 
 func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, int, error) {
-	o := []Block{}
+	var o []Block
 	var e error
 	p := 0
 	for ; p < len(parsing); p++ {
@@ -144,12 +144,11 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			Block:     []Block{},
 		}
 		if parsing[p].item == "}" {
-			p++
 			break
 		}
 
 		if consume {
-			if parsing[p].item == "}" {
+			if parsing[p].item == "{" {
 				_, i, e := parse(parsed, pay, parsing[p:], args, ctx, true)
 				if e != nil {
 					return o, p + i, e
@@ -174,10 +173,8 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			}
 		}
 		// comments in file
-		if args.Comments {
-			q := []byte{'#'}
-
-			if q[0] == parsing[p].item[0] {
+		if strings.HasPrefix(parsing[p].item, "#") {
+			if args.Comments {
 
 				block = Block{
 					Directive: "",
@@ -189,11 +186,18 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 				}
 
 			}
+			continue
 
 		}
 		// args for directives
-		a := []string{}
+		var a []string
+
+		// this is an ugly version of next() in python
 		p++
+		if p >= len(parsing){
+			continue
+		}
+
 		for ; parsing[p].item != ";" && parsing[p].item != "{" && parsing[p].item != "}"; p++ {
 			a = append(a, parsing[p].item)
 		}
@@ -259,7 +263,7 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 		if args.Single && block.Directive == "include" {
 			configDir := filepath.Dir(args.FileName)
 			pattern := block.Args[0]
-			fnames := []string{}
+			var fnames []string
 			var err error
 			if filepath.IsAbs(pattern) {
 				pattern = filepath.Join(configDir, pattern)
@@ -331,7 +335,11 @@ func canRead(p int, pattern string, a ParseArgs, parsed Config, pay Payload, par
 			return false, err
 		}
 	}
-	f.Close()
+	defer func() {
+		if err := f.Close(); err != nil {
+			log.Println("error closing the file")
+		}
+	}()
 	return true, nil
 }
 

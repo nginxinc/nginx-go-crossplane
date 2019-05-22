@@ -31,11 +31,11 @@ const (
 	ngxHTTPSifConf    Bits = 0x20000000 // http > server > if
 	ngxHTTPLifConf    Bits = 0x40000000 // http > location > if
 	ngxHTTPLmtConf    Bits = 0x80000000
-	ngxConfTake12     Bits = (ngxConfTake1 | ngxConfTake2)
-	ngxConfTake13     Bits = (ngxConfTake1 | ngxConfTake3)
-	ngxConfTake23     Bits = (ngxConfTake2 | ngxConfTake3)
-	ngxConfTake123    Bits = (ngxConfTake12 | ngxConfTake3)
-	ngxConfTake1234   Bits = (ngxConfTake123 | ngxConfTake4)
+	ngxConfTake12     Bits = ngxConfTake1 | ngxConfTake2
+	ngxConfTake13     Bits = ngxConfTake1 | ngxConfTake3
+	ngxConfTake23     Bits = ngxConfTake2 | ngxConfTake3
+	ngxConfTake123    Bits = ngxConfTake12 | ngxConfTake3
+	ngxConfTake1234   Bits = ngxConfTake123 | ngxConfTake4
 
 	// bit masks for different directive argument styles
 	ngxConfNoArgs Bits = 0x00000001 // 0 args
@@ -52,9 +52,9 @@ const (
 	ngxConf1More  Bits = 0x00000800 // >=1 args
 	ngxConf2More  Bits = 0x00001000 // >=2 args
 
-	ngxAnyConf Bits = (ngxMainConf | ngxEventConf | ngxMailMainConf | ngxMailSrvConf |
+	ngxAnyConf = ngxMainConf | ngxEventConf | ngxMailMainConf | ngxMailSrvConf |
 		ngxStreamMainConf | ngxStreamSrvConf | ngxStreamUpsConf |
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPUpsConf)
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPUpsConf
 )
 
 // Directives -
