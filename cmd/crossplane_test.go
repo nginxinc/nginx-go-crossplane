@@ -243,21 +243,21 @@ func TestParseAndBuild(t *testing.T) {
 										Args:      []string{},
 										Line:      1,
 										Comment:   "",
-										File:      "configs/includes-globbed/nginx.conf",
+										File:      "configs/includes-globbed/servers/server1.conf",
 										Block: []parser.Block{
 											{
 												Directive: "listen",
 												Args:      []string{"8080"},
 												Line:      2,
 												Comment:   "",
-												File:      "configs/includes-globbed/server/server1.conf",
+												File:      "configs/includes-globbed/servers/server1.conf",
 												Block:     []parser.Block{},
 											}, {
 												Directive: "location",
 												Args:      []string{"/foo"},
 												Comment:   "",
 												Line:      1,
-												File:      "configs/includes-globbed/server/server1.conf",
+												File:      "configs/includes-globbed/locations/location1.conf",
 												Block: []parser.Block{
 													{
 														Directive: "return",
