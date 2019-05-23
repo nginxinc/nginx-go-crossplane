@@ -108,6 +108,7 @@ func Parse(a ParseArgs) (Payload, error) {
 		if err != nil {
 			return Payload{}, err
 		}
+		fmt.Println(token)
 		p.Parsed, _, e = parse(p, q, token, a, includes[included[i]], false)
 		if e != nil {
 			log.Println("error parsing")
@@ -132,7 +133,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			Directive: "",
 			Line:      0,
 			Args:      []string{},
-			File:      "",
+			File:      parsed.File,
 			Comment:   "",
 			Block:     []Block{},
 		}
