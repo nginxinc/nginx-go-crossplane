@@ -3,7 +3,6 @@ package builder
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -125,11 +124,7 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 	var path string
 
 	if dirname == " " {
-		dirname, err := os.Getwd()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(dirname)
+		dirname, _ = os.Getwd()
 	}
 
 	for _, payload := range data {
@@ -154,6 +149,5 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 			f.WriteString(output)
 		}
 	}
-
 	return "built", nil
 }

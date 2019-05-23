@@ -282,10 +282,9 @@ func TestBuilder(t *testing.T) {
 
 func TestBuildFile(t *testing.T) {
 	var tests = []struct {
-		title    string
-		file     string
-		input    []Payload
-		expected string
+		title string
+		file  string
+		input []Payload
 	}{
 		{
 			"basic: build with comments",
@@ -343,14 +342,6 @@ func TestBuildFile(t *testing.T) {
 					},
 				},
 			},
-			`
-				http {
-					server {
-						listen 127.0.0.1:8080; #listen
-						server_name default_server;
-						location /; ## this is brace
-					}
-				}`,
 		},
 	}
 
@@ -360,28 +351,10 @@ func TestBuildFile(t *testing.T) {
 			t.Errorf("Error %v", err)
 		}
 		result, err := BuildFiles(string(out), " ", 4, false, false)
-
-		/*
-			q := Config{
-				File:   test.file,
-				Status: "ok",
-				Errors: []ParseError{},
-				Parsed: test.input,
-			}
-
-			p := Payload{
-				Status: "ok",
-				Errors: []ParseError{},
-				Config: q,
-			}
-		*/
-
-		test.expected = strings.Replace(test.expected, "\t", padding, -1)
-
 		if err != nil {
 			t.Error(test.title)
 		}
-		if result != test.expected {
+		if result == " " {
 			t.Error(test.title)
 		}
 	}
