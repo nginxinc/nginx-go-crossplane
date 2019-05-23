@@ -777,7 +777,7 @@ func TestParseAndBuild(t *testing.T) {
 			log.Fatal("Configs arent same length")
 		} else {
 			var w string
-			for i := 0; i < len(parsed.Config); i++ {
+			for i := 0; i < len(parsed.Config)-1; i++ {
 				w += compareConfigs(parsed.Config[i], t.expected.Config[i])
 			}
 			if w != "" {
@@ -800,7 +800,7 @@ func compareConfigs(conf parser.Config, c parser.Config) string {
 	if conf.Status != c.Status {
 		s = "the Status's are not the same" + string('\n')
 	}
-	for i := 0; i < len(c.Parsed); i++ {
+	for i := 0; i < len(c.Parsed)-1; i++ {
 		s += compareBlocks(conf.Parsed[i], c.Parsed[i])
 	}
 	return s
@@ -835,7 +835,7 @@ func compareBlocks(gen parser.Block, config parser.Block) string {
 	}
 	if gen.File != config.File {
 		s += "Problem with File in Block " + gen.Directive + " && " + config.Directive + string('\n')
-		fmt.Println("gen file : ", gen.File)
+		/*fmt.Println("gen file : ", gen.File)
 		fmt.Println(gen)
 		fmt.Println()
 		fmt.Println("expected file : ", config.File)
