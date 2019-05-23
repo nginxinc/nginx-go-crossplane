@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -36,8 +37,6 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 
 func consumeWord(data []byte) (int, []byte, error) {
 	var accum []byte
-	var o int
-	var skip bool
 	for i, b := range data {
 		// TODO make this more robust
 		if (b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || b == '{') && data[i-1] != '\\' && data[i-1] != '$' {
@@ -45,7 +44,6 @@ func consumeWord(data []byte) (int, []byte, error) {
 		}
 		accum = append(accum, b)
 	}
-
 	return 0, nil, nil
 }
 
@@ -72,8 +70,8 @@ func consumeString(data []byte) (int, []byte, error) {
 	skip := false
 	var accum []byte
 	for i, b := range data[1:] {
-		if b == delim && !skip {
-
+		if b == delim {
+			accum = append(accum, b)
 			return i + 2, accum, nil
 		}
 		skip = false
@@ -85,6 +83,7 @@ func consumeString(data []byte) (int, []byte, error) {
 		}
 		accum = append(accum, b)
 	}
+	fmt.Println("mataka : ", string(accum))
 	return 0, nil, nil
 }
 
@@ -145,7 +144,7 @@ func NewLexer(r io.Reader) *Reader {
 
 		switch data[0] {
 
-		case '{', '}', ';':
+		case '{', '}', ';', '/':
 			advance, token, err = 1, data[:1], nil
 		case '"', '\'':
 			advance, token, err = consumeString(data)
@@ -156,7 +155,6 @@ func NewLexer(r io.Reader) *Reader {
 		case '#':
 			advance, token, err = consumeComment(data)
 		default:
-
 			advance, token, err = consumeWord(data)
 		}
 		if advance > 0 {
