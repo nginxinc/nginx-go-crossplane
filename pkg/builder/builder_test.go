@@ -279,3 +279,110 @@ func TestBuilder(t *testing.T) {
 		}
 	}
 }
+
+func TestBuildFile(t *testing.T) {
+	var tests = []struct {
+		title    string
+		file     string
+		input    []Payload
+		expected string
+	}{
+		{
+			"basic: build with comments",
+			"config/simple.conf",
+			[]Payload{
+				{
+					Status: "ok",
+					Errors: []ParseError{},
+					Config: []Config{
+						{
+							File:   "nginx.conf",
+							Status: "ok",
+							Errors: []ParseError{},
+							Parsed: []Block{
+								{
+									Directive: "http",
+									Args:      []string{},
+									Line:      1,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block: []Block{
+										{
+											Directive: "server",
+											Args:      []string{},
+											Line:      2,
+											Includes:  []int{},
+											File:      "",
+											Comment:   "",
+											Block: []Block{
+												{
+													Directive: "listen",
+													Args:      []string{"127.0.0.1:8080"},
+													Line:      3,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "",
+													Block:     []Block{},
+												},
+												{
+													Directive: "#",
+													Args:      []string{},
+													Line:      3,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "listen",
+													Block:     []Block{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			`
+				http {
+					server {
+						listen 127.0.0.1:8080; #listen
+						server_name default_server;
+						location /; ## this is brace
+					}
+				}`,
+		},
+	}
+
+	for _, test := range tests {
+		out, err := json.Marshal(test.input)
+		if err != nil {
+			t.Errorf("Error %v", err)
+		}
+		result, err := BuildFiles(string(out), " ", 4, false, false)
+
+		/*
+			q := Config{
+				File:   test.file,
+				Status: "ok",
+				Errors: []ParseError{},
+				Parsed: test.input,
+			}
+
+			p := Payload{
+				Status: "ok",
+				Errors: []ParseError{},
+				Config: q,
+			}
+		*/
+
+		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+
+		if err != nil {
+			t.Error(test.title)
+		}
+		if result != test.expected {
+			t.Error(test.title)
+		}
+	}
+}

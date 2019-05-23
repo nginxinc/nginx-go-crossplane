@@ -3,6 +3,9 @@ package builder
 import (
 	"encoding/json"
 	"fmt"
+	"log"
+	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -23,6 +26,14 @@ type Config struct {
 	Status string
 	Errors []ParseError
 	Parsed []Block
+}
+
+// Payload -
+type Payload struct {
+	Status string
+	Errors []ParseError
+	File   string
+	Config []Config
 }
 
 // ParseError -
@@ -104,10 +115,41 @@ func BuildBlock(output string, block []Block, depth, lastline int) string {
 
 // BuildFiles -
 func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (string, error) {
-	data := Config{}
+	data := []Payload{}
 	err := json.Unmarshal([]byte(payload), &data)
+
 	if err != nil {
 		return "", fmt.Errorf("error unmarshalling payload: %v", err)
+	}
+
+	var path string
+
+	if dirname == " " {
+		dirname, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(dirname)
+	}
+
+	for _, payload := range data {
+		for _, stmt := range payload.Config {
+			path = stmt.File
+			if !filepath.IsAbs(stmt.File) {
+				path = filepath.Join(dirname, path)
+			}
+
+			dirpath := filepath.Dir(path)
+			if _, err := os.Stat(dirpath); os.IsNotExist(err) {
+				os.Mkdir(dirpath, 0777)
+			}
+
+			parsed := stmt.Parsed
+			out, _ := json.Marshal(parsed)
+
+			output, _ := Build(string(out), 4, false, false)
+			output = strings.TrimRight(output, " ")
+		}
 	}
 
 	return "built", nil
