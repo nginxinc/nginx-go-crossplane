@@ -105,6 +105,7 @@ func Parse(a ParseArgs) (Payload, error) {
 			return Payload{}, err
 		}
 		token, err := lexer.LexScanner(string(contents))
+		fmt.Println(token)
 		if err != nil {
 			return Payload{}, err
 		}
