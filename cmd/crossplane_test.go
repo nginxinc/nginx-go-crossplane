@@ -244,21 +244,21 @@ func TestParseAndBuild(t *testing.T) {
 										Args:      []string{},
 										Line:      1,
 										Comment:   "",
-										File:      "configs/includes-globbed/servers/server1.conf",
+										File:      "configs/includes-globbed/nginx.conf",
 										Block: []parser.Block{
 											{
 												Directive: "listen",
 												Args:      []string{"8080"},
 												Line:      2,
 												Comment:   "",
-												File:      "configs/includes-globbed/servers/server1.conf",
+												File:      "configs/includes-globbed/server/server1.conf",
 												Block:     []parser.Block{},
 											}, {
 												Directive: "location",
 												Args:      []string{"/foo"},
 												Comment:   "",
 												Line:      1,
-												File:      "configs/includes-globbed/locations/location1.conf",
+												File:      "configs/includes-globbed/server/server1.conf",
 												Block: []parser.Block{
 													{
 														Directive: "return",
@@ -618,7 +618,7 @@ func TestParseAndBuild(t *testing.T) {
 
 	/*
 			{
-				"missing-semicolon",
+				"lua-block-tricky",
 				parser.ParseArgs{
 					FileName:    "",
 					CatchErrors: true,
@@ -631,99 +631,133 @@ func TestParseAndBuild(t *testing.T) {
 					CheckArgs:   true,
 				},
 			},
-		{
-			"quote-behavior",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
+			{
+				"messy",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    true,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
+			}, /*
+				{
+					"missing-semicolon",
+					parser.ParseArgs{
+						FileName:    "",
+						CatchErrors: true,
+						Ignore:      []string{},
+						Single:      false,
+						Comments:    false,
+						Strict:      false,
+						Combine:     false,
+						CheckCtx:    true,
+						CheckArgs:   true,
+					},
+				},
+			{
+				"quote-behavior",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"quoted-right-brace",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
+			{
+				"quoted-right-brace",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"russian-text",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
+			{
+				"russian-text",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"simple",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
+			{
+				"simple",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"spelling-mistake",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
+			{
+				"spelling-mistake",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
 			},
-		},
-		{
-			"with-comments",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    true,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
-			},
-		},*/
+			{
+				"with-comments",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    true,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
+			},*/
+	}
 
 	for _, t := range tests {
 		t.args.FileName = "configs/" + t.name + "/nginx.conf"
 		parsed, err := parser.Parse(t.args)
-		fmt.Println("OUTPUT : ", parsed)
+		//fmt.Println("OUTPUT : ", parsed)
 		fmt.Println()
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		for _, p := range parsed.Config {
+			for _, q := range p.Parsed {
+				fmt.Println(q)
+
 		if parsed.File != t.expected.File {
 			//fmt.Println(parsed.File)
 			//fmt.Println(t.expected.File)
@@ -743,7 +777,7 @@ func TestParseAndBuild(t *testing.T) {
 			log.Fatal("Configs arent same length")
 		} else {
 			var w string
-			for i := 0; i < len(parsed.Config)-1; i++ {
+			for i := 0; i < len(parsed.Config); i++ {
 				w += compareConfigs(parsed.Config[i], t.expected.Config[i])
 			}
 			if w != "" {
@@ -766,7 +800,7 @@ func compareConfigs(conf parser.Config, c parser.Config) string {
 	if conf.Status != c.Status {
 		s = "the Status's are not the same" + string('\n')
 	}
-	for i := 0; i < len(c.Parsed)-1; i++ {
+	for i := 0; i < len(c.Parsed); i++ {
 		s += compareBlocks(conf.Parsed[i], c.Parsed[i])
 	}
 	return s
@@ -786,6 +820,7 @@ func compareBlocks(gen parser.Block, config parser.Block) string {
 				s += "Problem with Args in Block " + gen.Directive + " && " + config.Directive + string('\n')
 				//fmt.Println("gen args : ", gen.Args)
 				//fmt.Println("expected args : ", config.Args)
+
 			}
 		}
 	} else {
@@ -800,7 +835,7 @@ func compareBlocks(gen parser.Block, config parser.Block) string {
 	}
 	if gen.File != config.File {
 		s += "Problem with File in Block " + gen.Directive + " && " + config.Directive + string('\n')
-		/*fmt.Println("gen file : ", gen.File)
+		fmt.Println("gen file : ", gen.File)
 		fmt.Println(gen)
 		fmt.Println()
 		fmt.Println("expected file : ", config.File)
