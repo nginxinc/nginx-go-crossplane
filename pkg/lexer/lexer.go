@@ -34,9 +34,10 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	return UnbalancedBracesError("")
 }
 
-
 func consumeWord(data []byte) (int, []byte, error) {
 	var accum []byte
+	var o int
+	var skip bool
 	for i, b := range data {
 		// TODO make this more robust
 		if (b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || b == '{') && data[i-1] != '\\' && data[i-1] != '$' {
@@ -44,6 +45,7 @@ func consumeWord(data []byte) (int, []byte, error) {
 		}
 		accum = append(accum, b)
 	}
+
 	return 0, nil, nil
 }
 
@@ -71,6 +73,7 @@ func consumeString(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data[1:] {
 		if b == delim && !skip {
+
 			return i + 2, accum, nil
 		}
 		skip = false
@@ -141,6 +144,7 @@ func NewLexer(r io.Reader) *Reader {
 			return
 		}
 		switch data[0] {
+
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
 		case '"', '\'':
@@ -152,6 +156,7 @@ func NewLexer(r io.Reader) *Reader {
 		case '#':
 			advance, token, err = consumeComment(data)
 		default:
+
 			advance, token, err = consumeWord(data)
 		}
 		if advance > 0 {
