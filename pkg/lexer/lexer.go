@@ -11,8 +11,8 @@ type UnbalancedBracesError string
 
 // LexicalItem -
 type LexicalItem struct {
-	item    string
-	lineNum int
+	Item    string
+	LineNum int
 }
 
 // BalanceBraces found in a lexical item array.
@@ -21,7 +21,7 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	balance := 0
 	for _, lexicalItem := range lexicalItems {
 
-		switch lexicalItem.item {
+		switch lexicalItem.Item {
 		case "{":
 			balance = balance + 1
 		case "}":
@@ -122,7 +122,7 @@ type Reader struct {
 // LexScanner -
 func LexScanner(input string) ([]LexicalItem, error) {
 	s := NewLexer(strings.NewReader(string(iterescape(input))))
-	res := []LexicalItem{}
+	var res  []LexicalItem
 	for s.Scan() {
 		tok := s.Bytes()
 		if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {

@@ -2197,7 +2197,7 @@ func checkDirective(dir string, direct map[string][]Bits) bool {
 }
 
 func EnterBlockCTX(stmt Statement, ctx [3]string) [3]string {
-	if len(ctx) != 0 && ctx[0] == "http" && stmt.Directive == "location" {
+	if ctx[0] == "http" && stmt.Directive == "location" {
 		return [3]string{"http", "location"}
 	}
 	for i, v := range ctx {

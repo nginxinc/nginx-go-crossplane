@@ -2,20 +2,23 @@ package parser
 
 import (
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/nginxinc/crossplane-go/pkg/analyzer"
+	"github.com/nginxinc/crossplane-go/pkg/lexer"
 )
 
-// LexicalItem -
+//LexicalItem -
 type LexicalItem struct {
 	item    string
 	lineNum int
 }
-
+//type LexicalItem lexer.LexicalItem
 // ParseArgs -
 type ParseArgs struct {
 	FileName string
@@ -100,7 +103,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 	}
 	includes[a.FileName] = [3]string{}
 
-	q := Payload{
+	p := Payload{
 		Status: "ok",
 		Errors: []ParseError{},
 		Config: []Config{},
@@ -108,29 +111,35 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 	}
 	for f, r := range includes {
 
-		p := Config{
+		c := Config{
 			File:   f,
 			Status: "ok",
 			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
 
-		var token []LexicalItem // LexScanner(string(s))
-		p.Parsed, _, e = parse(p, q, token, a, r, false)
-		if e != nil {
-			return q, e
+		re, err := ioutil.ReadFile(f)
+		if err != nil{
+			fmt.Println(err)
+			return p, nil
 		}
-		q.Config = append(q.Config, p)
+		// we should probably pass a file?
+		tokens, _ := lexer.LexScanner(string(re))
+		c.Parsed, _, e = parse(c, p, tokens, a, r, false)
+		if e != nil {
+			return p, e
+		}
+		p.Config = append(p.Config, c)
 	}
 	if a.Combine {
-		return combineParsedConfigs(q)
+		return combineParsedConfigs(p)
 	}
 
-	return q, nil
+	return p, nil
 
 }
 
-func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, int, error) {
+func parse(parsed Config, pay Payload, parsing []lexer.LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, int, error) {
 	var o []Block
 	var e error
 	p := 0
@@ -143,12 +152,12 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			Comment:   "",
 			Block:     []Block{},
 		}
-		if parsing[p].item == "}" {
+		if parsing[p].Item == "}" {
 			break
 		}
 
 		if consume {
-			if parsing[p].item == "{" {
+			if parsing[p].Item == "{" {
 				_, i, e := parse(parsed, pay, parsing[p:], args, ctx, true)
 				if e != nil {
 					return o, p + i, e
@@ -157,33 +166,33 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			}
 			continue
 		}
-		directive := parsing[p].item
+		directive := parsing[p].Item
 		if args.Combine {
 			block = Block{
 				Directive: directive,
-				Line:      parsing[p].lineNum,
+				Line:      parsing[p].LineNum,
 				File:      args.FileName,
 				Args:      []string{},
 			}
 		} else {
 			block = Block{
 				Directive: directive,
-				Line:      parsing[p].lineNum,
+				Line:      parsing[p].LineNum,
 				Args:      []string{},
 			}
 		}
 		// comments in file
-		if strings.HasPrefix(parsing[p].item, "#") {
+		if strings.HasPrefix(parsing[p].Item, "#") {
 			if args.Comments {
-
 				block = Block{
-					Directive: "",
-					Comment:   parsing[p].item[1:],
+					Directive: "#",
+					Comment:   parsing[p].Item[1:],
 					Args:      []string{},
 					Block:     []Block{},
 					File:      "",
-					Line:      parsing[p].lineNum,
+					Line:      parsing[p].LineNum,
 				}
+				o = append(o, block)
 
 			}
 			continue
@@ -198,14 +207,14 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			continue
 		}
 
-		for ; parsing[p].item != ";" && parsing[p].item != "{" && parsing[p].item != "}"; p++ {
-			a = append(a, parsing[p].item)
+		for ; parsing[p].Item != ";" && parsing[p].Item != "{" && parsing[p].Item != "}"; p++{
+			a = append(a, parsing[p].Item)
 		}
 		block.Args = a
 
 		if len(args.Ignore) > 0 {
 			for _, k := range args.Ignore {
-				if k == parsing[p].item {
+				if k == parsing[p].Item {
 					_, i, e := parse(parsed, pay, parsing[p:], args, ctx, true)
 					if e != nil {
 						return o, p + i, e
@@ -228,9 +237,9 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 			e := analyzer.Analyze(parsed.File, stmt, ";", ctx, args.Strict, args.checkCtx, args.checkArgs)
 			if e != nil {
 				if args.CatchErrors {
-					handleErrors(parsed, pay, e, parsing[p].lineNum)
+					handleErrors(parsed, pay, e, parsing[p].LineNum)
 					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
-						if parsing[p].item != "}" {
+						if parsing[p].Item != "}" {
 							parse(parsed, pay, parsing[p:], args, ctx, true)
 						} else {
 							break
@@ -243,22 +252,7 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 				}
 			}
 		}
-		// try analysing the directives
-		if parsing[p].item == "{" {
-			stmt := analyzer.Statement{
-				Directive: block.Directive,
-				Args:      block.Args,
-				Line:      block.Line,
-			}
-			inner := analyzer.EnterBlockCTX(stmt, ctx)
-			l := 0
 
-			block.Block, l, e = parse(parsed, pay, parsing[p+1:], args, inner, false)
-			if e != nil {
-				return o, p + l, e
-			}
-			p += l
-		}
 
 		if args.Single && block.Directive == "include" {
 			configDir := filepath.Dir(args.FileName)
@@ -303,6 +297,22 @@ func parse(parsed Config, pay Payload, parsing []LexicalItem, args ParseArgs, ct
 				}
 			}
 		}
+		// try analysing the directives
+		if parsing[p].Item == "{" {
+			stmt := analyzer.Statement{
+				Directive: block.Directive,
+				Args:      block.Args,
+				Line:      block.Line,
+			}
+			inner := analyzer.EnterBlockCTX(stmt, ctx)
+			l := 0
+
+			block.Block, l, e = parse(parsed, pay, parsing[p+1:], args, inner, false)
+			if e != nil {
+				return o, p + l, e
+			}
+			p += l
+		}
 
 		o = append(o, block)
 
@@ -326,11 +336,11 @@ func checkIncluded(fname string, included []string) bool {
 	return true
 }
 
-func canRead(p int, pattern string, a ParseArgs, parsed Config, pay Payload, parsing []LexicalItem) (bool, error) {
+func canRead(p int, pattern string, a ParseArgs, parsed Config, pay Payload, parsing []lexer.LexicalItem) (bool, error) {
 	f, err := os.Open(pattern)
 	if err != nil {
 		if a.CatchErrors {
-			handleErrors(parsed, pay, err, parsing[p].lineNum)
+			handleErrors(parsed, pay, err, parsing[p].LineNum)
 		} else {
 			return false, err
 		}
