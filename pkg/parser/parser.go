@@ -88,6 +88,8 @@ var includes = map[string][3]string{}
 //   :returns: a payload that describes the parsed nginx config
 func Parse(file string, catcherr bool, ignore []string, single bool, comment bool, strict bool,
 	combine bool, consume bool, checkctx bool, checkargs bool) (Payload, error) {
+		included = []string{}
+		includes = map[string][3]string{}
 	var e error
 	a := ParseArgs{
 		FileName:    file,
@@ -117,7 +119,6 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
-
 		re, err := ioutil.ReadFile(f)
 		if err != nil{
 			fmt.Println(err)
@@ -311,7 +312,7 @@ func parse(parsed Config, pay Payload, parsing []lexer.LexicalItem, args ParseAr
 			if e != nil {
 				return o, p + l, e
 			}
-			p += l
+			p = l +p +1
 		}
 
 		o = append(o, block)

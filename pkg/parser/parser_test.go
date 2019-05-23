@@ -516,7 +516,8 @@ func TestParse(t *testing.T) {
 			}
 		}
 		var ignore []string
-		p, err := Parse(tes.file, true, ignore, false, false, false, false, false, true, true)
+		parsed, err := Parse(q.File, true, ignore, false, false, false, false, false, true, true)
+		fmt.Println(parsed)
 		if err != nil {
 			fmt.Println("something")
 		}
