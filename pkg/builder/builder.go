@@ -149,6 +149,9 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 
 			output, _ := Build(string(out), 4, false, false)
 			output = strings.TrimRight(output, " ")
+
+			f, _ := os.OpenFile(path, os.O_WRONLY, 0777)
+			f.WriteString(output)
 		}
 	}
 
