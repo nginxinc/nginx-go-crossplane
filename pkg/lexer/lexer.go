@@ -87,7 +87,6 @@ func consumeString(data []byte) (int, []byte, error) {
 
 func consumeComment(data []byte) (int, []byte, error) {
 	var accum []byte
-
 	for i, b := range data {
 		if b != '\n' && i < len(data) {
 			accum = append(accum, b)
