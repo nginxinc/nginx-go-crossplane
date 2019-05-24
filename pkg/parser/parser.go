@@ -195,6 +195,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			}
 			continue
 
+		} else if '#' == parsing[p].Item[0] {
+			continue
 		}
 		// args for directives
 		a := block.Args
