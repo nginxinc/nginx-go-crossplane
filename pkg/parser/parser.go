@@ -240,7 +240,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 					continue
 
 				} else {
-					return o, nil
+					return o, e
 				}
 			}
 		}
