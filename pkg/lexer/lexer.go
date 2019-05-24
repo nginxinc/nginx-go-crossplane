@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strings"
 )
@@ -83,7 +82,6 @@ func consumeString(data []byte) (int, []byte, error) {
 		}
 		accum = append(accum, b)
 	}
-	fmt.Println("mataka : ", string(accum))
 	return 0, nil, nil
 }
 
@@ -144,7 +142,7 @@ func NewLexer(r io.Reader) *Reader {
 
 		switch data[0] {
 
-		case '{', '}', ';', '/':
+		case '{', '}', ';': //, '\\', '/':
 			advance, token, err = 1, data[:1], nil
 		case '"', '\'':
 			advance, token, err = consumeString(data)
