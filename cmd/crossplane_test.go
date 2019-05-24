@@ -342,7 +342,7 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 				Ignore:      []string{},
 				Single:      false,
-				Comments:    false,
+				Comments:    true,
 				Strict:      false,
 				Combine:     false,
 				CheckCtx:    true,
