@@ -2110,7 +2110,7 @@ func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bo
 	// if we don't know where this directive is allowed and how
 	// many arguments it can take then don't bother analyzing it
 	if !ct || !dir {
-		return fmt.Errorf("context or directive in invalid")
+		return nil
 	}
 
 	args := stmt.Args

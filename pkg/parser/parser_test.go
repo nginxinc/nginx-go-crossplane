@@ -211,14 +211,14 @@ func TestParse(t *testing.T) {
 				Single:      false,
 				Strict:      false,
 				Combine:     false,
-				Comments: true,
+				Comments:    true,
 			},
 			"config/messy.conf",
 			[]lexer.LexicalItem{
 				{Item: "user", LineNum: 1},
 				{Item: "nobody", LineNum: 1},
 				{Item: ";", LineNum: 1},
-				{Item: "# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\", LineNum: 2},
+				{Item: "# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n", LineNum: 2},
 				{Item: "events", LineNum: 3},
 				{Item: "{", LineNum: 3},
 				{Item: "worker_connections", LineNum: 3},
@@ -242,7 +242,7 @@ func TestParse(t *testing.T) {
 					Line:      2,
 					Includes:  []int{},
 					File:      "",
-					Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\",
+					Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n",
 					Block:     []Block{},
 				},
 				{
@@ -252,15 +252,15 @@ func TestParse(t *testing.T) {
 					Includes:  []int{},
 					File:      "",
 					Comment:   "",
-					Block:     []Block{
+					Block: []Block{
 						{
 							Directive: "worker_connections",
-							Args: []string{"2048"},
-							Line: 3,
-							Comment: "",
-							Includes: []int{},
-							File: "",
-							Block: []Block{},
+							Args:      []string{"2048"},
+							Line:      3,
+							Comment:   "",
+							Includes:  []int{},
+							File:      "",
+							Block:     []Block{},
 						},
 					},
 				},
@@ -268,15 +268,24 @@ func TestParse(t *testing.T) {
 					Directive: "http",
 					Args:      []string{""},
 					Line:      5,
-					Comment:   "forteen",
+					Comment:   "",
 					Includes:  []int{},
 					File:      "",
 					Block: []Block{
 						{
-							Directive: "",
+							Directive: "#",
 							Args:      []string{},
 							Line:      6,
-							Comment:   "this is a comment",
+							Comment:   "forteen",
+							Includes:  []int{},
+							File:      "",
+							Block:     []Block{},
+						},
+						{
+							Directive: "#",
+							Args:      []string{},
+							Line:      6,
+							Comment:   " this is a comment",
 							Includes:  []int{},
 							File:      "",
 							Block:     []Block{},
@@ -318,7 +327,7 @@ func TestParse(t *testing.T) {
 							Block: []Block{
 								{
 									Directive: "listen",
-									Args:      []string{"8080"},
+									Args:      []string{"8083"},
 									Line:      9,
 									Comment:   "",
 									Includes:  []int{},
@@ -403,7 +412,16 @@ func TestParse(t *testing.T) {
 									Directive: "location",
 									Args:      []string{"/\\{\\;\\}\\ #\\ ab"},
 									Line:      16,
-									Comment:   "hello",
+									Comment:   "",
+									Includes:  []int{},
+									File:      "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "#",
+									Args:      []string{},
+									Line:      16,
+									Comment:   " hello",
 									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
@@ -494,30 +512,15 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, tes := range tests {
-		p := Payload{
-			Status: "ok",
-			Errors: []ParseError{},
-			Config: []Config{},
-		}
-		q := Config{
-			File:   tes.file,
-			Status: "ok",
-			Errors: []ParseError{},
-			Parsed: []Block{},
-		}
-		gen, _, e := parse(q, p, tes.testdata, tes.arg, [3]string{}, false)
-		if e != nil {
-			t.Error(e)
-		}
-		for p := 0; p < len(gen); p++ {
-			o := compareBlocks(gen[p], tes.config[p])
+		parsed, err := Parse(tes.arg.FileName, tes.arg.CatchErrors, tes.arg.Ignore, tes.arg.Single, tes.arg.Comments, tes.arg.Strict, tes.arg.Combine, tes.arg.Consume, tes.arg.checkCtx, tes.arg.checkArgs)
+		par := parsed.Config[0].Parsed
+		for p := 0; p < len(par); p++ {
+			o := compareBlocks(par[p], tes.config[p])
 			if o != "" {
 				t.Error(o)
 			}
 		}
-		var ignore []string
-		parsed, err := Parse(q.File, true, ignore, false, false, false, false, false, true, true)
-		fmt.Println(parsed)
+
 		if err != nil {
 			fmt.Println("something")
 		}

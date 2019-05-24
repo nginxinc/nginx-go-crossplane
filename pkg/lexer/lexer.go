@@ -59,7 +59,8 @@ func iterescape(data string) []byte {
 func consumeWord(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
-		if b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' {
+		// TODO make this more robust
+		if b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || (b == '{' && data[i-1] != '$') {
 			return i, accum, nil
 		} else if b == '\'' {
 			accum = append(accum, '\\')
@@ -72,7 +73,7 @@ func consumeWord(data []byte) (int, []byte, error) {
 func consumeNum(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
-		if '0' <= b && b <= '9' || b == '.' {
+		if '0' <= b && b <= '9' || b == '.' || b == ':' {
 			accum = append(accum, b)
 		} else {
 			return i, accum, nil
@@ -120,16 +121,23 @@ type Reader struct {
 }
 
 // LexScanner -
-func LexScanner(input string) ([]LexicalItem, error) {
+func LexScanner(input string) <-chan LexicalItem {
 	s := NewLexer(strings.NewReader(string(iterescape(input))))
 	var res []LexicalItem
-	for s.Scan() {
-		tok := s.Bytes()
-		if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
-			res = append(res, LexicalItem{string(tok), s.l})
+	chnl := make(chan LexicalItem)
+	go func() {
+		for s.Scan() {
+			tok := s.Bytes()
+			if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
+				res = append(res, LexicalItem{string(tok), s.l})
+				chnl <- LexicalItem{string(tok), s.l}
+
+			}
 		}
-	}
-	return res, nil
+		close(chnl)
+	}()
+
+	return chnl
 }
 
 // NewLexer -
