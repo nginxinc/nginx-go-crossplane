@@ -8,6 +8,7 @@ import (
 	"github.com/nginxinc/crossplane-go/pkg/parser"
 )
 
+// \ char causing problems in lexing to parsing
 func TestParseAndBuild(t *testing.T) {
 	var tests = []struct {
 		name     string
@@ -333,125 +334,392 @@ func TestParseAndBuild(t *testing.T) {
 					CheckCtx:    true,
 					CheckArgs:   true,
 				},
+			},*/
+		{
+			"messy",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
 			},
-			{
-				"messy",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    true,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			}, /*
-				{
-					"missing-semicolon",
-					parser.ParseArgs{
-						FileName:    "",
-						CatchErrors: true,
-						Ignore:      []string{},
-						Single:      false,
-						Comments:    false,
-						Strict:      false,
-						Combine:     false,
-						CheckCtx:    true,
-						CheckArgs:   true,
+			parser.Payload{
+				File:   "configs/messy/nginx.conf",
+				Status: "ok",
+				Errors: []parser.ParseError{},
+				Config: []parser.Config{
+					{
+						File:   "configs/messy/nginx.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "user",
+								Args:      []string{"nobody"},
+								Line:      1,
+								File:      "",
+								Comment:   "",
+								Block:     []parser.Block{},
+							},
+							{
+								Directive: "#",
+								Args:      []string{},
+								Line:      2,
+								File:      "",
+								Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n",
+								Block:     []parser.Block{},
+							},
+							{
+								Directive: "events",
+								Args:      []string{},
+								Line:      3,
+								File:      "",
+								Comment:   "",
+								Block: []parser.Block{
+									{
+										Directive: "worker_connections",
+										Args:      []string{"2048"},
+										Line:      3,
+										Comment:   "",
+										File:      "",
+										Block:     []parser.Block{},
+									},
+								},
+							},
+
+							{
+								Directive: "http",
+								Args:      []string{""},
+								Line:      5,
+								Comment:   "",
+								File:      "",
+								Block: []parser.Block{
+									{
+										Directive: "#",
+										Args:      []string{},
+										Line:      6,
+										Comment:   "forteen",
+										File:      "",
+										Block:     []parser.Block{},
+									},
+									{
+										Directive: "#",
+										Args:      []string{},
+										Line:      6,
+										Comment:   " this is a comment",
+										File:      "",
+										Block:     []parser.Block{},
+									},
+									{
+										Directive: "access_log",
+										Args:      []string{"off"},
+										Line:      7,
+										Comment:   "",
+										File:      "",
+										Block:     []parser.Block{},
+									},
+									{
+										Directive: "default_type",
+										Args:      []string{"text/plain"},
+										Line:      7,
+										Comment:   "",
+										File:      "",
+										Block:     []parser.Block{},
+									},
+									{
+										Directive: "error_log",
+										Args:      []string{"off"},
+										Line:      7,
+										Comment:   "",
+										File:      "",
+										Block:     []parser.Block{},
+									},
+									{
+										Directive: "server",
+										Args:      []string{"{"},
+										Line:      8,
+										Comment:   "",
+										File:      "",
+										Block: []parser.Block{
+											{
+												Directive: "listen",
+												Args:      []string{"8083"},
+												Line:      9,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "return",
+												Args:      []string{`200","Ser\" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`},
+												Line:      10,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+										},
+									},
+									{
+										Directive: "server",
+										Args:      []string{"{"},
+										Line:      12,
+										Comment:   "",
+										File:      "",
+										Block: []parser.Block{
+											{
+												Directive: "listen",
+												Args:      []string{"8080"},
+												Comment:   "",
+												Line:      12,
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "root",
+												Args:      []string{"/usr/share/nginx/html"},
+												Line:      13,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "location",
+												Args:      []string{"~", "/hello/world"},
+												Comment:   "",
+												Line:      14,
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "return",
+														Args:      []string{"301", "status.html"},
+														Line:      14,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
+													},
+												},
+											},
+											{
+												Directive: "location",
+												Args:      []string{"/foo"},
+												Line:      15,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "location",
+												Args:      []string{"/bar"},
+												Line:      15,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "location",
+												Args:      []string{"/\\{\\;\\}\\ #\\ ab"},
+												Line:      16,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "#",
+												Args:      []string{},
+												Line:      16,
+												Comment:   " hello",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "if",
+												Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST"},
+												Line:      17,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "location",
+												Args:      []string{"/status.html"},
+												Line:      18,
+												Comment:   "",
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "try_files",
+														Args:      []string{"/abc/${uri} /abc/${uri}.html", "=404"},
+														Line:      19,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
+													},
+												},
+											},
+
+											{
+												Directive: "location",
+												Args:      []string{"/sta;\n                    tus"},
+												Line:      20,
+												Comment:   "",
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "return",
+														Args:      []string{"302", "/status.html"},
+														Line:      21,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
+													},
+												},
+											},
+
+											{
+												Directive: "location",
+												Args:      []string{"/upstream_conf"},
+												Line:      23,
+												Comment:   "",
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "return",
+														Args:      []string{"200", "/status.html"},
+														Line:      23,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
+													},
+												},
+											},
+											{
+												Directive: "server",
+												Args:      []string{},
+												Line:      24,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+										},
+									},
+								},
+							},
+						},
 					},
 				},
-			{
-				"quote-behavior",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
 			},
-			{
-				"quoted-right-brace",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			},
-			{
-				"russian-text",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			},
-			{
-				"simple",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			},
-			{
-				"spelling-mistake",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			},
-			{
-				"with-comments",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    true,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			},*/
+		},
 	}
+
+	/*
+			{
+				"missing-semicolon",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
+			},
+		{
+			"quote-behavior",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+		},
+		{
+			"quoted-right-brace",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+		},
+		{
+			"russian-text",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+		},
+		{
+			"simple",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+		},
+		{
+			"spelling-mistake",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+		},
+		{
+			"with-comments",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    true,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+		},*/
 
 	for _, t := range tests {
 		t.args.FileName = "configs/" + t.name + "/nginx.conf"
 		parsed, err := parser.Parse(t.args)
-		//fmt.Println("OUTPUT : ", parsed)
+		fmt.Println("OUTPUT : ", parsed)
 		fmt.Println()
 		if err != nil {
 			log.Fatal(err)
