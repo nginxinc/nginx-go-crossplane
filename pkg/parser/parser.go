@@ -310,8 +310,12 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 }
 
 func removeBrackets(s []string) []string {
-	if s[0] == "(" && s[len(s)-1] == ")" {
-		s = s[1 : len(s)-2]
+	if strings.HasPrefix(s[0], "(") && strings.HasSuffix(s[len(s)-1], ")") {
+		s[0] = strings.TrimPrefix(s[0], "(")
+		s[len(s)-1] = strings.TrimSuffix(s[len(s)-1], ")")
+		if s[len(s)-1] == "" {
+			s = s[:len(s)-1]
+		}
 	}
 	return s
 }

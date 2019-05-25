@@ -34,36 +34,13 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	return UnbalancedBracesError("")
 }
 
-func iterescape(data string) []byte {
-	var b []byte
-	d := []byte(data)
-	for i, v := range d {
-		if v == '\\' && i+1 < len(d) {
-			if d[i+1] != '"' && d[i+1] != '\'' {
-				b = append(b, '\\')
-			}
-		} else if v == '\'' {
-			b = append(b, '\\')
-		}
-		b = append(b, v)
-	}
-	if len(b) < len(d) {
-		b = append(b, data[len(b):]...)
-	}
-	if len(b) < 1 {
-		return d
-	}
-	return b
-}
 
 func consumeWord(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
 		// TODO make this more robust
-		if b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || (b == '{' && data[i-1] != '$') {
+		if (b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || b == '{') && data[i-1] != '\\' && data[i-1] != '$' {
 			return i, accum, nil
-		} else if b == '\'' {
-			accum = append(accum, '\\')
 		}
 		accum = append(accum, b)
 	}
@@ -84,15 +61,24 @@ func consumeNum(data []byte) (int, []byte, error) {
 
 func consumeString(data []byte) (int, []byte, error) {
 	delim := data[0]
+	var otherStringDelim byte
+	if delim == '"' {
+		otherStringDelim = '\''
+	} else {
+		otherStringDelim = '"'
+	}
 	skip := false
-	accum := []byte{}
+	var accum []byte
 	for i, b := range data[1:] {
 		if b == delim && !skip {
 			return i + 2, accum, nil
 		}
 		skip = false
-		if b == '\\' {
+		if b == '\\' && data[i+2] == delim {
 			skip = true
+			continue
+		} else if b == '\\' || b == otherStringDelim {
+			accum = append(accum, '\\')
 		}
 		accum = append(accum, b)
 	}
@@ -122,14 +108,12 @@ type Reader struct {
 
 // LexScanner -
 func LexScanner(input string) <-chan LexicalItem {
-	s := NewLexer(strings.NewReader(string(iterescape(input))))
-	var res []LexicalItem
+	s := NewLexer(strings.NewReader(input))
 	chnl := make(chan LexicalItem)
 	go func() {
 		for s.Scan() {
 			tok := s.Bytes()
 			if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
-				res = append(res, LexicalItem{string(tok), s.l})
 				chnl <- LexicalItem{string(tok), s.l}
 
 			}
@@ -159,7 +143,7 @@ func NewLexer(r io.Reader) *Reader {
 		switch data[0] {
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
-		case '"':
+		case '"', '\'':
 			advance, token, err = consumeString(data)
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			advance, token, err = consumeNum(data)
