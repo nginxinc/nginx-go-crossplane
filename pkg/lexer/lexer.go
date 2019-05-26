@@ -11,8 +11,8 @@ type UnbalancedBracesError string
 
 // LexicalItem -
 type LexicalItem struct {
-	item    string
-	lineNum int
+	Item    string
+	LineNum int
 }
 
 // BalanceBraces found in a lexical item array.
@@ -21,7 +21,7 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	balance := 0
 	for _, lexicalItem := range lexicalItems {
 
-		switch lexicalItem.item {
+		switch lexicalItem.Item {
 		case "{":
 			balance = balance + 1
 		case "}":
@@ -34,35 +34,13 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	return UnbalancedBracesError("")
 }
 
-func iterescape(data string) []byte {
-	var b []byte
-	d := []byte(data)
-	for i, v := range d {
-		if v == '\\' && i+1 < len(d) {
-			if d[i+1] != '"' && d[i+1] != '\'' {
-				b = append(b, '\\')
-			}
-		} else if v == '\'' {
-			b = append(b, '\\')
-		}
-		b = append(b, v)
-	}
-	if len(b) < len(d) {
-		b = append(b, data[len(b):]...)
-	}
-	if len(b) < 1 {
-		return d
-	}
-	return b
-}
 
 func consumeWord(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
-		if b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' {
+		// TODO make this more robust
+		if (b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || b == '{') && data[i-1] != '\\' && data[i-1] != '$' {
 			return i, accum, nil
-		} else if b == '\'' {
-			accum = append(accum, '\\')
 		}
 		accum = append(accum, b)
 	}
@@ -72,7 +50,7 @@ func consumeWord(data []byte) (int, []byte, error) {
 func consumeNum(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
-		if '0' <= b && b <= '9' || b == '.' {
+		if '0' <= b && b <= '9' || b == '.' || b == ':' {
 			accum = append(accum, b)
 		} else {
 			return i, accum, nil
@@ -83,15 +61,24 @@ func consumeNum(data []byte) (int, []byte, error) {
 
 func consumeString(data []byte) (int, []byte, error) {
 	delim := data[0]
+	var otherStringDelim byte
+	if delim == '"' {
+		otherStringDelim = '\''
+	} else {
+		otherStringDelim = '"'
+	}
 	skip := false
-	accum := []byte{}
+	var accum []byte
 	for i, b := range data[1:] {
 		if b == delim && !skip {
 			return i + 2, accum, nil
 		}
 		skip = false
-		if b == '\\' {
+		if b == '\\' && data[i+2] == delim {
 			skip = true
+			continue
+		} else if b == '\\' || b == otherStringDelim {
+			accum = append(accum, '\\')
 		}
 		accum = append(accum, b)
 	}
@@ -120,16 +107,21 @@ type Reader struct {
 }
 
 // LexScanner -
-func LexScanner(input string) ([]LexicalItem, error) {
-	s := NewLexer(strings.NewReader(string(iterescape(input))))
-	res := []LexicalItem{}
-	for s.Scan() {
-		tok := s.Bytes()
-		if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
-			res = append(res, LexicalItem{string(tok), s.l})
+func LexScanner(input string) <-chan LexicalItem {
+	s := NewLexer(strings.NewReader(input))
+	chnl := make(chan LexicalItem)
+	go func() {
+		for s.Scan() {
+			tok := s.Bytes()
+			if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
+				chnl <- LexicalItem{string(tok), s.l}
+
+			}
 		}
-	}
-	return res, nil
+		close(chnl)
+	}()
+
+	return chnl
 }
 
 // NewLexer -
@@ -151,7 +143,7 @@ func NewLexer(r io.Reader) *Reader {
 		switch data[0] {
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
-		case '"':
+		case '"', '\'':
 			advance, token, err = consumeString(data)
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			advance, token, err = consumeNum(data)
