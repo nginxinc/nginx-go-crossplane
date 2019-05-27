@@ -295,7 +295,7 @@ func TestBuildFile(t *testing.T) {
 					Errors: []ParseError{},
 					Config: []Config{
 						{
-							File:   "nginx.conf",
+							File:   "config/simple.conf",
 							Status: "ok",
 							Errors: []ParseError{},
 							Parsed: []Block{
@@ -350,7 +350,7 @@ func TestBuildFile(t *testing.T) {
 		if err != nil {
 			t.Errorf("Error %v", err)
 		}
-		result, err := BuildFiles(string(out), test.file, 4, false, false)
+		result, err := BuildFiles(string(out), " ", 4, false, false)
 		if err != nil {
 			t.Error(test.title)
 		}

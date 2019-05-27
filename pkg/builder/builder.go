@@ -131,11 +131,12 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 	for _, payload := range data {
 		for _, stmt := range payload.Config {
 			path = stmt.File
-			if !filepath.IsAbs(stmt.File) {
+			if !filepath.IsAbs(path) {
 				path = filepath.Join(dirname, path)
 			}
 
-			dirpath := filepath.Base(path)
+			parts := strings.Split(stmt.File, "/")
+			dirpath := parts[0]
 			if _, err := os.Stat(dirpath); os.IsNotExist(err) {
 				os.Mkdir(dirpath, 0777)
 			}
@@ -145,18 +146,12 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 
 			output, _ := Build(string(out), 4, false, false)
 			output = strings.TrimRight(output, " ")
-			//fmt.Println(output)
 
 			f, _ := os.Create(path)
 			_, err := io.WriteString(f, output)
 			if err != nil {
 				panic("No Output")
 			}
-
-			/*
-				f, _ := os.OpenFile(path, os.O_WRONLY, 0777)
-				f.WriteString(output)
-			*/
 		}
 	}
 	return "built", nil
