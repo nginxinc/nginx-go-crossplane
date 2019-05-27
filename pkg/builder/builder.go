@@ -3,6 +3,7 @@ package builder
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -134,7 +135,7 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 				path = filepath.Join(dirname, path)
 			}
 
-			dirpath := filepath.Dir(path)
+			dirpath := filepath.Base(path)
 			if _, err := os.Stat(dirpath); os.IsNotExist(err) {
 				os.Mkdir(dirpath, 0777)
 			}
@@ -144,9 +145,18 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 
 			output, _ := Build(string(out), 4, false, false)
 			output = strings.TrimRight(output, " ")
+			//fmt.Println(output)
 
-			f, _ := os.OpenFile(path, os.O_WRONLY, 0777)
-			f.WriteString(output)
+			f, _ := os.Create(path)
+			_, err := io.WriteString(f, output)
+			if err != nil {
+				panic("No Output")
+			}
+
+			/*
+				f, _ := os.OpenFile(path, os.O_WRONLY, 0777)
+				f.WriteString(output)
+			*/
 		}
 	}
 	return "built", nil
