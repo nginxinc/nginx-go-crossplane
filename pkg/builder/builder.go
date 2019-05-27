@@ -145,7 +145,7 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 			out, _ := json.Marshal(parsed)
 
 			output, _ := Build(string(out), 4, false, false)
-			output = strings.TrimRight(output, " ")
+			output = strings.TrimLeft(output, "\n")
 
 			f, _ := os.Create(path)
 			_, err := io.WriteString(f, output)

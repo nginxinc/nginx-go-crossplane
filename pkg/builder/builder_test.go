@@ -271,6 +271,8 @@ func TestBuilder(t *testing.T) {
 
 		test.expected = strings.Replace(test.expected, "\t", padding, -1)
 
+		//fmt.Println(test.expected)
+		//fmt.Println(result)
 		if err != nil {
 			t.Error(test.title)
 		}
