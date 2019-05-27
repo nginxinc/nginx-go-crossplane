@@ -6,17 +6,17 @@ import (
 
 func TestAnalyze(t *testing.T) {
 	fname := "/path/to/nginx.conf"
-	ctx := [3]string{"events"}
+	ctx := [3]string{"http", "upstream"}
 
-	// testing state directive
+	// testing state Directive
 
-	// the state directive should not cause errors if it's in these contexts
-	statement1 := Statement{directive: "state",
-		args: [1]string{"/path/to/state/file.conf"},
-		line: 5,
+	// the state Directive should not cause errors if it's in these contexts
+	statement1 := Statement{Directive: "state",
+		Args: []string{"/path/to/state/file.conf"},
+		Line: 5,
 	}
-	// the state directive should not cause errors if it's in these contexts
-	goodContexts := [3][3]string{
+	// the state Directive should not cause errors if it's in these contexts
+	goodContexts := [2][3]string{
 		{"http", "upstream"},
 		{"stream", "upstream"},
 	}
@@ -35,23 +35,22 @@ func TestAnalyze(t *testing.T) {
 		{"https"},
 	}
 	for _, v2 := range badContext {
-		if err := Analyze(fname, statement1, ";", v2, true, true, false); err != nil {
-			continue
-		} else {
-			t.Errorf("Not throwing an error on contexts")
+		if err := Analyze(fname, statement1, ";", v2, true, true, false); err == nil {
+			t.Error("Not throwing an error on contexts : ", v2)
 		}
+
 	}
 
-	// test flag directive args
+	// test flag Directive Args
 
-	// an NGINX_CONF_FLAG directive
+	// an NGINX_CONF_FLAG Directive
 	statement2 := Statement{
-		directive: "accept_mutex",
-		args:      [1]string{},
-		line:      2,
+		Directive: "accept_mutex",
+		Args:      []string{},
+		Line:      2,
 	}
 
-	goodArgs := [6][1]string{
+	goodArgs := [6][]string{
 		{"on"},
 		{"off"},
 		{"On"},
@@ -61,27 +60,23 @@ func TestAnalyze(t *testing.T) {
 	}
 
 	for _, v := range goodArgs {
-		statement2.args = v
+		statement2.Args = v
 		if err := Analyze(fname, statement2, ";", ctx, true, false, true); err != nil {
-			t.Errorf("Throwing an error on good args: %v", v)
+			t.Errorf("Throwing an error on good Args: %v", v)
 		}
 
 	}
-	badArgs := [5][1]string{
-		{"1"},
+	badArgs := [4][]string{
+		{""},
 		{"0"},
 		{"true"},
 		{"okay"},
-		{""},
 	}
 
 	for _, v := range badArgs {
-		statement2.args = v
-		if err := Analyze(fname, statement2, ";", ctx, true, false, true); err != nil {
-			continue
-		} else {
-			t.Errorf("Not failing on bad args: %v", v)
+		statement2.Args = v
+		if err := Analyze(fname, statement2, ";", ctx, true, false, true); err == nil {
+			t.Errorf("Not failing on bad Args: %v", v)
 		}
 	}
-
 }
