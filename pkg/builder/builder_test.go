@@ -282,9 +282,10 @@ func TestBuilder(t *testing.T) {
 
 func TestBuildFile(t *testing.T) {
 	var tests = []struct {
-		title string
-		file  string
-		input []Payload
+		title    string
+		file     string
+		input    []Payload
+		expected string
 	}{
 		{
 			"basic: simple build files",
@@ -380,6 +381,19 @@ func TestBuildFile(t *testing.T) {
 					},
 				},
 			},
+			`
+				events {
+					worker_connections 1024;
+				}
+				http {
+					server {
+						listen 127.0.0.1:8080;
+						server_name default_server;
+						location / {
+							return 200 foo bar baz;
+						}
+					}
+				}`,
 		},
 		{
 			"basic: with comments build files",
@@ -437,6 +451,12 @@ func TestBuildFile(t *testing.T) {
 					},
 				},
 			},
+			`
+				http {
+					server {
+						listen 127.0.0.1:8080; #listen
+					}
+				}`,
 		},
 	}
 
@@ -446,10 +466,13 @@ func TestBuildFile(t *testing.T) {
 			t.Errorf("Error %v", err)
 		}
 		result, err := BuildFiles(string(out), " ", 4, false, false)
+		test.expected = strings.TrimLeft(test.expected, "\n")
+		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+
 		if err != nil {
 			t.Error(test.title)
 		}
-		if result == " " {
+		if result != test.expected {
 			t.Error(test.title)
 		}
 	}
