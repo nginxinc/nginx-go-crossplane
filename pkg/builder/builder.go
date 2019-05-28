@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -122,7 +123,7 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 		return "", fmt.Errorf("error unmarshalling payload: %v", err)
 	}
 
-	var path string
+	var built string
 
 	if dirname == " " {
 		dirname, _ = os.Getwd()
@@ -130,7 +131,7 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 
 	for _, payload := range data {
 		for _, stmt := range payload.Config {
-			path = stmt.File
+			path := stmt.File
 			if !filepath.IsAbs(path) {
 				path = filepath.Join(dirname, path)
 			}
@@ -152,7 +153,10 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 			if err != nil {
 				panic("No Output")
 			}
+
+			b, _ := ioutil.ReadFile(path)
+			built = string(b)
 		}
 	}
-	return "built", nil
+	return built, nil
 }
