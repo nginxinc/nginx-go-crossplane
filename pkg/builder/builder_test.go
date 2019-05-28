@@ -271,8 +271,6 @@ func TestBuilder(t *testing.T) {
 
 		test.expected = strings.Replace(test.expected, "\t", padding, -1)
 
-		//fmt.Println(test.expected)
-		//fmt.Println(result)
 		if err != nil {
 			t.Error(test.title)
 		}
@@ -289,7 +287,7 @@ func TestBuildFile(t *testing.T) {
 		input []Payload
 	}{
 		{
-			"basic: build with comments",
+			"basic: simple build files",
 			"config/simple.conf",
 			[]Payload{
 				{
@@ -298,6 +296,101 @@ func TestBuildFile(t *testing.T) {
 					Config: []Config{
 						{
 							File:   "config/simple.conf",
+							Status: "ok",
+							Errors: []ParseError{},
+							Parsed: []Block{
+								{
+									Directive: "events",
+									Line:      1,
+									Args:      []string{},
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block: []Block{
+										{
+											Directive: "worker_connections",
+											Line:      2,
+											Args:      []string{"1024"},
+											Includes:  []int{},
+											File:      "",
+											Comment:   "",
+											Block:     []Block{},
+										},
+									},
+								},
+								{
+									Directive: "http",
+									Line:      5,
+									Args:      []string{},
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block: []Block{
+										{
+											Directive: "server",
+											Line:      6,
+											Args:      []string{},
+											Includes:  []int{},
+											File:      "",
+											Comment:   "",
+											Block: []Block{
+												{
+													Directive: "listen",
+													Args:      []string{"127.0.0.1:8080"},
+													Line:      7,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "",
+													Block:     []Block{},
+												},
+												{
+													Directive: "server_name",
+													Args:      []string{"default_server"},
+													Line:      8,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "",
+													Block:     []Block{},
+												},
+												{
+													Directive: "location",
+													Args:      []string{"/"},
+													Line:      9,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "",
+													Block: []Block{
+														{
+															Directive: "return",
+															Args:      []string{"200", "foo bar baz"},
+															Line:      10,
+															Includes:  []int{},
+															File:      "",
+															Comment:   "",
+															Block:     []Block{},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			"basic: with comments build files",
+			"config/withComments.conf",
+			[]Payload{
+				{
+					Status: "ok",
+					Errors: []ParseError{},
+					Config: []Config{
+						{
+							File:   "config/withComments.conf",
 							Status: "ok",
 							Errors: []ParseError{},
 							Parsed: []Block{
