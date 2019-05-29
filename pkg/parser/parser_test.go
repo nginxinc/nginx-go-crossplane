@@ -61,7 +61,6 @@ func TestParse(t *testing.T) {
 					Directive: "events",
 					Line:      1,
 					Args:      []string{},
-					Includes:  []int{},
 					File:      "",
 					Comment:   "",
 					Block: []Block{
@@ -69,7 +68,6 @@ func TestParse(t *testing.T) {
 							Directive: "worker_connections",
 							Line:      2,
 							Args:      []string{"1024"},
-							Includes:  []int{},
 							File:      "",
 							Comment:   "",
 							Block:     []Block{},
@@ -80,7 +78,6 @@ func TestParse(t *testing.T) {
 					Directive: "http",
 					Line:      5,
 					Args:      []string{},
-					Includes:  []int{},
 					File:      "",
 					Comment:   "",
 					Block: []Block{
@@ -88,7 +85,6 @@ func TestParse(t *testing.T) {
 							Directive: "server",
 							Line:      6,
 							Args:      []string{},
-							Includes:  []int{},
 							File:      "",
 							Comment:   "",
 							Block: []Block{
@@ -96,7 +92,6 @@ func TestParse(t *testing.T) {
 									Directive: "listen",
 									Args:      []string{"127.0.0.1:8080"},
 									Line:      7,
-									Includes:  []int{},
 									File:      "",
 									Comment:   "",
 									Block:     []Block{},
@@ -105,7 +100,6 @@ func TestParse(t *testing.T) {
 									Directive: "server_name",
 									Args:      []string{"default_server"},
 									Line:      8,
-									Includes:  []int{},
 									File:      "",
 									Comment:   "",
 									Block:     []Block{},
@@ -114,7 +108,6 @@ func TestParse(t *testing.T) {
 									Directive: "location",
 									Args:      []string{"/"},
 									Line:      9,
-									Includes:  []int{},
 									File:      "",
 									Comment:   "",
 									Block: []Block{
@@ -122,7 +115,6 @@ func TestParse(t *testing.T) {
 											Directive: "return",
 											Args:      []string{"200", "foo bar baz"},
 											Line:      10,
-											Includes:  []int{},
 											File:      "",
 											Comment:   "",
 											Block:     []Block{},
@@ -144,8 +136,8 @@ func TestParse(t *testing.T) {
 				Single:      false,
 				Strict:      false,
 				Combine:     false,
-				checkArgs:   false,
-				checkCtx:    false,
+				CheckArgs:   false,
+				CheckCtx:    false,
 				Comments:    true,
 			},
 			"config/WithComments.conf",
@@ -166,7 +158,6 @@ func TestParse(t *testing.T) {
 					Directive: "http",
 					Args:      []string{},
 					Line:      1,
-					Includes:  []int{},
 					File:      "",
 					Comment:   "",
 					Block: []Block{
@@ -174,7 +165,6 @@ func TestParse(t *testing.T) {
 							Directive: "server",
 							Args:      []string{},
 							Line:      2,
-							Includes:  []int{},
 							File:      "",
 							Comment:   "",
 							Block: []Block{
@@ -182,7 +172,6 @@ func TestParse(t *testing.T) {
 									Directive: "listen",
 									Args:      []string{"127.0.0.1:8080"},
 									Line:      3,
-									Includes:  []int{},
 									File:      "",
 									Comment:   "",
 									Block:     []Block{},
@@ -191,7 +180,6 @@ func TestParse(t *testing.T) {
 									Directive: "#",
 									Args:      []string{},
 									Line:      3,
-									Includes:  []int{},
 									File:      "",
 									Comment:   "listen",
 									Block:     []Block{},
@@ -231,7 +219,6 @@ func TestParse(t *testing.T) {
 					Directive: "user",
 					Args:      []string{"nobody"},
 					Line:      1,
-					Includes:  []int{},
 					File:      "",
 					Comment:   "",
 					Block:     []Block{},
@@ -240,7 +227,6 @@ func TestParse(t *testing.T) {
 					Directive: "#",
 					Args:      []string{},
 					Line:      2,
-					Includes:  []int{},
 					File:      "",
 					Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\",
 					Block:     []Block{},
@@ -249,7 +235,6 @@ func TestParse(t *testing.T) {
 					Directive: "events",
 					Args:      []string{},
 					Line:      3,
-					Includes:  []int{},
 					File:      "",
 					Comment:   "",
 					Block: []Block{
@@ -258,7 +243,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{"2048"},
 							Line:      3,
 							Comment:   "",
-							Includes:  []int{},
 							File:      "",
 							Block:     []Block{},
 						},
@@ -269,7 +253,6 @@ func TestParse(t *testing.T) {
 					Args:      []string{},
 					Line:      5,
 					Comment:   "",
-					Includes:  []int{},
 					File:      "",
 					Block: []Block{
 						{
@@ -277,7 +260,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{},
 							Line:      5,
 							Comment:   "forteen",
-							Includes:  []int{},
 							File:      "",
 							Block:     []Block{},
 						},
@@ -286,7 +268,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{},
 							Line:      6,
 							Comment:   " this is a comment",
-							Includes:  []int{},
 							File:      "",
 							Block:     []Block{},
 						},
@@ -295,7 +276,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{"off"},
 							Line:      7,
 							Comment:   "",
-							Includes:  []int{},
 							File:      "",
 							Block:     []Block{},
 						},
@@ -304,7 +284,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{"text/plain"},
 							Line:      7,
 							Comment:   "",
-							Includes:  []int{},
 							File:      "",
 							Block:     []Block{},
 						},
@@ -313,7 +292,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{"off"},
 							Line:      7,
 							Comment:   "",
-							Includes:  []int{},
 							File:      "",
 							Block:     []Block{},
 						},
@@ -322,7 +300,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{},
 							Line:      8,
 							Comment:   "",
-							Includes:  []int{},
 							File:      "",
 							Block: []Block{
 								{
@@ -330,7 +307,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"8083"},
 									Line:      9,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -339,7 +315,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"200", `Ser" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`},
 									Line:      10,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -350,7 +325,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{},
 							Line:      12,
 							Comment:   "",
-							Includes:  []int{},
 							File:      "",
 							Block: []Block{
 								{
@@ -358,7 +332,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"8080"},
 									Comment:   "",
 									Line:      12,
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -367,7 +340,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"/usr/share/nginx/html"},
 									Line:      13,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -376,7 +348,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"~", "/hello/world;"},
 									Comment:   "",
 									Line:      14,
-									Includes:  []int{},
 									File:      "",
 									Block: []Block{
 										{
@@ -385,7 +356,6 @@ func TestParse(t *testing.T) {
 											Line:      14,
 											Comment:   "",
 											File:      "",
-											Includes:  []int{},
 											Block:     []Block{},
 										},
 									},
@@ -395,7 +365,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"/foo"},
 									Line:      15,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -404,7 +373,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"/bar"},
 									Line:      15,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -413,7 +381,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"/\\{\\;\\}\\ #\\ ab"},
 									Line:      16,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -422,7 +389,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{},
 									Line:      16,
 									Comment:   " hello",
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -431,7 +397,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST"},
 									Line:      17,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block:     []Block{},
 								},
@@ -440,7 +405,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"/status.html"},
 									Line:      18,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block: []Block{
 										{
@@ -448,7 +412,6 @@ func TestParse(t *testing.T) {
 											Args:      []string{"/abc/${uri}", "/abc/${uri}.html", "=404"},
 											Line:      19,
 											Comment:   "",
-											Includes:  []int{},
 											File:      "",
 											Block:     []Block{},
 										},
@@ -460,7 +423,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"/sta;\n                    tus"},
 									Line:      21,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block: []Block{
 										{
@@ -468,7 +430,6 @@ func TestParse(t *testing.T) {
 											Args:      []string{"302", "/status.html"},
 											Line:      22,
 											Comment:   "",
-											Includes:  []int{},
 											File:      "",
 											Block:     []Block{},
 										},
@@ -480,7 +441,6 @@ func TestParse(t *testing.T) {
 									Args:      []string{"/upstream_conf"},
 									Line:      23,
 									Comment:   "",
-									Includes:  []int{},
 									File:      "",
 									Block: []Block{
 										{
@@ -488,7 +448,6 @@ func TestParse(t *testing.T) {
 											Args:      []string{"200", "/status.html"},
 											Line:      23,
 											Comment:   "",
-											Includes:  []int{},
 											File:      "",
 											Block:     []Block{},
 										},
@@ -501,7 +460,6 @@ func TestParse(t *testing.T) {
 							Args:      []string{},
 							Line:      24,
 							Comment:   "",
-							Includes:  []int{},
 							File:      "",
 							Block:     []Block{},
 						},
@@ -512,7 +470,7 @@ func TestParse(t *testing.T) {
 	}
 
 	for _, tes := range tests {
-		parsed, err := Parse(tes.arg.FileName, tes.arg.CatchErrors, tes.arg.Ignore, tes.arg.Single, tes.arg.Comments, tes.arg.Strict, tes.arg.Combine, tes.arg.Consume, tes.arg.checkCtx, tes.arg.checkArgs)
+		parsed, err := Parse(tes.arg.FileName, tes.arg.CatchErrors, tes.arg.Ignore, tes.arg.Single, tes.arg.Comments, tes.arg.Strict, tes.arg.Combine, tes.arg.Consume, tes.arg.CheckCtx, tes.arg.CheckArgs)
 		par := parsed.Config[0].Parsed
 		for p := 0; p < len(par); p++ {
 			o := compareBlocks(par[p], tes.config[p])
@@ -551,15 +509,7 @@ func compareBlocks(gen Block, config Block) string {
 	if gen.Comment != config.Comment {
 		s += "Problem with Comments in Block " + gen.Comment + " && " + config.Comment
 	}
-	if len(gen.Includes) == len(config.Includes) {
-		for i := 0; i < len(gen.Includes); i++ {
-			if gen.Includes[i] != config.Includes[i] {
-				s += "Problem with Includes in Block " + gen.Directive + " && " + config.Directive
-			}
-		}
-	} else {
-		s += "Problem with Comments in Block " + gen.Directive + " && " + config.Directive
-	}
+
 	for i := 0; i < len(gen.Block); i++ {
 		s += compareBlocks(gen.Block[i], config.Block[i])
 	}
