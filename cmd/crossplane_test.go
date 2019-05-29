@@ -1013,9 +1013,18 @@ func TestParseAndBuild(t *testing.T) {
 
 	for _, t := range tests {
 		t.args.FileName = "configs/" + t.name + "/nginx.conf"
-		parsed, err := parser.Parse(t.args)
-		fmt.Println("OUTPUT : ", parsed)
-		fmt.Println()
+		f := t.args.FileName
+		i := t.args.Ignore
+		catch := t.args.CatchErrors
+		sin := t.args.Single
+		com := t.args.Comments
+		strict := t.args.Strict
+		comb := t.args.Combine
+		ctx := t.args.CheckCtx
+		check := t.args.CheckArgs
+		con := t.args.Consume
+		fmt.Println("File : ", f)
+		parsed, err := parser.Parse(f, catch, i, sin, com, strict, comb, con, ctx, check)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -1024,35 +1033,37 @@ func TestParseAndBuild(t *testing.T) {
 			for _, q := range p.Parsed {
 				fmt.Println(q)
 
-		if parsed.File != t.expected.File {
-			//fmt.Println(parsed.File)
-			//fmt.Println(t.expected.File)
-			log.Fatal("Payload filenames not the same")
-		}
-		if parsed.Status != t.expected.Status {
-			log.Fatal("status not teh same ")
-		}
-		if len(parsed.Errors) != 0 {
-			for p := 0; p < len(parsed.Errors); p++ {
-				if parsed.Errors[p] != t.expected.Errors[p] {
-					log.Fatal("Error")
+				if parsed.File != t.expected.File {
+					//fmt.Println(parsed.File)
+					//fmt.Println(t.expected.File)
+					log.Fatal("Payload filenames not the same")
 				}
-			}
-		}
-		if len(parsed.Config) != len(t.expected.Config) {
-			log.Fatal("Configs arent same length")
-		} else {
-			var w string
-			for i := 0; i < len(parsed.Config)-1; i++ {
-				w += compareConfigs(parsed.Config[i], t.expected.Config[i])
-			}
-			if w != "" {
-				log.Fatal(w)
-			}
-		}
+				if parsed.Status != t.expected.Status {
+					log.Fatal("status not teh same ")
+				}
+				if len(parsed.Errors) != 0 {
+					for p := 0; p < len(parsed.Errors); p++ {
+						if parsed.Errors[p] != t.expected.Errors[p] {
+							log.Fatal("Error")
+						}
+					}
+				}
+				if len(parsed.Config) != len(t.expected.Config) {
+					log.Fatal("Configs arent same length")
+				} else {
+					var w string
+					for i := 0; i < len(parsed.Config)-1; i++ {
+						w += compareConfigs(parsed.Config[i], t.expected.Config[i])
+					}
+					if w != "" {
+						log.Fatal(w)
+					}
+				}
 
+			}
+
+		}
 	}
-
 }
 
 func compareConfigs(conf parser.Config, c parser.Config) string {

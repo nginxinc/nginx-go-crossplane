@@ -66,16 +66,16 @@ func consumeString(data []byte) (int, []byte, error) {
 	} else {
 		otherStringDelim = '"'
 	}
-
+	skip := false
 	var accum []byte
 	for i, b := range data[1:] {
-		if b == delim {
+		if b == delim && !skip {
 
-			accum = append(accum, b)
 			return i + 2, accum, nil
 		}
+		skip = false
 		if b == '\\' && data[i+2] == delim {
-
+			skip = true
 			continue
 		} else if b == '\\' || b == otherStringDelim {
 			accum = append(accum, '\\')
