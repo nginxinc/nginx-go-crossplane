@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"errors"
 	"log"
 	"testing"
 
@@ -277,21 +277,100 @@ func TestParseAndBuild(t *testing.T) {
 					},
 				},
 			},
-		}, /*
-				{
-					"includes-regular",
-					parser.ParseArgs{
-						FileName:    "",
-						CatchErrors: true,
-						Ignore:      []string{},
-						Single:      false,
-						Comments:    false,
-						Strict:      false,
-						Combine:     false,
-						CheckCtx:    true,
-						CheckArgs:   true,
+		},
+		{
+			"includes-regular",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     true,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+			parser.Payload{
+				File:   "configs/includes-regular/nginx.conf",
+				Status: "failed",
+				Errors: []parser.ParseError{
+					{
+						File:  "configs/includes-regular/conf.d/server.conf",
+						Line:  5,
+						Error: errors.New("open configs/includes-regular/bar.conf: no such file or directory"),
 					},
 				},
+				Config: []parser.Config{
+					{
+						File:   "configs/includes-regular/nginx.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "events",
+								Line:      1,
+								Args:      []string{},
+								Comment:   "",
+								File:      "configs/includes-regular/nginx.conf",
+								Block:     []parser.Block{},
+							},
+							{
+								Directive: "http",
+								Args:      []string{},
+								Line:      2,
+								Comment:   "",
+								File:      "configs/includes-regular/nginx.conf",
+								Block: []parser.Block{
+									{
+										Directive: "server",
+										Line:      1,
+										Comment:   "",
+										Args:      []string{},
+										File:      "configs/includes-regular/conf.d/server.conf",
+										Block: []parser.Block{
+											{
+												Directive: "listen",
+												Args:      []string{"127.0.0.1:8080"},
+												Line:      2,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "server_name",
+												Args:      []string{"default_server"},
+												Line:      3,
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "location",
+												Args:      []string{"/foo"},
+												Comment:   "",
+												Line:      1,
+												File:      "configs/includes-regular/foo.conf",
+												Block: []parser.Block{
+													{
+														Directive: "return",
+														Args:      []string{"200", "foo"},
+														Line:      2,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}, /*
 			{
 				"lua-block-larger",
 				parser.ParseArgs{
@@ -1023,47 +1102,39 @@ func TestParseAndBuild(t *testing.T) {
 		ctx := t.args.CheckCtx
 		check := t.args.CheckArgs
 		con := t.args.Consume
-		fmt.Println("File : ", f)
 		parsed, err := parser.Parse(f, catch, i, sin, com, strict, comb, con, ctx, check)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		for _, p := range parsed.Config {
-			for _, q := range p.Parsed {
-				fmt.Println(q)
-
-				if parsed.File != t.expected.File {
-					//fmt.Println(parsed.File)
-					//fmt.Println(t.expected.File)
-					log.Fatal("Payload filenames not the same")
-				}
-				if parsed.Status != t.expected.Status {
-					log.Fatal("status not teh same ")
-				}
-				if len(parsed.Errors) != 0 {
-					for p := 0; p < len(parsed.Errors); p++ {
-						if parsed.Errors[p] != t.expected.Errors[p] {
-							log.Fatal("Error")
-						}
-					}
-				}
-				if len(parsed.Config) != len(t.expected.Config) {
-					log.Fatal("Configs arent same length")
-				} else {
-					var w string
-					for i := 0; i < len(parsed.Config)-1; i++ {
-						w += compareConfigs(parsed.Config[i], t.expected.Config[i])
-					}
-					if w != "" {
-						log.Fatal(w)
-					}
-				}
-
-			}
-
+		if parsed.File != t.expected.File {
+			log.Fatal("Payload filenames not the same")
 		}
+		if parsed.Status != t.expected.Status {
+			log.Fatal("status not the same ")
+		}
+		if len(parsed.Errors) != len(t.expected.Errors) {
+			for p := 0; p < len(parsed.Errors); p++ {
+				if parsed.Errors[p] != t.expected.Errors[p] {
+					log.Fatal("Error ")
+
+				}
+			}
+		}
+		if len(parsed.Config) != len(t.expected.Config) {
+			log.Fatal("Configs arent same length")
+		} else {
+			var w string
+			for i := 0; i < len(parsed.Config)-1; i++ {
+				w += compareConfigs(parsed.Config[i], t.expected.Config[i])
+			}
+			if w != "" {
+				log.Fatal(w)
+			}
+		}
+
 	}
+
 }
 
 func compareConfigs(conf parser.Config, c parser.Config) string {

@@ -147,7 +147,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			Directive: "",
 			Line:      0,
 			Args:      []string{},
-			File:      "",
+			File:      args.FileName,
 			Comment:   "",
 			Block:     []Block{},
 		}
@@ -284,11 +284,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				}
 			}
 		}
-		if block.Directive != "{" && block.Directive != ";" {
-			o = append(o, block)
-		} else {
-			continue
-		}
 
 		// try analysing the directives
 		if token.Item == "{" {
@@ -304,7 +299,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				return o, e
 			}
 		}
-
+		o = append(o, block)
 	}
 	return o, nil
 }
@@ -334,13 +329,14 @@ func canRead(pattern string, a ParseArgs, parsed Config, lineNumber int) (bool, 
 	if err != nil {
 		if a.CatchErrors {
 			handleErrors(parsed, err, lineNumber)
-		} else {
-			return false, err
+			return false, nil
 		}
+		return false, err
+
 	}
 	defer func() {
 		if err := f.Close(); err != nil {
-			log.Println("error closing the file")
+			log.Println("error closing the file : ", err)
 		}
 	}()
 	return true, nil
