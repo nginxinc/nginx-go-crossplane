@@ -8,7 +8,6 @@ import (
 	"github.com/nginxinc/crossplane-go/pkg/parser"
 )
 
-// \ char causing problems in lexing to parsing
 func TestParseAndBuild(t *testing.T) {
 	var tests = []struct {
 		name     string

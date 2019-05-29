@@ -66,20 +66,22 @@ func consumeString(data []byte) (int, []byte, error) {
 	} else {
 		otherStringDelim = '"'
 	}
-	skip := false
+
 	var accum []byte
 	for i, b := range data[1:] {
 		if b == delim {
+
 			accum = append(accum, b)
 			return i + 2, accum, nil
 		}
-		skip = false
 		if b == '\\' && data[i+2] == delim {
-			skip = true
+
 			continue
 		} else if b == '\\' || b == otherStringDelim {
 			accum = append(accum, '\\')
+
 		}
+
 		accum = append(accum, b)
 	}
 	return 0, nil, nil
@@ -114,7 +116,6 @@ func LexScanner(input string) <-chan LexicalItem {
 			tok := s.Bytes()
 			if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
 				chnl <- LexicalItem{string(tok), s.l}
-
 			}
 		}
 		close(chnl)

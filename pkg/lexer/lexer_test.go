@@ -85,7 +85,7 @@ func TestLexScanner(t *testing.T) {
 		for token := range actual {
 			result := reflect.DeepEqual(tt.expected[i], token)
 			if !result {
-				t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected[i], token )
+				t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected[i], token)
 
 			}
 			i++
