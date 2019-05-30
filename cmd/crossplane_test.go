@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"errors"
+	"fmt"
 	"log"
 	"testing"
 
@@ -41,7 +41,7 @@ func TestParseAndBuild(t *testing.T) {
 								Directive: "user",
 								Args:      []string{},
 								Line:      1,
-								File:      "configs/bad-args/nginx.conf",
+								File:      "",
 								Comment:   "",
 								Block:     []parser.Block{},
 							}, {
@@ -49,7 +49,7 @@ func TestParseAndBuild(t *testing.T) {
 								Args:      []string{},
 								Line:      2,
 								Comment:   "",
-								File:      "configs/bad-args/nginx.conf",
+								File:      "",
 								Block:     []parser.Block{},
 							}, {
 								Directive: "http",
@@ -57,7 +57,7 @@ func TestParseAndBuild(t *testing.T) {
 								Line:      3,
 								Comment:   "",
 								Block:     []parser.Block{},
-								File:      "configs/bad-args/nginx.conf",
+								File:      "",
 							},
 						},
 					},
@@ -91,7 +91,7 @@ func TestParseAndBuild(t *testing.T) {
 								Directive: "events",
 								Args:      []string{},
 								Comment:   "",
-								File:      "configs/directive-with-space/nginx.conf",
+								File:      "",
 								Line:      1,
 								Block:     []parser.Block{},
 							}, {
@@ -99,13 +99,13 @@ func TestParseAndBuild(t *testing.T) {
 								Args:      []string{},
 								Comment:   "",
 								Line:      3,
-								File:      "configs/directive-with-space/nginx.conf",
+								File:      "",
 								Block: []parser.Block{
 									{
 										Directive: "map",
 										Args:      []string{"$http_user_agent", "$mobile"},
 										Line:      4,
-										File:      "configs/directive-with-space/nginx.conf",
+										File:      "",
 										Comment:   "",
 										Block: []parser.Block{
 											{
@@ -113,14 +113,14 @@ func TestParseAndBuild(t *testing.T) {
 												Args:      []string{"0"},
 												Line:      5,
 												Comment:   "",
-												File:      "configs/directive-with-space/nginx.conf",
+												File:      "",
 												Block:     []parser.Block{},
 											}, {
-												Directive: "\\'~Opera Mini\\'",
+												Directive: "~Opera Mini",
 												Args:      []string{"1"},
 												Line:      6,
 												Comment:   "",
-												File:      "configs/directive-with-space/nginx.conf",
+												File:      "",
 												Block:     []parser.Block{},
 											},
 										},
@@ -131,66 +131,67 @@ func TestParseAndBuild(t *testing.T) {
 					},
 				},
 			},
-		},
-		{
-			"empty-value-map",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    true,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
-			},
-			parser.Payload{
-				File:   "configs/empty-value-map/nginx.conf",
-				Status: "ok",
-				Errors: []parser.ParseError{},
-				Config: []parser.Config{
-					{
-						File:   "configs/empty-value-map/nginx.conf",
-						Status: "ok",
-						Errors: []parser.ParseError{},
-						Parsed: []parser.Block{
-							{
-								Directive: "events",
-								Args:      []string{},
-								Line:      1,
-								Comment:   "",
-								File:      "configs/empty-value-map/nginx.conf",
-								Block:     []parser.Block{},
-							}, {
-								Directive: "http",
-								Line:      3,
-								Args:      []string{},
-								Comment:   "",
-								File:      "configs/empty-value-map/nginx.conf",
-								Block: []parser.Block{
-									{
-										Directive: "map",
-										Args:      []string{"string", "$variable"},
-										Line:      4,
-										Comment:   "",
-										File:      "configs/empty-value-map/nginx.conf",
-										Block: []parser.Block{
-											{
-												Directive: "\\'\\'",
-												Args:      []string{"$arg"},
-												Comment:   "",
-												Line:      5,
-												File:      "configs/empty-value-map/nginx.conf",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "*.example.com",
-												Args:      []string{"\\'\\'"},
-												Line:      6,
-												File:      "configs/empty-value-map/nginx.conf",
-												Comment:   "",
-												Block:     []parser.Block{},
+		}, /*
+			{
+				"empty-value-map",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    false,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
+				parser.Payload{
+					File:   "configs/empty-value-map/nginx.conf",
+					Status: "ok",
+					Errors: []parser.ParseError{},
+					Config: []parser.Config{
+						{
+							File:   "configs/empty-value-map/nginx.conf",
+							Status: "ok",
+							Errors: []parser.ParseError{},
+							Parsed: []parser.Block{
+								{
+									Directive: "events",
+									Args:      []string{},
+									Line:      1,
+									Comment:   "",
+									File:      "",
+									Block:     []parser.Block{},
+								}, {
+									Directive: "http",
+									Line:      3,
+									Args:      []string{},
+									Comment:   "",
+									File:      "",
+									Block: []parser.Block{
+										{
+											Directive: "map",
+											Args:      []string{"string", "$variable"},
+											Line:      4,
+											Comment:   "",
+											File:      "",
+											Block: []parser.Block{
+												{
+													Directive: "''",
+													Args:      []string{"$arg"},
+													Comment:   "",
+													Line:      5,
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "*.example.com",
+													Args:      []string{"''"},
+													Line:      6,
+													File:      "",
+													Comment:   "",
+													Block:     []parser.Block{},
+												},
 											},
 										},
 									},
@@ -198,9 +199,8 @@ func TestParseAndBuild(t *testing.T) {
 							},
 						},
 					},
-				},
-			},
-		},
+				},*/
+
 		{
 			"includes-globbed",
 			parser.ParseArgs{
@@ -228,7 +228,7 @@ func TestParseAndBuild(t *testing.T) {
 								Directive: "events",
 								Args:      []string{},
 								Comment:   "",
-								File:      "configs/includes-globbed/nginx.conf",
+								File:      "",
 								Line:      1,
 								Block:     []parser.Block{},
 							}, {
@@ -236,127 +236,34 @@ func TestParseAndBuild(t *testing.T) {
 								Args:      []string{},
 								Line:      1,
 								Comment:   "",
-								File:      "configs/includes-globbed/http.conf ",
+								File:      "",
 								Block: []parser.Block{
 									{
 										Directive: "server",
 										Args:      []string{},
 										Line:      1,
 										Comment:   "",
-										File:      "configs/includes-globbed/servers/server1.conf",
+										File:      "c",
 										Block: []parser.Block{
 											{
 												Directive: "listen",
 												Args:      []string{"8080"},
 												Line:      2,
 												Comment:   "",
-												File:      "configs/includes-globbed/servers/server1.conf",
+												File:      "",
 												Block:     []parser.Block{},
 											}, {
 												Directive: "location",
 												Args:      []string{"/foo"},
 												Comment:   "",
 												Line:      1,
-												File:      "configs/includes-globbed/locations/location1.conf",
+												File:      "",
 												Block: []parser.Block{
 													{
 														Directive: "return",
 														Args:      []string{"200", "'foo'"},
 														Comment:   "",
 														Line:      2,
-														File:      "configs/includes-globbed/nginx.conf",
-														Block:     []parser.Block{},
-													},
-												},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-		{
-			"includes-regular",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     true,
-				CheckCtx:    true,
-				CheckArgs:   true,
-			},
-			parser.Payload{
-				File:   "configs/includes-regular/nginx.conf",
-				Status: "failed",
-				Errors: []parser.ParseError{
-					{
-						File:  "configs/includes-regular/conf.d/server.conf",
-						Line:  5,
-						Error: errors.New("open configs/includes-regular/bar.conf: no such file or directory"),
-					},
-				},
-				Config: []parser.Config{
-					{
-						File:   "configs/includes-regular/nginx.conf",
-						Status: "ok",
-						Errors: []parser.ParseError{},
-						Parsed: []parser.Block{
-							{
-								Directive: "events",
-								Line:      1,
-								Args:      []string{},
-								Comment:   "",
-								File:      "configs/includes-regular/nginx.conf",
-								Block:     []parser.Block{},
-							},
-							{
-								Directive: "http",
-								Args:      []string{},
-								Line:      2,
-								Comment:   "",
-								File:      "configs/includes-regular/nginx.conf",
-								Block: []parser.Block{
-									{
-										Directive: "server",
-										Line:      1,
-										Comment:   "",
-										Args:      []string{},
-										File:      "configs/includes-regular/conf.d/server.conf",
-										Block: []parser.Block{
-											{
-												Directive: "listen",
-												Args:      []string{"127.0.0.1:8080"},
-												Line:      2,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "server_name",
-												Args:      []string{"default_server"},
-												Line:      3,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "location",
-												Args:      []string{"/foo"},
-												Comment:   "",
-												Line:      1,
-												File:      "configs/includes-regular/foo.conf",
-												Block: []parser.Block{
-													{
-														Directive: "return",
-														Args:      []string{"200", "foo"},
-														Line:      2,
-														Comment:   "",
 														File:      "",
 														Block:     []parser.Block{},
 													},
@@ -372,7 +279,7 @@ func TestParseAndBuild(t *testing.T) {
 			},
 		}, /*
 			{
-				"lua-block-larger",
+				"includes-regular",
 				parser.ParseArgs{
 					FileName:    "",
 					CatchErrors: true,
@@ -380,308 +287,402 @@ func TestParseAndBuild(t *testing.T) {
 					Single:      false,
 					Comments:    false,
 					Strict:      false,
-					Combine:     false,
+					Combine:     true,
 					CheckCtx:    true,
 					CheckArgs:   true,
 				},
-			},
-			{
-				"lua-block-tricky",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			},
-			{
-				"lua-block-tricky",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			},*/
-		{
-			"messy",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    true,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
-			},
-			parser.Payload{
-				File:   "configs/messy/nginx.conf",
-				Status: "ok",
-				Errors: []parser.ParseError{},
-				Config: []parser.Config{
-					{
-						File:   "configs/messy/nginx.conf",
-						Status: "ok",
-						Errors: []parser.ParseError{},
-						Parsed: []parser.Block{
-							{
-								Directive: "user",
-								Args:      []string{"nobody"},
-								Line:      1,
-								File:      "",
-								Comment:   "",
-								Block:     []parser.Block{},
-							},
-							{
-								Directive: "#",
-								Args:      []string{},
-								Line:      2,
-								File:      "",
-								Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n",
-								Block:     []parser.Block{},
-							},
-							{
-								Directive: "events",
-								Args:      []string{},
-								Line:      3,
-								File:      "",
-								Comment:   "",
-								Block: []parser.Block{
-									{
-										Directive: "worker_connections",
-										Args:      []string{"2048"},
-										Line:      3,
-										Comment:   "",
-										File:      "",
-										Block:     []parser.Block{},
-									},
+				parser.Payload{
+					File:   "configs/includes-regular/nginx.conf",
+					Status: "failed",
+					Errors: []parser.ParseError{
+						{
+							File:  "configs/includes-regular/conf.d/server.conf",
+							Line:  5,
+							Error: errors.New("open configs/includes-regular/bar.conf: no such file or directory"),
+						},
+					},
+					Config: []parser.Config{
+						{
+							File:   "configs/includes-regular/nginx.conf",
+							Status: "ok",
+							Errors: []parser.ParseError{},
+							Parsed: []parser.Block{
+								{
+									Directive: "events",
+									Line:      1,
+									Args:      []string{},
+									Comment:   "",
+									File:      "",
+									Block:     []parser.Block{},
 								},
-							},
-
-							{
-								Directive: "http",
-								Args:      []string{""},
-								Line:      5,
-								Comment:   "",
-								File:      "",
-								Block: []parser.Block{
-									{
-										Directive: "#",
-										Args:      []string{},
-										Line:      6,
-										Comment:   "forteen",
-										File:      "",
-										Block:     []parser.Block{},
-									},
-									{
-										Directive: "#",
-										Args:      []string{},
-										Line:      6,
-										Comment:   " this is a comment",
-										File:      "",
-										Block:     []parser.Block{},
-									},
-									{
-										Directive: "access_log",
-										Args:      []string{"off"},
-										Line:      7,
-										Comment:   "",
-										File:      "",
-										Block:     []parser.Block{},
-									},
-									{
-										Directive: "default_type",
-										Args:      []string{"text/plain"},
-										Line:      7,
-										Comment:   "",
-										File:      "",
-										Block:     []parser.Block{},
-									},
-									{
-										Directive: "error_log",
-										Args:      []string{"off"},
-										Line:      7,
-										Comment:   "",
-										File:      "",
-										Block:     []parser.Block{},
-									},
-									{
-										Directive: "server",
-										Args:      []string{"{"},
-										Line:      8,
-										Comment:   "",
-										File:      "",
-										Block: []parser.Block{
-											{
-												Directive: "listen",
-												Args:      []string{"8083"},
-												Line:      9,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "return",
-												Args:      []string{`200","Ser\" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`},
-												Line:      10,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
+								{
+									Directive: "http",
+									Args:      []string{},
+									Line:      2,
+									Comment:   "",
+									File:      "",
+									Block: []parser.Block{
+										{
+											Directive: "server",
+											Line:      1,
+											Comment:   "",
+											Args:      []string{},
+											File:      "",
+											Block: []parser.Block{
+												{
+													Directive: "listen",
+													Args:      []string{"127.0.0.1:8080"},
+													Line:      2,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "server_name",
+													Args:      []string{"default_server"},
+													Line:      3,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "location",
+													Args:      []string{"/foo"},
+													Comment:   "",
+													Line:      1,
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "return",
+															Args:      []string{"200", "foo"},
+															Line:      2,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
+													},
+												},
 											},
 										},
 									},
-									{
-										Directive: "server",
-										Args:      []string{"{"},
-										Line:      12,
-										Comment:   "",
-										File:      "",
-										Block: []parser.Block{
-											{
-												Directive: "listen",
-												Args:      []string{"8080"},
-												Comment:   "",
-												Line:      12,
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "root",
-												Args:      []string{"/usr/share/nginx/html"},
-												Line:      13,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "location",
-												Args:      []string{"~", "/hello/world"},
-												Comment:   "",
-												Line:      14,
-												File:      "",
-												Block: []parser.Block{
-													{
-														Directive: "return",
-														Args:      []string{"301", "status.html"},
-														Line:      14,
-														Comment:   "",
-														File:      "",
-														Block:     []parser.Block{},
-													},
-												},
-											},
-											{
-												Directive: "location",
-												Args:      []string{"/foo"},
-												Line:      15,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "location",
-												Args:      []string{"/bar"},
-												Line:      15,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "location",
-												Args:      []string{"/\\{\\;\\}\\ #\\ ab"},
-												Line:      16,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "#",
-												Args:      []string{},
-												Line:      16,
-												Comment:   " hello",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "if",
-												Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST"},
-												Line:      17,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
-											},
-											{
-												Directive: "location",
-												Args:      []string{"/status.html"},
-												Line:      18,
-												Comment:   "",
-												File:      "",
-												Block: []parser.Block{
-													{
-														Directive: "try_files",
-														Args:      []string{"/abc/${uri} /abc/${uri}.html", "=404"},
-														Line:      19,
-														Comment:   "",
-														File:      "",
-														Block:     []parser.Block{},
-													},
-												},
-											},
+								},
+							},
+						},
+					},
+				},
+			}, /*
+				{
+					"lua-block-larger",
+					parser.ParseArgs{
+						FileName:    "",
+						CatchErrors: true,
+						Ignore:      []string{},
+						Single:      false,
+						Comments:    false,
+						Strict:      false,
+						Combine:     false,
+						CheckCtx:    true,
+						CheckArgs:   true,
+					},
+				},
+				{
+					"lua-block-simple",
+					parser.ParseArgs{
+						FileName:    "",
+						CatchErrors: true,
+						Ignore:      []string{},
+						Single:      false,
+						Comments:    false,
+						Strict:      false,
+						Combine:     false,
+						CheckCtx:    true,
+						CheckArgs:   true,
+					},
+				},
+				{
+					"lua-block-tricky",
+					parser.ParseArgs{
+						FileName:    "",
+						CatchErrors: true,
+						Ignore:      []string{},
+						Single:      false,
+						Comments:    false,
+						Strict:      false,
+						Combine:     false,
+						CheckCtx:    true,
+						CheckArgs:   true,
+					},
+				},
+			{
+				"messy",
+				parser.ParseArgs{
+					FileName:    "",
+					CatchErrors: true,
+					Ignore:      []string{},
+					Single:      false,
+					Comments:    true,
+					Strict:      false,
+					Combine:     false,
+					CheckCtx:    true,
+					CheckArgs:   true,
+				},
+				parser.Payload{
+					File:   "configs/messy/nginx.conf",
+					Status: "ok",
+					Errors: []parser.ParseError{},
+					Config: []parser.Config{
+						{
+							File:   "configs/messy/nginx.conf",
+							Status: "ok",
+							Errors: []parser.ParseError{},
+							Parsed: []parser.Block{
+								{
+									Directive: "user",
+									Args:      []string{"nobody"},
+									Line:      1,
+									File:      "",
+									Comment:   "",
+									Block:     []parser.Block{},
+								},
+								{
+									Directive: "#",
+									Args:      []string{},
+									Line:      2,
+									File:      "",
+									Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n",
+									Block:     []parser.Block{},
+								},
+								{
+									Directive: "events",
+									Args:      []string{},
+									Line:      3,
+									File:      "",
+									Comment:   "",
+									Block: []parser.Block{
+										{
+											Directive: "worker_connections",
+											Args:      []string{"2048"},
+											Line:      3,
+											Comment:   "",
+											File:      "",
+											Block:     []parser.Block{},
+										},
+									},
+								},
 
-											{
-												Directive: "location",
-												Args:      []string{"/sta;\n                    tus"},
-												Line:      20,
-												Comment:   "",
-												File:      "",
-												Block: []parser.Block{
-													{
-														Directive: "return",
-														Args:      []string{"302", "/status.html"},
-														Line:      21,
-														Comment:   "",
-														File:      "",
-														Block:     []parser.Block{},
-													},
+								{
+									Directive: "http",
+									Args:      []string{""},
+									Line:      5,
+									Comment:   "",
+									File:      "",
+									Block: []parser.Block{
+										{
+											Directive: "#",
+											Args:      []string{},
+											Line:      6,
+											Comment:   "forteen",
+											File:      "",
+											Block:     []parser.Block{},
+										},
+										{
+											Directive: "#",
+											Args:      []string{},
+											Line:      6,
+											Comment:   " this is a comment",
+											File:      "",
+											Block:     []parser.Block{},
+										},
+										{
+											Directive: "access_log",
+											Args:      []string{"off"},
+											Line:      7,
+											Comment:   "",
+											File:      "",
+											Block:     []parser.Block{},
+										},
+										{
+											Directive: "default_type",
+											Args:      []string{"text/plain"},
+											Line:      7,
+											Comment:   "",
+											File:      "",
+											Block:     []parser.Block{},
+										},
+										{
+											Directive: "error_log",
+											Args:      []string{"off"},
+											Line:      7,
+											Comment:   "",
+											File:      "",
+											Block:     []parser.Block{},
+										},
+										{
+											Directive: "server",
+											Args:      []string{"{"},
+											Line:      8,
+											Comment:   "",
+											File:      "",
+											Block: []parser.Block{
+												{
+													Directive: "listen",
+													Args:      []string{"8083"},
+													Line:      9,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "return",
+													Args:      []string{"200", `Ser" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`},
+													Line:      10,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
 												},
 											},
+										},
+										{
+											Directive: "server",
+											Args:      []string{"{"},
+											Line:      12,
+											Comment:   "",
+											File:      "",
+											Block: []parser.Block{
+												{
+													Directive: "listen",
+													Args:      []string{"8080"},
+													Comment:   "",
+													Line:      12,
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "root",
+													Args:      []string{"/usr/share/nginx/html"},
+													Line:      13,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "location",
+													Args:      []string{"~", "/hello/world"},
+													Comment:   "",
+													Line:      14,
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "return",
+															Args:      []string{"301", "status.html"},
+															Line:      14,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
+													},
+												},
+												{
+													Directive: "location",
+													Args:      []string{"/foo"},
+													Line:      15,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "location",
+													Args:      []string{"/bar"},
+													Line:      15,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "location",
+													Args:      []string{"/\\{\\;\\}\\ #\\ ab"},
+													Line:      16,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "#",
+													Args:      []string{},
+													Line:      16,
+													Comment:   " hello",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "if",
+													Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST"},
+													Line:      17,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
+												{
+													Directive: "location",
+													Args:      []string{"/status.html"},
+													Line:      18,
+													Comment:   "",
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "try_files",
+															Args:      []string{"/abc/${uri} /abc/${uri}.html", "=404"},
+															Line:      19,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
+													},
+												},
 
-											{
-												Directive: "location",
-												Args:      []string{"/upstream_conf"},
-												Line:      23,
-												Comment:   "",
-												File:      "",
-												Block: []parser.Block{
-													{
-														Directive: "return",
-														Args:      []string{"200", "/status.html"},
-														Line:      23,
-														Comment:   "",
-														File:      "",
-														Block:     []parser.Block{},
+												{
+													Directive: "location",
+													Args:      []string{"/sta;\n                    tus"},
+													Line:      20,
+													Comment:   "",
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "return",
+															Args:      []string{"302", "/status.html"},
+															Line:      21,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
 													},
 												},
-											},
-											{
-												Directive: "server",
-												Args:      []string{},
-												Line:      24,
-												Comment:   "",
-												File:      "",
-												Block:     []parser.Block{},
+
+												{
+													Directive: "location",
+													Args:      []string{"/upstream_conf"},
+													Line:      23,
+													Comment:   "",
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "return",
+															Args:      []string{"200", "/status.html"},
+															Line:      23,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
+													},
+												},
+												{
+													Directive: "server",
+													Args:      []string{},
+													Line:      24,
+													Comment:   "",
+													File:      "",
+													Block:     []parser.Block{},
+												},
 											},
 										},
 									},
@@ -691,8 +692,6 @@ func TestParseAndBuild(t *testing.T) {
 					},
 				},
 			},
-		},
-	}
 
 	/*
 			{
@@ -1004,8 +1003,135 @@ func TestParseAndBuild(t *testing.T) {
 					CheckCtx:    true,
 					CheckArgs:   true,
 				},
-			},
-		{
+				parser.Payload{
+					File:   "configs/missing-semicolon/",
+					Status: "ok",
+					Errors: []parser.ParseError{},
+					Config: []parser.Config{
+						{
+							File:   "configs/missing-semicolon/broken-above.conf",
+							Status: "ok",
+							Errors: []parser.ParseError{},
+							Parsed: []parser.Block{
+								{
+									Directive: "http",
+									Line:      1,
+									Comment:   "",
+									Args:      []string{},
+									File:      "",
+									Block: []parser.Block{
+										{
+											Directive: "server",
+											Line:      2,
+											Comment:   "",
+											Args:      []string{},
+											File:      "",
+											Block: []parser.Block{
+												{
+													Directive: "location",
+													Line:      3,
+													Comment:   "",
+													Args:      []string{"/is-broken"},
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "proxy_pass",
+															Args:      []string{"http://is.broken.example"},
+															Line:      4,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
+													},
+												},
+												{
+													Directive: "location",
+													Line:      6,
+													Args:      []string{"/not-broken"},
+													Comment:   "",
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "proxy_pass",
+															Args:      []string{"http://not.broken.example"},
+															Line:      7,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						{
+
+							File:   "configs/missing-semicolon/broken-above.conf",
+							Status: "ok",
+							Errors: []parser.ParseError{},
+							Parsed: []parser.Block{
+								{
+									Directive: "http",
+									Line:      1,
+									Comment:   "",
+									Args:      []string{},
+									File:      "",
+									Block: []parser.Block{
+										{
+											Directive: "server",
+											Line:      2,
+											Comment:   "",
+											Args:      []string{},
+											File:      "",
+											Block: []parser.Block{
+												{
+													Directive: "location",
+													Line:      3,
+													Comment:   "",
+													Args:      []string{"/not-broken"},
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "proxy_pass",
+															Args:      []string{"http://not.broken.example"},
+															Line:      4,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
+													},
+												},
+												{
+													Directive: "location",
+													Line:      6,
+													Args:      []string{"/is-broken"},
+													Comment:   "",
+													File:      "",
+													Block: []parser.Block{
+														{
+															Directive: "proxy_pass",
+															Args:      []string{"http://is.broken.example"},
+															Line:      7,
+															Comment:   "",
+															File:      "",
+															Block:     []parser.Block{},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},*/
+
+		/*{
 			"quote-behavior",
 			parser.ParseArgs{
 				FileName:    "",
@@ -1045,6 +1171,36 @@ func TestParseAndBuild(t *testing.T) {
 				Combine:     false,
 				CheckCtx:    true,
 				CheckArgs:   true,
+			},
+			parser.Payload{
+				File:   "configs/russian-text/nginx.conf",
+				Status: "ok",
+				Errors: []parser.ParseError{},
+				Config: []parser.Config{
+					{
+						File:   "configs/russian-text/nginx.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "env",
+								Line:      1,
+								Args:      []string{"русский текст"},
+								Comment:   "",
+								File:      "",
+								Block:     []parser.Block{},
+							},
+							{
+								Directive: "events",
+								Line:      2,
+								Args:      []string{},
+								Comment:   "",
+								File:      "",
+								Block:     []parser.Block{},
+							},
+						},
+					},
+				},
 			},
 		},
 		{
@@ -1089,6 +1245,7 @@ func TestParseAndBuild(t *testing.T) {
 				CheckArgs:   true,
 			},
 		},*/
+	}
 
 	for _, t := range tests {
 		t.args.FileName = "configs/" + t.name + "/nginx.conf"
@@ -1106,7 +1263,11 @@ func TestParseAndBuild(t *testing.T) {
 		if err != nil {
 			log.Fatal(err)
 		}
-
+		fmt.Println(parsed)
+		fmt.Println()
+		fmt.Println(t.expected)
+		fmt.Println()
+		fmt.Println()
 		if parsed.File != t.expected.File {
 			log.Fatal("Payload filenames not the same")
 		}

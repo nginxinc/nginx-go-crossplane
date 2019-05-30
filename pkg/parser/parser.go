@@ -143,11 +143,12 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 	var o []Block
 	var e error
 	for token := range tokens {
+		fmt.Println("token : ", token)
 		block := Block{
 			Directive: "",
 			Line:      0,
 			Args:      []string{},
-			File:      args.FileName,
+			File:      "",
 			Comment:   "",
 			Block:     []Block{},
 		}
@@ -293,8 +294,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				Line:      block.Line,
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
-
 			block.Block, e = parse(parsing, tokens, args, inner, false)
+
 			if e != nil {
 				return o, e
 			}
