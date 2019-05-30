@@ -632,7 +632,6 @@ var Directives = map[string][]Bits{
 	},
 	"include": {
 		ngxAnyConf, ngxConfTake1,
-		ngxAnyConf, ngxConfTake1,
 	},
 	"index": {
 		ngxHTTPMainConf, ngxHTTPSrvConf, ngxHTTPLocConf, ngxConf1More,
@@ -2102,39 +2101,37 @@ var Context = map[[3]string]Bits{
 func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bool, checkCtx bool, checkArg bool) error {
 	directive := stmt.Directive
 	dir := checkDirective(directive, Directives)
+
 	if strict && !dir {
 		return fmt.Errorf("unknown directive %v", directive)
 	}
 
-	ct := checkContext(ctx)
+	ct := checkContext(ctx, Context)
 	// if we don't know where this directive is allowed and how
 	// many arguments it can take then don't bother analyzing it
-	if !dir {
+	if !ct || !dir {
 		return nil
 	}
-	if !ct {
-		return fmt.Errorf("Problem with context")
-	}
+
 	args := stmt.Args
 	// makes numArgs an unsigned int for bit shifting later
 	numArgs := uint(len(args))
-	masks := Directives[directive]
-	var maskv2 []Bits
 
+	masks := Directives[directive]
 	// if this directive can't be used in this context then throw an error
 	if checkCtx {
 		for _, mask := range masks {
 			bitmask := Context[ctx]
 			if mask&bitmask != 0x00000000 {
-				maskv2 = append(maskv2, mask)
+				masks = append(masks, mask)
 			}
 		}
-		if len(maskv2) == 0 {
+
+		if len(masks) == 0 {
 			return fmt.Errorf("%v directive is not allowed here", directive)
 		}
-	} else {
-		maskv2 = masks
 	}
+
 	if !checkArg {
 		return nil
 	}
@@ -2150,9 +2147,9 @@ func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bo
 	}
 	// do this in reverse because we only throw errors at the end if no masks
 	// are valid, and typically the first bit mask is what the parser expects
-	var reason string
-	for i := len(maskv2) - 1; i >= 0; i-- {
-		msk := maskv2[i]
+	reason := ""
+	for i := len(masks) - 1; i >= 0; i-- {
+		msk := masks[i]
 		// if the directive isn't a block but should be according to the mask
 		if msk&ngxConfBlock != 0x00000000 && term != "{" {
 			reason = fmt.Sprintf("diretive %v has no opening '{'", directive)
@@ -2174,18 +2171,18 @@ func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bo
 			reason = fmt.Sprintf("invalid value %v in %v directive, it must be 'on' or 'off'", stmt.Args[0], stmt.Directive)
 			continue
 		} else {
+
 			reason = fmt.Sprintf("invalid number of arguements in %v", directive)
 		}
 	}
 	if reason == "" {
 		return nil
 	}
-
 	return fmt.Errorf(reason)
 }
 
-func checkContext(cont [3]string) bool {
-	if _, ok := Context[cont]; ok {
+func checkContext(cont [3]string, contexts map[[3]string]Bits) bool {
+	if _, ok := contexts[cont]; ok {
 		return true
 	}
 	return false
@@ -2200,7 +2197,7 @@ func checkDirective(dir string, direct map[string][]Bits) bool {
 	return false
 }
 
-// EnterBlockCTX -
+//EnterBlockCTX -
 func EnterBlockCTX(stmt Statement, ctx [3]string) [3]string {
 	if ctx[0] == "http" && stmt.Directive == "location" {
 		return [3]string{"http", "location"}
