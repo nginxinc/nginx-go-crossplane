@@ -70,7 +70,6 @@ func consumeString(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data[1:] {
 		if b == delim && !skip {
-
 			return i + 2, accum, nil
 		}
 		skip = false
@@ -79,9 +78,7 @@ func consumeString(data []byte) (int, []byte, error) {
 			continue
 		} else if b == '\\' || b == otherStringDelim {
 			accum = append(accum, '\\')
-
 		}
-
 		accum = append(accum, b)
 	}
 	return 0, nil, nil
@@ -89,6 +86,7 @@ func consumeString(data []byte) (int, []byte, error) {
 
 func consumeComment(data []byte) (int, []byte, error) {
 	var accum []byte
+
 	for i, b := range data {
 		if b != '\n' && i < len(data) {
 			accum = append(accum, b)
@@ -116,6 +114,7 @@ func LexScanner(input string) <-chan LexicalItem {
 			tok := s.Bytes()
 			if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
 				chnl <- LexicalItem{string(tok), s.l}
+
 			}
 		}
 		close(chnl)
@@ -140,10 +139,8 @@ func NewLexer(r io.Reader) *Reader {
 		if atEOF {
 			return
 		}
-
 		switch data[0] {
-
-		case '{', '}', ';': //, '\\', '/':
+		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
 		case '"', '\'':
 			advance, token, err = consumeString(data)
