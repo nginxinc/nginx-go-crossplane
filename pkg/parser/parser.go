@@ -98,7 +98,6 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 		CheckArgs:   checkargs,
 	}
 	includes[a.FileName] = [3]string{}
-
 	payload = Payload{
 		Status: "ok",
 		Errors: []ParseError{},
@@ -113,26 +112,29 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			Errors: []ParseError{},
 			Parsed: []Block{},
 		}
+
 		re, err := ioutil.ReadFile(f)
 		if err != nil {
-			return payload, nil
+			if a.CatchErrors {
+				handleErrors(c, err, 0)
+				continue
+			} else {
+				return payload, nil
+			}
 		}
 		// we should probably pass a file?
 		tokens := lexer.LexScanner(string(re))
-
 		c.Parsed, e = parse(c, tokens, a, includes[f], false)
 		if e != nil {
-			log.Println("error parsing : ", e)
 			return payload, e
 		}
 		payload.Config = append(payload.Config, c)
-		continue
+
 	}
 
 	if a.Combine {
 		return combineParsedConfigs(payload)
 	}
-
 	return payload, nil
 
 }
@@ -140,6 +142,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, error) {
 	var o []Block
 	var e error
+
 	for token := range tokens {
 		block := Block{
 			Directive: "",
@@ -164,7 +167,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			block = Block{
 				Directive: directive,
 				Line:      token.LineNum,
-				File:      args.FileName,
+				File:      parsing.File,
 				Args:      []string{},
 			}
 		} else {
@@ -186,7 +189,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 					Line:      token.LineNum,
 				}
 				o = append(o, block)
-
 			}
 			continue
 
@@ -239,7 +241,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				}
 			}
 		}
-
+		// check if file can be opened
 		if !args.Single && block.Directive == "include" {
 			a := block.Args
 			configDir := filepath.Dir(args.FileName)
@@ -264,24 +266,35 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			if hasMagic(pattern) {
 				fnames, err = filepath.Glob(pattern)
 				if err != nil {
-					log.Fatal(err)
+					if args.CatchErrors {
+						handleErrors(parsing, e, token.LineNum)
+						continue
+					} else {
+						log.Fatal(err)
+					}
 				}
 			} else {
 				b, e := canRead(pattern, args, parsing, token.LineNum)
 				if e != nil {
-					log.Fatal(e)
+					if args.CatchErrors {
+						handleErrors(parsing, e, token.LineNum)
+						continue
+					} else {
+						log.Fatal(e)
+					}
 				}
 				if b {
 					fnames = []string{pattern}
 				}
 			}
+
 			for _, fname := range fnames {
-				//if !checkIncluded(fname, included) {
+				if !checkIncluded(fname, included) {
 
-				included = append(included, fname)
-				includes[fname] = ctx
+					included = append(included, fname)
+					includes[fname] = ctx
 
-				//}
+				}
 			}
 			block.Args = fnames
 		}
@@ -293,7 +306,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				Line:      block.Line,
 			}
 			inner := analyzer.EnterBlockCTX(stmt, ctx)
-
 			block.Block, e = parse(parsing, tokens, args, inner, false)
 			if e != nil {
 				return o, e
@@ -301,7 +313,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		}
 
 		o = append(o, block)
-
 	}
 	return o, nil
 }
@@ -331,9 +342,10 @@ func canRead(pattern string, a ParseArgs, parsed Config, lineNumber int) (bool, 
 	if err != nil {
 		if a.CatchErrors {
 			handleErrors(parsed, err, lineNumber)
-		} else {
-			return false, err
+			return false, nil
 		}
+		return false, err
+
 	}
 	defer func() {
 		if err := f.Close(); err != nil {
@@ -373,8 +385,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 		var returnBlock []Block
 		for _, block := range b {
 			if len(block.Block) > 0 {
-				a := performIncludes(block.Block)
-				block.Block = a
+				block.Block = performIncludes(block.Block)
 			}
 			if block.Directive == "include" {
 				for _, f := range block.Args {
@@ -407,7 +418,6 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 		}
 	}
 	firstConfig := oldConfig[0].Parsed
-
 	combineConfig.Parsed = performIncludes(firstConfig)
 
 	combinePayload := Payload{
