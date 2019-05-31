@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
 	"reflect"
 	"testing"
 
@@ -131,67 +130,66 @@ func TestParseAndBuild(t *testing.T) {
 					},
 				},
 			},
-		}, /*
-			{
-				"empty-value-map",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-				parser.Payload{
-					File:   "configs/empty-value-map/nginx.conf",
-					Status: "ok",
-					Errors: []parser.ParseError{},
-					Config: []parser.Config{
-						{
-							File:   "configs/empty-value-map/nginx.conf",
-							Status: "ok",
-							Errors: []parser.ParseError{},
-							Parsed: []parser.Block{
-								{
-									Directive: "events",
-									Args:      []string{},
-									Line:      1,
-									Comment:   "",
-									File:      "",
-									Block:     []parser.Block{},
-								}, {
-									Directive: "http",
-									Line:      3,
-									Args:      []string{},
-									Comment:   "",
-									File:      "",
-									Block: []parser.Block{
-										{
-											Directive: "map",
-											Args:      []string{"string", "$variable"},
-											Line:      4,
-											Comment:   "",
-											File:      "",
-											Block: []parser.Block{
-												{
-													Directive: "''",
-													Args:      []string{"$arg"},
-													Comment:   "",
-													Line:      5,
-													File:      "",
-													Block:     []parser.Block{},
-												},
-												{
-													Directive: "*.example.com",
-													Args:      []string{"''"},
-													Line:      6,
-													File:      "",
-													Comment:   "",
-													Block:     []parser.Block{},
-												},
+		},
+		{
+			"empty-value-map",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+			parser.Payload{
+				File:   "configs/empty-value-map/nginx.conf",
+				Status: "ok",
+				Errors: []parser.ParseError{},
+				Config: []parser.Config{
+					{
+						File:   "configs/empty-value-map/nginx.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "events",
+								Args:      []string{},
+								Line:      1,
+								Comment:   "",
+								File:      "",
+								Block:     []parser.Block{},
+							}, {
+								Directive: "http",
+								Line:      3,
+								Args:      []string{},
+								Comment:   "",
+								File:      "",
+								Block: []parser.Block{
+									{
+										Directive: "map",
+										Args:      []string{"string", "$variable"},
+										Line:      4,
+										Comment:   "",
+										File:      "",
+										Block: []parser.Block{
+											{
+												Directive: "''",
+												Args:      []string{"$arg"},
+												Comment:   "",
+												Line:      5,
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "*.example.com",
+												Args:      []string{"''"},
+												Line:      6,
+												File:      "",
+												Comment:   "",
+												Block:     []parser.Block{},
 											},
 										},
 									},
@@ -199,7 +197,9 @@ func TestParseAndBuild(t *testing.T) {
 							},
 						},
 					},
-				},*/
+				},
+			},
+		},
 
 		{
 			// change the files names to the right ones
@@ -993,7 +993,7 @@ func TestParseAndBuild(t *testing.T) {
 				},
 			},
 		},
-	} /*
+
 		{
 			"simple",
 			parser.ParseArgs{
@@ -1007,6 +1007,88 @@ func TestParseAndBuild(t *testing.T) {
 				CheckCtx:    true,
 				CheckArgs:   true,
 			},
+			parser.Payload{
+				File:   "configs/simple/nginx.conf",
+				Status: "ok",
+				Errors: []parser.ParseError{},
+				Config: []parser.Config{
+					{
+						File:   "configs/simple/nginx.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "events",
+								Line:      1,
+								Comment:   "",
+								Args:      []string{},
+								File:      "",
+								Block: []parser.Block{
+									{
+										Directive: "worker_connections",
+										Line:      2,
+										Args:      []string{"1024"},
+										Comment:   "",
+										File:      "",
+										Block:     []parser.Block{},
+									},
+								},
+							},
+							{
+								Directive: "http",
+								Line:      5,
+								Comment:   "",
+								File:      "",
+								Args:      []string{},
+								Block: []parser.Block{
+									{
+										Directive: "server",
+										Line:      6,
+										Comment:   "",
+										File:      "",
+										Args:      []string{},
+										Block: []parser.Block{
+											{
+												Directive: "listen",
+												Line:      7,
+												Comment:   "",
+												Args:      []string{"127.0.0.1:8080"},
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "server_name",
+												Line:      8,
+												Comment:   "",
+												File:      "",
+												Args:      []string{"default_server"},
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "location",
+												Line:      9,
+												Comment:   "",
+												Args:      []string{"/"},
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "return",
+														Line:      10,
+														Comment:   "",
+														File:      "",
+														Args:      []string{"200", "foo bar baz"},
+														Block:     []parser.Block{},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 		{
 			"spelling-mistake",
@@ -1016,10 +1098,63 @@ func TestParseAndBuild(t *testing.T) {
 				Ignore:      []string{},
 				Single:      false,
 				Comments:    false,
-				Strict:      false,
+				Strict:      true,
 				Combine:     false,
 				CheckCtx:    true,
 				CheckArgs:   true,
+			},
+			parser.Payload{
+				File:   "configs/spelling-mistake/nginx.conf",
+				Status: "failed",
+				Errors: []parser.ParseError{
+					{
+						File:  "configs/spelling-mistake/nginx.conf",
+						Line:  7,
+						Error: errors.New("unknown directive proxy_passs"),
+					},
+				},
+				Config: []parser.Config{
+					{
+						File:   "configs/spelling-mistake/nginx.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "events",
+								Line:      1,
+								Comment:   "",
+								Args:      []string{},
+								File:      "",
+							},
+							{
+								Directive: "http",
+								Line:      3,
+								Comment:   "",
+								File:      "",
+								Args:      []string{},
+								Block: []parser.Block{
+									{
+										Directive: "server",
+										Args:      []string{},
+										Comment:   "",
+										File:      "",
+										Line:      4,
+										Block: []parser.Block{
+											{
+												Directive: "location",
+												Args:      []string{"/"},
+												Line:      5,
+												File:      "",
+												Comment:   "",
+												Block:     []parser.Block{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 		{
@@ -1035,7 +1170,122 @@ func TestParseAndBuild(t *testing.T) {
 				CheckCtx:    true,
 				CheckArgs:   true,
 			},
-		},*/
+			parser.Payload{
+				File:   "configs/with-comments/nginx.conf",
+				Status: "ok",
+				Errors: []parser.ParseError{},
+				Config: []parser.Config{
+					{
+						File:   "configs/with-comments/nginx.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "events",
+								Args:      []string{},
+								Line:      1,
+								File:      "",
+								Comment:   "",
+								Block: []parser.Block{
+									{
+										Directive: "worker_connections",
+										Line:      2,
+										Args:      []string{"1024"},
+										Comment:   "",
+										File:      "",
+										Block:     []parser.Block{},
+									},
+								},
+							},
+							{
+								Directive: "#",
+								Args:      []string{},
+								Comment:   "comment",
+								File:      "",
+								Line:      4,
+								Block:     []parser.Block{},
+							},
+							{
+								Directive: "http",
+								Line:      5,
+								Args:      []string{},
+								Comment:   "",
+								File:      "",
+								Block: []parser.Block{
+									{
+										Directive: "server",
+										Args:      []string{},
+										Comment:   "",
+										Line:      6,
+										File:      "",
+										Block: []parser.Block{
+											{
+												Directive: "listen",
+												Args:      []string{"127.0.0.1:8080"},
+												Comment:   "",
+												File:      "",
+												Line:      7,
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "#",
+												Args:      []string{},
+												Comment:   "listen",
+												File:      "",
+												Line:      7,
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "server_name",
+												Args:      []string{"default_server"},
+												Comment:   "",
+												File:      "",
+												Line:      8,
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "location",
+												Line:      9,
+												Args:      []string{"/"},
+												Comment:   "",
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "#",
+														Line:      9,
+														Args:      []string{},
+														File:      "",
+														Comment:   "# this is brace",
+														Block:     []parser.Block{},
+													},
+													{
+														Directive: "#",
+														Args:      []string{},
+														File:      "",
+														Comment:   " location /",
+														Line:      10,
+														Block:     []parser.Block{},
+													},
+													{
+														Directive: "return",
+														Line:      11,
+														Comment:   "",
+														Args:      []string{"200", "foo bar baz"},
+														File:      "",
+														Block:     []parser.Block{},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
 
 	for _, test := range tests {
 		test.args.FileName = "configs/" + test.name + "/nginx.conf"
@@ -1053,17 +1303,11 @@ func TestParseAndBuild(t *testing.T) {
 		if err != nil {
 			t.Errorf(err.Error())
 		}
-
-		fmt.Println("parsed : ", parsed)
-		fmt.Println()
-		fmt.Println("Expected : ", test.expected)
-		fmt.Println()
-		fmt.Println()
 		if !reflect.DeepEqual(parsed.File, test.expected.File) {
 			t.Errorf("Payload filenames not the same")
 		}
 		if !reflect.DeepEqual(parsed.Status, test.expected.Status) {
-			t.Errorf("status not the same ")
+			t.Errorf("status not the same %v \n %v ", parsed, test.expected)
 		}
 		if len(parsed.Errors) != len(test.expected.Errors) {
 			for p := 0; p < len(test.expected.Errors); p++ {
@@ -1100,8 +1344,8 @@ func compareConfigs(conf parser.Config, c parser.Config) string {
 	if !reflect.DeepEqual(conf.Status, c.Status) {
 		s += "the Status's are not the same" + string('\n')
 	}
-	for i := 0; i < len(c.Parsed); i++ {
 
+	for i := 0; i < len(c.Parsed); i++ {
 		s += compareBlocks(conf.Parsed[i], c.Parsed[i])
 	}
 	return s

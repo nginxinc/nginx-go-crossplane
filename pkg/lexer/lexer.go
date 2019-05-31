@@ -20,7 +20,6 @@ type LexicalItem struct {
 func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	balance := 0
 	for _, lexicalItem := range lexicalItems {
-
 		switch lexicalItem.Item {
 		case "{":
 			balance = balance + 1
@@ -70,6 +69,10 @@ func consumeString(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data[1:] {
 		if b == delim && !skip {
+			if delim == '\'' && len(accum) < 1 {
+				accum = append(accum, '\'')
+				accum = append(accum, '\'')
+			}
 			return i + 2, accum, nil
 		}
 		skip = false

@@ -142,7 +142,6 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, error) {
 	var o []Block
 	var e error
-
 	for token := range tokens {
 		block := Block{
 			Directive: "",
@@ -155,7 +154,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		if token.Item == "}" {
 			break
 		}
-
 		if consume {
 			if token.Item == "{" {
 				_, _ = parse(parsing, tokens, args, ctx, true)
@@ -194,7 +192,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 
 		}
 		// args for directives
-
 		token := <-tokens
 		for token.Item != ";" && token.Item != "{" && token.Item != "}" {
 			block.Args = append(block.Args, token.Item)
@@ -290,10 +287,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 
 			for _, fname := range fnames {
 				if !checkIncluded(fname, included) {
-
 					included = append(included, fname)
 					includes[fname] = ctx
-
 				}
 			}
 			block.Args = fnames
