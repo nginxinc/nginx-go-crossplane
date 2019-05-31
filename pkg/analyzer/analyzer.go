@@ -2172,7 +2172,7 @@ func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bo
 			continue
 		} else {
 
-			reason = fmt.Sprintf("invalid number of arguements in %v", directive)
+			reason = fmt.Sprintf("invalid arguements in %v directive ", directive)
 		}
 	}
 	if reason == "" {
