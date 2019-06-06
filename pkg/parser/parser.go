@@ -193,7 +193,11 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		}
 		// args for directives
 		token := <-tokens
-		for token.Item != ";" && token.Item != "{" && token.Item != "}" {
+		isQuoted := false
+		for token.Item != ";" && token.Item != "{" && token.Item != "}" && !isQuoted {
+			if token.Item == "\"" || token.Item == "'" {
+				isQuoted = !isQuoted
+			}
 			block.Args = append(block.Args, token.Item)
 			token = <-tokens
 		}
