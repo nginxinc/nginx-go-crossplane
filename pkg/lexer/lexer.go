@@ -33,16 +33,24 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	return UnbalancedBracesError("")
 }
 
-func consumeWord(data []byte) (int, []byte, error) {
+func consumeWord(data []byte, isLua bool) (int, []byte, bool, error) {
 	var accum []byte
+	if isLua {
+		return consumeLuaBlock(data)
+	}
 	for i, b := range data {
 		// TODO make this more robust
 		if (b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || b == '{') && data[i-1] != '\\' && data[i-1] != '$' {
-			return i, accum, nil
+			if strings.Contains(string(accum), "lua") {
+				isLua = true
+			} else {
+				isLua = false
+			}
+			return i, accum, isLua, nil
 		}
 		accum = append(accum, b)
 	}
-	return 0, nil, nil
+	return 0, nil, isLua, nil
 }
 
 func consumeNum(data []byte) (int, []byte, error) {
@@ -58,6 +66,8 @@ func consumeNum(data []byte) (int, []byte, error) {
 }
 
 func consumeString(data []byte) (int, []byte, error) {
+	var accum []byte
+
 	delim := data[0]
 	var otherStringDelim byte
 	if delim == '"' {
@@ -65,8 +75,9 @@ func consumeString(data []byte) (int, []byte, error) {
 	} else {
 		otherStringDelim = '"'
 	}
+
 	skip := false
-	var accum []byte
+
 	for i, b := range data[1:] {
 		if b == delim && !skip {
 			if delim == '\'' && len(accum) < 1 {
@@ -89,7 +100,6 @@ func consumeString(data []byte) (int, []byte, error) {
 
 func consumeComment(data []byte) (int, []byte, error) {
 	var accum []byte
-
 	for i, b := range data {
 		if b != '\n' && i < len(data) {
 			accum = append(accum, b)
@@ -98,7 +108,24 @@ func consumeComment(data []byte) (int, []byte, error) {
 		}
 	}
 	return 0, nil, nil
+}
 
+func consumeLuaBlock(data []byte) (int, []byte, bool, error) {
+	var accum []byte
+	//accum = append(accum, '\n')
+	for i, b := range data {
+
+		if b == '}' {
+
+			return i, accum, false, nil
+		}
+		/*if b == '\n' {
+			accum = append(accum, '\n')
+		}*/
+
+		accum = append(accum, b)
+	}
+	return 0, nil, false, nil
 }
 
 // Reader -
@@ -117,12 +144,10 @@ func LexScanner(input string) <-chan LexicalItem {
 			tok := s.Bytes()
 			if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
 				chnl <- LexicalItem{string(tok), s.l}
-
 			}
 		}
 		close(chnl)
 	}()
-
 	return chnl
 }
 
@@ -132,6 +157,7 @@ func NewLexer(r io.Reader) *Reader {
 	rdr := &Reader{
 		Scanner: s,
 	}
+	isLua := false
 	split := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if rdr.l == 0 {
 			rdr.l = 1
@@ -154,7 +180,7 @@ func NewLexer(r io.Reader) *Reader {
 		case '#':
 			advance, token, err = consumeComment(data)
 		default:
-			advance, token, err = consumeWord(data)
+			advance, token, isLua, err = consumeWord(data, isLua)
 		}
 		if advance > 0 {
 			rdr.lastCol = rdr.col
