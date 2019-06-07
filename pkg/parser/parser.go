@@ -2,6 +2,7 @@ package parser
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -143,6 +144,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 	var o []Block
 	var e error
 	for token := range tokens {
+		fmt.Println(token)
 		block := Block{
 			Directive: "",
 			Line:      0,

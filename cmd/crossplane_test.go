@@ -439,21 +439,22 @@ func TestParseAndBuild(t *testing.T) {
 					},
 				},
 			},
-		}, /*
-			{
-				"lua-block-larger",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-			},*/
+		},
+		{
+			"lua-block-larger",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+			parser.Payload{},
+		},
 		{
 			"lua-block-simple",
 			parser.ParseArgs{
@@ -702,21 +703,78 @@ func TestParseAndBuild(t *testing.T) {
 					},
 				},
 			},
-		}, /*
-			{
-				"lua-block-tricky",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
+		},
+		{
+			"lua-block-tricky",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+			parser.Payload{
+				File:   "configs/lua-block-tricky/nginx.conf",
+				Status: "ok",
+				Errors: []parser.ParseError{},
+				Config: []parser.Config{
+					{
+						File:   "configs/lua-block-tricky/nginx.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "http",
+								Args:      []string{},
+								Line:      1,
+								Comment:   "",
+								File:      "",
+								Block: []parser.Block{
+									{
+										Directive: "server",
+										Args:      []string{},
+										Line:      2,
+										Comment:   "",
+										File:      "",
+										Block: []parser.Block{
+											{
+												Directive: "listen",
+												Line:      3,
+												Args:      []string{"127.0.0.1:8080"},
+												Comment:   "",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+
+											{
+												Directive: "server_name",
+												Args:      []string{"content_by_lua_block"},
+												Line:      4,
+												Comment:   "make sure this doesn't trip up lexers",
+												File:      "",
+												Block:     []parser.Block{},
+											},
+											{
+												Directive: "set_by_lua_block",
+												Args:      []string{"$res", " -- irregular lua block directive \n", "local a = 32\n", "local b = 56\n", ""},
+												Comment:   "",
+												File:      "",
+												Line:      5,
+												Block:     []parser.Block{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
 				},
-			},*/
+			},
+		},
 		{
 
 			"messy",
