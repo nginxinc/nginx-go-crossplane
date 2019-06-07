@@ -8,41 +8,9 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/nginxinc/crossplane-go/pkg/parser"
 )
-
-// Block -
-type Block struct {
-	Directive string
-	Line      int
-	Args      []string
-	Includes  []int
-	Block     []Block
-	File      string
-	Comment   string
-}
-
-// Config -
-type Config struct {
-	File   string
-	Status string
-	Errors []ParseError
-	Parsed []Block
-}
-
-// Payload -
-type Payload struct {
-	Status string
-	Errors []ParseError
-	File   string
-	Config []Config
-}
-
-// ParseError -
-type ParseError struct {
-	File  string
-	Line  string
-	Error string
-}
 
 var padding string
 var spacing int
@@ -50,7 +18,7 @@ var spacing int
 // Build takes a string representing NGINX configuration
 // builds it into conf format and returns that as a string
 func Build(payload string, indent int, tabs, header bool) (string, error) {
-	data := []Block{}
+	data := []parser.Block{}
 	err := json.Unmarshal([]byte(payload), &data)
 	if err != nil {
 		return "", fmt.Errorf("error unmarshalling payload: %v", err)
@@ -71,7 +39,7 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 }
 
 // BuildBlock -
-func BuildBlock(output string, block []Block, depth, lastline int) string {
+func BuildBlock(output string, block []parser.Block, depth, lastline int) string {
 	var built string
 	margin := strings.Repeat(padding, depth)
 	tab := strings.Repeat("\t", spacing)
@@ -115,13 +83,7 @@ func BuildBlock(output string, block []Block, depth, lastline int) string {
 }
 
 // BuildFiles -
-func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (string, error) {
-	data := []Payload{}
-	err := json.Unmarshal([]byte(payload), &data)
-
-	if err != nil {
-		return "", fmt.Errorf("error unmarshalling payload: %v", err)
-	}
+func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bool) (string, error) {
 
 	var built string
 
@@ -129,34 +91,34 @@ func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (
 		dirname, _ = os.Getwd()
 	}
 
-	for _, payload := range data {
-		for _, stmt := range payload.Config {
-			path := stmt.File
-			if !filepath.IsAbs(path) {
-				path = filepath.Join(dirname, path)
-			}
+	for _, payload := range data.Config {
 
-			parts := strings.Split(stmt.File, "/")
-			dirpath := parts[0]
-			if _, err := os.Stat(dirpath); os.IsNotExist(err) {
-				os.Mkdir(dirpath, 0777)
-			}
-
-			parsed := stmt.Parsed
-			out, _ := json.Marshal(parsed)
-
-			output, _ := Build(string(out), 4, false, false)
-			output = strings.TrimLeft(output, "\n")
-
-			f, _ := os.Create(path)
-			_, err := io.WriteString(f, output)
-			if err != nil {
-				panic("No Output")
-			}
-
-			b, _ := ioutil.ReadFile(path)
-			built = string(b)
+		path := payload.File
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(dirname, path)
 		}
+
+		parts := strings.Split(payload.File, "/")
+		dirpath := parts[0]
+		if _, err := os.Stat(dirpath); os.IsNotExist(err) {
+			os.Mkdir(dirpath, 0777)
+		}
+
+		parsed := payload.Parsed
+		out, _ := json.Marshal(parsed)
+
+		output, _ := Build(string(out), 4, false, false)
+		output = strings.TrimLeft(output, "\n")
+
+		f, _ := os.Create(path)
+		_, err := io.WriteString(f, output)
+		if err != nil {
+			panic("No Output")
+		}
+
+		b, _ := ioutil.ReadFile(path)
+		built = string(b)
 	}
+
 	return built, nil
 }
