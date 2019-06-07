@@ -41,7 +41,7 @@ func consumeWord(data []byte, isLua bool) (int, []byte, bool, error) {
 	for i, b := range data {
 		// TODO make this more robust
 		if (b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || b == '{') && data[i-1] != '\\' && data[i-1] != '$' {
-			if strings.Contains(string(accum), "lua") {
+			if strings.Contains(string(accum), "lua") && !strings.Contains(string(accum), "content") {
 				isLua = true
 			} else {
 				isLua = false
@@ -65,7 +65,10 @@ func consumeNum(data []byte) (int, []byte, error) {
 	return len(accum), accum, nil
 }
 
-func consumeString(data []byte) (int, []byte, error) {
+func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
+	if isLua {
+		return consumeLuaBlock(data)
+	}
 	var accum []byte
 
 	delim := data[0]
@@ -84,7 +87,12 @@ func consumeString(data []byte) (int, []byte, error) {
 				accum = append(accum, '\'')
 				accum = append(accum, '\'')
 			}
-			return i + 2, accum, nil
+			if strings.Contains(string(accum), "lua") && !strings.Contains(string(accum), "content") {
+				isLua = true
+			} else {
+				isLua = false
+			}
+			return i + 2, accum, isLua, nil
 		}
 		skip = false
 		if b == '\\' && data[i+2] == delim {
@@ -95,7 +103,7 @@ func consumeString(data []byte) (int, []byte, error) {
 		}
 		accum = append(accum, b)
 	}
-	return 0, nil, nil
+	return 0, nil, isLua, nil
 }
 
 func consumeComment(data []byte) (int, []byte, error) {
@@ -112,16 +120,18 @@ func consumeComment(data []byte) (int, []byte, error) {
 
 func consumeLuaBlock(data []byte) (int, []byte, bool, error) {
 	var accum []byte
-	//accum = append(accum, '\n')
+	count := 0
 	for i, b := range data {
-
 		if b == '}' {
-
-			return i, accum, false, nil
+			count--
+			if count <= 0 {
+				accum = append(accum, b)
+				return i, accum, false, nil
+			}
 		}
-		/*if b == '\n' {
-			accum = append(accum, '\n')
-		}*/
+		if b == '{' {
+			count++
+		}
 
 		accum = append(accum, b)
 	}
@@ -172,7 +182,7 @@ func NewLexer(r io.Reader) *Reader {
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
 		case '"', '\'':
-			advance, token, err = consumeString(data)
+			advance, token, isLua, err = consumeString(data, isLua)
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			advance, token, err = consumeNum(data)
 		case ' ', '\n', '\r', '\t':
