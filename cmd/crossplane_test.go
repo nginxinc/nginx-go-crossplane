@@ -6,6 +6,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/nginxinc/crossplane-go/pkg/builder"
 	"github.com/nginxinc/crossplane-go/pkg/parser"
 )
 
@@ -1582,6 +1583,12 @@ func TestParseAndBuild(t *testing.T) {
 		}
 		fmt.Println("PARSED : ", parsed)
 		fmt.Println()
+		bm, err := builder.BuildFiles(parsed, "tests", 4, false, false)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		fmt.Println(bm)
 		/*if !reflect.DeepEqual(parsed.File, test.expected.File) {
 			t.Errorf("Payload filenames not the same")
 		}
