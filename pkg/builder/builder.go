@@ -42,11 +42,10 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 func BuildBlock(output string, block []parser.Block, depth, lastline int) string {
 	var built string
 	margin := strings.Repeat(padding, depth)
-	tab := strings.Repeat("\t", spacing)
 
 	for _, stmt := range block {
 		line := 0
-
+		tab := strings.Repeat(" ", spacing)
 		if stmt.Directive == "#" && stmt.Line != 1 {
 			output += " #" + stmt.Comment
 			continue
@@ -67,7 +66,8 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 			} else {
 				built += " {"
 				built = BuildBlock(built, stmt.Block, depth+1, line)
-				built += "\n" + tab + margin + "}"
+				built += "\n" + margin + "}"
+				spacing -= 4
 			}
 
 			if output != " " {
@@ -88,19 +88,25 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 	var built string
 	var err error
 	var output string
+	var file string
 	if dirname == " " {
 		dirname, _ = os.Getwd()
 	}
 
 	for _, payload := range data.Config {
-
 		path := payload.File
 		if !filepath.IsAbs(path) {
 			path = filepath.Join(dirname, path)
 		}
-
 		parts := strings.Split(payload.File, "/")
 		dirpath := parts[0]
+		for i, f := range parts[1:] {
+			if i == 0 {
+				file += f
+			} else {
+				file += "/" + f
+			}
+		}
 		if _, err = os.Stat(dirpath); os.IsNotExist(err) {
 			os.Mkdir(dirpath, 0777)
 		}
@@ -116,8 +122,10 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 			log.Fatal("Build fail ", err)
 		}
 		output = strings.TrimLeft(output, "\n")
+		output = strings.TrimLeft(output, "\t")
+		output = strings.TrimLeft(output, " ")
 
-		err = ioutil.WriteFile("nginx.conf", []byte(output), 0777)
+		err = ioutil.WriteFile(dirpath+"/"+file, []byte(output), 0777)
 		if err != nil {
 			log.Fatal("Can't write to file ", err)
 		}
@@ -126,7 +134,7 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 		if err != nil {
 			log.Fatal("Couldn't read from file : ", err)
 		}
-		built = string(b)
+		built += string(b)
 	}
 
 	return built, nil
