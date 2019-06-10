@@ -67,29 +67,28 @@ func TestLexScanner(t *testing.T) {
 		},
 		{
 			"Messy: multiline file ",
-			`# hello\n\\n\\\n worlddd  \#\\#\\\# dfsf\n \\n \\\n 
+			`# hello\n\\n\\\n worlddd  \#\\#\\\# dfsf\n \\n \\\n \ 
 			http {#forteen
     			access_log off;default_type text/plain; error_log off;
 				"return" 200 "Ser\" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n";
     		}`,
 			[]LexicalItem{
-				{`# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n `, 1}, {"http", 2}, {"{", 2}, {"#forteen", 2}, {"access_log", 3}, {"off", 3}, {";", 3}, {"default_type", 3}, {"text/plain", 3}, {";", 3}, {"error_log", 3}, {"off", 3}, {";", 3}, {"return", 4}, {"200", 4},
-				{`Ser\" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`, 4}, {";", 4}, {"}", 5},
+				{"# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\ ", 1}, {"http", 2}, {"{", 2}, {"#forteen", 2}, {"access_log", 3}, {"off", 3}, {";", 3}, {"default_type", 3}, {"text/plain", 3}, {";", 3}, {"error_log", 3}, {"off", 3}, {";", 3}, {"return", 4}, {"200", 4},
+				{`Ser" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`, 4}, {";", 4}, {"}", 5},
 			},
 		},
 	}
 	for _, tt := range testCases {
 		t.Log(tt.title)
-		actual, err := LexScanner(tt.input)
-		if err != nil {
-			t.Errorf("Test failed due to: %v", err)
-		}
-		for i := 0; i < len(actual); i++ {
-			result := reflect.DeepEqual(tt.expected[i], actual[i])
+		actual := LexScanner(tt.input)
+		i := 0
+		for token := range actual {
+			result := reflect.DeepEqual(tt.expected[i], token)
 			if !result {
-				t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected[i], actual[i])
+				t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected[i], token )
 
 			}
+			i++
 		}
 
 	}

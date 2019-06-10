@@ -2,169 +2,166 @@ package builder
 
 import (
 	"encoding/json"
+	"strings"
 	"testing"
 )
 
-func TestBuild(t *testing.T) {
-	var tests = []string{
-		`{"directive": "server"}`,
-	}
-
-	for _, test := range tests {
-		c, err := Build(test, 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-}
-
-func TestBuildNestedAndMultipleArgs(t *testing.T) {
+func TestBuilder(t *testing.T) {
 	var tests = []struct {
-		payload []Block
+		title    string
+		input    []Block
+		expected string
 	}{
 		{
-			payload: []Block{
-				{
-					Directive: "events",
-					Args:      []string{" "},
-					Block: []Block{
-						Block{
-							Directive: "worker_connections",
-							Args:      []string{"1024"},
-						},
-					},
-				},
+			"basic: build with comments",
+			[]Block{
 				{
 					Directive: "http",
-					Args:      []string{" "},
-					Block: []Block{
-						Block{
-							Directive: "server",
-							Args:      []string{" "},
-							Block: []Block{
-								Block{
-									Directive: "listen",
-									Args:      []string{"127.0.0.1:8080"},
-								},
-								Block{
-									Directive: "server_name",
-									Args:      []string{"default_server"},
-								},
-								Block{
-									Directive: "location",
-									Args:      []string{"/"},
-									Block: []Block{
-										Block{
-											Directive: "return",
-											Args:      []string{"200", "foo bar baz"},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-
-	for _, test := range tests {
-		out, err := json.Marshal(test)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-
-		c, err := Build(string(out), 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-
-}
-
-func TestBuildWithComments(t *testing.T) {
-	var tests = []struct {
-		payload []Block
-	}{
-		{
-			payload: []Block{
-				{
-					Directive: "events",
+					Args:      []string{},
 					Line:      1,
-					Args:      []string{" "},
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
 					Block: []Block{
-						Block{
-							Directive: "worker_connections",
+						{
+							Directive: "server",
+							Args:      []string{},
 							Line:      2,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
+							Block: []Block{
+								{
+									Directive: "listen",
+									Args:      []string{"127.0.0.1:8080"},
+									Line:      3,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "#",
+									Args:      []string{},
+									Line:      3,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "listen",
+									Block:     []Block{},
+								},
+								{
+									Directive: "server_name",
+									Args:      []string{"default_server"},
+									Line:      4,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "location",
+									Args:      []string{"/"},
+									Line:      5,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
+								},
+								{
+									Directive: "#",
+									Args:      []string{},
+									Line:      5,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "# this is brace",
+									Block:     []Block{},
+								},
+							},
+						},
+					},
+				},
+			},
+			`
+				http {
+					server {
+						listen 127.0.0.1:8080; #listen
+						server_name default_server;
+						location /; ## this is brace
+					}
+				}`,
+		},
+		{
+			"basic: build nested and multiple args",
+			[]Block{
+				{
+					Directive: "events",
+					Args:      []string{},
+					Line:      1,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block: []Block{
+						{
+							Directive: "worker_connections",
 							Args:      []string{"1024"},
+							Line:      2,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
+							Block:     []Block{},
 						},
 					},
 				},
 				{
-					Directive: "#",
-					Line:      4,
-					Args:      []string{" "},
-					Comment:   "comment",
-				},
-				{
 					Directive: "http",
-					Line:      5,
-					Args:      []string{" "},
+					Args:      []string{},
+					Line:      4,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
 					Block: []Block{
-						Block{
+						{
 							Directive: "server",
-							Line:      6,
-							Args:      []string{" "},
+							Args:      []string{},
+							Line:      5,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
 							Block: []Block{
-								Block{
+								{
 									Directive: "listen",
-									Line:      7,
 									Args:      []string{"127.0.0.1:8080"},
+									Line:      6,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
 								},
-								Block{
-									Directive: "#",
-									Line:      7,
-									Args:      []string{" "},
-									Comment:   "listen",
-								},
-								Block{
+								{
 									Directive: "server_name",
-									Line:      8,
 									Args:      []string{"default_server"},
+									Line:      7,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block:     []Block{},
 								},
-								Block{
+								{
 									Directive: "location",
-									Line:      9,
 									Args:      []string{"/"},
+									Line:      8,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
 									Block: []Block{
-										Block{
-											Directive: "#",
-											Line:      9,
-											Args:      []string{" "},
-											Comment:   "# this is brace",
-										},
-										Block{
-											Directive: "#",
-											Line:      10,
-											Args:      []string{" "},
-											Comment:   " location /",
-										},
-										Block{
-											Directive: "#",
-											Line:      11,
-											Args:      []string{" "},
-											Comment:   " is here",
-										},
-										Block{
+										{
 											Directive: "return",
-											Line:      12,
 											Args:      []string{"200", "foo bar baz"},
+											Line:      9,
+											Includes:  []int{},
+											File:      "",
+											Comment:   "",
+											Block:     []Block{},
 										},
 									},
 								},
@@ -173,165 +170,310 @@ func TestBuildWithComments(t *testing.T) {
 					},
 				},
 			},
+			`
+				events {
+					worker_connections 1024;
+				}
+				http {
+					server {
+						listen 127.0.0.1:8080;
+						server_name default_server;
+						location / {
+							return 200 foo bar baz;
+						}
+					}
+				}`,
 		},
-	}
-
-	for _, test := range tests {
-		out, err := json.Marshal(test)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-
-		c, err := Build(string(out), 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-}
-
-func TestBuildStartsWithComments(t *testing.T) {
-	var tests = []struct {
-		payload []Block
-	}{
 		{
-			payload: []Block{
+			"basic: build include regular",
+			[]Block{
 				{
-					Directive: "#",
+					Directive: "events",
+					Args:      []string{},
 					Line:      1,
-					Args:      []string{" "},
-					Comment:   " foo",
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block:     []Block{},
 				},
 				{
-					Directive: "user",
-					Line:      5,
-					Args:      []string{"root"},
-				},
-			},
-		},
-	}
-	for _, test := range tests {
-		out, err := json.Marshal(test)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-
-		c, err := Build(string(out), 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-}
-
-func TestBuildWithQuotedUnicode(t *testing.T) {
-	var tests = []struct {
-		payload []Block
-	}{
-		{
-			payload: []Block{
-				{
-					Directive: "env",
-					Line:      1,
-					Args:      []string{"русский текст"},
-				},
-			},
-		},
-	}
-	for _, test := range tests {
-		out, err := json.Marshal(test)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-
-		c, err := Build(string(out), 4, false, false)
-		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
-		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
-		}
-	}
-}
-
-func TestBuildFilesWithMissingStatusAndErrors(t *testing.T) {
-	var tests = []struct {
-		payload []ConfFiles
-	}{
-		{
-			payload: []ConfFiles{
-				{
-					File: "nginx.conf",
-					Parsed: []Block{
-						Block{
-							Directive: "user",
-							Line:      1,
-							Args:      []string{"nginx"},
+					Directive: "http",
+					Args:      []string{},
+					Line:      2,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block: []Block{
+						{
+							Directive: "include",
+							Args:      []string{"conf.d/server.conf"},
+							Line:      3,
+							Includes:  []int{1},
+							File:      "",
+							Comment:   "",
+							Block:     []Block{},
 						},
 					},
 				},
 			},
+			`
+				events;
+				http {
+					include conf.d/server.conf;
+				}`,
+		},
+		{
+			"basic: start with comment",
+			[]Block{
+				{
+					Directive: "#",
+					Args:      []string{},
+					Line:      1,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "comment",
+					Block:     []Block{},
+				},
+				{
+					Directive: "http",
+					Args:      []string{},
+					Line:      2,
+					Includes:  []int{},
+					File:      "",
+					Comment:   "",
+					Block: []Block{
+						{
+							Directive: "server",
+							Args:      []string{},
+							Line:      3,
+							Includes:  []int{},
+							File:      "",
+							Comment:   "",
+							Block:     []Block{},
+						},
+					},
+				},
+			},
+			`
+				#comment
+				http {
+					server;
+				}`,
 		},
 	}
+
 	for _, test := range tests {
-		out, err := json.Marshal(test)
+		out, err := json.Marshal(test.input)
 		if err != nil {
 			t.Errorf("Error %v", err)
 		}
+		result, err := Build(string(out), 4, false, false)
 
-		c, err := BuildFiles(string(out), "none", 4, false, false)
+		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
+			t.Error(test.title)
 		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
+		if result != test.expected {
+			t.Error(test.title)
 		}
 	}
 }
 
-func TestBuildFilesWithUnicode(t *testing.T) {
+func TestBuildFile(t *testing.T) {
 	var tests = []struct {
-		payload []ConfFiles
+		title    string
+		file     string
+		input    []Payload
+		expected string
 	}{
 		{
-			payload: []ConfFiles{
+			"basic: simple build files",
+			"config/simple.conf",
+			[]Payload{
 				{
 					Status: "ok",
-					Errors: " ",
-					Config: []ConfFiles{
-						ConfFiles{
-							File:   "nginx.conf",
+					Errors: []ParseError{},
+					Config: []Config{
+						{
+							File:   "config/simple.conf",
 							Status: "ok",
-							Errors: " ",
+							Errors: []ParseError{},
 							Parsed: []Block{
-								Block{
-									Directive: "user",
+								{
+									Directive: "events",
 									Line:      1,
-									Args:      []string{"測試"},
+									Args:      []string{},
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block: []Block{
+										{
+											Directive: "worker_connections",
+											Line:      2,
+											Args:      []string{"1024"},
+											Includes:  []int{},
+											File:      "",
+											Comment:   "",
+											Block:     []Block{},
+										},
+									},
+								},
+								{
+									Directive: "http",
+									Line:      5,
+									Args:      []string{},
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block: []Block{
+										{
+											Directive: "server",
+											Line:      6,
+											Args:      []string{},
+											Includes:  []int{},
+											File:      "",
+											Comment:   "",
+											Block: []Block{
+												{
+													Directive: "listen",
+													Args:      []string{"127.0.0.1:8080"},
+													Line:      7,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "",
+													Block:     []Block{},
+												},
+												{
+													Directive: "server_name",
+													Args:      []string{"default_server"},
+													Line:      8,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "",
+													Block:     []Block{},
+												},
+												{
+													Directive: "location",
+													Args:      []string{"/"},
+													Line:      9,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "",
+													Block: []Block{
+														{
+															Directive: "return",
+															Args:      []string{"200", "foo bar baz"},
+															Line:      10,
+															Includes:  []int{},
+															File:      "",
+															Comment:   "",
+															Block:     []Block{},
+														},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
 					},
 				},
 			},
+			`
+				events {
+					worker_connections 1024;
+				}
+				http {
+					server {
+						listen 127.0.0.1:8080;
+						server_name default_server;
+						location / {
+							return 200 foo bar baz;
+						}
+					}
+				}`,
+		},
+		{
+			"basic: with comments build files",
+			"config/withComments.conf",
+			[]Payload{
+				{
+					Status: "ok",
+					Errors: []ParseError{},
+					Config: []Config{
+						{
+							File:   "config/withComments.conf",
+							Status: "ok",
+							Errors: []ParseError{},
+							Parsed: []Block{
+								{
+									Directive: "http",
+									Args:      []string{},
+									Line:      1,
+									Includes:  []int{},
+									File:      "",
+									Comment:   "",
+									Block: []Block{
+										{
+											Directive: "server",
+											Args:      []string{},
+											Line:      2,
+											Includes:  []int{},
+											File:      "",
+											Comment:   "",
+											Block: []Block{
+												{
+													Directive: "listen",
+													Args:      []string{"127.0.0.1:8080"},
+													Line:      3,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "",
+													Block:     []Block{},
+												},
+												{
+													Directive: "#",
+													Args:      []string{},
+													Line:      3,
+													Includes:  []int{},
+													File:      "",
+													Comment:   "listen",
+													Block:     []Block{},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+			`
+				http {
+					server {
+						listen 127.0.0.1:8080; #listen
+					}
+				}`,
 		},
 	}
+
 	for _, test := range tests {
-		out, err := json.Marshal(test)
+		out, err := json.Marshal(test.input)
 		if err != nil {
 			t.Errorf("Error %v", err)
 		}
+		result, err := BuildFiles(string(out), " ", 4, false, false)
+		test.expected = strings.TrimLeft(test.expected, "\n")
+		test.expected = strings.Replace(test.expected, "\t", padding, -1)
 
-		c, err := BuildFiles(string(out), "none", 4, false, false)
 		if err != nil {
-			t.Errorf("test failed due to error being returned from Build %v", err)
+			t.Error(test.title)
 		}
-		if c != "built" {
-			t.Errorf("expected %s but got %s", "built", c)
+		if result != test.expected {
+			t.Error(test.title)
 		}
 	}
 }
