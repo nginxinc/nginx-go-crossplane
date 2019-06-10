@@ -1,8 +1,11 @@
 package cmd
 
 import (
+	"bytes"
 	"errors"
-	"fmt"
+	"io"
+	"log"
+	"os"
 	"reflect"
 	"testing"
 
@@ -1247,14 +1250,7 @@ func TestParseAndBuild(t *testing.T) {
 		if err != nil {
 			t.Errorf(err.Error())
 		}
-		fmt.Println("PARSED : ", parsed)
-		fmt.Println()
-		bm, err := builder.BuildFiles(parsed, "test", 4, false, false)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
 
-		fmt.Println(bm)
 		if !reflect.DeepEqual(parsed.File, test.expected.File) {
 			t.Errorf("Payload filenames not the same")
 		}
@@ -1280,9 +1276,54 @@ func TestParseAndBuild(t *testing.T) {
 				t.Errorf(w)
 			}
 		}
+		_, err = builder.BuildFiles(parsed, "test", 4, false, false)
+		if err != nil {
+			t.Errorf(err.Error())
+		}
+
+		result, err := compareFiles(f, "test/"+f)
+		if err != nil {
+			t.Errorf(err.Error())
+		} else if result != true {
+			t.Errorf("files not equal")
+		}
 
 	}
 
+}
+
+func compareFiles(inputfile, outputfile string) (bool, error) {
+	f1, err := os.Open(inputfile)
+	if err != nil {
+		return false, err
+	}
+
+	f2, err := os.Open(outputfile)
+	if err != nil {
+		return false, err
+	}
+
+	for {
+		b1 := make([]byte, 64000)
+		_, err1 := f1.Read(b1)
+
+		b2 := make([]byte, 64000)
+		_, err2 := f2.Read(b2)
+
+		if err1 != nil || err2 != nil {
+			if err1 == io.EOF && err2 == io.EOF {
+				return true, nil
+			} else if err1 == io.EOF || err2 == io.EOF {
+				return false, nil
+			} else {
+				log.Fatal(err1, err2)
+			}
+		}
+
+		if !bytes.Equal(b1, b2) {
+			return false, nil
+		}
+	}
 }
 
 func compareConfigs(conf parser.Config, c parser.Config) string {

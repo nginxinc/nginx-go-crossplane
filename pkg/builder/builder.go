@@ -44,7 +44,7 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 
 	for _, stmt := range block {
 		line := 0
-		tab := strings.Repeat(" ", spacing)
+		tab := ""
 		if stmt.Directive == "#" && stmt.Line != 1 {
 			output += " #" + stmt.Comment
 			continue
@@ -78,7 +78,9 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 			}
 			lastline = line
 			output = strings.Replace(output, "\t", padding, -1)
+
 		}
+		tab = strings.Repeat(" ", spacing)
 	}
 	return output
 }
