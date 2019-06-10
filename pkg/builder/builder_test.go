@@ -2,6 +2,7 @@ package builder
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -383,18 +384,18 @@ func TestBuildFile(t *testing.T) {
 				},
 			},
 			`
-				events {
-					worker_connections 1024;
-				}
-				http {
-					server {
-						listen 127.0.0.1:8080;
-						server_name default_server;
-						location / {
-							return 200 foo bar baz;
-						}
+			events {
+				worker_connections 1024;
+			}
+			http {
+				server {
+					listen 127.0.0.1:8080;
+					server_name default_server;
+					location / {
+						return 200 foo bar baz;
 					}
-				}`,
+				}
+			}`,
 		},
 		{
 			"basic: with comments build files",
@@ -461,10 +462,12 @@ func TestBuildFile(t *testing.T) {
 	}
 
 	for _, test := range tests {
-
-		result, err := BuildFiles(test.input, " ", 4, false, false)
+		result, err := BuildFiles(test.input, " ", 0, false, false)
+		fmt.Println("HELLO : ", result)
 		test.expected = strings.TrimLeft(test.expected, "\n")
 		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+		fmt.Println()
+		fmt.Println(result)
 
 		if err != nil {
 			t.Error(test.title)

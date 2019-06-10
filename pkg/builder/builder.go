@@ -3,8 +3,8 @@ package builder
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -47,7 +47,7 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 	for _, stmt := range block {
 		line := 0
 
-		if stmt.Directive == "#" && line == lastline && stmt.Line != 1 {
+		if stmt.Directive == "#" && stmt.Line != 1 {
 			output += " #" + stmt.Comment
 			continue
 		} else if stmt.Directive == "#" && stmt.Line == 1 {
@@ -86,7 +86,8 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bool) (string, error) {
 
 	var built string
-
+	var err error
+	var output string
 	if dirname == " " {
 		dirname, _ = os.Getwd()
 	}
@@ -100,23 +101,31 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 
 		parts := strings.Split(payload.File, "/")
 		dirpath := parts[0]
-		if _, err := os.Stat(dirpath); os.IsNotExist(err) {
+		if _, err = os.Stat(dirpath); os.IsNotExist(err) {
 			os.Mkdir(dirpath, 0777)
 		}
 
 		parsed := payload.Parsed
-		out, _ := json.Marshal(parsed)
-
-		output, _ := Build(string(out), 4, false, false)
-		output = strings.TrimLeft(output, "\n")
-
-		f, _ := os.Create(path)
-		_, err := io.WriteString(f, output)
+		out, err := json.Marshal(parsed)
 		if err != nil {
-			panic("No Output")
+			log.Fatal("Problem json-ing data : ", err)
 		}
 
-		b, _ := ioutil.ReadFile(path)
+		output, err = Build(string(out), 4, false, false)
+		if err != nil {
+			log.Fatal("Build fail ", err)
+		}
+		output = strings.TrimLeft(output, "\n")
+
+		err = ioutil.WriteFile("nginx.conf", []byte(output), 0777)
+		if err != nil {
+			log.Fatal("Can't write to file ", err)
+		}
+
+		b, err := ioutil.ReadFile(path)
+		if err != nil {
+			log.Fatal("Couldn't read from file : ", err)
+		}
 		built = string(b)
 	}
 
