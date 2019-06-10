@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -67,7 +66,9 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 				built += " {"
 				built = BuildBlock(built, stmt.Block, depth+1, line)
 				built += "\n" + margin + "}"
-				spacing -= 4
+				if spacing != 0 {
+					spacing -= 4
+				}
 			}
 
 			if output != " " {
@@ -90,49 +91,45 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 	var output string
 	var file string
 	if dirname == " " {
-		dirname, _ = os.Getwd()
+		dirname, err = os.Getwd()
+		if err != nil {
+			return "", err
+		}
 	}
 
 	for _, payload := range data.Config {
 		path := payload.File
 		if !filepath.IsAbs(path) {
-			path = filepath.Join(dirname, path)
+			path = filepath.Join(dirname+"/", path)
 		}
-		parts := strings.Split(payload.File, "/")
-		dirpath := parts[0]
-		for i, f := range parts[1:] {
-			if i == 0 {
-				file += f
-			} else {
-				file += "/" + f
-			}
-		}
-		if _, err = os.Stat(dirpath); os.IsNotExist(err) {
-			os.Mkdir(dirpath, 0777)
-		}
+		dirpath := filepath.Dir(path)
+		file = filepath.Base(path)
+		fmt.Println(dirpath)
+		//if _, err = os.Stat(dirpath); os.IsNotExist(err) {
+		p := os.MkdirAll(dirpath, 0777)
+		fmt.Println(p)
+		//}
 
 		parsed := payload.Parsed
 		out, err := json.Marshal(parsed)
 		if err != nil {
-			log.Fatal("Problem json-ing data : ", err)
+			return "", err
 		}
 
 		output, err = Build(string(out), 4, false, false)
 		if err != nil {
-			log.Fatal("Build fail ", err)
+			return "", err
 		}
 		output = strings.TrimLeft(output, "\n")
-		output = strings.TrimLeft(output, "\t")
-		output = strings.TrimLeft(output, " ")
-
-		err = ioutil.WriteFile(dirpath+"/"+file, []byte(output), 0777)
+		path = dirpath + "/" + file
+		err = ioutil.WriteFile(path, []byte(output), 0777)
 		if err != nil {
-			log.Fatal("Can't write to file ", err)
+			return "", err
 		}
 
 		b, err := ioutil.ReadFile(path)
 		if err != nil {
-			log.Fatal("Couldn't read from file : ", err)
+			return "", err
 		}
 		built += string(b)
 	}

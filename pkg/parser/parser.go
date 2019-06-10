@@ -2,7 +2,6 @@ package parser
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -117,7 +116,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 		re, err := ioutil.ReadFile(f)
 		if err != nil {
 			if a.CatchErrors {
-				c.Status, c.Errors = handleErrors(c, err, 0)
+				handleErrors(c, err, 0)
 				continue
 			} else {
 				return payload, nil
@@ -144,7 +143,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 	var o []Block
 	var e error
 	for token := range tokens {
-		fmt.Println(token)
+
 		block := Block{
 			Directive: "",
 			Line:      0,
@@ -229,7 +228,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			e := analyzer.Analyze(parsing.File, stmt, ";", ctx, args.Strict, args.CheckCtx, args.CheckArgs)
 			if e != nil {
 				if args.CatchErrors {
-					parsing.Status, parsing.Errors = handleErrors(parsing, e, token.LineNum)
+					handleErrors(parsing, e, token.LineNum)
 					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
 						if token.Item != "}" {
 							parse(parsing, tokens, args, ctx, true)
@@ -270,7 +269,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				fnames, err = filepath.Glob(pattern)
 				if err != nil {
 					if args.CatchErrors {
-						parsing.Status, parsing.Errors = handleErrors(parsing, e, token.LineNum)
+						handleErrors(parsing, e, token.LineNum)
 						continue
 					} else {
 						log.Fatal(err)
@@ -280,7 +279,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				b, parsing, e := canRead(pattern, args, parsing, token.LineNum)
 				if e != nil {
 					if args.CatchErrors {
-						parsing.Status, parsing.Errors = handleErrors(parsing, e, token.LineNum)
+						handleErrors(parsing, e, token.LineNum)
 						continue
 					} else {
 						log.Fatal(e)
@@ -342,7 +341,7 @@ func canRead(pattern string, a ParseArgs, parsed Config, lineNumber int) (bool, 
 	f, err := os.Open(pattern)
 	if err != nil {
 		if a.CatchErrors {
-			parsed.Status, parsed.Errors = handleErrors(parsed, err, lineNumber)
+			handleErrors(parsed, err, lineNumber)
 			return false, parsed, nil
 		}
 		return false, parsed, err
@@ -356,7 +355,7 @@ func canRead(pattern string, a ParseArgs, parsed Config, lineNumber int) (bool, 
 	return true, parsed, nil
 }
 
-func handleErrors(parsed Config, e error, line int) (string, []ParseError) {
+func handleErrors(parsed Config, e error, line int) {
 	file := parsed.File
 	parseErr := ParseError{
 		Error: e,
@@ -374,7 +373,7 @@ func handleErrors(parsed Config, e error, line int) (string, []ParseError) {
 
 	payload.Status = "failed"
 	payload.Errors = append(payload.Errors, payloadErr)
-	return parsed.Status, parsed.Errors
+
 }
 
 func combineParsedConfigs(p Payload) (Payload, error) {

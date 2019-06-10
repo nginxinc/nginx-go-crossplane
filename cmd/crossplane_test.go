@@ -1249,13 +1249,13 @@ func TestParseAndBuild(t *testing.T) {
 		}
 		fmt.Println("PARSED : ", parsed)
 		fmt.Println()
-		bm, err := builder.BuildFiles(parsed, "tests", 4, false, false)
+		bm, err := builder.BuildFiles(parsed, "test", 4, false, false)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
 		fmt.Println(bm)
-		/*if !reflect.DeepEqual(parsed.File, test.expected.File) {
+		if !reflect.DeepEqual(parsed.File, test.expected.File) {
 			t.Errorf("Payload filenames not the same")
 		}
 		if !reflect.DeepEqual(parsed.Status, test.expected.Status) {
@@ -1279,7 +1279,7 @@ func TestParseAndBuild(t *testing.T) {
 			if w != "" {
 				t.Errorf(w)
 			}
-		}*/
+		}
 
 	}
 
