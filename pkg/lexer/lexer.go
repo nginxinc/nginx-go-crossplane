@@ -72,13 +72,13 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 	var accum []byte
 
 	delim := data[0]
-	var otherStringDelim byte
+	/*var otherStringDelim byte
 	if delim == '"' {
 		otherStringDelim = '\''
 	} else {
 		otherStringDelim = '"'
-	}
-
+	}*/
+	accum = append(accum, delim)
 	skip := false
 
 	for i, b := range data[1:] {
@@ -86,21 +86,24 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 			if delim == '\'' && len(accum) < 1 {
 				accum = append(accum, '\'')
 				accum = append(accum, '\'')
+			} else {
+				accum = append(accum, delim)
 			}
 			if strings.Contains(string(accum), "lua") && !strings.Contains(string(accum), "content") {
 				isLua = true
 			} else {
 				isLua = false
 			}
+
 			return i + 2, accum, isLua, nil
 		}
 		skip = false
 		if b == '\\' && data[i+2] == delim {
 			skip = true
 			continue
-		} else if b == '\\' || b == otherStringDelim {
+		} /*else if b == '\\' || b == otherStringDelim {
 			accum = append(accum, '\\')
-		}
+		}*/
 		accum = append(accum, b)
 	}
 	return 0, nil, isLua, nil

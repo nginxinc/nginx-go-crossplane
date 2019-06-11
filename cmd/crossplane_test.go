@@ -20,7 +20,7 @@ func TestParseAndBuild(t *testing.T) {
 		expected parser.Payload
 	}{
 		{
-			"bad-args",
+			"bad-args/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -69,7 +69,7 @@ func TestParseAndBuild(t *testing.T) {
 			},
 		},
 		{
-			"directive-with-space",
+			"directive-with-space/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -120,7 +120,7 @@ func TestParseAndBuild(t *testing.T) {
 												File:      "",
 												Block:     []parser.Block{},
 											}, {
-												Directive: "~Opera Mini",
+												Directive: "'~Opera Mini'",
 												Args:      []string{"1"},
 												Line:      6,
 												Comment:   "",
@@ -137,7 +137,7 @@ func TestParseAndBuild(t *testing.T) {
 			},
 		},
 		{
-			"empty-value-map",
+			"empty-value-map/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -208,7 +208,7 @@ func TestParseAndBuild(t *testing.T) {
 
 		{
 			// change the files names to the right ones
-			"includes-globbed",
+			"includes-globbed/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -267,7 +267,7 @@ func TestParseAndBuild(t *testing.T) {
 												Block: []parser.Block{
 													{
 														Directive: "return",
-														Args:      []string{"200", "foo"},
+														Args:      []string{"200", "'foo'"},
 														Comment:   "",
 														Line:      2,
 														File:      "configs/includes-globbed/locations/location1.conf",
@@ -284,7 +284,7 @@ func TestParseAndBuild(t *testing.T) {
 												Block: []parser.Block{
 													{
 														Directive: "return",
-														Args:      []string{"200", "bar"},
+														Args:      []string{"200", "'bar'"},
 														Comment:   "",
 														Line:      2,
 														File:      "configs/includes-globbed/locations/location2.conf",
@@ -317,7 +317,7 @@ func TestParseAndBuild(t *testing.T) {
 												Block: []parser.Block{
 													{
 														Directive: "return",
-														Args:      []string{"200", "foo"},
+														Args:      []string{"200", "'foo'"},
 														Comment:   "",
 														Line:      2,
 														File:      "configs/includes-globbed/locations/location1.conf",
@@ -333,7 +333,7 @@ func TestParseAndBuild(t *testing.T) {
 												Block: []parser.Block{
 													{
 														Directive: "return",
-														Args:      []string{"200", "bar"},
+														Args:      []string{"200", "'bar'"},
 														Comment:   "",
 														Line:      2,
 														File:      "configs/includes-globbed/locations/location2.conf",
@@ -352,7 +352,7 @@ func TestParseAndBuild(t *testing.T) {
 		},
 
 		{
-			"includes-regular",
+			"includes-regular/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -427,7 +427,7 @@ func TestParseAndBuild(t *testing.T) {
 												Block: []parser.Block{
 													{
 														Directive: "return",
-														Args:      []string{"200", "foo"},
+														Args:      []string{"200", "'foo'"},
 														Line:      2,
 														Comment:   "",
 														File:      "configs/includes-regular/foo.conf",
@@ -447,7 +447,7 @@ func TestParseAndBuild(t *testing.T) {
 
 		{
 
-			"messy",
+			"messy/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -486,15 +486,15 @@ func TestParseAndBuild(t *testing.T) {
 								Block:     []parser.Block{},
 							},
 							{
-								Directive: "events",
+								Directive: "\"events\"",
 								Args:      []string{},
 								Line:      3,
 								File:      "",
 								Comment:   "",
 								Block: []parser.Block{
 									{
-										Directive: "worker_connections",
-										Args:      []string{"2048"},
+										Directive: "\"worker_connections\"",
+										Args:      []string{"\"2048\""},
 										Line:      3,
 										Comment:   "",
 										File:      "",
@@ -504,7 +504,7 @@ func TestParseAndBuild(t *testing.T) {
 							},
 
 							{
-								Directive: "http",
+								Directive: "\"http\"",
 								Args:      []string{},
 								Line:      5,
 								Comment:   "",
@@ -527,7 +527,7 @@ func TestParseAndBuild(t *testing.T) {
 										Block:     []parser.Block{},
 									},
 									{
-										Directive: "access_log",
+										Directive: "\"access_log\"",
 										Args:      []string{"off"},
 										Line:      7,
 										Comment:   "",
@@ -536,7 +536,7 @@ func TestParseAndBuild(t *testing.T) {
 									},
 									{
 										Directive: "default_type",
-										Args:      []string{"text/plain"},
+										Args:      []string{"\"text/plain\""},
 										Line:      7,
 										Comment:   "",
 										File:      "",
@@ -544,7 +544,7 @@ func TestParseAndBuild(t *testing.T) {
 									},
 									{
 										Directive: "error_log",
-										Args:      []string{"off"},
+										Args:      []string{"\"off\""},
 										Line:      7,
 										Comment:   "",
 										File:      "",
@@ -558,16 +558,16 @@ func TestParseAndBuild(t *testing.T) {
 										File:      "",
 										Block: []parser.Block{
 											{
-												Directive: "listen",
-												Args:      []string{"8083"},
+												Directive: "\"listen\"",
+												Args:      []string{"\"8083\""},
 												Line:      9,
 												Comment:   "",
 												File:      "",
 												Block:     []parser.Block{},
 											},
 											{
-												Directive: "return",
-												Args:      []string{"200", `Ser" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`},
+												Directive: "\"return\"",
+												Args:      []string{"200", `"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`},
 												Line:      10,
 												Comment:   "",
 												File:      "",
@@ -576,14 +576,14 @@ func TestParseAndBuild(t *testing.T) {
 										},
 									},
 									{
-										Directive: "server",
+										Directive: "\"server\"",
 										Args:      []string{},
 										Line:      12,
 										Comment:   "",
 										File:      "",
 										Block: []parser.Block{
 											{
-												Directive: "listen",
+												Directive: "\"listen\"",
 												Args:      []string{"8080"},
 												Comment:   "",
 												Line:      12,
@@ -591,7 +591,7 @@ func TestParseAndBuild(t *testing.T) {
 												Block:     []parser.Block{},
 											},
 											{
-												Directive: "root",
+												Directive: "'root'",
 												Args:      []string{"/usr/share/nginx/html"},
 												Line:      13,
 												Comment:   "",
@@ -600,13 +600,13 @@ func TestParseAndBuild(t *testing.T) {
 											},
 											{
 												Directive: "location",
-												Args:      []string{"~", "/hello/world;"},
+												Args:      []string{"~", "\"/hello/world;\""},
 												Comment:   "",
 												Line:      14,
 												File:      "",
 												Block: []parser.Block{
 													{
-														Directive: "return",
+														Directive: "\"return\"",
 														Args:      []string{"301", "/status.html"},
 														Line:      14,
 														Comment:   "",
@@ -657,7 +657,7 @@ func TestParseAndBuild(t *testing.T) {
 											},
 											{
 												Directive: "location",
-												Args:      []string{"/status.html"},
+												Args:      []string{"\"/status.html\""},
 												Line:      18,
 												Comment:   "",
 												File:      "",
@@ -674,14 +674,14 @@ func TestParseAndBuild(t *testing.T) {
 											},
 
 											{
-												Directive: "location",
-												Args:      []string{"/sta;\n                    tus"},
+												Directive: "\"location\"",
+												Args:      []string{"\"/sta;\n                    tus\""},
 												Line:      21,
 												Comment:   "",
 												File:      "",
 												Block: []parser.Block{
 													{
-														Directive: "return",
+														Directive: "\"return\"",
 														Args:      []string{"302", "/status.html"},
 														Line:      22,
 														Comment:   "",
@@ -692,14 +692,14 @@ func TestParseAndBuild(t *testing.T) {
 											},
 
 											{
-												Directive: "location",
+												Directive: "\"location\"",
 												Args:      []string{"/upstream_conf"},
 												Line:      23,
 												Comment:   "",
 												File:      "",
 												Block: []parser.Block{
 													{
-														Directive: "return",
+														Directive: "\"return\"",
 														Args:      []string{"200", "/status.html"},
 														Line:      23,
 														Comment:   "",
@@ -726,76 +726,74 @@ func TestParseAndBuild(t *testing.T) {
 			},
 		},
 
-		/*
-			{
-				"missing-semicolon",
-				parser.ParseArgs{
-					FileName:    "",
-					CatchErrors: true,
-					Ignore:      []string{},
-					Single:      false,
-					Comments:    false,
-					Strict:      false,
-					Combine:     false,
-					CheckCtx:    true,
-					CheckArgs:   true,
-				},
-				parser.Payload{
-					File:   "configs/missing-semicolon/",
-					Status: "ok",
-					Errors: []parser.ParseError{},
-					Config: []parser.Config{
-						{
-							File:   "configs/missing-semicolon/broken-above.conf",
-							Status: "ok",
-							Errors: []parser.ParseError{},
-							Parsed: []parser.Block{
-								{
-									Directive: "http",
-									Line:      1,
-									Comment:   "",
-									Args:      []string{},
-									File:      "",
-									Block: []parser.Block{
-										{
-											Directive: "server",
-											Line:      2,
-											Comment:   "",
-											Args:      []string{},
-											File:      "",
-											Block: []parser.Block{
-												{
-													Directive: "location",
-													Line:      3,
-													Comment:   "",
-													Args:      []string{"/is-broken"},
-													File:      "",
-													Block: []parser.Block{
-														{
-															Directive: "proxy_pass",
-															Args:      []string{"http://is.broken.example"},
-															Line:      4,
-															Comment:   "",
-															File:      "",
-															Block:     []parser.Block{},
-														},
+		{
+			"missing-semicolon/broken-above.conf",
+			parser.ParseArgs{
+				FileName:    "",
+				CatchErrors: true,
+				Ignore:      []string{},
+				Single:      false,
+				Comments:    false,
+				Strict:      false,
+				Combine:     false,
+				CheckCtx:    true,
+				CheckArgs:   true,
+			},
+			parser.Payload{
+				File:   "configs/missing-semicolon/",
+				Status: "ok",
+				Errors: []parser.ParseError{},
+				Config: []parser.Config{
+					{
+						File:   "configs/missing-semicolon/broken-above.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "http",
+								Line:      1,
+								Comment:   "",
+								Args:      []string{},
+								File:      "",
+								Block: []parser.Block{
+									{
+										Directive: "server",
+										Line:      2,
+										Comment:   "",
+										Args:      []string{},
+										File:      "",
+										Block: []parser.Block{
+											{
+												Directive: "location",
+												Line:      3,
+												Comment:   "",
+												Args:      []string{"/is-broken"},
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "proxy_pass",
+														Args:      []string{"http://is.broken.example"},
+														Line:      4,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
 													},
 												},
-												{
-													Directive: "location",
-													Line:      6,
-													Args:      []string{"/not-broken"},
-													Comment:   "",
-													File:      "",
-													Block: []parser.Block{
-														{
-															Directive: "proxy_pass",
-															Args:      []string{"http://not.broken.example"},
-															Line:      7,
-															Comment:   "",
-															File:      "",
-															Block:     []parser.Block{},
-														},
+											},
+											{
+												Directive: "location",
+												Line:      6,
+												Args:      []string{"/not-broken"},
+												Comment:   "",
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "proxy_pass",
+														Args:      []string{"http://not.broken.example"},
+														Line:      7,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
 													},
 												},
 											},
@@ -804,58 +802,58 @@ func TestParseAndBuild(t *testing.T) {
 								},
 							},
 						},
-						{
+					},
+					{
 
-							File:   "configs/missing-semicolon/broken-above.conf",
-							Status: "ok",
-							Errors: []parser.ParseError{},
-							Parsed: []parser.Block{
-								{
-									Directive: "http",
-									Line:      1,
-									Comment:   "",
-									Args:      []string{},
-									File:      "",
-									Block: []parser.Block{
-										{
-											Directive: "server",
-											Line:      2,
-											Comment:   "",
-											Args:      []string{},
-											File:      "",
-											Block: []parser.Block{
-												{
-													Directive: "location",
-													Line:      3,
-													Comment:   "",
-													Args:      []string{"/not-broken"},
-													File:      "",
-													Block: []parser.Block{
-														{
-															Directive: "proxy_pass",
-															Args:      []string{"http://not.broken.example"},
-															Line:      4,
-															Comment:   "",
-															File:      "",
-															Block:     []parser.Block{},
-														},
+						File:   "configs/missing-semicolon/broken-above.conf",
+						Status: "ok",
+						Errors: []parser.ParseError{},
+						Parsed: []parser.Block{
+							{
+								Directive: "http",
+								Line:      1,
+								Comment:   "",
+								Args:      []string{},
+								File:      "",
+								Block: []parser.Block{
+									{
+										Directive: "server",
+										Line:      2,
+										Comment:   "",
+										Args:      []string{},
+										File:      "",
+										Block: []parser.Block{
+											{
+												Directive: "location",
+												Line:      3,
+												Comment:   "",
+												Args:      []string{"/not-broken"},
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "proxy_pass",
+														Args:      []string{"http://not.broken.example"},
+														Line:      4,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
 													},
 												},
-												{
-													Directive: "location",
-													Line:      6,
-													Args:      []string{"/is-broken"},
-													Comment:   "",
-													File:      "",
-													Block: []parser.Block{
-														{
-															Directive: "proxy_pass",
-															Args:      []string{"http://is.broken.example"},
-															Line:      7,
-															Comment:   "",
-															File:      "",
-															Block:     []parser.Block{},
-														},
+											},
+											{
+												Directive: "location",
+												Line:      6,
+												Args:      []string{"/is-broken"},
+												Comment:   "",
+												File:      "",
+												Block: []parser.Block{
+													{
+														Directive: "proxy_pass",
+														Args:      []string{"http://is.broken.example"},
+														Line:      7,
+														Comment:   "",
+														File:      "",
+														Block:     []parser.Block{},
 													},
 												},
 											},
@@ -866,24 +864,11 @@ func TestParseAndBuild(t *testing.T) {
 						},
 					},
 				},
-			},*/
-
-		/*{
-			"quote-behavior",
-			parser.ParseArgs{
-				FileName:    "",
-				CatchErrors: true,
-				Ignore:      []string{},
-				Single:      false,
-				Comments:    false,
-				Strict:      false,
-				Combine:     false,
-				CheckCtx:    true,
-				CheckArgs:   true,
 			},
 		},
+
 		{
-			"quoted-right-brace",
+			"quote-behavior/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -895,9 +880,11 @@ func TestParseAndBuild(t *testing.T) {
 				CheckCtx:    true,
 				CheckArgs:   true,
 			},
-		},*/
+			parser.Payload{},
+		},
+
 		{
-			"russian-text",
+			"russian-text/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -922,7 +909,7 @@ func TestParseAndBuild(t *testing.T) {
 							{
 								Directive: "env",
 								Line:      1,
-								Args:      []string{"русский текст"},
+								Args:      []string{"'русский текст'"},
 								Comment:   "",
 								File:      "",
 								Block:     []parser.Block{},
@@ -942,7 +929,7 @@ func TestParseAndBuild(t *testing.T) {
 		},
 
 		{
-			"simple",
+			"simple/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -1023,7 +1010,7 @@ func TestParseAndBuild(t *testing.T) {
 														Line:      10,
 														Comment:   "",
 														File:      "",
-														Args:      []string{"200", "foo bar baz"},
+														Args:      []string{"200", "\"foo bar baz\""},
 														Block:     []parser.Block{},
 													},
 												},
@@ -1038,7 +1025,7 @@ func TestParseAndBuild(t *testing.T) {
 			},
 		},
 		{
-			"spelling-mistake",
+			"spelling-mistake/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -1105,7 +1092,7 @@ func TestParseAndBuild(t *testing.T) {
 			},
 		},
 		{
-			"with-comments",
+			"with-comments/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",
 				CatchErrors: true,
@@ -1217,7 +1204,7 @@ func TestParseAndBuild(t *testing.T) {
 														Directive: "return",
 														Line:      11,
 														Comment:   "",
-														Args:      []string{"200", "foo bar baz"},
+														Args:      []string{"200", "\"foo bar baz\""},
 														File:      "",
 														Block:     []parser.Block{},
 													},
@@ -1235,7 +1222,7 @@ func TestParseAndBuild(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		test.args.FileName = "configs/" + test.name + "/nginx.conf"
+		test.args.FileName = "configs/" + test.name
 		f := test.args.FileName
 		i := test.args.Ignore
 		catch := test.args.CatchErrors
@@ -1251,56 +1238,34 @@ func TestParseAndBuild(t *testing.T) {
 			t.Errorf(err.Error())
 		}
 
-		if !reflect.DeepEqual(parsed.File, test.expected.File) {
-			t.Errorf("Payload filenames not the same")
-		}
-		if !reflect.DeepEqual(parsed.Status, test.expected.Status) {
-			t.Errorf("status not the same %v \n %v ", parsed, test.expected)
-		}
-		if len(parsed.Errors) != len(test.expected.Errors) {
-			for p := 0; p < len(test.expected.Errors); p++ {
-				if !reflect.DeepEqual(parsed.Errors[p], test.expected.Errors[p]) {
-					t.Errorf("Error ")
-
-				}
-			}
-		}
-		if len(parsed.Config) != len(test.expected.Config) {
-			t.Errorf("Configs arent same length :\n %v \n %v", parsed.Config, test.expected.Config)
-		} else {
-			var w string
-			for i := 0; i < len(test.expected.Config); i++ {
-				w = compareConfigs(parsed.Config[i], test.expected.Config[i])
-			}
-			if w != "" {
-				t.Errorf(w)
-			}
-		}
-		_, err = builder.BuildFiles(parsed, "test", 4, false, false)
+		_, err = builder.BuildFiles(parsed, "test1", 4, false, false)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
-
-		result, err := compareFiles(f, "test/"+f)
+		f1 := "test1/" + test.args.FileName
+		f2 := "test2/test1/" + test.args.FileName
+		f = "test1/" + test.args.FileName
+		parsed1, err := parser.Parse(f, catch, i, sin, com, strict, comb, con, ctx, check)
+		_, err = builder.BuildFiles(parsed1, "test2", 4, false, false)
 		if err != nil {
 			t.Errorf(err.Error())
-		} else if result != true {
-			t.Errorf("files not equal")
 		}
-
+		result, result2 := compareFiles(f1, f2)
+		if len(result) != 0 && len(result) != 0 {
+			t.Errorf("\n%v\n\n%v ", string(result), string(result2))
+		}
 	}
-
 }
 
-func compareFiles(inputfile, outputfile string) (bool, error) {
+func compareFiles(inputfile, outputfile string) ([]byte, []byte) {
 	f1, err := os.Open(inputfile)
 	if err != nil {
-		return false, err
+		return []byte{}, []byte{}
 	}
 
 	f2, err := os.Open(outputfile)
 	if err != nil {
-		return false, err
+		return []byte{'\''}, []byte{}
 	}
 
 	for {
@@ -1312,16 +1277,16 @@ func compareFiles(inputfile, outputfile string) (bool, error) {
 
 		if err1 != nil || err2 != nil {
 			if err1 == io.EOF && err2 == io.EOF {
-				return true, nil
+				return []byte{}, []byte{}
 			} else if err1 == io.EOF || err2 == io.EOF {
-				return false, nil
+				return b2, b1
 			} else {
 				log.Fatal(err1, err2)
 			}
 		}
 
 		if !bytes.Equal(b1, b2) {
-			return false, nil
+			return b1, b2
 		}
 	}
 }
@@ -1348,46 +1313,25 @@ func compareBlocks(gen parser.Block, config parser.Block) string {
 	var s string
 	if !reflect.DeepEqual(gen.Directive, config.Directive) {
 		s += "Error with directives : " + gen.Directive + " && " + config.Directive + string('\n')
-		//fmt.Println("gen : ", gen.Directive)
-		//fmt.Println("expected : ", config.Directive)
 	}
-	// loop over and compare
 	if len(gen.Args) == len(config.Args) {
 		for i := 0; i < len(gen.Args); i++ {
 			if !reflect.DeepEqual(gen.Args[i], config.Args[i]) {
 				s += "Problem with Args in Block " + gen.Directive + " && " + config.Directive + string('\n')
-				//fmt.Println("gen args : ", gen.Args, len(gen.Args))
-				//fmt.Println("expected args : ", config.Args, len(config.Args))
-
 			}
 		}
 	} else {
 		s += "Problem with Args in Block " + gen.Directive + " && " + config.Directive + string('\n')
-		//fmt.Println("gen args : ", gen.Args, len(gen.Args))
-		//fmt.Println("expected args : ", config.Args, len(config.Args))
 	}
 	if !reflect.DeepEqual(gen.Line, config.Line) {
 		s += "Problem with Line in Block " + gen.Directive + " && " + config.Directive + string('\n')
-		//fmt.Println("gen line : ", gen.Line, gen)
-		//fmt.Println("expected line : ", config.Line, config)
 	}
 	if !reflect.DeepEqual(gen.File, config.File) {
 		s += "Problem with File in Block " + gen.Directive + " && " + config.Directive + string('\n')
-		/*fmt.Println("gen file : ", gen.File)
-		fmt.Println(gen)
-		fmt.Println()
-		fmt.Println("expected file : ", config.File)
-		fmt.Println(config)
-		fmt.Println()*/
 	}
 	if !reflect.DeepEqual(gen.Comment, config.Comment) {
 		s += "Problem with Comments in Block " + gen.Comment + " && " + config.Comment + string('\n')
-		//fmt.Println("gen comments : ", gen.Comment)
-		//fmt.Println("expected comments: ", config.Comment)
 	}
-	/*fmt.Println("gen : ", gen.Block)
-	fmt.Println()
-	fmt.Println("config : ", config.Block)*/
 	for i := 0; i < len(config.Block); i++ {
 		s += compareBlocks(gen.Block[i], config.Block[i])
 	}

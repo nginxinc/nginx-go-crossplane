@@ -46,10 +46,10 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 		line := 0
 		tab := ""
 		if stmt.Directive == "#" && stmt.Line != 1 {
-			output += " #" + stmt.Comment
+			output += "\n" + " #" + stmt.Comment
 			continue
 		} else if stmt.Directive == "#" && stmt.Line == 1 {
-			output = "\n" + tab + "#" + stmt.Comment
+			output += tab + "#" + stmt.Comment
 		} else {
 
 			if stmt.Directive == "if" {
@@ -70,7 +70,6 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 					spacing -= 4
 				}
 			}
-
 			if output != " " {
 				output += "\n" + tab + margin + built
 			} else {
@@ -106,10 +105,8 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 		}
 		dirpath := filepath.Dir(path)
 		file = filepath.Base(path)
-		fmt.Println(dirpath)
 		//if _, err = os.Stat(dirpath); os.IsNotExist(err) {
-		p := os.MkdirAll(dirpath, 0777)
-		fmt.Println(p)
+		os.MkdirAll(dirpath, 0777)
 		//}
 
 		parsed := payload.Parsed

@@ -225,7 +225,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		}
 
 		if stmt.Directive != "" && stmt.Directive != "if" {
-			e := analyzer.Analyze(parsing.File, stmt, ";", ctx, args.Strict, args.CheckCtx, args.CheckArgs)
+			e := analyzer.Analyze(parsing.File, stmt, token.Item, ctx, args.Strict, args.CheckCtx, args.CheckArgs)
 			if e != nil {
 				if args.CatchErrors {
 					handleErrors(parsing, e, token.LineNum)
