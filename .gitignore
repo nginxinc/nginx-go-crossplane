@@ -1,2 +1,6 @@
 .idea
 *.iml
+
+# ignore generated files
+# 1. test artifacts
+cmd/test*/
