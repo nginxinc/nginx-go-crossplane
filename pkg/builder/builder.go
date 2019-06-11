@@ -3,46 +3,13 @@ package builder
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/nginxinc/crossplane-go/pkg/parser"
 )
-
-// Block -
-type Block struct {
-	Directive string
-	Line      int
-	Args      []string
-	Includes  []int
-	Block     []Block
-	File      string
-	Comment   string
-}
-
-// Config -
-type Config struct {
-	File   string
-	Status string
-	Errors []ParseError
-	Parsed []Block
-}
-
-// Payload -
-type Payload struct {
-	Status string
-	Errors []ParseError
-	File   string
-	Config []Config
-}
-
-// ParseError -
-type ParseError struct {
-	File  string
-	Line  string
-	Error string
-}
 
 var padding string
 var spacing int
@@ -50,7 +17,7 @@ var spacing int
 // Build takes a string representing NGINX configuration
 // builds it into conf format and returns that as a string
 func Build(payload string, indent int, tabs, header bool) (string, error) {
-	data := []Block{}
+	data := []parser.Block{}
 	err := json.Unmarshal([]byte(payload), &data)
 	if err != nil {
 		return "", fmt.Errorf("error unmarshalling payload: %v", err)
@@ -71,19 +38,18 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 }
 
 // BuildBlock -
-func BuildBlock(output string, block []Block, depth, lastline int) string {
+func BuildBlock(output string, block []parser.Block, depth, lastline int) string {
 	var built string
 	margin := strings.Repeat(padding, depth)
-	tab := strings.Repeat("\t", spacing)
 
 	for _, stmt := range block {
 		line := 0
-
-		if stmt.Directive == "#" && line == lastline && stmt.Line != 1 {
-			output += " #" + stmt.Comment
+		tab := ""
+		if stmt.Directive == "#" && stmt.Line != 1 {
+			output += "\n" + " #" + stmt.Comment
 			continue
 		} else if stmt.Directive == "#" && stmt.Line == 1 {
-			output = "\n" + tab + "#" + stmt.Comment
+			output += tab + "#" + stmt.Comment
 		} else {
 
 			if stmt.Directive == "if" {
@@ -99,9 +65,11 @@ func BuildBlock(output string, block []Block, depth, lastline int) string {
 			} else {
 				built += " {"
 				built = BuildBlock(built, stmt.Block, depth+1, line)
-				built += "\n" + tab + margin + "}"
+				built += "\n" + margin + "}"
+				if spacing != 0 {
+					spacing -= 4
+				}
 			}
-
 			if output != " " {
 				output += "\n" + tab + margin + built
 			} else {
@@ -109,54 +77,59 @@ func BuildBlock(output string, block []Block, depth, lastline int) string {
 			}
 			lastline = line
 			output = strings.Replace(output, "\t", padding, -1)
+
 		}
+		tab = strings.Repeat(" ", spacing)
 	}
 	return output
 }
 
 // BuildFiles -
-func BuildFiles(payload string, dirname string, indent int, tabs, header bool) (string, error) {
-	data := []Payload{}
-	err := json.Unmarshal([]byte(payload), &data)
-
-	if err != nil {
-		return "", fmt.Errorf("error unmarshalling payload: %v", err)
-	}
+func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bool) (string, error) {
 
 	var built string
-
+	var err error
+	var output string
+	var file string
 	if dirname == " " {
-		dirname, _ = os.Getwd()
-	}
-
-	for _, payload := range data {
-		for _, stmt := range payload.Config {
-			path := stmt.File
-			if !filepath.IsAbs(path) {
-				path = filepath.Join(dirname, path)
-			}
-
-			parts := strings.Split(stmt.File, "/")
-			dirpath := parts[0]
-			if _, err := os.Stat(dirpath); os.IsNotExist(err) {
-				os.Mkdir(dirpath, 0777)
-			}
-
-			parsed := stmt.Parsed
-			out, _ := json.Marshal(parsed)
-
-			output, _ := Build(string(out), 4, false, false)
-			output = strings.TrimLeft(output, "\n")
-
-			f, _ := os.Create(path)
-			_, err := io.WriteString(f, output)
-			if err != nil {
-				panic("No Output")
-			}
-
-			b, _ := ioutil.ReadFile(path)
-			built = string(b)
+		dirname, err = os.Getwd()
+		if err != nil {
+			return "", err
 		}
 	}
+
+	for _, payload := range data.Config {
+		path := payload.File
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(dirname+"/", path)
+		}
+		dirpath := filepath.Dir(path)
+		file = filepath.Base(path)
+		os.MkdirAll(dirpath, 0777)
+
+		parsed := payload.Parsed
+		out, err := json.Marshal(parsed)
+		if err != nil {
+			return "", err
+		}
+
+		output, err = Build(string(out), 4, false, false)
+		if err != nil {
+			return "", err
+		}
+		output = strings.TrimLeft(output, "\n")
+		path = dirpath + "/" + file
+		err = ioutil.WriteFile(path, []byte(output), 0777)
+		if err != nil {
+			return "", err
+		}
+
+		b, err := ioutil.ReadFile(path)
+		if err != nil {
+			return "", err
+		}
+		built += string(b)
+	}
+
 	return built, nil
 }
