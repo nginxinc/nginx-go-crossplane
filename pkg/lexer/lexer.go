@@ -72,12 +72,6 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 	var accum []byte
 
 	delim := data[0]
-	/*var otherStringDelim byte
-	if delim == '"' {
-		otherStringDelim = '\''
-	} else {
-		otherStringDelim = '"'
-	}*/
 	accum = append(accum, delim)
 	skip := false
 
@@ -101,9 +95,7 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 		if b == '\\' && data[i+2] == delim {
 			skip = true
 			continue
-		} /*else if b == '\\' || b == otherStringDelim {
-			accum = append(accum, '\\')
-		}*/
+		}
 		accum = append(accum, b)
 	}
 	return 0, nil, isLua, nil

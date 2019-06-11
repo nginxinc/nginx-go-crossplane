@@ -105,9 +105,7 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 		}
 		dirpath := filepath.Dir(path)
 		file = filepath.Base(path)
-		//if _, err = os.Stat(dirpath); os.IsNotExist(err) {
 		os.MkdirAll(dirpath, 0777)
-		//}
 
 		parsed := payload.Parsed
 		out, err := json.Marshal(parsed)

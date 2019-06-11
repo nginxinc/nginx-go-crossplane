@@ -207,7 +207,6 @@ func TestParseAndBuild(t *testing.T) {
 		},
 
 		{
-			// change the files names to the right ones
 			"includes-globbed/nginx.conf",
 			parser.ParseArgs{
 				FileName:    "",

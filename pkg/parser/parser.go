@@ -122,7 +122,6 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 				return payload, nil
 			}
 		}
-		// we should probably pass a file?
 		tokens := lexer.LexScanner(string(re))
 		c.Parsed, e = parse(c, tokens, a, includes[f], false)
 		if e != nil {
@@ -176,7 +175,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				Args:      []string{},
 			}
 		}
-		// comments in file
 		if strings.HasPrefix(directive, "#") {
 			if args.Comments {
 				block = Block{
@@ -243,7 +241,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				}
 			}
 		}
-		// check if file can be opened
 		if !args.Single && block.Directive == "include" {
 			a := block.Args
 			configDir := filepath.Dir(args.FileName)
@@ -298,7 +295,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			}
 			block.Args = fnames
 		}
-		// try analysing the directives
+
 		if token.Item == "{" {
 			stmt := analyzer.Statement{
 				Directive: block.Directive,
