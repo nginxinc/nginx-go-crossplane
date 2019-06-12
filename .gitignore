@@ -4,3 +4,10 @@
 # ignore generated files
 # 1. test artifacts
 cmd/test*/
+
+# 2. binaries
+/crossplane
+debug.test
+
+# 3. vendor
+/vendor/
