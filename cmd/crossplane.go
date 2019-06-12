@@ -1,9 +1,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/fatih/structs"
 	"github.com/nginxinc/crossplane-go/pkg/builder"
@@ -11,23 +13,6 @@ import (
 	"github.com/nginxinc/crossplane-go/pkg/parser"
 	"github.com/spf13/cobra"
 )
-
-// mock external funcs for now
-
-// Build -
-func Build(...interface{}) interface{} {
-	return "build_Foo"
-}
-
-// Parse -
-func Parse(...interface{}) interface{} {
-	return "parse_Foo"
-}
-
-// Lex -
-func Lex(...interface{}) interface{} {
-	return "lex_Foo"
-}
 
 var rootCmd = &cobra.Command{
 	Use:   "crossplane",
@@ -79,7 +64,7 @@ func Execute() {
 	parseCmd.Flags().BoolVar(&checkargs, "check-args", false, "Run arg count analysis on directives")
 	parseCmd.Flags().StringArrayVar(&ignore, "ignore", []string{}, "List of ignored directives")
 	parseCmd.Run = func(cmd *cobra.Command, args []string) {
-		filename := args[1]
+		filename := args[0]
 		_, err := os.Stat(filename)
 		if err != nil {
 			log.Fatalf("Error: cannot access file %s", filename)
@@ -89,7 +74,18 @@ func Execute() {
 			log.Fatalf("Error parsing file %s: %v", filename, err)
 		}
 		pl := structs.Map(payload)
-		log.Printf("%v", pl)
+		s := make([]string, indent)
+		b, err := json.MarshalIndent(pl, "", strings.Join(s, " "))
+		if err != nil {
+			log.Fatalf("Error marshalling data: %v", err)
+		}
+		if outFile != "" {
+			if err = ioutil.WriteFile(outFile, b, 0644); err != nil {
+				log.Fatalf("Error writing data file %s: %v", outFile, err)
+			}
+		} else {
+			os.Stdout.WriteString(string(b))
+		}
 	}
 
 	var (
