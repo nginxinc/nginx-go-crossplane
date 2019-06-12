@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -13,6 +14,10 @@ type UnbalancedBracesError string
 type LexicalItem struct {
 	Item    string
 	LineNum int
+}
+
+func (l *LexicalItem) String() string {
+	return fmt.Sprintf("(%s, %d)", l.Item, l.LineNum)
 }
 
 // BalanceBraces found in a lexical item array.

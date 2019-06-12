@@ -97,7 +97,7 @@ func Execute() {
 	buildCmd.Flags().BoolVarP(&tabs, "tabs", "t", false, "Use tabs instead of spaces on built files")
 	buildCmd.Flags().BoolVarP(&force, "force", "f", false, "Force overwrite existing files")
 	buildCmd.Run = func(cmd *cobra.Command, args []string) {
-		filename := args[1]
+		filename := args[0]
 		_, err := os.Stat(filename)
 		if err != nil {
 			log.Fatalf("Error: cannot access file %s", filename)
@@ -107,12 +107,15 @@ func Execute() {
 		if err != nil {
 			log.Fatalf("Error: cannot read file %s: %v", filename, err)
 		}
-		input := string(f)
-		output, err := builder.Build(input, int(indent), tabs, false)
+		input, err := builder.NewPayload(f)
+		if err != nil {
+			log.Fatalf("Error translating payload file %s: %v", filename, err)
+		}
+		output, err := builder.BuildFiles(input, buildPath, int(indent), tabs, false)
 		if err != nil {
 			log.Fatalf("Error: cannot build file %s: %v", filename, err)
 		}
-		log.Printf(output)
+		os.Stdout.WriteString(output)
 	}
 
 	var (
@@ -122,7 +125,7 @@ func Execute() {
 	lexCmd.Flags().StringVarP(&outFile, "out", "o", "", "Output to a file. If not specified, it will output to STDOUT")
 	lexCmd.Flags().BoolVarP(&lineNumbers, "line-numbers", "n", false, "Include line numbers in output")
 	lexCmd.Run = func(cmd *cobra.Command, args []string) {
-		filename := args[1]
+		filename := args[0]
 		_, err := os.Stat(filename)
 		if err != nil {
 			log.Fatalf("Error: cannot access file %s", filename)
@@ -134,7 +137,7 @@ func Execute() {
 		input := string(f)
 		tokenStream := lexer.LexScanner(input)
 		for token := range tokenStream {
-			log.Print(token)
+			os.Stdout.WriteString(token.String())
 		}
 	}
 
