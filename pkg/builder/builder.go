@@ -77,7 +77,7 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 				output += " " + margin + built
 			}
 			lastline = line
-			//output = strings.Replace(output, "\t", padding, -1)
+			output = strings.Replace(output, "\t", padding, -1)
 
 		}
 		tab = strings.Repeat(" ", spacing)

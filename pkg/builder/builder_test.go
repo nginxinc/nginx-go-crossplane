@@ -220,9 +220,9 @@ http {
 					},
 				},
 			},
-			` 
+			`
 events;
-http {
+http {    
 	include conf.d/server.conf;
 }`,
 		},
@@ -278,10 +278,11 @@ http {
 
 		for i := 0; i < len(test.expected); i++ {
 			if test.expected[i] != result[i] {
-				fmt.Printf("test : %q %v ", test.expected[i], string(test.expected[i]))
-				fmt.Printf("RESl : %q %v ", result[i], string(result[i]))
+				fmt.Printf("test : %q %v ", test.expected[i], string(test.expected[i:]))
+				fmt.Printf("RESl : %q %v ", result[i], string(result[i:]))
 				fmt.Println()
 				t.Error(test.title)
+				break
 			}
 		}
 
