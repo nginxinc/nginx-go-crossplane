@@ -2,7 +2,6 @@ package builder
 
 import (
 	"encoding/json"
-	"fmt"
 	"reflect"
 	"strings"
 	"testing"
@@ -278,23 +277,15 @@ http {
 
 		for i := 0; i < len(test.expected); i++ {
 			if test.expected[i] != result[i] {
-				fmt.Printf("test : %q %v ", test.expected[i], string(test.expected[i:]))
-				fmt.Printf("RESl : %q %v ", result[i], string(result[i:]))
-				fmt.Println()
 				t.Error(test.title)
-				break
 			}
 		}
 
 		if !reflect.DeepEqual(result, test.expected) {
 			t.Error(test.title)
-			fmt.Println(result)
-			fmt.Println(test.expected)
 		}
 	}
 }
-
-/*
 
 func TestBuildFile(t *testing.T) {
 	var tests = []struct {
@@ -486,4 +477,3 @@ http {
 		}
 	}
 }
-*/
