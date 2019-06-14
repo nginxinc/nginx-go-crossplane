@@ -2107,6 +2107,11 @@ func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bo
 	}
 
 	ct := checkContext(ctx, Context)
+
+	// strict mode ctx check
+	if !ct && checkCtx && strict {
+		return fmt.Errorf("unknown context %v", ctx)
+	}
 	// if we don't know where this directive is allowed and how
 	// many arguments it can take then don't bother analyzing it
 	if !ct || !dir {
