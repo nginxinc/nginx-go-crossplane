@@ -71,7 +71,7 @@ pipeline {
         if (BRANCH_NAME == 'master') {
           slackSend(
             color: '#FF0000', 
-            channel: '#pi-dev',
+            channel: '#crossplane-go',
             message: "FAILED: Job ${JOB_NAME} [${BUILD_NUMBER}] (${RUN_DISPLAY_URL}) :peter_wow:"
           )
         }
