@@ -29,4 +29,3 @@ lint:
 
 clean:
 	rm -f crossplane-go
-	rm -f Dockerfile
