@@ -41,15 +41,16 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 func BuildBlock(output string, block []parser.Block, depth, lastline int) string {
 	var built string
 	margin := strings.Repeat(padding, depth)
-
+	tab := ""
+	line := lastline
 	for _, stmt := range block {
-		line := 0
-		tab := ""
-		if stmt.Directive == "#" && stmt.Line != 1 {
-			output += "\n" + " #" + stmt.Comment
+		line++
+		if stmt.Directive == "#" && line == 1 {
+			output += "#" + stmt.Comment
 			continue
-		} else if stmt.Directive == "#" && stmt.Line == 1 {
-			output += tab + "#" + stmt.Comment
+		} else if line != 1 && stmt.Directive == "#" {
+			output += " #" + stmt.Comment
+
 		} else {
 
 			if stmt.Directive == "if" {
@@ -63,7 +64,7 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 			if len(stmt.Block) < 1 {
 				built += ";"
 			} else {
-				built += " {"
+				built += " {" + tab
 				built = BuildBlock(built, stmt.Block, depth+1, line)
 				built += "\n" + margin + "}"
 				if spacing != 0 {
@@ -71,7 +72,7 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 				}
 			}
 			if output != " " {
-				output += "\n" + tab + margin + built
+				output += "\n" + margin + built
 			} else {
 				output += " " + margin + built
 			}

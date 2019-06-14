@@ -49,7 +49,7 @@ func TestParse(t *testing.T) {
 				{Item: "{", LineNum: 9},
 				{Item: "return", LineNum: 10},
 				{Item: "200", LineNum: 10},
-				{Item: "foo bar baz", LineNum: 10},
+				{Item: "\"foo bar baz\"", LineNum: 10},
 				{Item: ";", LineNum: 10},
 				{Item: "}", LineNum: 11},
 				{Item: "}", LineNum: 12},
@@ -113,7 +113,7 @@ func TestParse(t *testing.T) {
 									Block: []Block{
 										{
 											Directive: "return",
-											Args:      []string{"200", "foo bar baz"},
+											Args:      []string{"200", "\"foo bar baz\""},
 											Line:      10,
 											File:      "",
 											Comment:   "",
@@ -232,15 +232,15 @@ func TestParse(t *testing.T) {
 					Block:     []Block{},
 				},
 				{
-					Directive: "events",
+					Directive: "\"events\"",
 					Args:      []string{},
 					Line:      3,
 					File:      "",
 					Comment:   "",
 					Block: []Block{
 						{
-							Directive: "worker_connections",
-							Args:      []string{"2048"},
+							Directive: "\"worker_connections\"",
+							Args:      []string{"\"2048\""},
 							Line:      3,
 							Comment:   "",
 							File:      "",
@@ -249,7 +249,7 @@ func TestParse(t *testing.T) {
 					},
 				},
 				{
-					Directive: "http",
+					Directive: "\"http\"",
 					Args:      []string{},
 					Line:      5,
 					Comment:   "",
@@ -272,7 +272,7 @@ func TestParse(t *testing.T) {
 							Block:     []Block{},
 						},
 						{
-							Directive: "access_log",
+							Directive: "\"access_log\"",
 							Args:      []string{"off"},
 							Line:      7,
 							Comment:   "",
@@ -281,7 +281,7 @@ func TestParse(t *testing.T) {
 						},
 						{
 							Directive: "default_type",
-							Args:      []string{"text/plain"},
+							Args:      []string{"\"text/plain\""},
 							Line:      7,
 							Comment:   "",
 							File:      "",
@@ -289,7 +289,7 @@ func TestParse(t *testing.T) {
 						},
 						{
 							Directive: "error_log",
-							Args:      []string{"off"},
+							Args:      []string{"\"off\""},
 							Line:      7,
 							Comment:   "",
 							File:      "",
@@ -303,16 +303,16 @@ func TestParse(t *testing.T) {
 							File:      "",
 							Block: []Block{
 								{
-									Directive: "listen",
-									Args:      []string{"8083"},
+									Directive: "\"listen\"",
+									Args:      []string{"\"8083\""},
 									Line:      9,
 									Comment:   "",
 									File:      "",
 									Block:     []Block{},
 								},
 								{
-									Directive: "return",
-									Args:      []string{"200", `Ser" \' \' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n`},
+									Directive: "\"return\"",
+									Args:      []string{"200", `"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`},
 									Line:      10,
 									Comment:   "",
 									File:      "",
@@ -321,14 +321,14 @@ func TestParse(t *testing.T) {
 							},
 						},
 						{
-							Directive: "server",
+							Directive: "\"server\"",
 							Args:      []string{},
 							Line:      12,
 							Comment:   "",
 							File:      "",
 							Block: []Block{
 								{
-									Directive: "listen",
+									Directive: "\"listen\"",
 									Args:      []string{"8080"},
 									Comment:   "",
 									Line:      12,
@@ -336,7 +336,7 @@ func TestParse(t *testing.T) {
 									Block:     []Block{},
 								},
 								{
-									Directive: "root",
+									Directive: "'root'",
 									Args:      []string{"/usr/share/nginx/html"},
 									Line:      13,
 									Comment:   "",
@@ -345,13 +345,13 @@ func TestParse(t *testing.T) {
 								},
 								{
 									Directive: "location",
-									Args:      []string{"~", "/hello/world;"},
+									Args:      []string{"~", "\"/hello/world;\""},
 									Comment:   "",
 									Line:      14,
 									File:      "",
 									Block: []Block{
 										{
-											Directive: "return",
+											Directive: "\"return\"",
 											Args:      []string{"301", "/status.html"},
 											Line:      14,
 											Comment:   "",
@@ -402,7 +402,7 @@ func TestParse(t *testing.T) {
 								},
 								{
 									Directive: "location",
-									Args:      []string{"/status.html"},
+									Args:      []string{"\"/status.html\""},
 									Line:      18,
 									Comment:   "",
 									File:      "",
@@ -419,14 +419,14 @@ func TestParse(t *testing.T) {
 								},
 
 								{
-									Directive: "location",
-									Args:      []string{"/sta;\n                    tus"},
+									Directive: "\"location\"",
+									Args:      []string{"\"/sta;\n                    tus\""},
 									Line:      21,
 									Comment:   "",
 									File:      "",
 									Block: []Block{
 										{
-											Directive: "return",
+											Directive: "\"return\"",
 											Args:      []string{"302", "/status.html"},
 											Line:      22,
 											Comment:   "",
@@ -437,14 +437,14 @@ func TestParse(t *testing.T) {
 								},
 
 								{
-									Directive: "location",
+									Directive: "\"location\"",
 									Args:      []string{"/upstream_conf"},
 									Line:      23,
 									Comment:   "",
 									File:      "",
 									Block: []Block{
 										{
-											Directive: "return",
+											Directive: "\"return\"",
 											Args:      []string{"200", "/status.html"},
 											Line:      23,
 											Comment:   "",
@@ -488,17 +488,17 @@ func TestParse(t *testing.T) {
 func compareBlocks(gen Block, config Block) string {
 	s := ""
 	if gen.Directive != config.Directive {
-		s += "Error with directives : " + gen.Directive + " && " + config.Directive
+		s += "df Error with directives : " + gen.Directive + " && " + config.Directive
 	}
 	// loop over and compare
 	if len(gen.Args) == len(config.Args) {
 		for i := 0; i < len(gen.Args); i++ {
 			if gen.Args[i] != config.Args[i] {
-				s += "Problem with Args in Block " + gen.Directive + " && " + config.Directive
+				s += "ad eProblem with Args in Block " + gen.Directive + " && " + config.Directive
 			}
 		}
 	} else {
-		s += "Problem with Args in Block " + gen.Directive + " && " + config.Directive
+		s += "Problem with Args in Block " + gen.Directive + string(gen.Line) + " && " + config.Directive + string(config.Line)
 	}
 	if gen.Line != config.Line {
 		s += "Problem with Line in Block " + gen.Directive + " && " + config.Directive
