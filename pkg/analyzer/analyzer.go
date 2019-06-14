@@ -2107,6 +2107,11 @@ func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bo
 	}
 
 	ct := checkContext(ctx, Context)
+
+	// strict mode ctx check
+	if !ct && checkCtx && strict {
+		return fmt.Errorf("unknown context %v", ctx)
+	}
 	// if we don't know where this directive is allowed and how
 	// many arguments it can take then don't bother analyzing it
 	if !ct || !dir {
@@ -2171,7 +2176,8 @@ func Analyze(fname string, stmt Statement, term string, ctx [3]string, strict bo
 			reason = fmt.Sprintf("invalid value %v in %v directive, it must be 'on' or 'off'", stmt.Args[0], stmt.Directive)
 			continue
 		} else {
-			reason = fmt.Sprintf("invalid number of arguements in %v", directive)
+
+			reason = fmt.Sprintf("invalid arguements in %v directive ", directive)
 		}
 	}
 	if reason == "" {
@@ -2196,6 +2202,7 @@ func checkDirective(dir string, direct map[string][]Bits) bool {
 	return false
 }
 
+//EnterBlockCTX -
 func EnterBlockCTX(stmt Statement, ctx [3]string) [3]string {
 	if ctx[0] == "http" && stmt.Directive == "location" {
 		return [3]string{"http", "location"}

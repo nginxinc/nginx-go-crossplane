@@ -20,7 +20,6 @@ type LexicalItem struct {
 func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	balance := 0
 	for _, lexicalItem := range lexicalItems {
-
 		switch lexicalItem.Item {
 		case "{":
 			balance = balance + 1
@@ -34,17 +33,24 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 	return UnbalancedBracesError("")
 }
 
-
-func consumeWord(data []byte) (int, []byte, error) {
+func consumeWord(data []byte, isLua bool) (int, []byte, bool, error) {
 	var accum []byte
+	if isLua {
+		return consumeLuaBlock(data)
+	}
 	for i, b := range data {
 		// TODO make this more robust
 		if (b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || b == '{') && data[i-1] != '\\' && data[i-1] != '$' {
-			return i, accum, nil
+			if strings.Contains(string(accum), "lua") && !strings.Contains(string(accum), "content") {
+				isLua = true
+			} else {
+				isLua = false
+			}
+			return i, accum, isLua, nil
 		}
 		accum = append(accum, b)
 	}
-	return 0, nil, nil
+	return 0, nil, isLua, nil
 }
 
 func consumeNum(data []byte) (int, []byte, error) {
@@ -59,35 +65,44 @@ func consumeNum(data []byte) (int, []byte, error) {
 	return len(accum), accum, nil
 }
 
-func consumeString(data []byte) (int, []byte, error) {
-	delim := data[0]
-	var otherStringDelim byte
-	if delim == '"' {
-		otherStringDelim = '\''
-	} else {
-		otherStringDelim = '"'
+func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
+	if isLua {
+		return consumeLuaBlock(data)
 	}
-	skip := false
 	var accum []byte
+
+	delim := data[0]
+	accum = append(accum, delim)
+	skip := false
+
 	for i, b := range data[1:] {
 		if b == delim && !skip {
-			return i + 2, accum, nil
+			if delim == '\'' && len(accum) < 1 {
+				accum = append(accum, '\'')
+				accum = append(accum, '\'')
+			} else {
+				accum = append(accum, delim)
+			}
+			if strings.Contains(string(accum), "lua") && !strings.Contains(string(accum), "content") {
+				isLua = true
+			} else {
+				isLua = false
+			}
+
+			return i + 2, accum, isLua, nil
 		}
 		skip = false
 		if b == '\\' && data[i+2] == delim {
 			skip = true
 			continue
-		} else if b == '\\' || b == otherStringDelim {
-			accum = append(accum, '\\')
 		}
 		accum = append(accum, b)
 	}
-	return 0, nil, nil
+	return 0, nil, isLua, nil
 }
 
 func consumeComment(data []byte) (int, []byte, error) {
 	var accum []byte
-
 	for i, b := range data {
 		if b != '\n' && i < len(data) {
 			accum = append(accum, b)
@@ -96,7 +111,26 @@ func consumeComment(data []byte) (int, []byte, error) {
 		}
 	}
 	return 0, nil, nil
+}
 
+func consumeLuaBlock(data []byte) (int, []byte, bool, error) {
+	var accum []byte
+	count := 0
+	for i, b := range data {
+		if b == '}' {
+			count--
+			if count <= 0 {
+				accum = append(accum, b)
+				return i, accum, false, nil
+			}
+		}
+		if b == '{' {
+			count++
+		}
+
+		accum = append(accum, b)
+	}
+	return 0, nil, false, nil
 }
 
 // Reader -
@@ -115,12 +149,10 @@ func LexScanner(input string) <-chan LexicalItem {
 			tok := s.Bytes()
 			if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
 				chnl <- LexicalItem{string(tok), s.l}
-
 			}
 		}
 		close(chnl)
 	}()
-
 	return chnl
 }
 
@@ -130,6 +162,7 @@ func NewLexer(r io.Reader) *Reader {
 	rdr := &Reader{
 		Scanner: s,
 	}
+	isLua := false
 	split := func(data []byte, atEOF bool) (advance int, token []byte, err error) {
 		if rdr.l == 0 {
 			rdr.l = 1
@@ -144,7 +177,7 @@ func NewLexer(r io.Reader) *Reader {
 		case '{', '}', ';':
 			advance, token, err = 1, data[:1], nil
 		case '"', '\'':
-			advance, token, err = consumeString(data)
+			advance, token, isLua, err = consumeString(data, isLua)
 		case '0', '1', '2', '3', '4', '5', '6', '7', '8', '9':
 			advance, token, err = consumeNum(data)
 		case ' ', '\n', '\r', '\t':
@@ -152,7 +185,7 @@ func NewLexer(r io.Reader) *Reader {
 		case '#':
 			advance, token, err = consumeComment(data)
 		default:
-			advance, token, err = consumeWord(data)
+			advance, token, isLua, err = consumeWord(data, isLua)
 		}
 		if advance > 0 {
 			rdr.lastCol = rdr.col
