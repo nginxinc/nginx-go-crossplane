@@ -32,36 +32,36 @@ type ParsingError error
 
 // Payload -
 type Payload struct {
-	Status string
-	Errors []ParseError
-	File   string
-	Config []Config
+	Status string       `json:"status"`
+	Errors []ParseError `json:"errors"`
+	File   string       `json:"file"`
+	Config []Config     `json:"config"`
 }
 
 // Config -
 type Config struct {
-	File   string
-	Status string
-	Errors []ParseError
-	Parsed []Block
+	File   string       `json:"file"`
+	Status string       `json:"status"`
+	Errors []ParseError `json:"errors"`
+	Parsed []Block      `json:"parsed"`
 }
 
 // Block -
 type Block struct {
-	Directive string
-	Line      int
-	Args      []string
-	Includes  []int
-	Block     []Block
-	File      string
-	Comment   string
+	Directive string   `json:"directive"`
+	Line      int      `json:"line"`
+	Args      []string `json:"args"`
+	Includes  []int    `json:"includes,omitempty"`
+	Block     []Block  `json:"block,omitempty"`
+	File      string   `json:"file"`
+	Comment   string   `json:"comment,omitempty"`
 }
 
 // ParseError -
 type ParseError struct {
-	File  string
-	Line  int
-	Error ParsingError
+	File  string       `json:"file"`
+	Line  int          `json:"line"`
+	Error ParsingError `json:"error"`
 }
 
 // list of conf files to be parsed
@@ -143,14 +143,12 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 	var e error
 	for token := range tokens {
 
-		block := Block{
-			Directive: "",
-			Line:      0,
-			Args:      []string{},
-			File:      "",
-			Comment:   "",
-			Block:     []Block{},
-		}
+		var block Block
+		block.Includes = make([]int, 0)
+		block.Args = make([]string, 0)
+		block.Directive = token.Item
+		block.Line = token.LineNum
+
 		if token.Item == "}" {
 			break
 		}
@@ -160,31 +158,14 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			}
 			continue
 		}
-		directive := token.Item
 		if args.Combine {
-			block = Block{
-				Directive: directive,
-				Line:      token.LineNum,
-				File:      parsing.File,
-				Args:      []string{},
-			}
-		} else {
-			block = Block{
-				Directive: directive,
-				Line:      token.LineNum,
-				Args:      []string{},
-			}
+			block.File = parsing.File
 		}
-		if strings.HasPrefix(directive, "#") {
+
+		if strings.HasPrefix(token.Item, "#") {
 			if args.Comments {
-				block = Block{
-					Directive: "#",
-					Comment:   token.Item[1:],
-					Args:      []string{},
-					Block:     []Block{},
-					File:      "",
-					Line:      token.LineNum,
-				}
+				block.Directive = "#"
+				block.Comment = token.Item[1:]
 				o = append(o, block)
 			}
 			continue

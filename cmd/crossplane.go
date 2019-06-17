@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/fatih/structs"
 	"github.com/nginxinc/crossplane-go/pkg/builder"
 	"github.com/nginxinc/crossplane-go/pkg/lexer"
 	"github.com/nginxinc/crossplane-go/pkg/parser"
@@ -73,9 +72,8 @@ func Execute() {
 		if err != nil {
 			log.Fatalf("Error parsing file %s: %v", filename, err)
 		}
-		pl := structs.Map(payload)
 		s := make([]string, indent)
-		b, err := json.MarshalIndent(pl, "", strings.Join(s, " "))
+		b, err := json.MarshalIndent(payload, "", strings.Join(s, " "))
 		if err != nil {
 			log.Fatalf("Error marshalling data: %v", err)
 		}
