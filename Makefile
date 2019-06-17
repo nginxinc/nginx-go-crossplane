@@ -19,6 +19,13 @@ ifeq ($(UNAME_S),Darwin)
 	brew install dep
 endif
 
+dep-ensure:
+ifeq ($(BUILD_IN_CONTAINER),1)
+	$(DOCKER_RUN) $(GOLANG_CONTAINER) dep ensure
+else
+	dep ensure
+endif
+
 build:
 ifeq ($(BUILD_IN_CONTAINER),1)
 	$(DOCKER_BUILD_RUN) -e CGO_ENABLED=0 $(GOLANG_CONTAINER) go build -installsuffix cgo -ldflags "-w" -o /go/src/github.com/nginxinc/crossplane-go/crossplane-go

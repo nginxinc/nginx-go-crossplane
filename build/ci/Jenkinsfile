@@ -40,6 +40,12 @@ pipeline {
       }
 
       steps {
+        print "Installing deps"
+
+        sh """
+          make dep-ensure
+        """
+
         print "Running tests against crossplane-go branch ${NS1_BRANCH} Number ${BUILD_NUMBER}"
 
         sh """
