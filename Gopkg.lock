@@ -2,14 +2,6 @@
 
 
 [[projects]]
-  digest = "1:af43bdaaf86655a2343f113e9b293bbc16b12099eaeb223982bbe4d4c22ba14d"
-  name = "github.com/fatih/structs"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "4966fc68f5b7593aafa6cbbba2d65ec6e1416047"
-  version = "v1.1.0"
-
-[[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
@@ -36,9 +28,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = [
-    "github.com/fatih/structs",
-    "github.com/spf13/cobra",
-  ]
+  input-imports = ["github.com/spf13/cobra"]
   solver-name = "gps-cdcl"
   solver-version = 1
