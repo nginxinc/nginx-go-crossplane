@@ -2,7 +2,7 @@ package builder
 
 import (
 	"encoding/json"
-	"fmt"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -85,13 +85,13 @@ func TestBuilder(t *testing.T) {
 				},
 			},
 			`
-				http {
-					server {
-						listen 127.0.0.1:8080; #listen
-						server_name default_server;
-						location /; ## this is brace
-					}
-				}`,
+http {
+    server {
+        listen 127.0.0.1:8080; #listen
+        server_name default_server;
+        location /; ## this is brace
+    }
+}`,
 		},
 		{
 			"basic: build nested and multiple args",
@@ -174,18 +174,18 @@ func TestBuilder(t *testing.T) {
 				},
 			},
 			`
-				events {
-					worker_connections 1024;
-				}
-				http {
-					server {
-						listen 127.0.0.1:8080;
-						server_name default_server;
-						location / {
-							return 200 foo bar baz;
-						}
-					}
-				}`,
+events {
+	worker_connections 1024;
+}
+http {
+	server {
+		listen 127.0.0.1:8080;
+		server_name default_server;
+		location / {
+			return 200 foo bar baz;
+		}
+	}
+}`,
 		},
 		{
 			"basic: build include regular",
@@ -220,10 +220,10 @@ func TestBuilder(t *testing.T) {
 				},
 			},
 			`
-				events;
-				http {
-					include conf.d/server.conf;
-				}`,
+events;
+http {    
+	include conf.d/server.conf;
+}`,
 		},
 		{
 			"basic: start with comment",
@@ -257,11 +257,10 @@ func TestBuilder(t *testing.T) {
 					},
 				},
 			},
-			`
-				#comment
-				http {
-					server;
-				}`,
+			`#comment
+http {
+	server;
+}`,
 		},
 	}
 
@@ -271,13 +270,18 @@ func TestBuilder(t *testing.T) {
 			t.Errorf("Error %v", err)
 		}
 		result, err := Build(string(out), 4, false, false)
-
+		if err != nil {
+			t.Errorf(test.title, err)
+		}
 		test.expected = strings.Replace(test.expected, "\t", padding, -1)
 
-		if err != nil {
-			t.Error(test.title)
+		for i := 0; i < len(test.expected); i++ {
+			if test.expected[i] != result[i] {
+				t.Error(test.title)
+			}
 		}
-		if result != test.expected {
+
+		if !reflect.DeepEqual(result, test.expected) {
 			t.Error(test.title)
 		}
 	}
@@ -383,19 +387,18 @@ func TestBuildFile(t *testing.T) {
 					},
 				},
 			},
-			`
-			events {
-				worker_connections 1024;
-			}
-			http {
-				server {
-					listen 127.0.0.1:8080;
-					server_name default_server;
-					location / {
-						return 200 foo bar baz;
-					}
-				}
-			}`,
+			`events {
+	worker_connections 1024;
+}
+http {
+	server {
+		listen 127.0.0.1:8080;
+		server_name default_server;
+		location / {
+			return 200 foo bar baz;
+		}
+	}
+}`,
 		},
 		{
 			"basic: with comments build files",
@@ -452,26 +455,23 @@ func TestBuildFile(t *testing.T) {
 					},
 				},
 			},
-			`
-				http {
-					server {
-						listen 127.0.0.1:8080; #listen
-					}
-				}`,
+			`http {
+	server {
+		listen 127.0.0.1:8080; #listen
+	}
+}`,
 		},
 	}
 
 	for _, test := range tests {
 		result, err := BuildFiles(test.input, " ", 0, false, false)
-		fmt.Println("HELLO : ", result)
-		test.expected = strings.TrimLeft(test.expected, "\n")
-		test.expected = strings.Replace(test.expected, "\t", padding, -1)
-		fmt.Println()
-		fmt.Println(result)
-
 		if err != nil {
 			t.Error(test.title)
 		}
+
+		test.expected = strings.TrimLeft(test.expected, "\n")
+		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+
 		if result != test.expected {
 			t.Error(test.title)
 		}
