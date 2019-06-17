@@ -43,7 +43,7 @@ pipeline {
         print "Installing deps"
 
         sh """
-          make dep-ensure
+          make BUILD_IN_CONTAINER=0 dep-ensure .
         """
 
         print "Running tests against crossplane-go branch ${NS1_BRANCH} Number ${BUILD_NUMBER}"
