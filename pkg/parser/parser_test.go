@@ -130,7 +130,7 @@ func TestParse(t *testing.T) {
 		{
 			"Test : with Comments",
 			ParseArgs{
-				FileName:    "config/WithComments.conf",
+				FileName:    "config/withComments.conf",
 				CatchErrors: true,
 				Ignore:      []string{},
 				Single:      false,
@@ -140,7 +140,7 @@ func TestParse(t *testing.T) {
 				CheckCtx:    false,
 				Comments:    true,
 			},
-			"config/WithComments.conf",
+			"config/withComments.conf",
 			[]lexer.LexicalItem{
 				{Item: "http", LineNum: 1},
 				{Item: "{", LineNum: 1},
