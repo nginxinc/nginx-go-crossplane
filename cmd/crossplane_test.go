@@ -1245,6 +1245,12 @@ func TestParseAndBuild(t *testing.T) {
 		f2 := "test2/test1/" + test.args.FileName
 		f = "test1/" + test.args.FileName
 		parsed1, err := parser.Parse(f, catch, i, sin, com, strict, comb, con, ctx, check)
+		if parsed1.Status == "failed" {
+			t.Errorf("Errors encountered: %v", parsed.Errors)
+		}
+		if len(parsed1.Config) < 1 {
+			t.Errorf("No configurations parsed for %s", test.args.FileName)
+		}
 		_, err = builder.BuildFiles(parsed1, "test2", 4, false, false)
 		if err != nil {
 			t.Errorf(err.Error())
