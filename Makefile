@@ -16,7 +16,7 @@ requirements:
     github.com/golangci/golangci-lint/cmd/golangci-lint
 
 dependencies:
-	sudo go get -v
+	dep ensure
 
 build:
 ifeq ($(BUILD_IN_CONTAINER),1)
