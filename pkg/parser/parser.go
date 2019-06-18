@@ -255,7 +255,10 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 					handleErrors(parsing, e, token.LineNum)
 					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
 						if token.Item != "}" {
-							parse(parsing, tokens, args, ctx, true)
+							_, err := parse(parsing, tokens, args, ctx, true)
+							if err != nil {
+								handleErrors(parsing, e, token.LineNum)
+							}
 						} else {
 							break
 						}
@@ -415,9 +418,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 				for _, f := range block.Args {
 					config := findFile(f, oldConfig)
 					g := performIncludes(config)
-					for _, bl := range g {
-						returnBlock = append(returnBlock, bl)
-					}
+					returnBlock = append(returnBlock, g...)
 				}
 				continue
 			}
@@ -434,9 +435,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 	}
 
 	for _, config := range oldConfig {
-		for _, e := range config.Errors {
-			combineConfig.Errors = append(combineConfig.Errors, e)
-		}
+		combineConfig.Errors = append(combineConfig.Errors, config.Errors...)
 		if config.Status != "ok" {
 			combineConfig.Status = "failed"
 		}

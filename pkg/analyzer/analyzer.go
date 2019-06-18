@@ -32,10 +32,10 @@ const (
 	ngxHTTPLifConf    Bits = 0x40000000 // http > location > if
 	ngxHTTPLmtConf    Bits = 0x80000000
 	ngxConfTake12     Bits = ngxConfTake1 | ngxConfTake2
-	ngxConfTake13     Bits = ngxConfTake1 | ngxConfTake3
-	ngxConfTake23     Bits = ngxConfTake2 | ngxConfTake3
-	ngxConfTake123    Bits = ngxConfTake12 | ngxConfTake3
-	ngxConfTake1234   Bits = ngxConfTake123 | ngxConfTake4
+	// ngxConfTake13     Bits = ngxConfTake1 | ngxConfTake3
+	ngxConfTake23   Bits = ngxConfTake2 | ngxConfTake3
+	ngxConfTake123  Bits = ngxConfTake12 | ngxConfTake3
+	ngxConfTake1234 Bits = ngxConfTake123 | ngxConfTake4
 
 	// bit masks for different directive argument styles
 	ngxConfNoArgs Bits = 0x00000001 // 0 args
@@ -45,12 +45,12 @@ const (
 	ngxConfTake4  Bits = 0x00000010 // 4 args
 	ngxConfTake5  Bits = 0x00000020 // 5 args
 	ngxConfTake6  Bits = 0x00000040 // 6 args
-	ngxConfTake7  Bits = 0x00000080 // 7 args
-	ngxConfBlock  Bits = 0x00000100 // followed by block
-	ngxConfFlag   Bits = 0x00000200 // 'on' or 'off'
-	ngxConfAny    Bits = 0x00000400 // >=0 args
-	ngxConf1More  Bits = 0x00000800 // >=1 args
-	ngxConf2More  Bits = 0x00001000 // >=2 args
+	// ngxConfTake7  Bits = 0x00000080 // 7 args
+	ngxConfBlock Bits = 0x00000100 // followed by block
+	ngxConfFlag  Bits = 0x00000200 // 'on' or 'off'
+	ngxConfAny   Bits = 0x00000400 // >=0 args
+	ngxConf1More Bits = 0x00000800 // >=1 args
+	ngxConf2More Bits = 0x00001000 // >=2 args
 
 	ngxAnyConf = ngxMainConf | ngxEventConf | ngxMailMainConf | ngxMailSrvConf |
 		ngxStreamMainConf | ngxStreamSrvConf | ngxStreamUpsConf |
@@ -2216,13 +2216,13 @@ func EnterBlockCTX(stmt Statement, ctx [3]string) [3]string {
 	return ctx
 }
 
-func registerExternalDirectives(directives map[string][]Bits) {
-	for d, b := range directives {
-		Directives[d] = []Bits{}
-		for _, v := range b {
-			if v != 0x00000000 {
-				Directives[d] = append(Directives[d], v)
-			}
-		}
-	}
-}
+// func registerExternalDirectives(directives map[string][]Bits) {
+// 	for d, b := range directives {
+// 		Directives[d] = []Bits{}
+// 		for _, v := range b {
+// 			if v != 0x00000000 {
+// 				Directives[d] = append(Directives[d], v)
+// 			}
+// 		}
+// 	}
+// }
