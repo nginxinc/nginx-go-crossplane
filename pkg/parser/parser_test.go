@@ -20,7 +20,7 @@ func TestParse(t *testing.T) {
 			"basic : test Parse ",
 			ParseArgs{
 				FileName:    "config/simple.conf",
-				CatchErrors: false,
+				CatchErrors: true,
 				Ignore:      []string{},
 				Single:      false,
 				Strict:      false,
@@ -131,7 +131,7 @@ func TestParse(t *testing.T) {
 			"Test : with Comments",
 			ParseArgs{
 				FileName:    "config/WithComments.conf",
-				CatchErrors: false,
+				CatchErrors: true,
 				Ignore:      []string{},
 				Single:      false,
 				Strict:      false,
@@ -194,7 +194,7 @@ func TestParse(t *testing.T) {
 			"basic : messy test",
 			ParseArgs{
 				FileName:    "config/messy.conf",
-				CatchErrors: false,
+				CatchErrors: true,
 				Ignore:      []string{},
 				Single:      false,
 				Strict:      false,
@@ -471,6 +471,12 @@ func TestParse(t *testing.T) {
 
 	for _, tes := range tests {
 		parsed, err := Parse(tes.arg.FileName, tes.arg.CatchErrors, tes.arg.Ignore, tes.arg.Single, tes.arg.Comments, tes.arg.Strict, tes.arg.Combine, tes.arg.Consume, tes.arg.CheckCtx, tes.arg.CheckArgs)
+		if parsed.Status == "failed" {
+			t.Errorf("Errors encountered: %v", parsed.Errors)
+		}
+		if len(parsed.Config) < 1 {
+			t.Errorf("No configurations parsed for %s", tes.arg.FileName)
+		}
 		par := parsed.Config[0].Parsed
 		for p := 0; p < len(par); p++ {
 			o := compareBlocks(par[p], tes.config[p])

@@ -85,8 +85,23 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 	included = []string{file}
 	includes = map[string][3]string{}
 	var e error
+
+	fpath, err := filepath.Abs(file)
+	if err != nil {
+		return Payload{
+			Status: "failed",
+			Errors: []ParseError{
+				{
+					File:  file,
+					Line:  0,
+					Error: err,
+				},
+			},
+		}, nil
+	}
+
 	a := ParseArgs{
-		FileName:    file,
+		FileName:    fpath,
 		CatchErrors: catcherr,
 		Ignore:      ignore,
 		Single:      single,
@@ -113,7 +128,18 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			Parsed: []Block{},
 		}
 
-		re, err := ioutil.ReadFile(f)
+		fp, err := filepath.Abs(f)
+		if err != nil {
+			if a.CatchErrors {
+				handleErrors(c, err, 0)
+				continue
+			} else {
+				return payload, nil
+			}
+		}
+		c.File = fp
+
+		re, err := ioutil.ReadFile(fp)
 		if err != nil {
 			if a.CatchErrors {
 				handleErrors(c, err, 0)
