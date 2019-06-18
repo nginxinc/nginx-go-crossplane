@@ -35,14 +35,15 @@ endif
 
 test:
 ifeq ($(BUILD_IN_CONTAINER),1)
-	$(DOCKER_RUN) $(GOLANG_CONTAINER) go test ./...
+	docker run --rm -v $(shell pwd):/go/src/github.com/nginxinc/crossplane-go \
+	$(shell docker build -f ./build/Dockerfile -q .) \
+	go test $(shell go list ./... | grep -v /vendor/)
 else
 	go test ./...
 endif
 
 lint:
 	golangci-lint run
-  
+
 clean:
 	rm -f crossplane-go
-  
