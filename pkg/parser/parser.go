@@ -85,8 +85,23 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 	included = []string{file}
 	includes = map[string][3]string{}
 	var e error
+
+	fpath, err := filepath.Abs(file)
+	if err != nil {
+		return Payload{
+			Status: "failed",
+			Errors: []ParseError{
+				{
+					File:  file,
+					Line:  0,
+					Error: err,
+				},
+			},
+		}, nil
+	}
+
 	a := ParseArgs{
-		FileName:    file,
+		FileName:    fpath,
 		CatchErrors: catcherr,
 		Ignore:      ignore,
 		Single:      single,
@@ -113,7 +128,18 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			Parsed: []Block{},
 		}
 
-		re, err := ioutil.ReadFile(f)
+		fp, err := filepath.Abs(f)
+		if err != nil {
+			if a.CatchErrors {
+				handleErrors(c, err, 0)
+				continue
+			} else {
+				return payload, nil
+			}
+		}
+		c.File = fp
+
+		re, err := ioutil.ReadFile(fp)
 		if err != nil {
 			if a.CatchErrors {
 				handleErrors(c, err, 0)
@@ -210,7 +236,10 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 					handleErrors(parsing, e, token.LineNum)
 					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
 						if token.Item != "}" {
-							parse(parsing, tokens, args, ctx, true)
+							_, err := parse(parsing, tokens, args, ctx, true)
+							if err != nil {
+								handleErrors(parsing, e, token.LineNum)
+							}
 						} else {
 							break
 						}
@@ -370,9 +399,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 				for _, f := range block.Args {
 					config := findFile(f, oldConfig)
 					g := performIncludes(config)
-					for _, bl := range g {
-						returnBlock = append(returnBlock, bl)
-					}
+					returnBlock = append(returnBlock, g...)
 				}
 				continue
 			}
@@ -389,9 +416,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 	}
 
 	for _, config := range oldConfig {
-		for _, e := range config.Errors {
-			combineConfig.Errors = append(combineConfig.Errors, e)
-		}
+		combineConfig.Errors = append(combineConfig.Errors, config.Errors...)
 		if config.Status != "ok" {
 			combineConfig.Status = "failed"
 		}

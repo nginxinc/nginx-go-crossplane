@@ -35,7 +35,7 @@ pipeline {
       agent {
         dockerfile {
           filename 'build/ci/Dockerfile.CI'
-          args '-v ${WORKSPACE}:/go/src/github.com/nginxinc/crossplane-go -w /go/src/github.com/nginxinc/crossplane-go'
+          args '-v ${WORKSPACE}:/go/src/github.com/nginxinc/crossplane-go'
         }
       }
 

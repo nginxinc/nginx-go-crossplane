@@ -76,7 +76,6 @@ func BuildBlock(output string, block []parser.Block, depth, lastline int) string
 			} else {
 				output += " " + margin + built
 			}
-			lastline = line
 			output = strings.Replace(output, "\t", padding, -1)
 
 		}
@@ -106,7 +105,10 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 		}
 		dirpath := filepath.Dir(path)
 		file = filepath.Base(path)
-		os.MkdirAll(dirpath, 0777)
+		err := os.MkdirAll(dirpath, 0777)
+		if err != nil {
+			return "", err
+		}
 
 		parsed := payload.Parsed
 		out, err := json.Marshal(parsed)
