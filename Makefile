@@ -14,6 +14,8 @@ requirements:
 	go get -u \
     github.com/golang/dep/cmd/dep \
     github.com/golangci/golangci-lint/cmd/golangci-lint
+
+dependencies:
 	dep ensure
 
 build:
