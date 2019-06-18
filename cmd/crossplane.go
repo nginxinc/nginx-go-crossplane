@@ -42,7 +42,7 @@ var lexCmd = &cobra.Command{
 }
 
 // Execute - cmd entrypoint
-func Execute() {
+func Execute() (err error) {
 
 	// TODO: strict mode	    	(BoolVarP)
 	// TODO: ignore directives  	(StringArrayVarP)
@@ -140,5 +140,6 @@ func Execute() {
 	}
 
 	rootCmd.AddCommand(parseCmd, buildCmd, lexCmd)
-	rootCmd.Execute()
+	err = rootCmd.Execute()
+	return err
 }
