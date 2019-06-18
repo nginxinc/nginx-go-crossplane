@@ -10,21 +10,11 @@ BUILD_IN_CONTAINER = 1
 DOCKERFILEPATH = build
 GOLANG_CONTAINER = golang:1.12
 
-dep:
-ifeq ($(UNAME_S),Linux)
-	curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-endif
-ifeq ($(UNAME_S),Darwin)
-	brew upgrade dep
-	brew install dep
-endif
-
-dep-ensure:
-ifeq ($(BUILD_IN_CONTAINER),1)
-	$(DOCKER_RUN) $(GOLANG_CONTAINER) dep ensure
-else
+requirements:
+	go get -u \
+    github.com/golang/dep/cmd/dep \
+    github.com/golangci/golangci-lint/cmd/golangci-lint
 	dep ensure
-endif
 
 build:
 ifeq ($(BUILD_IN_CONTAINER),1)
