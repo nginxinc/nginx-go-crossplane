@@ -61,6 +61,7 @@ func Execute() (err error) {
 	parseCmd.Flags().BoolVar(&strict, "strict", false, "Strict mode: error on unrecognized directives")
 	parseCmd.Flags().BoolVar(&checkctx, "check-ctx", false, "Run context analysis on directives")
 	parseCmd.Flags().BoolVar(&checkargs, "check-args", false, "Run arg count analysis on directives")
+	parseCmd.Flags().BoolVar(&comment, "include-comments", false, "Include comments in json")
 	parseCmd.Flags().StringArrayVar(&ignore, "ignore", []string{}, "List of ignored directives")
 	parseCmd.Run = func(cmd *cobra.Command, args []string) {
 		filename := args[0]

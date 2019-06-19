@@ -6,7 +6,7 @@
 cmd/test*/
 
 # 2. binaries
-/crossplane
+/crossplane*
 debug.test
 
 # 3. vendor

@@ -53,7 +53,7 @@ type Block struct {
 	Args      []string `json:"args"`
 	Includes  []int    `json:"includes,omitempty"`
 	Block     []Block  `json:"block,omitempty"`
-	File      string   `json:"file"`
+	File      string   `json:"file,omitempty"`
 	Comment   string   `json:"comment,omitempty"`
 }
 
