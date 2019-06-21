@@ -11,3 +11,6 @@ debug.test
 
 # 3. vendor
 /vendor/
+
+#4. other
+.env

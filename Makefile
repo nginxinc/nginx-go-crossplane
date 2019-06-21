@@ -34,6 +34,11 @@ else
 	go test ./...
 endif
 
+test-shell:
+	docker run --rm -it -v $(shell pwd):/go/src/github.com/nginxinc/crossplane-go \
+	$(shell docker build -f ./build/Dockerfile -q .) \
+	bash
+
 lint:
 	golangci-lint run
 
