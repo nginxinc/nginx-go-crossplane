@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"strings"
 )
@@ -16,8 +15,14 @@ type LexicalItem struct {
 	LineNum int
 }
 
-func (l *LexicalItem) String() string {
-	return fmt.Sprintf("(%s, %d)", l.Item, l.LineNum)
+/*Repr returns a representation of a lex item.
+uses return type interface{} as it could either be LexicalItem or
+a bare string */
+func (l *LexicalItem) Repr(lineNumbers bool) interface{} {
+	if lineNumbers {
+		return l
+	}
+	return l.Item
 }
 
 // BalanceBraces found in a lexical item array.

@@ -83,7 +83,8 @@ func Execute() (err error) {
 				log.Fatalf("Error writing data file %s: %v", outFile, err)
 			}
 		} else {
-			os.Stdout.WriteString(string(b))
+			os.Stdout.Write(b)
+			os.Stdout.Write([]byte("\n")) // compatibility: always return newline at end
 		}
 	}
 
@@ -115,6 +116,7 @@ func Execute() (err error) {
 			log.Fatalf("Error: cannot build file %s: %v", filename, err)
 		}
 		os.Stdout.WriteString(output)
+		os.Stdout.Write([]byte("\n")) // compatibility: always return newline at end
 	}
 
 	var (
@@ -135,9 +137,16 @@ func Execute() (err error) {
 		}
 		input := string(f)
 		tokenStream := lexer.LexScanner(input)
+		li := []interface{}{}
 		for token := range tokenStream {
-			os.Stdout.WriteString(token.String())
+			li = append(li, token.Repr(lineNumbers))
 		}
+		b, err := json.Marshal(li)
+		if err != nil {
+			log.Fatalf("Error marshalling token stream data from lexer: %v", err)
+		}
+		os.Stdout.Write(b)
+		os.Stdout.Write([]byte("\n")) // compatibility: always return newline at end
 	}
 
 	rootCmd.AddCommand(parseCmd, buildCmd, lexCmd)
