@@ -21,7 +21,7 @@ pipeline {
   stages {
     stage('PrepareRun') {
       agent any
-      
+
       stages {
         stage ('Checkout') {
           steps {
@@ -40,9 +40,12 @@ pipeline {
       }
 
       steps {
+
         print "Running tests against crossplane-go branch ${NS1_BRANCH} Number ${BUILD_NUMBER}"
 
         sh """
+          cd /go/src/github.com/nginxinc/crossplane-go
+          make dependencies
           make BUILD_IN_CONTAINER=0 test
           make lint
         """
@@ -69,7 +72,7 @@ pipeline {
       script {
         if (BRANCH_NAME == 'master') {
           slackSend(
-            color: '#FF0000', 
+            color: '#FF0000',
             channel: '#crossplane-go',
             message: "FAILED: Job ${JOB_NAME} [${BUILD_NUMBER}] (${RUN_DISPLAY_URL}) :peter_wow:"
           )

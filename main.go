@@ -1,9 +1,14 @@
 package main
 
 import (
+	"os"
+
 	"github.com/nginxinc/crossplane-go/cmd"
 )
 
 func main() {
-	cmd.Execute()
+	err := cmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }

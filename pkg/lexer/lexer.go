@@ -15,6 +15,16 @@ type LexicalItem struct {
 	LineNum int
 }
 
+/*Repr returns a representation of a lex item.
+uses return type interface{} as it could either be LexicalItem or
+a bare string */
+func (l *LexicalItem) Repr(lineNumbers bool) interface{} {
+	if lineNumbers {
+		return l
+	}
+	return l.Item
+}
+
 // BalanceBraces found in a lexical item array.
 // returns an error if lexemes right and left braces are not balanced
 func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {

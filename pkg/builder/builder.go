@@ -136,3 +136,9 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 
 	return built, nil
 }
+
+// NewPayload -
+func NewPayload(payloadBytes []byte) (data parser.Payload, err error) {
+	err = json.Unmarshal(payloadBytes, &data)
+	return data, err
+}
