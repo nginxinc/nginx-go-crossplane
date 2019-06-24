@@ -32,36 +32,36 @@ type ParsingError error
 
 // Payload -
 type Payload struct {
-	Status string
-	Errors []ParseError
-	File   string
-	Config []Config
+	Status string       `json:"status"`
+	Errors []ParseError `json:"errors"`
+	File   string       `json:"file"`
+	Config []Config     `json:"config"`
 }
 
 // Config -
 type Config struct {
-	File   string
-	Status string
-	Errors []ParseError
-	Parsed []Block
+	File   string       `json:"file"`
+	Status string       `json:"status"`
+	Errors []ParseError `json:"errors"`
+	Parsed []Block      `json:"parsed"`
 }
 
 // Block -
 type Block struct {
-	Directive string
-	Line      int
-	Args      []string
-	Includes  []int
-	Block     []Block
-	File      string
-	Comment   string
+	Directive string   `json:"directive"`
+	Line      int      `json:"line"`
+	Args      []string `json:"args"`
+	Includes  []int    `json:"includes,omitempty"`
+	Block     []Block  `json:"block,omitempty"`
+	File      string   `json:"file,omitempty"`
+	Comment   string   `json:"comment,omitempty"`
 }
 
 // ParseError -
 type ParseError struct {
-	File  string
-	Line  int
-	Error ParsingError
+	File  string       `json:"file"`
+	Line  int          `json:"line"`
+	Error ParsingError `json:"error"`
 }
 
 // list of conf files to be parsed
@@ -85,8 +85,23 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 	included = []string{file}
 	includes = map[string][3]string{}
 	var e error
+
+	fpath, err := filepath.Abs(file)
+	if err != nil {
+		return Payload{
+			Status: "failed",
+			Errors: []ParseError{
+				{
+					File:  file,
+					Line:  0,
+					Error: err,
+				},
+			},
+		}, nil
+	}
+
 	a := ParseArgs{
-		FileName:    file,
+		FileName:    fpath,
 		CatchErrors: catcherr,
 		Ignore:      ignore,
 		Single:      single,
@@ -113,7 +128,18 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			Parsed: []Block{},
 		}
 
-		re, err := ioutil.ReadFile(f)
+		fp, err := filepath.Abs(f)
+		if err != nil {
+			if a.CatchErrors {
+				handleErrors(c, err, 0)
+				continue
+			} else {
+				return payload, nil
+			}
+		}
+		c.File = fp
+
+		re, err := ioutil.ReadFile(fp)
 		if err != nil {
 			if a.CatchErrors {
 				handleErrors(c, err, 0)
@@ -143,14 +169,12 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 	var e error
 	for token := range tokens {
 
-		block := Block{
-			Directive: "",
-			Line:      0,
-			Args:      []string{},
-			File:      "",
-			Comment:   "",
-			Block:     []Block{},
-		}
+		var block Block
+		block.Includes = make([]int, 0)
+		block.Args = make([]string, 0)
+		block.Directive = token.Item
+		block.Line = token.LineNum
+
 		if token.Item == "}" {
 			break
 		}
@@ -160,31 +184,14 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			}
 			continue
 		}
-		directive := token.Item
 		if args.Combine {
-			block = Block{
-				Directive: directive,
-				Line:      token.LineNum,
-				File:      parsing.File,
-				Args:      []string{},
-			}
-		} else {
-			block = Block{
-				Directive: directive,
-				Line:      token.LineNum,
-				Args:      []string{},
-			}
+			block.File = parsing.File
 		}
-		if strings.HasPrefix(directive, "#") {
+
+		if strings.HasPrefix(token.Item, "#") {
 			if args.Comments {
-				block = Block{
-					Directive: "#",
-					Comment:   token.Item[1:],
-					Args:      []string{},
-					Block:     []Block{},
-					File:      "",
-					Line:      token.LineNum,
-				}
+				block.Directive = "#"
+				block.Comment = token.Item[1:]
 				o = append(o, block)
 			}
 			continue
@@ -229,7 +236,10 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 					handleErrors(parsing, e, token.LineNum)
 					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
 						if token.Item != "}" {
-							parse(parsing, tokens, args, ctx, true)
+							_, err := parse(parsing, tokens, args, ctx, true)
+							if err != nil {
+								handleErrors(parsing, e, token.LineNum)
+							}
 						} else {
 							break
 						}
@@ -389,9 +399,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 				for _, f := range block.Args {
 					config := findFile(f, oldConfig)
 					g := performIncludes(config)
-					for _, bl := range g {
-						returnBlock = append(returnBlock, bl)
-					}
+					returnBlock = append(returnBlock, g...)
 				}
 				continue
 			}
@@ -408,9 +416,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 	}
 
 	for _, config := range oldConfig {
-		for _, e := range config.Errors {
-			combineConfig.Errors = append(combineConfig.Errors, e)
-		}
+		combineConfig.Errors = append(combineConfig.Errors, config.Errors...)
 		if config.Status != "ok" {
 			combineConfig.Status = "failed"
 		}
