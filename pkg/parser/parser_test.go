@@ -485,6 +485,9 @@ func TestParse(t *testing.T) {
 			}
 		}
 
+		s := fmt.Sprintf("\n %v \n", parsed)
+		fmt.Println(s)
+
 		if err != nil {
 			fmt.Println("something")
 		}

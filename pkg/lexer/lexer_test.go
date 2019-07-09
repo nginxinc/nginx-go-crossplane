@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 )
@@ -70,11 +71,11 @@ func TestLexScanner(t *testing.T) {
 			`# hello\n\\n\\\n worlddd  \#\\#\\\# dfsf\n \\n \\\n \ 
 			http {#forteen
     			access_log off;default_type text/plain; error_log off;
-				"return" 200 "Ser\" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n";
+				"return" 200 "Ser\\" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n";
     		}`,
 			[]LexicalItem{
-				{"# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\ ", 1}, {"http", 2}, {"{", 2}, {"#forteen", 2}, {"access_log", 3}, {"off", 3}, {";", 3}, {"default_type", 3}, {"text/plain", 3}, {";", 3}, {"error_log", 3}, {"off", 3}, {";", 3}, {"\"return\"", 4}, {"200", 4},
-				{`"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`, 4}, {";", 4}, {"}", 5},
+				{"# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\ ", 1}, {"http", 2}, {"{", 2}, {"#forteen", 2}, {"access_log", 3}, {"off", 3}, {";", 3}, {"default_type", 3}, {"text/plain", 3}, {";", 3}, {"error_log", 3}, {"off", 3}, {";", 3}, {"return", 4}, {"200", 4},
+				{"Ser\\\" ' ' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n", 4}, {";", 4}, {"}", 5},
 			},
 		},
 	}
@@ -84,6 +85,10 @@ func TestLexScanner(t *testing.T) {
 		i := 0
 		for token := range actual {
 			result := reflect.DeepEqual(tt.expected[i], token)
+
+			s := fmt.Sprintf("%q \n", token)
+			fmt.Println(s)
+
 			if !result {
 				t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected[i], token)
 
