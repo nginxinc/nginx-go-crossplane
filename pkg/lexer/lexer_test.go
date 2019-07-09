@@ -78,6 +78,21 @@ func TestLexScanner(t *testing.T) {
 				{"Ser\\\" ' ' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n", 4}, {";", 4}, {"}", 5},
 			},
 		},
+		{
+			"Directive-with-space: multiline file with single quote example",
+			`events {
+			}
+			http {
+				map $http_user_agent $mobile {
+					default 0;
+					'~Opera Mini' 1;
+				}
+			}`,
+			[]LexicalItem{
+				{"events", 1}, {"{", 1}, {"}", 2}, {"http", 3}, {"{", 3}, {"map", 4}, {"$http_user_agent", 4}, {"$mobile", 4}, {"{", 4},
+				{"default", 5}, {"0", 5}, {";", 5}, {"~Opera Mini", 6}, {"1", 6}, {";", 6}, {"}", 7}, {"}", 8},
+			},
+		},
 	}
 	for _, tt := range testCases {
 		t.Log(tt.title)
