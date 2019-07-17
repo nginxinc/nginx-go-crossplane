@@ -58,16 +58,16 @@ func TestParse(t *testing.T) {
 			// need payload struct
 			[]Block{
 				{
-					Directive: "events",
+					Directive: "\"events\"",
 					Line:      1,
 					Args:      []string{},
 					File:      "",
 					Comment:   "",
 					Block: []Block{
 						{
-							Directive: "worker_connections",
+							Directive: "\"worker_connections\"",
 							Line:      2,
-							Args:      []string{"1024"},
+							Args:      []string{"\"1024\""},
 							File:      "",
 							Comment:   "",
 							Block:     []Block{},
@@ -75,45 +75,45 @@ func TestParse(t *testing.T) {
 					},
 				},
 				{
-					Directive: "http",
+					Directive: "\"http\"",
 					Line:      5,
 					Args:      []string{},
 					File:      "",
 					Comment:   "",
 					Block: []Block{
 						{
-							Directive: "server",
+							Directive: "\"server\"",
 							Line:      6,
 							Args:      []string{},
 							File:      "",
 							Comment:   "",
 							Block: []Block{
 								{
-									Directive: "listen",
-									Args:      []string{"127.0.0.1:8080"},
+									Directive: "\"listen\"",
+									Args:      []string{"\"127.0.0.1:8080\""},
 									Line:      7,
 									File:      "",
 									Comment:   "",
 									Block:     []Block{},
 								},
 								{
-									Directive: "server_name",
-									Args:      []string{"default_server"},
+									Directive: "\"server_name\"",
+									Args:      []string{"\"default_server\""},
 									Line:      8,
 									File:      "",
 									Comment:   "",
 									Block:     []Block{},
 								},
 								{
-									Directive: "location",
-									Args:      []string{"/"},
+									Directive: "\"location\"",
+									Args:      []string{"\"/\""},
 									Line:      9,
 									File:      "",
 									Comment:   "",
 									Block: []Block{
 										{
-											Directive: "return",
-											Args:      []string{"200", "\"foo bar baz\""},
+											Directive: "\"return\"",
+											Args:      []string{"\"200\"", "\"foo bar baz\""},
 											Line:      10,
 											File:      "",
 											Comment:   "",
@@ -155,22 +155,22 @@ func TestParse(t *testing.T) {
 			},
 			[]Block{
 				{
-					Directive: "http",
+					Directive: "\"http\"",
 					Args:      []string{},
 					Line:      1,
 					File:      "",
 					Comment:   "",
 					Block: []Block{
 						{
-							Directive: "server",
+							Directive: "\"server\"",
 							Args:      []string{},
 							Line:      2,
 							File:      "",
 							Comment:   "",
 							Block: []Block{
 								{
-									Directive: "listen",
-									Args:      []string{"127.0.0.1:8080"},
+									Directive: "\"listen\"",
+									Args:      []string{"\"127.0.0.1:8080\""},
 									Line:      3,
 									File:      "",
 									Comment:   "",
@@ -216,8 +216,8 @@ func TestParse(t *testing.T) {
 			},
 			[]Block{
 				{
-					Directive: "user",
-					Args:      []string{"nobody"},
+					Directive: "\"user\"",
+					Args:      []string{"\"nobody\""},
 					Line:      1,
 					File:      "",
 					Comment:   "",
@@ -273,22 +273,6 @@ func TestParse(t *testing.T) {
 						},
 						{
 							Directive: "\"access_log\"",
-							Args:      []string{"off"},
-							Line:      7,
-							Comment:   "",
-							File:      "",
-							Block:     []Block{},
-						},
-						{
-							Directive: "default_type",
-							Args:      []string{"\"text/plain\""},
-							Line:      7,
-							Comment:   "",
-							File:      "",
-							Block:     []Block{},
-						},
-						{
-							Directive: "error_log",
 							Args:      []string{"\"off\""},
 							Line:      7,
 							Comment:   "",
@@ -296,7 +280,23 @@ func TestParse(t *testing.T) {
 							Block:     []Block{},
 						},
 						{
-							Directive: "server",
+							Directive: "\"default_type\"",
+							Args:      []string{"\"text/plain\""},
+							Line:      7,
+							Comment:   "",
+							File:      "",
+							Block:     []Block{},
+						},
+						{
+							Directive: "\"error_log\"",
+							Args:      []string{"\"off\""},
+							Line:      7,
+							Comment:   "",
+							File:      "",
+							Block:     []Block{},
+						},
+						{
+							Directive: "\"server\"",
 							Args:      []string{},
 							Line:      8,
 							Comment:   "",
@@ -312,7 +312,7 @@ func TestParse(t *testing.T) {
 								},
 								{
 									Directive: "\"return\"",
-									Args:      []string{"200", `"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`},
+									Args:      []string{"\"200\"", `"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`},
 									Line:      10,
 									Comment:   "",
 									File:      "",
@@ -329,7 +329,7 @@ func TestParse(t *testing.T) {
 							Block: []Block{
 								{
 									Directive: "\"listen\"",
-									Args:      []string{"8080"},
+									Args:      []string{"\"8080\""},
 									Comment:   "",
 									Line:      12,
 									File:      "",
@@ -337,22 +337,22 @@ func TestParse(t *testing.T) {
 								},
 								{
 									Directive: "'root'",
-									Args:      []string{"/usr/share/nginx/html"},
+									Args:      []string{"\"/usr/share/nginx/html\""},
 									Line:      13,
 									Comment:   "",
 									File:      "",
 									Block:     []Block{},
 								},
 								{
-									Directive: "location",
-									Args:      []string{"~", "\"/hello/world;\""},
+									Directive: "\"location\"",
+									Args:      []string{"\"~\"", "\"/hello/world;\""},
 									Comment:   "",
 									Line:      14,
 									File:      "",
 									Block: []Block{
 										{
 											Directive: "\"return\"",
-											Args:      []string{"301", "/status.html"},
+											Args:      []string{"\"301\"", "\"/status.html\""},
 											Line:      14,
 											Comment:   "",
 											File:      "",
@@ -361,24 +361,24 @@ func TestParse(t *testing.T) {
 									},
 								},
 								{
-									Directive: "location",
-									Args:      []string{"/foo"},
+									Directive: "\"location\"",
+									Args:      []string{"\"/foo\""},
 									Line:      15,
 									Comment:   "",
 									File:      "",
 									Block:     []Block{},
 								},
 								{
-									Directive: "location",
-									Args:      []string{"/bar"},
+									Directive: "\"location\"",
+									Args:      []string{"\"/bar\""},
 									Line:      15,
 									Comment:   "",
 									File:      "",
 									Block:     []Block{},
 								},
 								{
-									Directive: "location",
-									Args:      []string{"/\\{\\;\\}\\ #\\ ab"},
+									Directive: "\"location\"",
+									Args:      []string{"\"/\\{\\;\\}\\ #\\ ab\""},
 									Line:      16,
 									Comment:   "",
 									File:      "",
@@ -393,23 +393,23 @@ func TestParse(t *testing.T) {
 									Block:     []Block{},
 								},
 								{
-									Directive: "if",
-									Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST"},
+									Directive: "\"if\"",
+									Args:      []string{"\"$request_method\"", "\"=\"", "\"P\\{O\\)\\###\\;ST\""},
 									Line:      17,
 									Comment:   "",
 									File:      "",
 									Block:     []Block{},
 								},
 								{
-									Directive: "location",
+									Directive: "\"location\"",
 									Args:      []string{"\"/status.html\""},
 									Line:      18,
 									Comment:   "",
 									File:      "",
 									Block: []Block{
 										{
-											Directive: "try_files",
-											Args:      []string{"/abc/${uri}", "/abc/${uri}.html", "=404"},
+											Directive: "\"try_files\"",
+											Args:      []string{"\"/abc/${uri}\"", "\"/abc/${uri}.html\"", "\"=404\""},
 											Line:      19,
 											Comment:   "",
 											File:      "",
@@ -427,7 +427,7 @@ func TestParse(t *testing.T) {
 									Block: []Block{
 										{
 											Directive: "\"return\"",
-											Args:      []string{"302", "/status.html"},
+											Args:      []string{"\"302\"", "\"/status.html\""},
 											Line:      22,
 											Comment:   "",
 											File:      "",
@@ -438,14 +438,14 @@ func TestParse(t *testing.T) {
 
 								{
 									Directive: "\"location\"",
-									Args:      []string{"/upstream_conf"},
+									Args:      []string{"\"/upstream_conf\""},
 									Line:      23,
 									Comment:   "",
 									File:      "",
 									Block: []Block{
 										{
 											Directive: "\"return\"",
-											Args:      []string{"200", "/status.html"},
+											Args:      []string{"\"200\"", "\"/status.html\""},
 											Line:      23,
 											Comment:   "",
 											File:      "",
@@ -456,7 +456,7 @@ func TestParse(t *testing.T) {
 							},
 						},
 						{
-							Directive: "server",
+							Directive: "\"server\"",
 							Args:      []string{},
 							Line:      24,
 							Comment:   "",
@@ -477,13 +477,6 @@ func TestParse(t *testing.T) {
 		if len(parsed.Config) < 1 {
 			t.Errorf("No configurations parsed for %s", tes.arg.FileName)
 		}
-		/*if len(tes.config) > 0 {
-			tes.config[].Directive = "\"" + tes.config[].Directive + "\""
-		}
-		if len(tes.config[0].Args) > 0 {
-			quote := "\"" + strings.Join(tes.config[0].Args, "") + "\""
-			tes.config[0].Args = append(tes.config[0].Args, quote)
-		}*/
 		par := parsed.Config[0].Parsed
 		for p := 0; p < len(par); p++ {
 			o := compareBlocks(par[p], tes.config[p])
