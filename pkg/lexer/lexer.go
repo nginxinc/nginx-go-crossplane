@@ -3,7 +3,6 @@ package lexer
 import (
 	"bufio"
 	"bytes"
-	"fmt"
 	"io"
 	"strings"
 )
@@ -112,7 +111,7 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 			} else {
 				isLua = false
 			}
-			fmt.Println(accum)
+			//fmt.Println(accum)
 			return i + 2, accum, isLua, nil
 		}
 		skip = false

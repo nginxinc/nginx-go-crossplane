@@ -477,16 +477,27 @@ func TestParse(t *testing.T) {
 		if len(parsed.Config) < 1 {
 			t.Errorf("No configurations parsed for %s", tes.arg.FileName)
 		}
+		/*if len(tes.config) > 0 {
+			tes.config[].Directive = "\"" + tes.config[].Directive + "\""
+		}
+		if len(tes.config[0].Args) > 0 {
+			quote := "\"" + strings.Join(tes.config[0].Args, "") + "\""
+			tes.config[0].Args = append(tes.config[0].Args, quote)
+		}*/
 		par := parsed.Config[0].Parsed
 		for p := 0; p < len(par); p++ {
 			o := compareBlocks(par[p], tes.config[p])
 			if o != "" {
 				t.Error(o)
 			}
+			s := fmt.Sprintf("\n %v \n", tes.config[p])
+			fmt.Println(s)
+			f := fmt.Sprintf("\n %v \n", par[p])
+			fmt.Println(f)
 		}
 
-		s := fmt.Sprintf("\n %v \n", parsed)
-		fmt.Println(s)
+		/*s := fmt.Sprintf("\n %v \n", parsed)
+		fmt.Println(s)*/
 
 		if err != nil {
 			fmt.Println("something")
