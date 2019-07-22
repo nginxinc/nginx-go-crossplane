@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"bytes"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -242,6 +243,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			//fmt.Println(token.Item)
 			block.Args = append(block.Args, token.Item)
 			//fmt.Println(block.Args)
+			//fmt.Println(strings.HasPrefix(block.Args[1], "\""))
+			//fmt.Println(strings.HasSuffix(block.Args[len(block.Args)-1], "\""))
 			token = <-tokens
 		}
 
@@ -257,7 +260,8 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			continue
 		}
 
-		if block.Directive == "if" {
+		if block.Directive == "\"if\"" {
+			//fmt.Println(strings.HasPrefix(block.Args[0], "\""))
 			block.Args = removeBrackets(block.Args)
 		}
 		stmt := analyzer.Statement{
@@ -266,7 +270,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 			Line:      block.Line,
 		}
 
-		if stmt.Directive != "" && stmt.Directive != "if" {
+		if stmt.Directive != "" && stmt.Directive != "\"if\"" {
 			e := analyzer.Analyze(parsing.File, stmt, token.Item, ctx, args.Strict, args.CheckCtx, args.CheckArgs)
 			if e != nil {
 				if args.CatchErrors {
@@ -288,7 +292,7 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 				}
 			}
 		}
-		if !args.Single && block.Directive == "include" {
+		if !args.Single && block.Directive == "\"include\"" {
 			a := block.Args
 			configDir := filepath.Dir(args.FileName)
 			pattern := a[0]
@@ -362,14 +366,30 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 }
 
 func removeBrackets(s []string) []string {
-	if strings.HasPrefix(s[0], "(") && strings.HasSuffix(s[len(s)-1], ")") {
-		s[0] = strings.TrimPrefix(s[0], "(")
-		s[len(s)-1] = strings.TrimSuffix(s[len(s)-1], ")")
-		if s[len(s)-1] == "" {
-			s = s[:len(s)-1]
+	m := make([]string, 0)
+	n := make([]string, 0)
+	for _, stmt := range s {
+		b := []byte(stmt)
+
+		if b[0] == '"' {
+			b = bytes.Replace(b[0:], []byte(string("\"")), []byte(""), 1)
+			b = bytes.Replace(b[:len(b)-1], []byte(string("\"")), []byte(""), 1)
+			m = append(m, string(b))
+		}
+		if strings.HasPrefix(m[0], "(") && strings.HasSuffix(m[len(m)-1], ")") {
+			m[0] = strings.TrimPrefix(m[0], "(")
+			m[len(m)-1] = strings.TrimSuffix(m[len(m)-1], ")")
+			if m[len(m)-1] == "" {
+				m = m[:len(m)-1]
+			}
 		}
 	}
-	return s
+	for _, stmt1 := range m {
+		q := "\"" + stmt1 + "\""
+		b1 := []byte(q)
+		n = append(n, string(b1))
+	}
+	return n
 }
 
 func checkIncluded(fname string, included []string) bool {
@@ -432,7 +452,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 			if len(block.Block) > 0 {
 				block.Block = performIncludes(block.Block)
 			}
-			if block.Directive == "include" {
+			if block.Directive == "\"include\"" {
 				for _, f := range block.Args {
 					config := findFile(f, oldConfig)
 					g := performIncludes(config)

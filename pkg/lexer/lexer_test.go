@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -100,10 +99,10 @@ func TestLexScanner(t *testing.T) {
 		i := 0
 		for token := range actual {
 			result := reflect.DeepEqual(tt.expected[i], token)
-
-			s := fmt.Sprintf("%q \n", token)
-			fmt.Println(s)
-
+			/*
+				s := fmt.Sprintf("%q \n", token)
+				fmt.Println(s)
+			*/
 			if !result {
 				t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected[i], token)
 

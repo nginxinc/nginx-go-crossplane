@@ -483,10 +483,12 @@ func TestParse(t *testing.T) {
 			if o != "" {
 				t.Error(o)
 			}
-			s := fmt.Sprintf("\n %v \n", tes.config[p])
-			fmt.Println(s)
-			f := fmt.Sprintf("\n %v \n", par[p])
-			fmt.Println(f)
+			/*
+				s := fmt.Sprintf("\n %v \n", tes.config[p])
+				fmt.Println(s)
+				f := fmt.Sprintf("\n %v \n", par[p])
+				fmt.Println(f)
+			*/
 		}
 
 		/*s := fmt.Sprintf("\n %v \n", parsed)
