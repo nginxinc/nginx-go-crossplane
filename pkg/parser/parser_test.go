@@ -336,7 +336,7 @@ func TestParse(t *testing.T) {
 									Block:     []Block{},
 								},
 								{
-									Directive: "'root'",
+									Directive: "\"root\"", //"'root'"
 									Args:      []string{"\"/usr/share/nginx/html\""},
 									Line:      13,
 									Comment:   "",
