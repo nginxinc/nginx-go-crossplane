@@ -87,18 +87,11 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 	skip := false
 
 	for i, b := range data[1:] {
-		//fmt.Println(b)
 		if b == delim && !skip {
-			//fmt.Println(b)
 			if delim == '"' && len(accum) > 1 {
-				//delim = data[1]
 				accum = append(accum, delim)
-				//first := accum[0:]
 				accum = bytes.Replace(accum[0:], []byte(string("\"")), []byte(""), 1)
-				//last := accum[0 : len(accum)-1]
 				accum = bytes.Replace(accum[:len(accum)-1], []byte(string("\"")), []byte(""), 0)
-				//accum = append(accum, '\'')
-				//accum = append(accum, '\'')
 			} else if delim == '\'' && len(accum) > 1 {
 				accum = append(accum, delim)
 				accum = bytes.Replace(accum[0:], []byte(string('\'')), []byte(""), 1)
@@ -111,7 +104,6 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 			} else {
 				isLua = false
 			}
-			//fmt.Println(accum)
 			return i + 2, accum, isLua, nil
 		}
 		skip = false

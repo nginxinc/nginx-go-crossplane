@@ -141,26 +141,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 		c.File = fp
 
 		re, err := ioutil.ReadFile(fp)
-		//fmt.Println(re)
 
-		/*
-			var words []byte
-			first := re[0]
-			//words = append(words, first)
-			for _, b := range re[1:] {
-				if b == first {
-					if first == '"' && len(re) > 1 {
-						re = append(re, first)
-						re = bytes.Replace(re[0:], []byte(string("\"")), []byte("\"\""), 1)
-						re = bytes.Replace(re[:len(re)-1], []byte(string("\"")), []byte("\"\""), 0)
-					} else {
-						re = append(re, first)
-					}
-				}
-			}
-		*/
-
-		//fmt.Println(re)
 		if err != nil {
 			if a.CatchErrors {
 				handleErrors(c, err, 0)
@@ -170,9 +151,8 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			}
 		}
 		tokens := lexer.LexScanner(string(re))
-		//fmt.Println(tokens)
 		c.Parsed, e = parse(c, tokens, a, includes[f], false)
-		//fmt.Println(c.Parsed)
+
 		if e != nil {
 			return payload, e
 		}
@@ -197,8 +177,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		block.Args = make([]string, 0)
 		block.Directive = "\"" + token.Item + "\""
 		block.Line = token.LineNum
-
-		//fmt.Println(token.Item)
 
 		if token.Item == "}" {
 			break
@@ -227,24 +205,9 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		//isQuoted := false
 		for token.Item != ";" && token.Item != "{" && token.Item != "}" { //&& !isQuoted {
 			token.Item = "\"" + token.Item + "\""
-			//fmt.Println(token.Item)
-			/*if token.Item == "\"" {
-				isQuoted = !isQuoted
-				//token.Item = "\"" + token.Item + "\""
-			} else if token.Item == "'" {
-				isQuoted = !isQuoted
-				//token.Item = "'" + token.Item + "'"
-			}*/
-			/*	if token.Item == "\"" && !isQuoted {
-					token.Item = "\"" + token.Item + "\""
-				} else if token.Item == "'" && !isQuoted {
-					token.Item = "'" + token.Item + "'"
-				}*/
-			//fmt.Println(token.Item)
+
 			block.Args = append(block.Args, token.Item)
-			//fmt.Println(block.Args)
-			//fmt.Println(strings.HasPrefix(block.Args[1], "\""))
-			//fmt.Println(strings.HasSuffix(block.Args[len(block.Args)-1], "\""))
+
 			token = <-tokens
 		}
 
@@ -261,7 +224,6 @@ func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx 
 		}
 
 		if block.Directive == "\"if\"" {
-			//fmt.Println(strings.HasPrefix(block.Args[0], "\""))
 			block.Args = removeBrackets(block.Args)
 		}
 		stmt := analyzer.Statement{
