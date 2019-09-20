@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/nginxinc/crossplane-go/pkg/parser"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 )
 
 func TestBuilder(t *testing.T) {

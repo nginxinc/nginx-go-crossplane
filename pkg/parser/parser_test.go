@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/nginxinc/crossplane-go/pkg/lexer"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
 )
 
 func TestParse(t *testing.T) {

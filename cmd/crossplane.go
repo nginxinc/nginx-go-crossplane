@@ -7,9 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nginxinc/crossplane-go/pkg/builder"
-	"github.com/nginxinc/crossplane-go/pkg/lexer"
-	"github.com/nginxinc/crossplane-go/pkg/parser"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/builder"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +19,7 @@ var rootCmd = &cobra.Command{
 	Long: `A quick and reliable way to convert NGINX configurations into JSON and back.
 
 built with ❤ by nginxinc and gophers who live in Cork and are from Cork
-Complete documentation is available at: https://github.com/nginxinc/crossplane-go
+Complete documentation is available at: https://gitswarm.f5net.com/indigo/poc/crossplane-go
 	`,
 }
 

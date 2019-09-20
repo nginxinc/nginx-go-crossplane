@@ -4,8 +4,8 @@ VERSION = 0.0.1
 TAG = $(VERSION)
 PREFIX = nginx/crossplane-go
 
-DOCKER_RUN = docker run --rm -v $(shell pwd):/go/src/github.com/nginxinc/crossplane-go
-DOCKER_BUILD_RUN = docker run --rm -v $(shell pwd):/go/src/github.com/nginxinc/crossplane-go -w /go/src/github.com/nginxinc/crossplane-go
+DOCKER_RUN = docker run --rm -v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go
+DOCKER_BUILD_RUN = docker run --rm -v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go -w /go/src/gitswarm.f5net.com/indigo/poc/crossplane-go
 BUILD_IN_CONTAINER = 1
 DOCKERFILEPATH = build
 GOLANG_CONTAINER = golang:1.12
@@ -20,14 +20,14 @@ dependencies:
 
 build:
 ifeq ($(BUILD_IN_CONTAINER),1)
-	$(DOCKER_BUILD_RUN) -e CGO_ENABLED=0 $(GOLANG_CONTAINER) go build -installsuffix cgo -ldflags "-w" -o /go/src/github.com/nginxinc/crossplane-go/crossplane-go
+	$(DOCKER_BUILD_RUN) -e CGO_ENABLED=0 $(GOLANG_CONTAINER) go build -installsuffix cgo -ldflags "-w" -o /go/src/gitswarm.f5net.com/indigo/poc/crossplane-go/crossplane-go
 else
-	CGO_ENABLED=0 GOOS=linux go build -installsuffix cgo -ldflags "-w" -o crossplane-go github.com/nginxinc/crossplane-go/cmd/crossplane.go
+	CGO_ENABLED=0 GOOS=linux go build -installsuffix cgo -ldflags "-w" -o crossplane-go gitswarm.f5net.com/indigo/poc/crossplane-go/cmd/crossplane.go
 endif
 
 test:
 ifeq ($(BUILD_IN_CONTAINER),1)
-	docker run --rm -v $(shell pwd):/go/src/github.com/nginxinc/crossplane-go \
+	docker run --rm -v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go \
 	$(shell docker build -f ./build/Dockerfile -q .) \
 	go test $(shell go list ./... | grep -v /vendor/)
 else

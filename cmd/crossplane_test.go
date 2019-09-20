@@ -11,8 +11,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/nginxinc/crossplane-go/pkg/builder"
-	"github.com/nginxinc/crossplane-go/pkg/parser"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/builder"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 )
 
 func TestParseAndBuild(t *testing.T) {

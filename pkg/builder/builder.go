@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/nginxinc/crossplane-go/pkg/parser"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 )
 
 var padding string
