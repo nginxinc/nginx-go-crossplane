@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/analyzer"
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go.git/pkg/analyzer"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go.git/pkg/lexer"
 )
 
 // ParseArgs -

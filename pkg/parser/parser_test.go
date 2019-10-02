@@ -5,7 +5,7 @@ import (
 	"io/ioutil"
 	"testing"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go.git/pkg/lexer"
 )
 
 var tests = []struct {
