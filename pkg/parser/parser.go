@@ -164,6 +164,59 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 
 }
 
+// ParseString - Parses an nginx config string and returns json payload
+//   :param filename: string containing the filename associated with the config
+//   :param config: string containing the nginx config contents to parse
+//   :param catch_errors: bool; if False, parse stops after first error
+//   :param ignore: list or slice of directives to exclude from the payload
+//   :param combine: bool; if True, use includes to create a single config obj
+//   :param single: bool; if True, including from other files doesn't happen
+//   :param comments: bool; if True, including comments to json payload
+//   :param strict: bool; if True, unrecognized directives raise errors
+//   :param check_ctx: bool; if True, runs context analysis on directives
+//   :param check_args: bool; if True, runs arg count analysis on directives
+//   :returns: a payload that describes the parsed nginx config
+func ParseString(filename, config string, ignore []string, catcherr, single, comment, strict,
+	combine, consume, checkctx, checkargs bool) (Payload, error) {
+
+	a := ParseArgs{
+		FileName:    filename,
+		CatchErrors: catcherr,
+		Ignore:      ignore,
+		Single:      single,
+		Comments:    comment,
+		Strict:      strict,
+		Combine:     combine,
+		Consume:     consume,
+		CheckCtx:    checkctx,
+		CheckArgs:   checkargs,
+	}
+	payload = Payload{
+		Status: "ok",
+		Errors: []ParseError{},
+		Config: []Config{},
+		File:   filename,
+	}
+	c := Config{
+		File:   filename,
+		Status: "ok",
+		Errors: []ParseError{},
+		Parsed: []Block{},
+	}
+
+	ctx := [3]string{}
+	tokens := lexer.LexScanner(string(config))
+	var e error
+	c.Parsed, e = parse(c, tokens, a, ctx, false)
+	if e != nil {
+		return payload, e
+	}
+	payload.Config = append(payload.Config, c)
+
+	return payload, nil
+
+}
+
 func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, error) {
 	var o []Block
 	var e error
