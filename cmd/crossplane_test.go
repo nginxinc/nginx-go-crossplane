@@ -11,8 +11,8 @@ import (
 	"reflect"
 	"testing"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go.git/pkg/builder"
-	"gitswarm.f5net.com/indigo/poc/crossplane-go.git/pkg/parser"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/builder"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 )
 
 func TestParseAndBuild(t *testing.T) {

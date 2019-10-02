@@ -1,5 +1,3 @@
-.phony: container build lint clean test exec
-
 all: container
 
 VERSION = 0.0.1
@@ -29,11 +27,9 @@ endif
 
 test:
 ifeq ($(BUILD_IN_CONTAINER),1)
-	docker run --rm \
-		-v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go \
-		-w /go/src/gitswarm.f5net.com/indigo/poc/crossplane-go \
-		$(shell docker build -f ./build/Dockerfile -q .) \
-		go test $(shell go list ./... | grep -v /vendor/)
+	docker run --rm -v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go \
+	$(shell docker build -f ./build/Dockerfile -q .) \
+	go test $(shell go list ./... | grep -v /vendor/)
 else
 	go test ./...
 endif
@@ -43,14 +39,3 @@ lint:
 
 clean:
 	rm -f crossplane-go
-
-exec:
-ifeq ($(BUILD_IN_CONTAINER),1)
-	docker run -it --rm \
-		-v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go \
-		-w /go/src/gitswarm.f5net.com/indigo/poc/crossplane-go \
-		$(shell docker build -f ./build/Dockerfile -q .) \
-	bash
-else
-	go test ./...
-endif

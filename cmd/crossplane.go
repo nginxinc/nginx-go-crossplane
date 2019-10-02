@@ -7,10 +7,10 @@ import (
 	"os"
 	"strings"
 
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/builder"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 	"github.com/spf13/cobra"
-	"gitswarm.f5net.com/indigo/poc/crossplane-go.git/pkg/builder"
-	"gitswarm.f5net.com/indigo/poc/crossplane-go.git/pkg/lexer"
-	"gitswarm.f5net.com/indigo/poc/crossplane-go.git/pkg/parser"
 )
 
 var rootCmd = &cobra.Command{
