@@ -1,3 +1,7 @@
+#### Repo-Index: Project validation for **crossplane-go** - `failed`
+
+- **Link to the validation page for checking the details:** [Check at REPO-index, project "crossplane-go"](https://gitswarm.f5net.com/indigo/repo-index/blob/master/repos_list.md#crossplane-go)
+
 # crossplane-go
 
 A quick and reliable way to convert NGINX configurations into JSON and back.
