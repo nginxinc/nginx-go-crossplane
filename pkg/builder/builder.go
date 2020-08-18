@@ -17,7 +17,7 @@ var spacing int
 // Build takes a string representing NGINX configuration
 // builds it into conf format and returns that as a string
 func Build(payload string, indent int, tabs, header bool) (string, error) {
-	data := []parser.Block{}
+	data := []*parser.Directive{}
 	err := json.Unmarshal([]byte(payload), &data)
 	if err != nil {
 		return "", fmt.Errorf("error unmarshalling payload: %v", err)
@@ -38,7 +38,7 @@ func Build(payload string, indent int, tabs, header bool) (string, error) {
 }
 
 // BuildBlock -
-func BuildBlock(output string, block []parser.Block, depth, lastline int) string {
+func BuildBlock(output string, block []*parser.Directive, depth, lastline int) string {
 	var built string
 	margin := strings.Repeat(padding, depth)
 	tab := ""

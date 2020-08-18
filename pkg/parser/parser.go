@@ -43,18 +43,18 @@ type Config struct {
 	File   string       `json:"file"`
 	Status string       `json:"status"`
 	Errors []ParseError `json:"errors"`
-	Parsed []Block      `json:"parsed"`
+	Parsed []*Directive `json:"parsed"`
 }
 
-// Block -
-type Block struct {
-	Directive string   `json:"directive"`
-	Line      int      `json:"line"`
-	Args      []string `json:"args"`
-	Includes  []int    `json:"includes,omitempty"`
-	Block     []Block  `json:"block,omitempty"`
-	File      string   `json:"file,omitempty"`
-	Comment   string   `json:"comment,omitempty"`
+// Directive -
+type Directive struct {
+	Directive string       `json:"directive"`
+	Line      int          `json:"line"`
+	Args      []string     `json:"args"`
+	Includes  []int        `json:"includes,omitempty"`
+	Block     []*Directive `json:"block,omitempty"`
+	File      string       `json:"file,omitempty"`
+	Comment   string       `json:"comment,omitempty"`
 }
 
 // ParseError -
@@ -125,7 +125,7 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 			File:   f,
 			Status: "ok",
 			Errors: []ParseError{},
-			Parsed: []Block{},
+			Parsed: []*Directive{},
 		}
 
 		fp, err := filepath.Abs(f)
@@ -201,7 +201,7 @@ func ParseString(filename, config string, ignore []string, catcherr, single, com
 		File:   filename,
 		Status: "ok",
 		Errors: []ParseError{},
-		Parsed: []Block{},
+		Parsed: []*Directive{},
 	}
 
 	ctx := [3]string{}
@@ -217,16 +217,17 @@ func ParseString(filename, config string, ignore []string, catcherr, single, com
 
 }
 
-func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]Block, error) {
-	var o []Block
+func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]*Directive, error) {
+	var o []*Directive
 	var e error
 	for token := range tokens {
 
-		var block Block
-		block.Includes = make([]int, 0)
-		block.Args = make([]string, 0)
-		block.Directive = token.Item
-		block.Line = token.LineNum
+		block := &Directive{
+			Args:      make([]string, 0),
+			Directive: token.Item,
+			Includes:  make([]int, 0),
+			Line:      token.LineNum,
+		}
 
 		if token.Item == "}" {
 			break
@@ -441,9 +442,9 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 		return Payload{}, errors.New("Input pyload config is nil")
 	}
 	oldConfig := p.Config
-	var performIncludes func(b []Block) []Block
-	performIncludes = func(b []Block) []Block {
-		var returnBlock []Block
+	var performIncludes func(b []*Directive) []*Directive
+	performIncludes = func(b []*Directive) []*Directive {
+		var returnBlock []*Directive
 		for _, block := range b {
 			if len(block.Block) > 0 {
 				block.Block = performIncludes(block.Block)
@@ -465,7 +466,7 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 		File:   oldConfig[0].File,
 		Status: "ok",
 		Errors: []ParseError{},
-		Parsed: []Block{},
+		Parsed: []*Directive{},
 	}
 
 	for _, config := range oldConfig {
@@ -486,11 +487,11 @@ func combineParsedConfigs(p Payload) (Payload, error) {
 	return combinePayload, nil
 }
 
-func findFile(f string, config []Config) []Block {
+func findFile(f string, config []Config) []*Directive {
 	for _, i := range config {
 		if i.File == f {
 			return i.Parsed
 		}
 	}
-	return []Block{}
+	return []*Directive{}
 }

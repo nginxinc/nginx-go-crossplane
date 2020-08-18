@@ -12,12 +12,12 @@ import (
 func TestBuilder(t *testing.T) {
 	var tests = []struct {
 		title    string
-		input    []parser.Block
+		input    []*parser.Directive
 		expected string
 	}{
 		{
 			"basic: build with comments",
-			[]parser.Block{
+			[]*parser.Directive{
 				{
 					Directive: "http",
 					Args:      []string{},
@@ -25,7 +25,7 @@ func TestBuilder(t *testing.T) {
 					Includes:  []int{},
 					File:      "",
 					Comment:   "",
-					Block: []parser.Block{
+					Block: []*parser.Directive{
 						{
 							Directive: "server",
 							Args:      []string{},
@@ -33,7 +33,7 @@ func TestBuilder(t *testing.T) {
 							Includes:  []int{},
 							File:      "",
 							Comment:   "",
-							Block: []parser.Block{
+							Block: []*parser.Directive{
 								{
 									Directive: "listen",
 									Args:      []string{"127.0.0.1:8080"},
@@ -41,7 +41,7 @@ func TestBuilder(t *testing.T) {
 									Includes:  []int{},
 									File:      "",
 									Comment:   "",
-									Block:     []parser.Block{},
+									Block:     []*parser.Directive{},
 								},
 								{
 									Directive: "#",
@@ -50,7 +50,7 @@ func TestBuilder(t *testing.T) {
 									Includes:  []int{},
 									File:      "",
 									Comment:   "listen",
-									Block:     []parser.Block{},
+									Block:     []*parser.Directive{},
 								},
 								{
 									Directive: "server_name",
@@ -59,7 +59,7 @@ func TestBuilder(t *testing.T) {
 									Includes:  []int{},
 									File:      "",
 									Comment:   "",
-									Block:     []parser.Block{},
+									Block:     []*parser.Directive{},
 								},
 								{
 									Directive: "location",
@@ -68,7 +68,7 @@ func TestBuilder(t *testing.T) {
 									Includes:  []int{},
 									File:      "",
 									Comment:   "",
-									Block:     []parser.Block{},
+									Block:     []*parser.Directive{},
 								},
 								{
 									Directive: "#",
@@ -77,7 +77,7 @@ func TestBuilder(t *testing.T) {
 									Includes:  []int{},
 									File:      "",
 									Comment:   "# this is brace",
-									Block:     []parser.Block{},
+									Block:     []*parser.Directive{},
 								},
 							},
 						},
@@ -95,7 +95,7 @@ http {
 		},
 		{
 			"basic: build nested and multiple args",
-			[]parser.Block{
+			[]*parser.Directive{
 				{
 					Directive: "events",
 					Args:      []string{},
@@ -103,7 +103,7 @@ http {
 					Includes:  []int{},
 					File:      "",
 					Comment:   "",
-					Block: []parser.Block{
+					Block: []*parser.Directive{
 						{
 							Directive: "worker_connections",
 							Args:      []string{"1024"},
@@ -111,7 +111,7 @@ http {
 							Includes:  []int{},
 							File:      "",
 							Comment:   "",
-							Block:     []parser.Block{},
+							Block:     []*parser.Directive{},
 						},
 					},
 				},
@@ -122,7 +122,7 @@ http {
 					Includes:  []int{},
 					File:      "",
 					Comment:   "",
-					Block: []parser.Block{
+					Block: []*parser.Directive{
 						{
 							Directive: "server",
 							Args:      []string{},
@@ -130,7 +130,7 @@ http {
 							Includes:  []int{},
 							File:      "",
 							Comment:   "",
-							Block: []parser.Block{
+							Block: []*parser.Directive{
 								{
 									Directive: "listen",
 									Args:      []string{"127.0.0.1:8080"},
@@ -138,7 +138,7 @@ http {
 									Includes:  []int{},
 									File:      "",
 									Comment:   "",
-									Block:     []parser.Block{},
+									Block:     []*parser.Directive{},
 								},
 								{
 									Directive: "server_name",
@@ -147,7 +147,7 @@ http {
 									Includes:  []int{},
 									File:      "",
 									Comment:   "",
-									Block:     []parser.Block{},
+									Block:     []*parser.Directive{},
 								},
 								{
 									Directive: "location",
@@ -156,7 +156,7 @@ http {
 									Includes:  []int{},
 									File:      "",
 									Comment:   "",
-									Block: []parser.Block{
+									Block: []*parser.Directive{
 										{
 											Directive: "return",
 											Args:      []string{"200", "foo bar baz"},
@@ -164,7 +164,7 @@ http {
 											Includes:  []int{},
 											File:      "",
 											Comment:   "",
-											Block:     []parser.Block{},
+											Block:     []*parser.Directive{},
 										},
 									},
 								},
@@ -189,7 +189,7 @@ http {
 		},
 		{
 			"basic: build include regular",
-			[]parser.Block{
+			[]*parser.Directive{
 				{
 					Directive: "events",
 					Args:      []string{},
@@ -197,7 +197,7 @@ http {
 					Includes:  []int{},
 					File:      "",
 					Comment:   "",
-					Block:     []parser.Block{},
+					Block:     []*parser.Directive{},
 				},
 				{
 					Directive: "http",
@@ -206,7 +206,7 @@ http {
 					Includes:  []int{},
 					File:      "",
 					Comment:   "",
-					Block: []parser.Block{
+					Block: []*parser.Directive{
 						{
 							Directive: "include",
 							Args:      []string{"conf.d/server.conf"},
@@ -214,7 +214,7 @@ http {
 							Includes:  []int{1},
 							File:      "",
 							Comment:   "",
-							Block:     []parser.Block{},
+							Block:     []*parser.Directive{},
 						},
 					},
 				},
@@ -227,7 +227,7 @@ http {
 		},
 		{
 			"basic: start with comment",
-			[]parser.Block{
+			[]*parser.Directive{
 				{
 					Directive: "#",
 					Args:      []string{},
@@ -235,7 +235,7 @@ http {
 					Includes:  []int{},
 					File:      "",
 					Comment:   "comment",
-					Block:     []parser.Block{},
+					Block:     []*parser.Directive{},
 				},
 				{
 					Directive: "http",
@@ -244,7 +244,7 @@ http {
 					Includes:  []int{},
 					File:      "",
 					Comment:   "",
-					Block: []parser.Block{
+					Block: []*parser.Directive{
 						{
 							Directive: "server",
 							Args:      []string{},
@@ -252,7 +252,7 @@ http {
 							Includes:  []int{},
 							File:      "",
 							Comment:   "",
-							Block:     []parser.Block{},
+							Block:     []*parser.Directive{},
 						},
 					},
 				},
@@ -306,7 +306,7 @@ func TestBuildFile(t *testing.T) {
 						File:   "config/simple.conf",
 						Status: "ok",
 						Errors: []parser.ParseError{},
-						Parsed: []parser.Block{
+						Parsed: []*parser.Directive{
 							{
 								Directive: "events",
 								Line:      1,
@@ -314,7 +314,7 @@ func TestBuildFile(t *testing.T) {
 								Includes:  []int{},
 								File:      "",
 								Comment:   "",
-								Block: []parser.Block{
+								Block: []*parser.Directive{
 									{
 										Directive: "worker_connections",
 										Line:      2,
@@ -322,7 +322,7 @@ func TestBuildFile(t *testing.T) {
 										Includes:  []int{},
 										File:      "",
 										Comment:   "",
-										Block:     []parser.Block{},
+										Block:     []*parser.Directive{},
 									},
 								},
 							},
@@ -333,7 +333,7 @@ func TestBuildFile(t *testing.T) {
 								Includes:  []int{},
 								File:      "",
 								Comment:   "",
-								Block: []parser.Block{
+								Block: []*parser.Directive{
 									{
 										Directive: "server",
 										Line:      6,
@@ -341,7 +341,7 @@ func TestBuildFile(t *testing.T) {
 										Includes:  []int{},
 										File:      "",
 										Comment:   "",
-										Block: []parser.Block{
+										Block: []*parser.Directive{
 											{
 												Directive: "listen",
 												Args:      []string{"127.0.0.1:8080"},
@@ -349,7 +349,7 @@ func TestBuildFile(t *testing.T) {
 												Includes:  []int{},
 												File:      "",
 												Comment:   "",
-												Block:     []parser.Block{},
+												Block:     []*parser.Directive{},
 											},
 											{
 												Directive: "server_name",
@@ -358,7 +358,7 @@ func TestBuildFile(t *testing.T) {
 												Includes:  []int{},
 												File:      "",
 												Comment:   "",
-												Block:     []parser.Block{},
+												Block:     []*parser.Directive{},
 											},
 											{
 												Directive: "location",
@@ -367,7 +367,7 @@ func TestBuildFile(t *testing.T) {
 												Includes:  []int{},
 												File:      "",
 												Comment:   "",
-												Block: []parser.Block{
+												Block: []*parser.Directive{
 													{
 														Directive: "return",
 														Args:      []string{"200", "foo bar baz"},
@@ -375,7 +375,7 @@ func TestBuildFile(t *testing.T) {
 														Includes:  []int{},
 														File:      "",
 														Comment:   "",
-														Block:     []parser.Block{},
+														Block:     []*parser.Directive{},
 													},
 												},
 											},
@@ -412,7 +412,7 @@ http {
 						File:   "config/withComments.conf",
 						Status: "ok",
 						Errors: []parser.ParseError{},
-						Parsed: []parser.Block{
+						Parsed: []*parser.Directive{
 							{
 								Directive: "http",
 								Args:      []string{},
@@ -420,7 +420,7 @@ http {
 								Includes:  []int{},
 								File:      "",
 								Comment:   "",
-								Block: []parser.Block{
+								Block: []*parser.Directive{
 									{
 										Directive: "server",
 										Args:      []string{},
@@ -428,7 +428,7 @@ http {
 										Includes:  []int{},
 										File:      "",
 										Comment:   "",
-										Block: []parser.Block{
+										Block: []*parser.Directive{
 											{
 												Directive: "listen",
 												Args:      []string{"127.0.0.1:8080"},
@@ -436,7 +436,7 @@ http {
 												Includes:  []int{},
 												File:      "",
 												Comment:   "",
-												Block:     []parser.Block{},
+												Block:     []*parser.Directive{},
 											},
 											{
 												Directive: "#",
@@ -445,7 +445,7 @@ http {
 												Includes:  []int{},
 												File:      "",
 												Comment:   "listen",
-												Block:     []parser.Block{},
+												Block:     []*parser.Directive{},
 											},
 										},
 									},
