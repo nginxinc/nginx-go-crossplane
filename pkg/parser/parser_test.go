@@ -13,7 +13,7 @@ var tests = []struct {
 	arg      ParseArgs
 	file     string
 	testdata []lexer.LexicalItem
-	config   []Block
+	config   []*Directive
 }{
 	{
 
@@ -56,21 +56,21 @@ var tests = []struct {
 			{Item: "}", LineNum: 13},
 		},
 		// need payload struct
-		[]Block{
+		[]*Directive{
 			{
 				Directive: "events",
 				Line:      1,
 				Args:      []string{},
 				File:      "",
 				Comment:   "",
-				Block: []Block{
+				Block: []*Directive{
 					{
 						Directive: "worker_connections",
 						Line:      2,
 						Args:      []string{"1024"},
 						File:      "",
 						Comment:   "",
-						Block:     []Block{},
+						Block:     []*Directive{},
 					},
 				},
 			},
@@ -80,21 +80,21 @@ var tests = []struct {
 				Args:      []string{},
 				File:      "",
 				Comment:   "",
-				Block: []Block{
+				Block: []*Directive{
 					{
 						Directive: "server",
 						Line:      6,
 						Args:      []string{},
 						File:      "",
 						Comment:   "",
-						Block: []Block{
+						Block: []*Directive{
 							{
 								Directive: "listen",
 								Args:      []string{"127.0.0.1:8080"},
 								Line:      7,
 								File:      "",
 								Comment:   "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "server_name",
@@ -102,7 +102,7 @@ var tests = []struct {
 								Line:      8,
 								File:      "",
 								Comment:   "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
@@ -110,14 +110,14 @@ var tests = []struct {
 								Line:      9,
 								File:      "",
 								Comment:   "",
-								Block: []Block{
+								Block: []*Directive{
 									{
 										Directive: "return",
 										Args:      []string{"200", "\"foo bar baz\""},
 										Line:      10,
 										File:      "",
 										Comment:   "",
-										Block:     []Block{},
+										Block:     []*Directive{},
 									},
 								},
 							},
@@ -153,28 +153,28 @@ var tests = []struct {
 			{Item: "}", LineNum: 4},
 			{Item: "}", LineNum: 5},
 		},
-		[]Block{
+		[]*Directive{
 			{
 				Directive: "http",
 				Args:      []string{},
 				Line:      1,
 				File:      "",
 				Comment:   "",
-				Block: []Block{
+				Block: []*Directive{
 					{
 						Directive: "server",
 						Args:      []string{},
 						Line:      2,
 						File:      "",
 						Comment:   "",
-						Block: []Block{
+						Block: []*Directive{
 							{
 								Directive: "listen",
 								Args:      []string{"127.0.0.1:8080"},
 								Line:      3,
 								File:      "",
 								Comment:   "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "#",
@@ -182,7 +182,7 @@ var tests = []struct {
 								Line:      3,
 								File:      "",
 								Comment:   "listen",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 						},
 					},
@@ -214,14 +214,14 @@ var tests = []struct {
 			{Item: ";", LineNum: 3},
 			{Item: "}", LineNum: 3},
 		},
-		[]Block{
+		[]*Directive{
 			{
 				Directive: "user",
 				Args:      []string{"nobody"},
 				Line:      1,
 				File:      "",
 				Comment:   "",
-				Block:     []Block{},
+				Block:     []*Directive{},
 			},
 			{
 				Directive: "#",
@@ -229,7 +229,7 @@ var tests = []struct {
 				Line:      2,
 				File:      "",
 				Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\",
-				Block:     []Block{},
+				Block:     []*Directive{},
 			},
 			{
 				Directive: "\"events\"",
@@ -237,14 +237,14 @@ var tests = []struct {
 				Line:      3,
 				File:      "",
 				Comment:   "",
-				Block: []Block{
+				Block: []*Directive{
 					{
 						Directive: "\"worker_connections\"",
 						Args:      []string{"\"2048\""},
 						Line:      3,
 						Comment:   "",
 						File:      "",
-						Block:     []Block{},
+						Block:     []*Directive{},
 					},
 				},
 			},
@@ -254,14 +254,14 @@ var tests = []struct {
 				Line:      5,
 				Comment:   "",
 				File:      "",
-				Block: []Block{
+				Block: []*Directive{
 					{
 						Directive: "#",
 						Args:      []string{},
 						Line:      5,
 						Comment:   "forteen",
 						File:      "",
-						Block:     []Block{},
+						Block:     []*Directive{},
 					},
 					{
 						Directive: "#",
@@ -269,7 +269,7 @@ var tests = []struct {
 						Line:      6,
 						Comment:   " this is a comment",
 						File:      "",
-						Block:     []Block{},
+						Block:     []*Directive{},
 					},
 					{
 						Directive: "\"access_log\"",
@@ -277,7 +277,7 @@ var tests = []struct {
 						Line:      7,
 						Comment:   "",
 						File:      "",
-						Block:     []Block{},
+						Block:     []*Directive{},
 					},
 					{
 						Directive: "default_type",
@@ -285,7 +285,7 @@ var tests = []struct {
 						Line:      7,
 						Comment:   "",
 						File:      "",
-						Block:     []Block{},
+						Block:     []*Directive{},
 					},
 					{
 						Directive: "error_log",
@@ -293,7 +293,7 @@ var tests = []struct {
 						Line:      7,
 						Comment:   "",
 						File:      "",
-						Block:     []Block{},
+						Block:     []*Directive{},
 					},
 					{
 						Directive: "server",
@@ -301,14 +301,14 @@ var tests = []struct {
 						Line:      8,
 						Comment:   "",
 						File:      "",
-						Block: []Block{
+						Block: []*Directive{
 							{
 								Directive: "\"listen\"",
 								Args:      []string{"\"8083\""},
 								Line:      9,
 								Comment:   "",
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "\"return\"",
@@ -316,7 +316,7 @@ var tests = []struct {
 								Line:      10,
 								Comment:   "",
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 						},
 					},
@@ -326,14 +326,14 @@ var tests = []struct {
 						Line:      12,
 						Comment:   "",
 						File:      "",
-						Block: []Block{
+						Block: []*Directive{
 							{
 								Directive: "\"listen\"",
 								Args:      []string{"8080"},
 								Comment:   "",
 								Line:      12,
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "'root'",
@@ -341,7 +341,7 @@ var tests = []struct {
 								Line:      13,
 								Comment:   "",
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
@@ -349,14 +349,14 @@ var tests = []struct {
 								Comment:   "",
 								Line:      14,
 								File:      "",
-								Block: []Block{
+								Block: []*Directive{
 									{
 										Directive: "\"return\"",
 										Args:      []string{"301", "/status.html"},
 										Line:      14,
 										Comment:   "",
 										File:      "",
-										Block:     []Block{},
+										Block:     []*Directive{},
 									},
 								},
 							},
@@ -366,7 +366,7 @@ var tests = []struct {
 								Line:      15,
 								Comment:   "",
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
@@ -374,7 +374,7 @@ var tests = []struct {
 								Line:      15,
 								Comment:   "",
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
@@ -382,7 +382,7 @@ var tests = []struct {
 								Line:      16,
 								Comment:   "",
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "#",
@@ -390,7 +390,7 @@ var tests = []struct {
 								Line:      16,
 								Comment:   " hello",
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "if",
@@ -398,7 +398,7 @@ var tests = []struct {
 								Line:      17,
 								Comment:   "",
 								File:      "",
-								Block:     []Block{},
+								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
@@ -406,14 +406,14 @@ var tests = []struct {
 								Line:      18,
 								Comment:   "",
 								File:      "",
-								Block: []Block{
+								Block: []*Directive{
 									{
 										Directive: "try_files",
 										Args:      []string{"/abc/${uri}", "/abc/${uri}.html", "=404"},
 										Line:      19,
 										Comment:   "",
 										File:      "",
-										Block:     []Block{},
+										Block:     []*Directive{},
 									},
 								},
 							},
@@ -424,14 +424,14 @@ var tests = []struct {
 								Line:      21,
 								Comment:   "",
 								File:      "",
-								Block: []Block{
+								Block: []*Directive{
 									{
 										Directive: "\"return\"",
 										Args:      []string{"302", "/status.html"},
 										Line:      22,
 										Comment:   "",
 										File:      "",
-										Block:     []Block{},
+										Block:     []*Directive{},
 									},
 								},
 							},
@@ -442,14 +442,14 @@ var tests = []struct {
 								Line:      23,
 								Comment:   "",
 								File:      "",
-								Block: []Block{
+								Block: []*Directive{
 									{
 										Directive: "\"return\"",
 										Args:      []string{"200", "/status.html"},
 										Line:      23,
 										Comment:   "",
 										File:      "",
-										Block:     []Block{},
+										Block:     []*Directive{},
 									},
 								},
 							},
@@ -461,7 +461,7 @@ var tests = []struct {
 						Line:      24,
 						Comment:   "",
 						File:      "",
-						Block:     []Block{},
+						Block:     []*Directive{},
 					},
 				},
 			},
@@ -516,8 +516,18 @@ func TestParseString(t *testing.T) {
 		t.Logf("Parent block: %+v\n", par[0])
 	}
 }
+func BenchmarkParseString(b *testing.B) {
+	config := string(readTestData("nginx-full.conf"))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		// holy, fack!
+		if _, err := ParseString("benchmark", config, []string{}, true, false, true, true, false, false, false, false); err != nil {
+			b.Error(err)
+		}
+	}
+}
 
-func compareBlocks(gen Block, config Block) string {
+func compareBlocks(gen, config *Directive) string {
 	s := ""
 	if gen.Directive != config.Directive {
 		s += "df Error with directives : " + gen.Directive + " && " + config.Directive
