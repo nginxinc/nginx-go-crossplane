@@ -57,6 +57,16 @@ type Directive struct {
 	Comment   string       `json:"comment,omitempty"`
 }
 
+// IsComment returns true when the directive is a comment directive
+func (d *Directive) IsComment() bool {
+	return d.Directive == "#"
+}
+
+// IsIf returns true when the directive is an if directive
+func (d *Directive) IsIf() bool {
+	return d.Directive == "if"
+}
+
 // ParseError -
 type ParseError struct {
 	File  string       `json:"file"`
