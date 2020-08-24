@@ -1,8 +1,6 @@
 package builder
 
 import (
-	"encoding/json"
-	"reflect"
 	"strings"
 	"testing"
 
@@ -84,8 +82,7 @@ func TestBuilder(t *testing.T) {
 					},
 				},
 			},
-			`
-http {
+			`http {
     server {
         listen 127.0.0.1:8080; #listen
         server_name default_server;
@@ -173,8 +170,7 @@ http {
 					},
 				},
 			},
-			`
-events {
+			`events {
 	worker_connections 1024;
 }
 http {
@@ -219,9 +215,8 @@ http {
 					},
 				},
 			},
-			`
-events;
-http {    
+			`events;
+http {
 	include conf.d/server.conf;
 }`,
 		},
@@ -265,25 +260,25 @@ http {
 	}
 
 	for _, test := range tests {
-		out, err := json.Marshal(test.input)
-		if err != nil {
-			t.Errorf("Error %v", err)
-		}
-		result, err := Build(string(out), 4, false, false)
-		if err != nil {
-			t.Errorf(test.title, err)
-		}
-		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+		result := Build(test.input, &Options{Indent: 4, Tabs: false})
+		expected := strings.TrimLeft(
+			strings.ReplaceAll(test.expected, "\t", strings.Repeat(" ", 4)),
+			"\n",
+		)
 
-		for i := 0; i < len(test.expected); i++ {
-			if test.expected[i] != result[i] {
-				t.Error(test.title)
-			}
+		if expected != result {
+			t.Errorf("\nexpected:\n%s\ngot:\n%s\n", test.expected, result)
 		}
+	}
+}
 
-		if !reflect.DeepEqual(result, test.expected) {
-			t.Error(test.title)
-		}
+func BenchmarkBuild(b *testing.B) {
+	// TODO: The signature of Parse is well out of hand...
+	input, _ := parser.Parse("testdata/nginx-full.conf", false, []string{}, false, true, false, true, false, false, false)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		_ = Build(input.Config[0].Parsed, &Options{Indent: 4, Tabs: false})
 	}
 }
 
@@ -296,14 +291,14 @@ func TestBuildFile(t *testing.T) {
 	}{
 		{
 			"basic: simple build files",
-			"config/simple.conf",
+			"testdata/simple.conf",
 			parser.Payload{
 
 				Status: "ok",
 				Errors: []parser.ParseError{},
 				Config: []parser.Config{
 					{
-						File:   "config/simple.conf",
+						File:   "testdata/simple.conf",
 						Status: "ok",
 						Errors: []parser.ParseError{},
 						Parsed: []*parser.Directive{
@@ -402,14 +397,14 @@ http {
 		},
 		{
 			"basic: with comments build files",
-			"config/withComments.conf",
+			"testdata/with-comments.conf",
 			parser.Payload{
 
 				Status: "ok",
 				Errors: []parser.ParseError{},
 				Config: []parser.Config{
 					{
-						File:   "config/withComments.conf",
+						File:   "testdata/with-comments.conf",
 						Status: "ok",
 						Errors: []parser.ParseError{},
 						Parsed: []*parser.Directive{
@@ -469,10 +464,12 @@ http {
 			t.Error(test.title)
 		}
 
-		test.expected = strings.TrimLeft(test.expected, "\n")
-		test.expected = strings.Replace(test.expected, "\t", padding, -1)
+		expected := strings.TrimLeft(
+			strings.ReplaceAll(test.expected, "\t", strings.Repeat(" ", 4)),
+			"\n",
+		)
 
-		if result != test.expected {
+		if result != expected {
 			t.Error(test.title)
 		}
 	}

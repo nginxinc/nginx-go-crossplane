@@ -11,82 +11,78 @@ import (
 	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 )
 
-var padding string
-var spacing int
-
-// Build takes a string representing NGINX configuration
-// builds it into conf format and returns that as a string
-func Build(payload string, indent int, tabs, header bool) (string, error) {
-	data := []*parser.Directive{}
-	err := json.Unmarshal([]byte(payload), &data)
-	if err != nil {
-		return "", fmt.Errorf("error unmarshalling payload: %v", err)
-	}
-
-	if tabs {
-		padding = "\t"
-	} else {
-		padding = strings.Repeat(" ", indent)
-	}
-
-	spacing = indent
-	var b string
-
-	body := BuildBlock(b, data, 0, 0)
-
-	return body, nil
+type Options struct {
+	Indent int
+	Tabs   bool
 }
 
-// BuildBlock -
-func BuildBlock(output string, block []*parser.Directive, depth, lastline int) string {
-	var built string
-	margin := strings.Repeat(padding, depth)
-	tab := ""
-	line := lastline
-	for _, stmt := range block {
-		line++
-		if stmt.Directive == "#" && line == 1 {
-			output += "#" + stmt.Comment
-			continue
-		} else if line != 1 && stmt.Directive == "#" {
-			output += " #" + stmt.Comment
+// Build takes a parsed NGINX configuration and builds an NGINX configuration
+func Build(parsed []*parser.Directive, opts *Options) string {
+	b := strings.Builder{}
+	buildBlock(&b, parsed, 0, 0, opts)
+	return b.String()
+}
 
-		} else {
-
-			if stmt.Directive == "if" {
-				built = "if (" + strings.Join(stmt.Args, " ") + ")"
-			} else if len(stmt.Args) > 0 {
-				built = stmt.Directive + " " + strings.Join(stmt.Args, " ")
-			} else {
-				built = stmt.Directive
-			}
-
-			if len(stmt.Block) < 1 {
-				built += ";"
-			} else {
-				built += " {" + tab
-				built = BuildBlock(built, stmt.Block, depth+1, line)
-				built += "\n" + margin + "}"
-				if spacing != 0 {
-					spacing -= 4
-				}
-			}
-			if output != " " {
-				output += "\n" + margin + built
-			} else {
-				output += " " + margin + built
-			}
-			output = strings.Replace(output, "\t", padding, -1)
-
-		}
-		tab = strings.Repeat(" ", spacing)
+// BuildFromJSON takes NGINX configuration JSON and builds an NGINX configuration
+func BuildFromJSON(payload string, opts *Options) (string, error) {
+	data := []*parser.Directive{}
+	if err := json.Unmarshal([]byte(payload), &data); err != nil {
+		return "", fmt.Errorf("error unmarshalling payload: %v", err)
 	}
-	return output
+	return Build(data, opts), nil
+}
+
+// buildBlock recursively builds NGINX configuration blocks using a strings.Builder
+func buildBlock(
+	builder *strings.Builder,
+	block []*parser.Directive,
+	depth,
+	lastLine int,
+	opts *Options,
+) {
+	for _, stmt := range block {
+		var built strings.Builder
+		if stmt.IsComment() && stmt.Line == lastLine {
+			builder.WriteString(" #" + stmt.Comment)
+			continue
+		} else if stmt.IsComment() {
+			built.WriteString("#" + stmt.Comment)
+		} else {
+			if stmt.IsIf() {
+				built.WriteString("if (" + strings.Join(stmt.Args, " ") + ")")
+			} else if len(stmt.Args) > 0 {
+				built.WriteString(stmt.Directive + " " + strings.Join(stmt.Args, " "))
+			} else {
+				built.WriteString(stmt.Directive)
+			}
+
+			if stmt.Block == nil || len(stmt.Block) < 1 {
+				built.WriteString(";")
+			} else {
+				built.WriteString(" {")
+				buildBlock(&built, stmt.Block, depth+1, stmt.Line, opts)
+				built.WriteString("\n" + indent(depth, opts) + "}")
+			}
+		}
+
+		if builder.Len() > 0 {
+			builder.WriteString("\n")
+		}
+
+		builder.WriteString(indent(depth, opts) + built.String())
+		lastLine = stmt.Line
+	}
+}
+
+func indent(depth int, opts *Options) string {
+	if opts.Tabs {
+		return strings.Repeat("\t", opts.Indent*depth)
+	}
+	return strings.Repeat(" ", opts.Indent*depth)
 }
 
 // BuildFiles -
 func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bool) (string, error) {
-
 	var built string
 	var err error
 	var output string
@@ -116,7 +112,7 @@ func BuildFiles(data parser.Payload, dirname string, indent int, tabs, header bo
 			return "", err
 		}
 
-		output, err = Build(string(out), 4, false, false)
+		output, err = BuildFromJSON(string(out), &Options{Indent: 4})
 		if err != nil {
 			return "", err
 		}
