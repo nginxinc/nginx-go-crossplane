@@ -1,7 +1,6 @@
 package lexer
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -14,30 +13,30 @@ func TestBalanceBraces(t *testing.T) {
 		{
 			"balanced: super-simple",
 			[]LexicalItem{
-				{"{", 1}, {"}", 1},
+				{"{", 1, 0}, {"}", 1, 0},
 			},
 			"",
 		},
 		{
 			"balanced: simple long",
 			[]LexicalItem{
-				{"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1},
-				{"}", 1}, {"}", 1}, {"}", 1}, {"}", 1}, {"}", 1}, {"}", 1}, {"}", 1}, {"}", 1},
+				{"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0},
+				{"}", 1, 0}, {"}", 1, 0}, {"}", 1, 0}, {"}", 1, 0}, {"}", 1, 0}, {"}", 1, 0}, {"}", 1, 0}, {"}", 1, 0},
 			},
 			"",
 		},
 		{
 			"balanced: with directives",
 			[]LexicalItem{
-				{"http", 1}, {"{", 1}, {"user", 1}, {"nginx", 1}, {";", 1}, {"}", 1},
+				{"http", 1, 0}, {"{", 1, 0}, {"user", 1, 0}, {"nginx", 1, 0}, {";", 1, 0}, {"}", 1, 0},
 			},
 			"",
 		},
 		{
 			"unbalanced: needle in a haystack",
 			[]LexicalItem{
-				{"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1}, {"{", 1},
-				{"}", 2}, {"}", 2}, {"}", 2}, {"}", 2}, {"{", 2}, {"}", 2}, {"}", 2}, {"}", 2},
+				{"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0}, {"{", 1, 0},
+				{"}", 2, 0}, {"}", 2, 0}, {"}", 2, 0}, {"}", 2, 0}, {"{", 2, 0}, {"}", 2, 0}, {"}", 2, 0}, {"}", 2, 0},
 			},
 			UnbalancedBracesError("UnbalancedBracesError: braces are not balanced"),
 		},
@@ -62,7 +61,7 @@ func TestLexScanner(t *testing.T) {
 			"basic: one-line lexical analysis",
 			"http { user nginx; } # a comment",
 			[]LexicalItem{
-				{"http", 1}, {"{", 1}, {"user", 1}, {"nginx", 1}, {";", 1}, {"}", 1}, {"# a comment", 1},
+				{"http", 1, 0}, {"{", 1, 0}, {"user", 1, 0}, {"nginx", 1, 0}, {";", 1, 0}, {"}", 1, 0}, {"# a comment", 1, 0},
 			},
 		},
 		{
@@ -73,8 +72,11 @@ func TestLexScanner(t *testing.T) {
 				"return" 200 "Ser\" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n";
     		}`,
 			[]LexicalItem{
-				{"# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\ ", 1}, {"http", 2}, {"{", 2}, {"#forteen", 2}, {"access_log", 3}, {"off", 3}, {";", 3}, {"default_type", 3}, {"text/plain", 3}, {";", 3}, {"error_log", 3}, {"off", 3}, {";", 3}, {"\"return\"", 4}, {"200", 4},
-				{`"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`, 4}, {";", 4}, {"}", 5},
+				{"# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\ ", 1, 0},
+				{"http", 2, 0}, {"{", 2, 0}, {"#forteen", 2, 0}, {"access_log", 3, 0}, {"off", 3, 0},
+				{";", 3, 0}, {"default_type", 3, 0}, {"text/plain", 3, 0}, {";", 3, 0},
+				{"error_log", 3, 0}, {"off", 3, 0}, {";", 3, 0}, {"\"return\"", 4, 0}, {"200", 4, 0},
+				{`"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`, 4, 0}, {";", 4, 0}, {"}", 5, 0},
 			},
 		},
 	}
@@ -83,10 +85,9 @@ func TestLexScanner(t *testing.T) {
 		actual := LexScanner(tt.input)
 		i := 0
 		for token := range actual {
-			result := reflect.DeepEqual(tt.expected[i], token)
-			if !result {
+			other := tt.expected[i]
+			if other.Item != token.Item || other.LineNum != token.LineNum {
 				t.Errorf("Test assertion failed: \t\nexpected: %v, \t\nactual: %v", tt.expected[i], token)
-
 			}
 			i++
 		}

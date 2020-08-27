@@ -1,8 +1,9 @@
 package parser
 
 import (
-	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"testing"
 
 	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
@@ -16,15 +17,10 @@ var tests = []struct {
 	config   []*Directive
 }{
 	{
-
 		"basic : test Parse ",
 		ParseArgs{
 			FileName:    "config/simple.conf",
 			CatchErrors: true,
-			Ignore:      []string{},
-			Single:      false,
-			Strict:      false,
-			Combine:     false,
 		},
 		"config/simple.conf",
 		[]lexer.LexicalItem{
@@ -60,64 +56,41 @@ var tests = []struct {
 			{
 				Directive: "events",
 				Line:      1,
-				Args:      []string{},
-				File:      "",
-				Comment:   "",
 				Block: []*Directive{
 					{
 						Directive: "worker_connections",
 						Line:      2,
 						Args:      []string{"1024"},
-						File:      "",
-						Comment:   "",
-						Block:     []*Directive{},
 					},
 				},
 			},
 			{
 				Directive: "http",
 				Line:      5,
-				Args:      []string{},
-				File:      "",
-				Comment:   "",
 				Block: []*Directive{
 					{
 						Directive: "server",
 						Line:      6,
-						Args:      []string{},
-						File:      "",
-						Comment:   "",
 						Block: []*Directive{
 							{
 								Directive: "listen",
 								Args:      []string{"127.0.0.1:8080"},
 								Line:      7,
-								File:      "",
-								Comment:   "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "server_name",
 								Args:      []string{"default_server"},
 								Line:      8,
-								File:      "",
-								Comment:   "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
 								Args:      []string{"/"},
 								Line:      9,
-								File:      "",
-								Comment:   "",
 								Block: []*Directive{
 									{
 										Directive: "return",
 										Args:      []string{"200", "\"foo bar baz\""},
 										Line:      10,
-										File:      "",
-										Comment:   "",
-										Block:     []*Directive{},
 									},
 								},
 							},
@@ -132,13 +105,6 @@ var tests = []struct {
 		ParseArgs{
 			FileName:    "config/withComments.conf",
 			CatchErrors: true,
-			Ignore:      []string{},
-			Single:      false,
-			Strict:      false,
-			Combine:     false,
-			CheckArgs:   false,
-			CheckCtx:    false,
-			Comments:    true,
 		},
 		"config/withComments.conf",
 		[]lexer.LexicalItem{
@@ -153,36 +119,26 @@ var tests = []struct {
 			{Item: "}", LineNum: 4},
 			{Item: "}", LineNum: 5},
 		},
+		// TODO: this should be an interpolation of lexer.LexicalItem
+		//       use the above definitions to build the tree below
 		[]*Directive{
 			{
 				Directive: "http",
-				Args:      []string{},
 				Line:      1,
-				File:      "",
-				Comment:   "",
 				Block: []*Directive{
 					{
 						Directive: "server",
-						Args:      []string{},
 						Line:      2,
-						File:      "",
-						Comment:   "",
 						Block: []*Directive{
 							{
 								Directive: "listen",
 								Args:      []string{"127.0.0.1:8080"},
 								Line:      3,
-								File:      "",
-								Comment:   "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "#",
-								Args:      []string{},
 								Line:      3,
-								File:      "",
-								Comment:   "listen",
-								Block:     []*Directive{},
+								Comment:   "listening",
 							},
 						},
 					},
@@ -195,11 +151,6 @@ var tests = []struct {
 		ParseArgs{
 			FileName:    "config/messy.conf",
 			CatchErrors: true,
-			Ignore:      []string{},
-			Single:      false,
-			Strict:      false,
-			Combine:     false,
-			Comments:    true,
 		},
 		"config/messy.conf",
 		[]lexer.LexicalItem{
@@ -219,144 +170,91 @@ var tests = []struct {
 				Directive: "user",
 				Args:      []string{"nobody"},
 				Line:      1,
-				File:      "",
-				Comment:   "",
-				Block:     []*Directive{},
 			},
 			{
 				Directive: "#",
-				Args:      []string{},
 				Line:      2,
-				File:      "",
-				Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n \\",
-				Block:     []*Directive{},
+				Comment:   " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n ", // removed last 2 "\\"
 			},
 			{
 				Directive: "\"events\"",
-				Args:      []string{},
 				Line:      3,
-				File:      "",
-				Comment:   "",
 				Block: []*Directive{
 					{
 						Directive: "\"worker_connections\"",
 						Args:      []string{"\"2048\""},
 						Line:      3,
-						Comment:   "",
-						File:      "",
-						Block:     []*Directive{},
 					},
 				},
 			},
 			{
 				Directive: "\"http\"",
-				Args:      []string{},
 				Line:      5,
-				Comment:   "",
-				File:      "",
 				Block: []*Directive{
 					{
 						Directive: "#",
-						Args:      []string{},
 						Line:      5,
 						Comment:   "forteen",
-						File:      "",
-						Block:     []*Directive{},
 					},
 					{
 						Directive: "#",
-						Args:      []string{},
 						Line:      6,
 						Comment:   " this is a comment",
-						File:      "",
-						Block:     []*Directive{},
 					},
 					{
 						Directive: "\"access_log\"",
 						Args:      []string{"off"},
 						Line:      7,
-						Comment:   "",
-						File:      "",
-						Block:     []*Directive{},
 					},
 					{
 						Directive: "default_type",
 						Args:      []string{"\"text/plain\""},
 						Line:      7,
-						Comment:   "",
-						File:      "",
-						Block:     []*Directive{},
 					},
 					{
 						Directive: "error_log",
 						Args:      []string{"\"off\""},
 						Line:      7,
-						Comment:   "",
-						File:      "",
-						Block:     []*Directive{},
 					},
 					{
 						Directive: "server",
-						Args:      []string{},
 						Line:      8,
-						Comment:   "",
-						File:      "",
 						Block: []*Directive{
 							{
 								Directive: "\"listen\"",
 								Args:      []string{"\"8083\""},
 								Line:      9,
-								Comment:   "",
-								File:      "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "\"return\"",
 								Args:      []string{"200", `"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`},
 								Line:      10,
-								Comment:   "",
-								File:      "",
-								Block:     []*Directive{},
 							},
 						},
 					},
 					{
 						Directive: "\"server\"",
-						Args:      []string{},
 						Line:      12,
-						Comment:   "",
-						File:      "",
 						Block: []*Directive{
 							{
 								Directive: "\"listen\"",
 								Args:      []string{"8080"},
-								Comment:   "",
 								Line:      12,
-								File:      "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "'root'",
 								Args:      []string{"/usr/share/nginx/html"},
 								Line:      13,
-								Comment:   "",
-								File:      "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
 								Args:      []string{"~", "\"/hello/world;\""},
-								Comment:   "",
 								Line:      14,
-								File:      "",
 								Block: []*Directive{
 									{
 										Directive: "\"return\"",
 										Args:      []string{"301", "/status.html"},
 										Line:      14,
-										Comment:   "",
-										File:      "",
-										Block:     []*Directive{},
 									},
 								},
 							},
@@ -364,56 +262,36 @@ var tests = []struct {
 								Directive: "location",
 								Args:      []string{"/foo"},
 								Line:      15,
-								Comment:   "",
-								File:      "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
 								Args:      []string{"/bar"},
 								Line:      15,
-								Comment:   "",
-								File:      "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
 								Args:      []string{"/\\{\\;\\}\\ #\\ ab"},
 								Line:      16,
-								Comment:   "",
-								File:      "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "#",
-								Args:      []string{},
 								Line:      16,
 								Comment:   " hello",
-								File:      "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "if",
-								Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST"},
+								Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST", ""}, // PAUL added empty string to array
 								Line:      17,
-								Comment:   "",
-								File:      "",
-								Block:     []*Directive{},
 							},
 							{
 								Directive: "location",
 								Args:      []string{"\"/status.html\""},
 								Line:      18,
-								Comment:   "",
-								File:      "",
 								Block: []*Directive{
 									{
 										Directive: "try_files",
 										Args:      []string{"/abc/${uri}", "/abc/${uri}.html", "=404"},
 										Line:      19,
-										Comment:   "",
-										File:      "",
-										Block:     []*Directive{},
 									},
 								},
 							},
@@ -422,16 +300,11 @@ var tests = []struct {
 								Directive: "\"location\"",
 								Args:      []string{"\"/sta;\n                    tus\""},
 								Line:      21,
-								Comment:   "",
-								File:      "",
 								Block: []*Directive{
 									{
 										Directive: "\"return\"",
 										Args:      []string{"302", "/status.html"},
 										Line:      22,
-										Comment:   "",
-										File:      "",
-										Block:     []*Directive{},
 									},
 								},
 							},
@@ -440,16 +313,11 @@ var tests = []struct {
 								Directive: "\"location\"",
 								Args:      []string{"/upstream_conf"},
 								Line:      23,
-								Comment:   "",
-								File:      "",
 								Block: []*Directive{
 									{
 										Directive: "\"return\"",
 										Args:      []string{"200", "/status.html"},
 										Line:      23,
-										Comment:   "",
-										File:      "",
-										Block:     []*Directive{},
 									},
 								},
 							},
@@ -457,11 +325,7 @@ var tests = []struct {
 					},
 					{
 						Directive: "server",
-						Args:      []string{},
 						Line:      24,
-						Comment:   "",
-						File:      "",
-						Block:     []*Directive{},
 					},
 				},
 			},
@@ -469,10 +333,11 @@ var tests = []struct {
 	},
 }
 
-func TestParse(t *testing.T) {
+func TestParser(t *testing.T) {
 	for _, tes := range tests {
-		parsed, err := Parse(tes.arg.FileName, tes.arg.CatchErrors, tes.arg.Ignore, tes.arg.Single, tes.arg.Comments, tes.arg.Strict, tes.arg.Combine, tes.arg.Consume, tes.arg.CheckCtx, tes.arg.CheckArgs)
-		if parsed.Status == "failed" {
+		t.Logf("testing config: %s\n", tes.arg.FileName)
+		parsed, err := ParseFile(tes.arg.FileName, tes.arg.Ignore, tes.arg.CatchErrors, tes.arg.Single, tes.arg.Comments)
+		if parsed.Errors != nil {
 			t.Errorf("Errors encountered: %v", parsed.Errors)
 		}
 		if len(parsed.Config) < 1 {
@@ -480,14 +345,11 @@ func TestParse(t *testing.T) {
 		}
 		par := parsed.Config[0].Parsed
 		for p := 0; p < len(par); p++ {
-			o := compareBlocks(par[p], tes.config[p])
-			if o != "" {
-				t.Error(o)
-			}
+			compareDirectives(t, par[p], tes.config[p])
 		}
 
 		if err != nil {
-			fmt.Println("something")
+			t.Fatal(err)
 		}
 	}
 }
@@ -499,8 +361,9 @@ func TestParseString(t *testing.T) {
 			t.Error(err)
 			continue
 		}
-		parsed, err := ParseString(tes.arg.FileName, string(file), tes.arg.Ignore, tes.arg.CatchErrors, tes.arg.Single, tes.arg.Comments, tes.arg.Strict, tes.arg.Combine, tes.arg.Consume, tes.arg.CheckCtx, tes.arg.CheckArgs)
-		if parsed.Status == "failed" {
+		t.Logf("parsing: %s\n", tes.arg.FileName)
+		parsed, _ := ParseString(tes.arg.FileName, string(file), tes.arg.Ignore, tes.arg.CatchErrors, tes.arg.Single, tes.arg.Comments)
+		if parsed.Errors != nil {
 			t.Errorf("Errors encountered: %v", parsed.Errors)
 		}
 		if len(parsed.Config) < 1 {
@@ -508,53 +371,57 @@ func TestParseString(t *testing.T) {
 		}
 		par := parsed.Config[0].Parsed
 		for p := 0; p < len(par); p++ {
-			o := compareBlocks(par[p], tes.config[p])
-			if o != "" {
-				t.Error(o)
-			}
-		}
-		t.Logf("Parent block: %+v\n", par[0])
-	}
-}
-func BenchmarkParseString(b *testing.B) {
-	config := string(readTestData("nginx-full.conf"))
-	b.ResetTimer()
-	for i := 0; i < b.N; i++ {
-		// holy, fack!
-		if _, err := ParseString("benchmark", config, []string{}, true, false, true, true, false, false, false, false); err != nil {
-			b.Error(err)
+			compareDirectives(t, par[p], tes.config[p])
 		}
 	}
 }
 
-func compareBlocks(gen, config *Directive) string {
-	s := ""
+func TestParseDump(t *testing.T) {
+	const fileName = "config/simple.conf"
+	var catcherr, single, comments bool
+	parsed, err := ParseFile(fileName, nil, catcherr, single, comments)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var w io.Writer = ioutil.Discard
+	if testing.Verbose() {
+		w = os.Stdout
+	}
+	parsed.Dump(w)
+}
+
+func compareDirectives(t *testing.T, gen, config *Directive) {
+	t.Helper()
 	if gen.Directive != config.Directive {
-		s += "df Error with directives : " + gen.Directive + " && " + config.Directive
+		t.Errorf("directives want:%q got:%q\n", config.Directive, gen.Directive)
 	}
 	// loop over and compare
 	if len(gen.Args) == len(config.Args) {
-		for i := 0; i < len(gen.Args); i++ {
-			if gen.Args[i] != config.Args[i] {
-				s += "ad eProblem with Args in Block " + gen.Directive + " && " + config.Directive
+		for i, arg := range config.Args {
+			if gen.Args[i] != arg {
+				t.Errorf("(directive: %s) arg #%d want:%q got:%q\n", gen.Directive, i+1, arg, gen.Args[i])
 			}
 		}
 	} else {
-		s += "Problem with Args in Block " + gen.Directive + string(gen.Line) + " && " + config.Directive + string(config.Line)
+		t.Errorf("mismatched arg count - want(%d):%v got(%d):%v\n",
+			len(config.Args), config.Args, len(gen.Args), gen.Args)
 	}
 	if gen.Line != config.Line {
-		s += "Problem with Line in Block " + gen.Directive + " && " + config.Directive
+		t.Errorf("(%s) line want:%d got:%d\n", config.Directive, config.Line, gen.Line)
 	}
 	if gen.File != config.File {
-		s += "Problem with File in Block " + gen.Directive + " && " + config.Directive
+		t.Errorf("File want:%q got:%q\n", config.File, gen.File)
 	}
 	if gen.Comment != config.Comment {
-		s += "Problem with Comments in Block " + gen.Comment + " && " + config.Comment
+		t.Errorf("Comment \nwant:%q\n got:%q\n", config.Comment, gen.Comment)
 	}
 
-	for i := 0; i < len(gen.Block); i++ {
-		s += compareBlocks(gen.Block[i], config.Block[i])
+	if len(gen.Block) == len(config.Block) {
+		for i := 0; i < len(gen.Block); i++ {
+			compareDirectives(t, gen.Block[i], config.Block[i])
+		}
+	} else {
+		t.Errorf("(%s/%d) Mismatched blocks want:%d got:%d\nwant: %v\n got: %v\n",
+			config.Directive, config.Line, len(config.Directive), len(gen.Directive), config.Directive, gen.Directive)
 	}
-
-	return s
 }

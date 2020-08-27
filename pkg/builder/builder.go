@@ -56,7 +56,7 @@ func buildBlock(
 				built.WriteString(stmt.Directive)
 			}
 
-			if stmt.Block == nil || len(stmt.Block) < 1 {
+			if len(stmt.Block) < 1 {
 				built.WriteString(";")
 			} else {
 				built.WriteString(" {")

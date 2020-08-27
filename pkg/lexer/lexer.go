@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -13,6 +14,12 @@ type UnbalancedBracesError string
 type LexicalItem struct {
 	Item    string
 	LineNum int
+	Column  int
+}
+
+// String satisfies the Stringer interface
+func (l *LexicalItem) String() string {
+	return fmt.Sprintf("%d) %s", l.LineNum, l.Item)
 }
 
 /*Repr returns a representation of a lex item.
@@ -46,7 +53,7 @@ func BalanceBraces(lexicalItems []LexicalItem) UnbalancedBracesError {
 func consumeWord(data []byte, isLua bool) (int, []byte, bool, error) {
 	var accum []byte
 	if isLua {
-		return consumeLuaBlock(data)
+		return consumeLuaDirective(data)
 	}
 	for i, b := range data {
 		// TODO make this more robust
@@ -77,7 +84,7 @@ func consumeNum(data []byte) (int, []byte, error) {
 
 func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 	if isLua {
-		return consumeLuaBlock(data)
+		return consumeLuaDirective(data)
 	}
 	var accum []byte
 
@@ -88,8 +95,7 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 	for i, b := range data[1:] {
 		if b == delim && !skip {
 			if delim == '\'' && len(accum) < 1 {
-				accum = append(accum, '\'')
-				accum = append(accum, '\'')
+				accum = append(accum, '\'', '\'')
 			} else {
 				accum = append(accum, delim)
 			}
@@ -123,7 +129,7 @@ func consumeComment(data []byte) (int, []byte, error) {
 	return 0, nil, nil
 }
 
-func consumeLuaBlock(data []byte) (int, []byte, bool, error) {
+func consumeLuaDirective(data []byte) (int, []byte, bool, error) {
 	var accum []byte
 	count := 0
 	for i, b := range data {
@@ -150,20 +156,25 @@ type Reader struct {
 	l, col         int
 }
 
-// LexScanner -
-func LexScanner(input string) <-chan LexicalItem {
-	s := NewLexer(strings.NewReader(input))
+// LexScanReader lexes the given reader
+func LexScanReader(r io.Reader) <-chan LexicalItem {
+	s := NewLexer(r)
 	chnl := make(chan LexicalItem)
 	go func() {
 		for s.Scan() {
-			tok := s.Bytes()
-			if string(tok) != " " && string(tok) != "\t" && string(tok) != "\n" {
-				chnl <- LexicalItem{string(tok), s.l}
+			tok := string(s.Bytes())
+			if tok != " " && tok != "\t" && tok != "\n" {
+				chnl <- LexicalItem{tok, s.l, s.col}
 			}
 		}
 		close(chnl)
 	}()
 	return chnl
+}
+
+// LexScanner -
+func LexScanner(input string) <-chan LexicalItem {
+	return LexScanReader(strings.NewReader(input))
 }
 
 // NewLexer -
