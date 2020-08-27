@@ -274,7 +274,7 @@ http {
 
 func BenchmarkBuild(b *testing.B) {
 	// TODO: The signature of Parse is well out of hand...
-	input, _ := parser.Parse("testdata/nginx-full.conf", false, []string{}, false, true, false, true, false, false, false)
+	input, _ := parser.ParseFile("testdata/nginx-full.conf", nil, false, false, false)
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
@@ -294,12 +294,10 @@ func TestBuildFile(t *testing.T) {
 			"testdata/simple.conf",
 			parser.Payload{
 
-				Status: "ok",
 				Errors: []parser.ParseError{},
-				Config: []parser.Config{
+				Config: []*parser.Config{
 					{
 						File:   "testdata/simple.conf",
-						Status: "ok",
 						Errors: []parser.ParseError{},
 						Parsed: []*parser.Directive{
 							{
@@ -400,12 +398,10 @@ http {
 			"testdata/with-comments.conf",
 			parser.Payload{
 
-				Status: "ok",
 				Errors: []parser.ParseError{},
-				Config: []parser.Config{
+				Config: []*parser.Config{
 					{
 						File:   "testdata/with-comments.conf",
-						Status: "ok",
 						Errors: []parser.ParseError{},
 						Parsed: []*parser.Directive{
 							{

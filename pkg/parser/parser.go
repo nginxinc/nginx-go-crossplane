@@ -1,56 +1,50 @@
 package parser
 
 import (
+	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/analyzer"
 	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
 )
 
-// ParseArgs -
+// ParseArgs holds all parameters required to parse a config file
 type ParseArgs struct {
-	FileName string
-	//onerror
+	FileName    string
 	CatchErrors bool
 	Ignore      []string
-	Single      bool
+	Single      bool // TODO: does ignoring includes have value?
 	Comments    bool
-	Strict      bool
-	Combine     bool
 	Consume     bool
-	CheckCtx    bool
-	CheckArgs   bool
 }
 
-// ParsingError -
-type ParsingError error
-
-// Payload -
+// Payload represents a parsed nginx config(s)
+// It is the parent struct for parsed data
 type Payload struct {
-	Status string       `json:"status"`
-	Errors []ParseError `json:"errors"`
+	Errors []ParseError `json:"errors,omitempty"`
 	File   string       `json:"file"`
-	Config []Config     `json:"config"`
+	Config []*Config    `json:"config,omitempty"`
+	Dir    string       `json:"dir,omitempty"`
 }
 
-// Config -
+// Config represents a config file
 type Config struct {
-	File   string       `json:"file"`
-	Status string       `json:"status"`
-	Errors []ParseError `json:"errors"`
-	Parsed []*Directive `json:"parsed"`
+	File    string       `json:"file"`
+	Errors  []ParseError `json:"errors,omitempty"`
+	Parsed  []*Directive `json:"parsed,omitempty"`
+	Context []int        `json:"context,omitempty"`
 }
 
 // Directive -
 type Directive struct {
 	Directive string       `json:"directive"`
 	Line      int          `json:"line"`
-	Args      []string     `json:"args"`
+	Args      []string     `json:"args,omitempty"`
 	Includes  []int        `json:"includes,omitempty"`
 	Block     []*Directive `json:"block,omitempty"`
 	File      string       `json:"file,omitempty"`
@@ -67,48 +61,40 @@ func (d *Directive) IsIf() bool {
 	return d.Directive == "if"
 }
 
-// ParseError -
+// ParseError provides context for a parse error
 type ParseError struct {
-	File  string       `json:"file"`
-	Line  int          `json:"line"`
-	Error ParsingError `json:"error"`
+	File   string `json:"file"`
+	Line   int    `json:"line"`
+	Column int    `json:"column"`
+	Fail   error  `json:"error"` // TODO: Fail as plain error?
 }
 
-// list of conf files to be parsed
-var included []string
-var includes map[string][3]string
-var payload Payload
+// Error makes this a proper Error, eh?
+func (p ParseError) Error() string {
+	return fmt.Sprintf("file:%s line:%d, col:%d error:%v", p.File, p.Line, p.Column, p.Fail)
+}
 
-// Parse - Parses an nginx config file and returns json payload
+// ParseFile - ingests an nginx config file and returns json payload
 //   :param filename: string containing the name of the config file to parse
-//   :param catch_errors: bool; if False, parse stops after first error
 //   :param ignore: list or slice of directives to exclude from the payload
-//   :param combine: bool; if True, use includes to create a single config obj
+//   :param catch_errors: bool; if False, parse stops after first error
 //   :param single: bool; if True, including from other files doesn't happen
 //   :param comments: bool; if True, including comments to json payload
-//   :param strict: bool; if True, unrecognized directives raise errors
-//   :param check_ctx: bool; if True, runs context analysis on directives
-//   :param check_args: bool; if True, runs arg count analysis on directives
 //   :returns: a payload that describes the parsed nginx config
-func Parse(file string, catcherr bool, ignore []string, single bool, comment bool, strict bool,
-	combine bool, consume bool, checkctx bool, checkargs bool) (Payload, error) {
-	included = []string{file}
-	includes = map[string][3]string{}
-	var e error
-
+func ParseFile(file string, ignore []string, catcherr, single, comment bool) (*Payload, error) {
 	fpath, err := filepath.Abs(file)
 	if err != nil {
-		return Payload{
-			Status: "failed",
-			Errors: []ParseError{
-				{
-					File:  file,
-					Line:  0,
-					Error: err,
-				},
-			},
-		}, nil
+		return nil, err
 	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+	dir := filepath.Dir(fpath)
+	if err := os.Chdir(dir); err != nil {
+		return nil, err
+	}
+	fpath = filepath.Base(fpath)
 
 	a := ParseArgs{
 		FileName:    fpath,
@@ -116,62 +102,57 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 		Ignore:      ignore,
 		Single:      single,
 		Comments:    comment,
-		Strict:      strict,
-		Combine:     combine,
-		Consume:     consume,
-		CheckCtx:    checkctx,
-		CheckArgs:   checkargs,
-	}
-	includes[a.FileName] = [3]string{}
-	payload = Payload{
-		Status: "ok",
-		Errors: []ParseError{},
-		Config: []Config{},
-		File:   a.FileName,
-	}
-	for i := 0; i < len(included); i++ { //f, r := range includes {
-		f := included[i]
-		c := Config{
-			File:   f,
-			Status: "ok",
-			Errors: []ParseError{},
-			Parsed: []*Directive{},
-		}
-
-		fp, err := filepath.Abs(f)
-		if err != nil {
-			if a.CatchErrors {
-				handleErrors(c, err, 0)
-				continue
-			} else {
-				return payload, nil
-			}
-		}
-		c.File = fp
-
-		re, err := ioutil.ReadFile(fp)
-		if err != nil {
-			if a.CatchErrors {
-				handleErrors(c, err, 0)
-				continue
-			} else {
-				return payload, nil
-			}
-		}
-		tokens := lexer.LexScanner(string(re))
-		c.Parsed, e = parse(c, tokens, a, includes[f], false)
-		if e != nil {
-			return payload, e
-		}
-		payload.Config = append(payload.Config, c)
-
 	}
 
-	if a.Combine {
-		return combineParsedConfigs(payload)
+	payload := &Payload{
+		File: fpath,
+		Dir:  dir,
 	}
-	return payload, nil
+	err = payload.readFile(a)
 
+	if err2 := os.Chdir(cwd); err2 != nil && err == nil {
+		err = err2
+	}
+	return payload, err
+
+}
+
+// parse a config file
+func (p *Payload) readFile(a ParseArgs) error {
+	f, err := os.Open(a.FileName)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return p.configReader(f, a)
+}
+
+// parse a config presented by the Reader
+func (p *Payload) configReader(r io.Reader, a ParseArgs) error {
+	c := &Config{
+		File: a.FileName,
+	}
+
+	tokens := lexer.LexScanReader(r)
+
+	// because all configs are in a slice, the first config
+	// is effectively the root and needs special accomodations
+	// TODO: consider having Payload.Parent blocks and configs are additions
+	first := len(p.Config) == 0
+	if first {
+		p.Config = append(p.Config, c)
+	}
+
+	var err error
+	c.Parsed, err = p.parse(*c, tokens, a)
+	if err != nil {
+		return err
+	}
+
+	if !first {
+		p.Config = append(p.Config, c)
+	}
+	return nil
 }
 
 // ParseString - Parses an nginx config string and returns json payload
@@ -179,329 +160,347 @@ func Parse(file string, catcherr bool, ignore []string, single bool, comment boo
 //   :param config: string containing the nginx config contents to parse
 //   :param catch_errors: bool; if False, parse stops after first error
 //   :param ignore: list or slice of directives to exclude from the payload
-//   :param combine: bool; if True, use includes to create a single config obj
 //   :param single: bool; if True, including from other files doesn't happen
-//   :param comments: bool; if True, including comments to json payload
-//   :param strict: bool; if True, unrecognized directives raise errors
-//   :param check_ctx: bool; if True, runs context analysis on directives
-//   :param check_args: bool; if True, runs arg count analysis on directives
+//   :param comments: bool; if True, exclude comments from json payload
 //   :returns: a payload that describes the parsed nginx config
-func ParseString(filename, config string, ignore []string, catcherr, single, comment, strict,
-	combine, consume, checkctx, checkargs bool) (Payload, error) {
-
+func ParseString(filename, config string, ignore []string, catcherr, single, comment bool) (*Payload, error) {
 	a := ParseArgs{
 		FileName:    filename,
 		CatchErrors: catcherr,
 		Ignore:      ignore,
 		Single:      single,
 		Comments:    comment,
-		Strict:      strict,
-		Combine:     combine,
-		Consume:     consume,
-		CheckCtx:    checkctx,
-		CheckArgs:   checkargs,
-	}
-	payload = Payload{
-		Status: "ok",
-		Errors: []ParseError{},
-		Config: []Config{},
-		File:   filename,
-	}
-	c := Config{
-		File:   filename,
-		Status: "ok",
-		Errors: []ParseError{},
-		Parsed: []*Directive{},
 	}
 
-	ctx := [3]string{}
-	tokens := lexer.LexScanner(string(config))
-	var e error
-	c.Parsed, e = parse(c, tokens, a, ctx, false)
-	if e != nil {
-		return payload, e
+	p := &Payload{
+		File: filename,
 	}
-	payload.Config = append(payload.Config, c)
-
-	return payload, nil
-
+	r := strings.NewReader(config)
+	return p, p.configReader(r, a)
 }
 
-func parse(parsing Config, tokens <-chan lexer.LexicalItem, args ParseArgs, ctx [3]string, consume bool) ([]*Directive, error) {
-	var o []*Directive
+func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args ParseArgs) ([]*Directive, error) {
+	var out []*Directive
 	var e error
+	baseDir := filepath.Dir(config.File)
 	for token := range tokens {
-
-		block := &Directive{
-			Args:      make([]string, 0),
-			Directive: token.Item,
-			Includes:  make([]int, 0),
-			Line:      token.LineNum,
-		}
-
 		if token.Item == "}" {
 			break
 		}
-		if consume {
+		block := &Directive{
+			Directive: token.Item,
+			Line:      token.LineNum,
+		}
+
+		// NOTE: consume is only checked here -- to signal if we are inside a bracket import
+		if args.Consume {
 			if token.Item == "{" {
-				_, _ = parse(parsing, tokens, args, ctx, true)
+				// and our corresponding toggle to signal our next trip goes past
+				args.Consume = false
+				if block.Block, e = p.parse(config, tokens, args); e != nil {
+					return nil, e
+				}
+				out = append(out, block)
 			}
 			continue
-		}
-		if args.Combine {
-			block.File = parsing.File
 		}
 
 		if strings.HasPrefix(token.Item, "#") {
-			if args.Comments {
+			if !args.Comments {
 				block.Directive = "#"
 				block.Comment = token.Item[1:]
-				o = append(o, block)
+				out = append(out, block)
 			}
 			continue
-
 		}
+
 		// args for directives
-		token := <-tokens
+		token, ok := <-tokens
+		if !ok {
+			break
+		}
+
 		isQuoted := false
-		for token.Item != ";" && token.Item != "{" && token.Item != "}" && !isQuoted {
+		for !(isQuoted || among(token.Item, ";", "{", "}")) {
 			if token.Item == "\"" || token.Item == "'" {
 				isQuoted = !isQuoted
 			}
 			block.Args = append(block.Args, token.Item)
-			token = <-tokens
-		}
-
-		if len(args.Ignore) > 0 {
-			for _, k := range args.Ignore {
-				if k == token.Item {
-					o, e = parse(parsing, tokens, args, ctx, true)
-					if e != nil {
-						return o, e
-					}
-				}
+			token, ok = <-tokens
+			if !ok {
+				break
 			}
-			continue
+			// TODO: ugly hack for compatiblity with older crossplane parsing
+			//       of comments following args (on the side, rather than above)
+			if strings.HasPrefix(token.Item, "#") {
+				if args.Comments {
+					block.Block = append(block.Block, &Directive{
+						Directive: "#",
+						Comment:   token.Item[1:],
+					})
+				}
+				continue
+			}
 		}
 
 		if block.Directive == "if" {
 			block.Args = removeBrackets(block.Args)
 		}
-		stmt := analyzer.Statement{
-			Directive: block.Directive,
-			Args:      block.Args,
-			Line:      block.Line,
-		}
 
-		if stmt.Directive != "" && stmt.Directive != "if" {
-			e := analyzer.Analyze(parsing.File, stmt, token.Item, ctx, args.Strict, args.CheckCtx, args.CheckArgs)
-			if e != nil {
-				if args.CatchErrors {
-					handleErrors(parsing, e, token.LineNum)
-					if strings.HasSuffix(e.Error(), "is not terminated by \";\"") {
-						if token.Item != "}" {
-							_, err := parse(parsing, tokens, args, ctx, true)
-							if err != nil {
-								handleErrors(parsing, e, token.LineNum)
-							}
-						} else {
-							break
-						}
-					}
-					continue
-
-				} else {
-					return o, e
-				}
-			}
-		}
 		if !args.Single && block.Directive == "include" {
-			a := block.Args
-			configDir := filepath.Dir(args.FileName)
-			pattern := a[0]
-			var fnames []string
-			var err error
-
-			pattern = filepath.Join(configDir, pattern)
-
-			hasMagic := func(pat string) bool {
-				magic := []byte{'*', '?', ']', '[', '{', '}', '(', ')'}
-				for _, m := range magic {
-					for _, p := range pat {
-						if m == byte(p) {
-							return true
-						}
+			if len(block.Args) == 0 {
+				return nil, errors.New("no parameter for include")
+			}
+			// skip it if excluded
+			if among(block.Args[0], args.Ignore...) {
+				continue
+			}
+			pattern := filepath.Join(baseDir, block.Args[0])
+			fnames, err := filepath.Glob(pattern)
+			if err != nil {
+				if args.CatchErrors {
+					parseErr := ParseError{
+						Fail:   e,
+						Line:   token.LineNum,
+						Column: token.Column,
+						File:   args.FileName,
 					}
+
+					p.Errors = append(p.Errors, parseErr)
+					continue
 				}
-				return false
+				return nil, err
 			}
 
-			if hasMagic(pattern) {
-				fnames, err = filepath.Glob(pattern)
-				if err != nil {
-					if args.CatchErrors {
-						handleErrors(parsing, e, token.LineNum)
-						continue
-					} else {
-						log.Fatal(err)
-					}
-				}
-			} else {
-				b, parsing, e := canRead(pattern, args, parsing, token.LineNum)
-				if e != nil {
-					if args.CatchErrors {
-						handleErrors(parsing, e, token.LineNum)
-						continue
-					} else {
-						log.Fatal(e)
-					}
-				}
-				if b {
-					fnames = []string{pattern}
-				}
-			}
-
+			// TODO: might a file be included mutliple times (places)?
+			// Add test for that, won't matter until we're successfully
+			// applying policies to imported files
 			for _, fname := range fnames {
-				if !checkIncluded(fname, included) {
-					included = append(included, fname)
-					includes[fname] = ctx
+				debugf("Import: %s (%30s)\n", fname, pattern)
+				args.FileName = fname
+				if err = p.readFile(args); err != nil {
+					return nil, err
 				}
+				added := len(p.Config) - 1
+				block.Includes = append(block.Includes, added)
 			}
-			block.Args = fnames
 		}
 
 		if token.Item == "{" {
-			stmt := analyzer.Statement{
-				Directive: block.Directive,
-				Args:      block.Args,
-				Line:      block.Line,
-			}
-			inner := analyzer.EnterBlockCTX(stmt, ctx)
-			block.Block, e = parse(parsing, tokens, args, inner, false)
+			block.Block, e = p.parse(config, tokens, args)
 			if e != nil {
-				return o, e
+				return out, e
 			}
 		}
-
-		o = append(o, block)
+		out = append(out, block)
 	}
-	return o, nil
+	return out, nil
 }
 
-func removeBrackets(s []string) []string {
-	if strings.HasPrefix(s[0], "(") && strings.HasSuffix(s[len(s)-1], ")") {
-		s[0] = strings.TrimPrefix(s[0], "(")
-		s[len(s)-1] = strings.TrimSuffix(s[len(s)-1], ")")
-		if s[len(s)-1] == "" {
-			s = s[:len(s)-1]
+func removeBrackets(brackets []string) []string {
+	for i, s := range brackets {
+		brackets[i] = strings.Trim(s, "()")
+	}
+	return brackets
+}
+
+// replaces blocks that include other configs by their respective blocks
+// used to consolidate a multi-file config
+func (p *Payload) blockIncludes(blocks []*Directive) []*Directive {
+	var updated []*Directive
+	for _, block := range blocks {
+		if len(block.Includes) == 0 {
+			block.Block = p.blockIncludes(block.Block)
+			updated = append(updated, block)
+			continue
+		}
+		for _, include := range block.Includes {
+			included := p.Config[include].Parsed
+			updated = append(updated, p.blockIncludes(included)...)
 		}
 	}
-	return s
+	return updated
 }
 
-func checkIncluded(fname string, included []string) bool {
-	for _, f := range included {
-		if f == fname {
+// Unify converts a payload with multiple imports
+// into a single config structure
+func (p *Payload) Unify() (*Payload, error) {
+	if p.Config == nil {
+		return nil, errors.New("input payload config is nil")
+	}
+
+	newConfig := &Config{
+		File:   p.Config[0].File,
+		Parsed: p.blockIncludes(p.Config[0].Parsed),
+	}
+
+	singular := &Payload{
+		File:   p.File,
+		Config: []*Config{newConfig},
+	}
+	// TODO: merge consolidated errors
+	return singular, nil
+}
+
+// Dump marshals the payload as json to the writer
+func (p *Payload) Dump(w io.Writer) {
+	if w == nil {
+		w = os.Stdout
+	}
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	if err := enc.Encode(p); err != nil {
+		log.Println("failed to dump file:", err)
+	}
+}
+
+// Render writes out the config back to its original form
+// NOTE: the render funcs are effectively copies of the pkg/builder funcs
+//       The goal was to refactor as a "universal" writer that will
+//       export the config directly to a file(s), tarball, or a string
+// TODO: complete this!
+func (p *Payload) Render(w io.Writer) error {
+	if _, err := io.WriteString(w, "# rendered by CrossPlane\n\n"); err != nil {
+		return err
+	}
+	return RenderDirectives(w, p.Config[0].Parsed)
+}
+
+// RenderDirectives writes out a config
+// adapted from block.BuildDirective
+func RenderDirectives(w io.Writer, blocks []*Directive) error {
+	return renderDirectives(w, blocks, 0, 1)
+}
+
+func renderDirectives(w io.Writer, blocks []*Directive, depth, lastline int) (err error) {
+	// TODO: kinda goofy, rethink this
+	defer func() {
+		if r := recover(); r != nil {
+			err = r.(error)
+		}
+	}()
+	WriteString := func(ss ...string) {
+		for _, s := range ss {
+			if _, err := io.WriteString(w, s); err != nil {
+				panic(err)
+			}
+		}
+	}
+	padding := "  "
+	spacing := 4 // borrowed from pkg/builder -- rethink this
+	margin := strings.Repeat(padding, depth)
+	line := lastline
+	for _, stmt := range blocks {
+		line++
+		WriteString(margin)
+		if stmt.Directive == "#" {
+			WriteString("#"+stmt.Comment, "\n")
+			continue
+		} else {
+			if stmt.Directive == "if" {
+				WriteString("if (" + strings.Join(stmt.Args, " ") + ")")
+			} else if len(stmt.Args) > 0 {
+				WriteString(stmt.Directive + " " + strings.Join(stmt.Args, " "))
+			} else {
+				WriteString(stmt.Directive)
+			}
+
+			if len(stmt.Block) < 1 {
+				WriteString(";\n")
+			} else {
+				WriteString(" {\n")
+				_ = renderDirectives(w, stmt.Block, depth+1, line)
+				WriteString(margin + "}\n")
+				if spacing != 0 {
+					spacing -= 4
+				}
+			}
+		}
+	}
+	return err
+}
+
+// TODO: move below to types after merge
+
+// Statement struct used for analysing directives and other information
+type Statement struct {
+	Directive string
+	Args      []string
+	Line      int
+}
+
+// TODO: move back under directive after merge
+func equals(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, x := range a {
+		if x != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// Equal returns true if both blocks are functionally equivalent
+func (d *Directive) Equal(a *Directive) bool {
+	// TODO: add more equality tests!
+	return (a.Directive == d.Directive && equals(a.Args, d.Args))
+}
+
+// Insert inserts blocks into the blocks child blocks
+// TODO: make it private?
+func (d *Directive) Insert(index int, children ...*Directive) error {
+	if d == nil {
+		return errors.New("nil directive")
+	}
+	if index >= len(d.Directive) {
+		return fmt.Errorf("index out of range [%d] with length %d", index, len(d.Directive))
+	}
+	// courtesey of slicetricks wiki
+	blocks := (*d).Block
+	(*d).Block = append(blocks[:index], append(children, blocks[index:]...)...)
+	return nil
+}
+
+// Name returns the string representation of the directive's name
+func (d *Directive) Name() string {
+	switch d.Directive {
+	case "location":
+		return d.Directive + strings.Join(d.Args, pathSep)
+	case "server":
+		names := subVal("server_name", d.Block)
+		if names == nil {
+			names = []string{"unknown"}
+		}
+		listen := subVal("listen", d.Block)
+		if listen == nil {
+			panic("no listener")
+		}
+		return fmt.Sprintf("%s-%s-%s", d.Directive, names[0], listen[0])
+	case "#":
+		return "_" + d.Comment
+	}
+	return d.Directive
+}
+
+// TODO: gather helpers
+func among(item string, list ...string) bool {
+	for _, x := range list {
+		if item == x {
 			return true
 		}
 	}
 	return false
 }
 
-func canRead(pattern string, a ParseArgs, parsed Config, lineNumber int) (bool, Config, error) {
-	f, err := os.Open(pattern)
-	if err != nil {
-		if a.CatchErrors {
-			handleErrors(parsed, err, lineNumber)
-			return false, parsed, nil
-		}
-		return false, parsed, err
+// NOTE: This (and it's invocation) will all go once code has crystalized
 
+// Debugging enables debug output
+var Debugging bool
+
+func debugf(msg string, args ...interface{}) {
+	if Debugging {
+		log.Printf(msg, args...)
 	}
-	defer func() {
-		if err := f.Close(); err != nil {
-			log.Println("error closing the file")
-		}
-	}()
-	return true, parsed, nil
-}
-
-func handleErrors(parsed Config, e error, line int) {
-	file := parsed.File
-	parseErr := ParseError{
-		Error: e,
-		Line:  line,
-		File:  "",
-	}
-	payloadErr := ParseError{
-		Error: e,
-		Line:  line,
-		File:  file,
-	}
-
-	parsed.Status = "failed"
-	parsed.Errors = append(parsed.Errors, parseErr)
-
-	payload.Status = "failed"
-	payload.Errors = append(payload.Errors, payloadErr)
-
-}
-
-func combineParsedConfigs(p Payload) (Payload, error) {
-	if p.Config == nil {
-		return Payload{}, errors.New("Input pyload config is nil")
-	}
-	oldConfig := p.Config
-	var performIncludes func(b []*Directive) []*Directive
-	performIncludes = func(b []*Directive) []*Directive {
-		var returnBlock []*Directive
-		for _, block := range b {
-			if len(block.Block) > 0 {
-				block.Block = performIncludes(block.Block)
-			}
-			if block.Directive == "include" {
-				for _, f := range block.Args {
-					config := findFile(f, oldConfig)
-					g := performIncludes(config)
-					returnBlock = append(returnBlock, g...)
-				}
-				continue
-			}
-			returnBlock = append(returnBlock, block)
-		}
-		return returnBlock
-	}
-
-	combineConfig := Config{
-		File:   oldConfig[0].File,
-		Status: "ok",
-		Errors: []ParseError{},
-		Parsed: []*Directive{},
-	}
-
-	for _, config := range oldConfig {
-		combineConfig.Errors = append(combineConfig.Errors, config.Errors...)
-		if config.Status != "ok" {
-			combineConfig.Status = "failed"
-		}
-	}
-	firstConfig := oldConfig[0].Parsed
-	combineConfig.Parsed = performIncludes(firstConfig)
-
-	combinePayload := Payload{
-		Status: p.Status,
-		Errors: p.Errors,
-		File:   p.File,
-		Config: []Config{combineConfig},
-	}
-	return combinePayload, nil
-}
-
-func findFile(f string, config []Config) []*Directive {
-	for _, i := range config {
-		if i.File == f {
-			return i.Parsed
-		}
-	}
-	return []*Directive{}
 }
