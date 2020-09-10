@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"unsafe"
 
 	"github.com/armon/go-radix"
 )
@@ -20,6 +21,11 @@ type TreeMap struct {
 	Payload *Payload
 	tree    *radix.Tree
 	mu      sync.Mutex
+	//serverCount   int
+	//locationCount int
+	// TODO: count derived from len of below?
+	locations map[*Directive]struct{}
+	servers   map[*Directive]struct{}
 }
 
 // NewTree creates a map wrapper around the payload
@@ -62,7 +68,16 @@ type Changes struct {
 	Directives []*Directive
 }
 
-const pathSep = "/"
+type ChangeSet struct {
+	Name        string
+	Description string
+	Modules     []string
+	Changes     []Changes
+	Params      map[string]interface{}
+}
+
+// TODO: need way to disambiguate between path separation and location args in their name
+const pathSep = ">" // "/"
 
 // find a matching directive in the list
 // and return its args
@@ -79,20 +94,22 @@ func subVal(name string, blocks []*Directive) []string {
 // WalkBack ties a config path to its associated directives
 // NOTE:  payload is implicit, as this will be created and used
 //        within a specific payload instance
+// TODO: ultimately use Directive pointer once debugged?
 type WalkBack struct {
-	Indicies  []int      // path to that block
-	Index     int        // offset into final block slice -- NOTE could make it last entry of Indicies and check for end of slice
-	Directive *Directive // TODO: make this a pointer?
+	Indicies  []int  // path to that block
+	Index     int    // offset into final block slice -- NOTE could make it last entry of Indicies and check for end of slice
+	Path      string // TODO: temp for now
+	Directive *Directive
 }
 
 func (w WalkBack) String() string {
-	return fmt.Sprintf("%v-%s", w.Indicies, w.Directive.Directive)
+	return fmt.Sprintf("%v-%s = %q", w.Indicies, w.Directive.Directive, strings.Join(w.Directive.Args, " "))
 }
 
 // inject blocks into tree
 // internal -- named to avoid "insert" for normal use
 func (t *TreeMap) inject(Insert Inserter, path string, index []int, blocks []*Directive) {
-	debugf("inject path: %s index: %v\n", path, index)
+	debugf("inject path: %s blocks: %d index: %v\n", path, len(blocks), index)
 	for i, block := range blocks {
 		if block.Directive == "#" {
 			continue
@@ -103,19 +120,47 @@ func (t *TreeMap) inject(Insert Inserter, path string, index []int, blocks []*Di
 			}
 			continue
 		}
-		here := path + pathSep + block.Name()
-		val := WalkBack{Indicies: index, Directive: block, Index: i}
-		Insert(here, val)
-		// extend the index and add any children
+		// extend the index for any children
 		sub := append(index, i)
-		t.inject(Insert, here, sub, block.Block)
+		val := WalkBack{Indicies: index, Directive: block, Index: i, Path: path}
+
+		save := func(p, s string) {
+			if s == "" {
+				s = p
+			}
+			Insert(p, val)
+			t.inject(Insert, s, sub, block.Block)
+		}
+		save(path+pathSep+block.Name(), "")
+		if block.tag != "" {
+			// no full path required as each tag unique
+			save(block.Directive+"@"+block.tag, "")
+		}
+		switch block.Directive {
+		case "server":
+			if _, ok := t.servers[block]; !ok {
+				t.servers[block] = struct{}{}
+				// no full path required as each numbered server is unique
+				into := fmt.Sprintf("%s#%d", block.Directive, len(t.servers))
+				save(into, "")
+			}
+		case "location":
+			if _, ok := t.locations[block]; !ok {
+				t.locations[block] = struct{}{}
+				// no full path required as each numbered location is unique
+				into := fmt.Sprintf("%s#%d", block.Directive, len(t.locations))
+				save(into, path)
+			}
+		}
 	}
 }
 
-// BuildTree does the needful
+// BuildTree creates a radix tree into all the crossplane config nodes
 func (t *TreeMap) buildTree() {
 	t.tree = radix.New()
 	config := t.Payload.Config[0]
+	t.servers = make(map[*Directive]struct{})
+	t.locations = make(map[*Directive]struct{})
 	t.inject(t.tree.Insert, "", []int{0}, config.Parsed)
 }
 
@@ -133,17 +178,28 @@ func (t *TreeMap) ShowTree() {
 	if t.tree == nil {
 		t.buildTree()
 	}
-
+	debugf("tree entries: %d\n", t.tree.Len())
+	debugf("tree memory: %d\n", unsafe.Sizeof(t.tree))
 	// TODO: walk tree to build path/value slices, sort directly
 	//       profile to vet such an optimization
-	m := t.tree.ToMap()
-	paths := make([]string, 0, len(m))
-	for k := range m {
-		paths = append(paths, k)
+	if true {
+		walker := func(s string, v interface{}) bool {
+			wb := v.(WalkBack)
+			fmt.Printf("=> K: %-60s -- V: %s\n", s, wb)
+			return false
+		}
+		t.tree.Walk(walker)
 	}
-	sort.Strings(paths)
-	for _, k := range paths {
-		fmt.Printf("K: %-60s -- V: %s\n", k, m[k])
+	if false {
+		m := t.tree.ToMap()
+		paths := make([]string, 0, len(m))
+		for k := range m {
+			paths = append(paths, k)
+		}
+		sort.Strings(paths)
+		for _, k := range paths {
+			fmt.Printf("K: %-60s -- V: %s\n", k, m[k])
+		}
 	}
 }
 
@@ -240,7 +296,7 @@ func (t *TreeMap) Delete(path string) error {
 	debugf("deleting from %v\n", b)
 	for i, b2 := range *b {
 		if b2.Equal(kill) {
-			debugf("KILLING: %v\n", kill)
+			//debugf("KILLING: %v\n", kill)
 			*b = append((*b)[:i], (*b)[i+1:]...)
 			t.tree.Delete(path)
 			return nil
@@ -250,9 +306,9 @@ func (t *TreeMap) Delete(path string) error {
 
 }
 
-// ChangeSet allows a transaction of multiple configuration changes
+// ChangeConfig allows a transaction of multiple configuration changes
 // TODO: ensure it is truly atomic (any failure results in rollback)
-func (t *TreeMap) ChangeSet(changes ...Changes) error {
+func (t *TreeMap) ChangeConfig(changes ...Changes) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	for i, change := range changes {
@@ -326,6 +382,30 @@ func (t *TreeMap) Get(s string) (interface{}, error) {
 	}
 	v, ok := t.tree.Get(s)
 	if !ok {
+		prefix, what, found := t.tree.LongestPrefix(s)
+		fmt.Printf("\nPREFIX: %s (%t)\n", prefix, found)
+		wb, proper := what.(WalkBack)
+		if !proper {
+			return nil, fmt.Errorf("entry not found: %q", s)
+		}
+		exprLeft := strings.Index(s, "[")
+		if exprLeft < 0 {
+			return nil, fmt.Errorf("missing path expression")
+		}
+		exprRight := strings.Index(s, "]")
+		if exprRight < 0 {
+			return nil, fmt.Errorf(`missing close of expression ']"`)
+		}
+		if false {
+			from := len(prefix) + len(pathSep)
+			fmt.Printf("FROM: %v  WB: %+v\n", from, wb)
+		}
+		//remains := s[from:exprLeft]
+		//fmt.Printf("REMAINS: %q\n", remains)
+		//fmt.Printf("\nDIRECTIVE: %+v\n", wb.Directive)
+		expr := s[exprLeft+1 : exprRight]
+		children := strings.Split(expr, ",")
+		debugf("EXPR: %q\n", children)
 		return nil, fmt.Errorf("entry not found: %q", s)
 	}
 	wb, ok := v.(WalkBack)
@@ -343,7 +423,7 @@ func (t *TreeMap) Get(s string) (interface{}, error) {
 func ChangeMe(conf, edit string) (*TreeMap, error) {
 	debugf("MODIFY: %s\n", conf)
 	debugf("USING : %s\n", edit)
-
+	// TODO: identify where to put mutex protection (here?)
 	var catchErrors, single, comment bool
 	var ignore []string
 	p, err := ParseFile(conf, ignore, catchErrors, single, comment)
@@ -365,7 +445,7 @@ func ChangeMe(conf, edit string) (*TreeMap, error) {
 	tm := &TreeMap{Payload: p}
 	tm.buildTree()
 
-	if err = tm.ChangeSet(changes...); err != nil {
+	if err = tm.ChangeConfig(changes...); err != nil {
 		return nil, err
 	}
 
