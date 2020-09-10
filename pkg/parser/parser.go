@@ -26,9 +26,9 @@ type ParseArgs struct {
 // Payload represents a parsed nginx config(s)
 // It is the parent struct for parsed data
 type Payload struct {
+	Config []*Config    `json:"config,omitempty"`
 	Errors []ParseError `json:"errors,omitempty"`
 	File   string       `json:"file"`
-	Config []*Config    `json:"config,omitempty"`
 	Dir    string       `json:"dir,omitempty"`
 }
 
@@ -42,13 +42,14 @@ type Config struct {
 
 // Directive -
 type Directive struct {
+	tag       string
 	Directive string       `json:"directive"`
+	File      string       `json:"file,omitempty"`
+	Comment   string       `json:"comment,omitempty"`
 	Line      int          `json:"line"`
 	Args      []string     `json:"args,omitempty"`
 	Includes  []int        `json:"includes,omitempty"`
 	Block     []*Directive `json:"block,omitempty"`
-	File      string       `json:"file,omitempty"`
-	Comment   string       `json:"comment,omitempty"`
 }
 
 // IsComment returns true when the directive is a comment directive
@@ -66,7 +67,7 @@ type ParseError struct {
 	File   string `json:"file"`
 	Line   int    `json:"line"`
 	Column int    `json:"column"`
-	Fail   error  `json:"error"` // TODO: Fail as plain error?
+	Fail   error  `json:"error"`
 }
 
 // Error makes this a proper Error, eh?
@@ -182,6 +183,7 @@ func ParseString(filename, config string, ignore []string, catcherr, single, com
 func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args ParseArgs) ([]*Directive, error) {
 	var out []*Directive
 	var e error
+	var tag string
 	baseDir := filepath.Dir(config.File)
 	for token := range tokens {
 		if token.Item == "}" {
@@ -190,6 +192,7 @@ func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args Par
 		block := &Directive{
 			Directive: token.Item,
 			Line:      token.LineNum,
+			tag:       tag,
 		}
 
 		// NOTE: consume is only checked here -- to signal if we are inside a bracket import
@@ -207,6 +210,15 @@ func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args Par
 
 		if strings.HasPrefix(token.Item, "#") {
 			if !args.Comments {
+				if strings.HasPrefix(token.Item, "#@") {
+					// TODO: maybe directly to "tag"?
+					snip := strings.TrimSpace(token.Item[2:])
+					if snip != "" {
+						debugf("setting tag to: %q\n", snip)
+						tag = snip
+						block.tag = tag
+					}
+				}
 				block.Directive = "#"
 				block.Comment = token.Item[1:]
 				out = append(out, block)
@@ -234,6 +246,15 @@ func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args Par
 			//       of comments following args (on the side, rather than above)
 			if strings.HasPrefix(token.Item, "#") {
 				if args.Comments {
+					if strings.HasPrefix(token.Item, "#@") {
+						snip := strings.TrimSpace(token.Item[2:])
+						if snip != "" {
+							debugf("setting tag to: %q\n", snip)
+							tag = snip
+							block.tag = tag
+						}
+					}
+
 					block.Block = append(block.Block, &Directive{
 						Directive: "#",
 						Comment:   token.Item[1:],
@@ -260,7 +281,7 @@ func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args Par
 			if err != nil {
 				if args.CatchErrors {
 					parseErr := ParseError{
-						Fail:   e,
+						Fail:   err,
 						Line:   token.LineNum,
 						Column: token.Column,
 						File:   args.FileName,
@@ -292,6 +313,11 @@ func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args Par
 				return out, e
 			}
 		}
+		if tag != "" {
+			fmt.Printf("\nDIR: %s TAG: %s\n", block.Directive, tag)
+		}
+		block.tag = tag
+		tag = ""
 		out = append(out, block)
 	}
 	return out, nil
@@ -465,21 +491,23 @@ func (d *Directive) Insert(index int, children ...*Directive) error {
 
 // Name returns the string representation of the directive's name
 func (d *Directive) Name() string {
+	const dirSep = "_"
 	switch d.Directive {
 	case "location":
-		return d.Directive + strings.Join(d.Args, pathSep)
+		return d.Directive + dirSep + strings.Join(d.Args, pathSep)
 	case "server":
 		names := subVal("server_name", d.Block)
-		if names == nil {
+		if len(names) == 0 {
 			names = []string{"unknown"}
 		}
 		listen := subVal("listen", d.Block)
-		if listen == nil {
+		if len(listen) == 0 {
 			panic("no listener")
 		}
-		return fmt.Sprintf("%s-%s-%s", d.Directive, names[0], listen[0])
+		debugf("LISTEN: %q\n", listen[0])
+		return fmt.Sprintf("%s%s%s%s%s", d.Directive, dirSep, names[0], dirSep, listen[0])
 	case "#":
-		return "_" + d.Comment
+		return dirSep + d.Comment
 	}
 	return d.Directive
 }
