@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"os"
 	"regexp"
 	"testing"
 )
@@ -30,6 +31,6 @@ func TestApply(t *testing.T) {
 		t.Fatal(err)
 	}
 	if testing.Verbose() {
-		tm.ShowTree()
+		tm.ShowTree(os.Stdout)
 	}
 }

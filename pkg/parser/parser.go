@@ -83,22 +83,20 @@ func (p ParseError) Error() string {
 //   :param comments: bool; if True, including comments to json payload
 //   :returns: a payload that describes the parsed nginx config
 func ParseFile(file string, ignore []string, catcherr, single, comment bool) (*Payload, error) {
-	fpath, err := filepath.Abs(file)
-	if err != nil {
-		return nil, err
-	}
 	cwd, err := os.Getwd()
 	if err != nil {
 		return nil, err
 	}
-	dir := filepath.Dir(fpath)
+	debugf("CWD: %s\n", cwd)
+	dir := filepath.Dir(file)
 	if err := os.Chdir(dir); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("in CWD: %q -- err: %v", cwd, err)
 	}
-	fpath = filepath.Base(fpath)
+
+	file = filepath.Base(file)
 
 	a := ParseArgs{
-		FileName:    fpath,
+		FileName:    file,
 		CatchErrors: catcherr,
 		Ignore:      ignore,
 		Single:      single,
@@ -106,7 +104,7 @@ func ParseFile(file string, ignore []string, catcherr, single, comment bool) (*P
 	}
 
 	payload := &Payload{
-		File: fpath,
+		File: file,
 		Dir:  dir,
 	}
 	err = payload.readFile(a)
@@ -504,7 +502,6 @@ func (d *Directive) Name() string {
 		if len(listen) == 0 {
 			panic("no listener")
 		}
-		debugf("LISTEN: %q\n", listen[0])
 		return fmt.Sprintf("%s%s%s%s%s", d.Directive, dirSep, names[0], dirSep, listen[0])
 	case "#":
 		return dirSep + d.Comment

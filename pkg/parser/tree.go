@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"os"
-	"sort"
 	"strings"
 	"sync"
 	"unsafe"
@@ -120,16 +119,18 @@ func (t *TreeMap) inject(Insert Inserter, path string, index []int, blocks []*Di
 			}
 			continue
 		}
-		// extend the index for any children
-		sub := append(index, i)
+		// extend COPY of the index for any children
+		sub := append([]int{}, index...)
+		sub = append(sub, i)
 		val := WalkBack{Indicies: index, Directive: block, Index: i, Path: path}
 
-		save := func(p, s string) {
-			if s == "" {
-				s = p
+		// TODO: child is not used, what was I thinking?
+		save := func(current, child string) {
+			if child == "" {
+				child = current
 			}
-			Insert(p, val)
-			t.inject(Insert, s, sub, block.Block)
+			Insert(current, val)
+			t.inject(Insert, child, sub, block.Block)
 		}
 		save(path+pathSep+block.Name(), "")
 		if block.tag != "" {
@@ -167,40 +168,28 @@ func (t *TreeMap) buildTree() {
 // ShowTree shows the payload config tree
 // NOTE: this is effectively a dev tool and may end up being removed
 // TODO: What should be exposed via API?
-func (t *TreeMap) ShowTree() {
+func (t *TreeMap) ShowTree(w io.Writer) {
+	if w == nil {
+		w = os.Stdout
+	}
 	if len(t.Payload.Config) > 0 {
-		fmt.Printf("\nincluded files:\n")
+		fmt.Fprintf(w, "\nincluded files:\n")
 		for i, conf := range t.Payload.Config {
-			fmt.Printf("%2d: %s\n", i, conf.File)
+			fmt.Fprintf(w, "%2d: %s\n", i, conf.File)
 		}
-		fmt.Println()
+		fmt.Fprintln(w)
 	}
 	if t.tree == nil {
 		t.buildTree()
 	}
 	debugf("tree entries: %d\n", t.tree.Len())
 	debugf("tree memory: %d\n", unsafe.Sizeof(t.tree))
-	// TODO: walk tree to build path/value slices, sort directly
-	//       profile to vet such an optimization
-	if true {
-		walker := func(s string, v interface{}) bool {
-			wb := v.(WalkBack)
-			fmt.Printf("=> K: %-60s -- V: %s\n", s, wb)
-			return false
-		}
-		t.tree.Walk(walker)
+	walker := func(s string, v interface{}) bool {
+		wb := v.(WalkBack)
+		fmt.Fprintf(w, "=> K: %-60s -- V: %s\n", s, wb)
+		return false
 	}
-	if false {
-		m := t.tree.ToMap()
-		paths := make([]string, 0, len(m))
-		for k := range m {
-			paths = append(paths, k)
-		}
-		sort.Strings(paths)
-		for _, k := range paths {
-			fmt.Printf("K: %-60s -- V: %s\n", k, m[k])
-		}
-	}
+	t.tree.Walk(walker)
 }
 
 // Append blocks to the given path
@@ -254,6 +243,7 @@ func (t *TreeMap) Insert(path string, inserts ...*Directive) error {
 	if err != nil {
 		return err
 	}
+	debugf("WALKBACK: %+v\n", wb)
 	debugf("HELLO inserts: %v", inserts)
 
 	var block *Directive
@@ -266,10 +256,17 @@ func (t *TreeMap) Insert(path string, inserts ...*Directive) error {
 			blocks = &(t.Payload.Config[x].Parsed)
 		case 1:
 			block = ((*blocks)[x])
+			debugf("block %d: %s %v\n", i, block.Directive, block.Block)
 		default:
 			block = ((*block).Block[x])
+			debugf("block %d: %s %v\n", i, block.Directive, block.Block)
 		}
 	}
+	into := block.Directive
+	if len(block.Args) > 0 {
+		into += " " + strings.Join(block.Args, " ")
+	}
+	debugf("Inserting into %q, at %d/%d\n", into, wb.Index+1, len(block.Block))
 	if err := block.Insert(wb.Index, inserts...); err != nil {
 		return fmt.Errorf("path: %s index: %d err:%w", path, wb.Index, err)
 	}
@@ -312,7 +309,7 @@ func (t *TreeMap) ChangeConfig(changes ...Changes) error {
 	t.mu.Lock()
 	defer t.mu.Unlock()
 	for i, change := range changes {
-		debugf("CHANGING %d/%d: %q (%d) -> %q\n", i+1, len(changes), change.Path, change.Act, dirs(change.Directives...))
+		debugf("\n\n\nCHANGING %d/%d: %q (%d) -> %q\n", i+1, len(changes), change.Path, change.Act, dirs(change.Directives...))
 		switch change.Act {
 		case ActionInsert:
 			if err := t.Insert(change.Path, change.Directives...); err != nil {
@@ -330,9 +327,11 @@ func (t *TreeMap) ChangeConfig(changes ...Changes) error {
 			return fmt.Errorf("action #%d -- %+v is not supported at this time", i, change.Act)
 		}
 	}
-	if Debugging {
-		t.ShowTree()
-	}
+	/*
+		if Debugging {
+			t.ShowTree(os.Stderr)
+		}
+	*/
 	return nil
 }
 
