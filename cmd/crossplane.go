@@ -187,7 +187,7 @@ func Execute() (err error) {
 				log.Fatal(err)
 			}
 		}
-		parser.NewTree(payload).ShowTree()
+		parser.NewTree(payload).ShowTree(os.Stdout)
 	}
 
 	editCmd.Flags().UintVarP(&indent, "indent", "i", 4, "Set spaces for indentation")
@@ -219,7 +219,7 @@ func Execute() (err error) {
 			log.Fatalf("oh crap: %v", err)
 		}
 		if debug {
-			parser.NewTree(changed.Payload).ShowTree()
+			parser.NewTree(changed.Payload).ShowTree(os.Stdout)
 		}
 	}
 
