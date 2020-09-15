@@ -79,6 +79,23 @@ func TestLexScanner(t *testing.T) {
 				{`"Ser" ' ' ver\\ \ $server_addr:\$server_port\n\nTime: $time_local\n\n"`, 4, 0}, {";", 4, 0}, {"}", 5, 0},
 			},
 		},
+		{
+			"address with subnet mask",
+			"set_real_ip_from 192.168.0.1/24",
+			[]LexicalItem{
+				{"set_real_ip_from", 1, 0},
+				{"192.168.0.1/24", 1, 0},
+			},
+		},
+		{
+			"time with interval",
+			"proxy_buffers 4 256k",
+			[]LexicalItem{
+				{"proxy_buffers", 1, 0},
+				{"4", 1, 0},
+				{"256k", 1, 0},
+			},
+		},
 	}
 	for _, tt := range testCases {
 		t.Log(tt.title)
