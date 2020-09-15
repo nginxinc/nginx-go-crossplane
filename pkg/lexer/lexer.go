@@ -73,11 +73,10 @@ func consumeWord(data []byte, isLua bool) (int, []byte, bool, error) {
 func consumeNum(data []byte) (int, []byte, error) {
 	var accum []byte
 	for i, b := range data {
-		if '0' <= b && b <= '9' || b == '.' || b == ':' {
-			accum = append(accum, b)
-		} else {
+		if b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == ';' || b == '{' {
 			return i, accum, nil
 		}
+		accum = append(accum, b)
 	}
 	return len(accum), accum, nil
 }
