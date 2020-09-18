@@ -214,7 +214,6 @@ func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args Par
 					if snip != "" {
 						debugf("setting tag to: %q\n", snip)
 						tag = snip
-						block.tag = tag
 					}
 				}
 				block.Directive = "#"
@@ -249,7 +248,6 @@ func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args Par
 						if snip != "" {
 							debugf("setting tag to: %q\n", snip)
 							tag = snip
-							block.tag = tag
 						}
 					}
 
@@ -312,7 +310,7 @@ func (p *Payload) parse(config Config, tokens <-chan lexer.LexicalItem, args Par
 			}
 		}
 		if tag != "" {
-			fmt.Printf("\nDIR: %s TAG: %s\n", block.Directive, tag)
+			debugf("\nDIR: %s TAG: %s\n", block.Directive, tag)
 		}
 		block.tag = tag
 		tag = ""
@@ -384,9 +382,6 @@ func (p *Payload) Dump(w io.Writer) {
 //       export the config directly to a file(s), tarball, or a string
 // TODO: complete this!
 func (p *Payload) Render(w io.Writer) error {
-	if _, err := io.WriteString(w, "# rendered by CrossPlane\n\n"); err != nil {
-		return err
-	}
 	return RenderDirectives(w, p.Config[0].Parsed)
 }
 
@@ -527,5 +522,34 @@ var Debugging bool
 func debugf(msg string, args ...interface{}) {
 	if Debugging {
 		log.Printf(msg, args...)
+	}
+}
+
+func retag(dirs []*Directive) {
+	var tag string
+	for _, dir := range dirs {
+		retag(dir.Block)
+		dir.tag = tag
+		if dir.IsComment() {
+			debugf("comment: %q", dir.Comment)
+		}
+		if dir.IsComment() && strings.HasPrefix(dir.Comment, "@ ") {
+			snip := strings.TrimSpace(dir.Comment[2:])
+			if snip != "" {
+				debugf("retagging with: %q\n", snip)
+				tag = snip
+			}
+		} else {
+			tag = ""
+		}
+	}
+}
+
+// Retag scans the payload data and rebuilds tag info,
+// as tags are not exported and are lost if using a
+// marshaled payload
+func (p *Payload) Retag() {
+	for _, conf := range p.Config {
+		retag(conf.Parsed)
 	}
 }
