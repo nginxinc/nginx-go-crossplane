@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"encoding/json"
 	"io"
 	"io/ioutil"
 	"os"
@@ -388,6 +389,58 @@ func TestParseDump(t *testing.T) {
 		w = os.Stdout
 	}
 	parsed.Dump(w)
+}
+
+func TestRetag(t *testing.T) {
+	const fileName = "config/tags.conf"
+	var catcherr, single, comments bool
+	Debugging = testing.Verbose()
+	parsed, err := ParseFile(fileName, nil, catcherr, single, comments)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t0 := tagCount(parsed)
+	if t0 == 0 {
+		t.Fatal("no tags found in original file")
+	}
+	t.Logf("original has %d tags\n", t0)
+
+	// replicate marshaling payload to another process/server
+	b, _ := json.Marshal(parsed)
+	dupe := new(Payload)
+	if err := json.Unmarshal(b, dupe); err != nil {
+		t.Fatal(err)
+	}
+
+	t1 := tagCount(dupe)
+	if t1 > 0 {
+		t.Fatalf("expected no tags in dupe but found: %d", t1)
+	}
+
+	dupe.Retag()
+	t1 = tagCount(dupe)
+	if t1 != t0 {
+		t.Fatalf("expected %d tags but got %d", t0, t1)
+	}
+}
+
+func countTags(dirs []*Directive) int {
+	count := 0
+	for _, dir := range dirs {
+		if dir.tag != "" {
+			count++
+		}
+		count += countTags(dir.Block)
+	}
+	return count
+}
+
+func tagCount(p *Payload) int {
+	count := 0
+	for _, conf := range p.Config {
+		count += countTags(conf.Parsed)
+	}
+	return count
 }
 
 func compareDirectives(t *testing.T, gen, config *Directive) {
