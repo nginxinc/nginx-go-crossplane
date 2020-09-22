@@ -88,16 +88,10 @@ func consumeString(data []byte, isLua bool) (int, []byte, bool, error) {
 	var accum []byte
 
 	delim := data[0]
-	accum = append(accum, delim)
 	skip := false
 
 	for i, b := range data[1:] {
 		if b == delim && !skip {
-			if delim == '\'' && len(accum) < 1 {
-				accum = append(accum, '\'', '\'')
-			} else {
-				accum = append(accum, delim)
-			}
 			if strings.Contains(string(accum), "lua") && !strings.Contains(string(accum), "content") {
 				isLua = true
 			} else {
