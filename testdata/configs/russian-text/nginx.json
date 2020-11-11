@@ -1,0 +1,26 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/russian-text/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "env",
+          "line": 1,
+          "args": [
+            "русский текст"
+          ]
+        },
+        {
+          "directive": "events",
+          "line": 2,
+          "args": [],
+          "block": []
+        }
+      ]
+    }
+  ]
+}

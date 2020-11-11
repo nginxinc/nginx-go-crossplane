@@ -1,0 +1,165 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/includes-globbed/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "events",
+          "line": 1,
+          "args": []
+        },
+        {
+          "directive": "include",
+          "line": 2,
+          "args": [
+            "http.conf"
+          ],
+          "includes": [
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "file": "testdata/configs/includes-globbed/http.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "http",
+          "line": 1,
+          "args": [],
+          "block": [
+            {
+              "directive": "include",
+              "line": 2,
+              "args": [
+                "servers/*.conf"
+              ],
+              "includes": [
+                2,
+                3
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "testdata/configs/includes-globbed/servers/server1.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "server",
+          "line": 1,
+          "args": [],
+          "block": [
+            {
+              "directive": "listen",
+              "line": 2,
+              "args": [
+                "8080"
+              ]
+            },
+            {
+              "directive": "include",
+              "line": 3,
+              "args": [
+                "locations/*.conf"
+              ],
+              "includes": [
+                4,
+                5
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "testdata/configs/includes-globbed/servers/server2.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "server",
+          "line": 1,
+          "args": [],
+          "block": [
+            {
+              "directive": "listen",
+              "line": 2,
+              "args": [
+                "8081"
+              ]
+            },
+            {
+              "directive": "include",
+              "line": 3,
+              "args": [
+                "locations/*.conf"
+              ],
+              "includes": [
+                4,
+                5
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "testdata/configs/includes-globbed/locations/location1.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "location",
+          "line": 1,
+          "args": [
+            "/foo"
+          ],
+          "block": [
+            {
+              "directive": "return",
+              "line": 2,
+              "args": [
+                "200",
+                "foo"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "testdata/configs/includes-globbed/locations/location2.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "location",
+          "line": 1,
+          "args": [
+            "/bar"
+          ],
+          "block": [
+            {
+              "directive": "return",
+              "line": 2,
+              "args": [
+                "200",
+                "bar"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

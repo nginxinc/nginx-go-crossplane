@@ -1,0 +1,311 @@
+{
+  "status": "failed",
+  "errors": [
+    {
+      "file": "testdata/configs/includes-regular/conf.d/server.conf",
+      "error": "[Errno 2] No such file or directory: 'testdata/configs/includes-regular/details.conf'",
+      "line": 7
+    }
+  ],
+  "config": [
+    {
+      "file": "testdata/configs/includes-regular/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "#",
+          "line": 1,
+          "args": [],
+          "comment": " empty events for now"
+        },
+        {
+          "directive": "events",
+          "line": 2,
+          "args": [],
+          "block": [
+            {
+              "directive": "multi_accept",
+              "line": 3,
+              "args": [
+                "on"
+              ]
+            }
+          ]
+        },
+        {
+          "directive": "#",
+          "line": 6,
+          "args": [],
+          "comment": " and all http via included configs"
+        },
+        {
+          "directive": "#",
+          "line": 7,
+          "args": [],
+          "comment": " m'kay?"
+        },
+        {
+          "directive": "http",
+          "line": 8,
+          "args": [],
+          "block": [
+            {
+              "directive": "map",
+              "line": 10,
+              "args": [
+                "$what",
+                "$kind"
+              ],
+              "block": [
+                {
+                  "directive": "banana",
+                  "line": 11,
+                  "args": [
+                    "fruit"
+                  ]
+                },
+                {
+                  "directive": "beans",
+                  "line": 12,
+                  "args": [
+                    "vegetable"
+                  ]
+                },
+                {
+                  "directive": "brains",
+                  "line": 13,
+                  "args": [
+                    "animal"
+                  ]
+                }
+              ]
+            },
+            {
+              "directive": "include",
+              "line": 16,
+              "args": [
+                "conf.d/server.conf"
+              ],
+              "includes": [
+                1
+              ]
+            },
+            {
+              "directive": "include",
+              "line": 17,
+              "args": [
+                "conf.d/http*.conf"
+              ],
+              "includes": [
+                2
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "testdata/configs/includes-regular/conf.d/server.conf",
+      "status": "failed",
+      "errors": [
+        {
+          "error": "[Errno 2] No such file or directory: 'testdata/configs/includes-regular/details.conf'",
+          "line": 7
+        }
+      ],
+      "parsed": [
+        {
+          "directive": "#",
+          "line": 1,
+          "args": [],
+          "comment": "@ production"
+        },
+        {
+          "directive": "server",
+          "line": 2,
+          "args": [],
+          "block": [
+            {
+              "directive": "#",
+              "line": 3,
+              "args": [],
+              "comment": "listen      127.0.0.1:8080;"
+            },
+            {
+              "directive": "listen",
+              "line": 4,
+              "args": [
+                ":8080"
+              ]
+            },
+            {
+              "directive": "server_name",
+              "line": 5,
+              "args": [
+                "foo"
+              ]
+            },
+            {
+              "directive": "#",
+              "line": 6,
+              "args": [],
+              "comment": " including details.conf into server block"
+            },
+            {
+              "directive": "include",
+              "line": 7,
+              "args": [
+                "details.conf"
+              ]
+            },
+            {
+              "directive": "#",
+              "line": 8,
+              "args": [],
+              "comment": " include     bar.conf;"
+            },
+            {
+              "directive": "#",
+              "line": 10,
+              "args": [],
+              "comment": "@ ramones"
+            },
+            {
+              "directive": "location",
+              "line": 11,
+              "args": [
+                "/heynow"
+              ],
+              "block": [
+                {
+                  "directive": "return",
+                  "line": 12,
+                  "args": [
+                    "200",
+                    "Gaba Gaba Hey!"
+                  ]
+                }
+              ]
+            },
+            {
+              "directive": "#",
+              "line": 15,
+              "args": [],
+              "comment": " not tagged"
+            },
+            {
+              "directive": "location",
+              "line": 16,
+              "args": [
+                "/nada"
+              ],
+              "block": [
+                {
+                  "directive": "#",
+                  "line": 17,
+                  "args": [],
+                  "comment": "@ hellaworld"
+                },
+                {
+                  "directive": "location",
+                  "line": 18,
+                  "args": [
+                    "/nada/problem"
+                  ],
+                  "block": [
+                    {
+                      "directive": "return",
+                      "line": 19,
+                      "args": [
+                        "202",
+                        "what me worry?"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "directive": "return",
+                  "line": 21,
+                  "args": [
+                    "201",
+                    "say what?"
+                  ]
+                }
+              ]
+            },
+            {
+              "directive": "#",
+              "line": 24,
+              "args": [],
+              "comment": " not tagged either"
+            },
+            {
+              "directive": "location",
+              "line": 25,
+              "args": [
+                "/meh"
+              ],
+              "block": [
+                {
+                  "directive": "return",
+                  "line": 26,
+                  "args": [
+                    "203",
+                    "what ev er"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "file": "testdata/configs/includes-regular/conf.d/http-inner.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "#",
+          "line": 2,
+          "args": [],
+          "comment": " this file is \"conf.d/http-inner.conf\", loaded in as an include under main http"
+        },
+        {
+          "directive": "allow",
+          "line": 4,
+          "args": [
+            "localhost"
+          ]
+        },
+        {
+          "directive": "deny",
+          "line": 5,
+          "args": [
+            "192.168.1.0/24"
+          ]
+        },
+        {
+          "directive": "#",
+          "line": 7,
+          "args": [],
+          "comment": " let's delete this as a test"
+        },
+        {
+          "directive": "expires",
+          "line": 8,
+          "args": [
+            "max"
+          ]
+        },
+        {
+          "directive": "#",
+          "line": 10,
+          "args": [],
+          "comment": " end of conf.d/http-inner.conf (but still under http block)"
+        }
+      ]
+    }
+  ]
+}

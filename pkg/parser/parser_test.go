@@ -1,63 +1,50 @@
-package parser
+// replacing these tests with python "golden master configs"
+// +build golden
+
+package parser_test
 
 import (
-	"encoding/json"
-	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"syscall"
 	"testing"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
+
+	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 )
 
+func init() {
+	// evaluate configs from project root
+	os.Chdir("../..")
+}
+
+// HelperFilepath returns a relative filepath to a file in the testdata directory
+func HelperFilepath(paths ...string) string {
+	paths = append([]string{"testdata/configs"}, paths...)
+	return filepath.Join(paths...)
+}
+
 var tests = []struct {
-	title    string
-	arg      ParseArgs
-	file     string
-	testdata []lexer.LexicalItem
-	config   []*Directive
+	title  string
+	arg    parser.ParseArgs
+	file   string
+	config []*parser.Directive
 }{
 	{
 		"basic : test Parse ",
-		ParseArgs{
+		parser.ParseArgs{
 			FileName:    "config/simple.conf",
 			CatchErrors: true,
 		},
 		"config/simple.conf",
-		[]lexer.LexicalItem{
-			{Item: "events", LineNum: 1},
-			{Item: "{", LineNum: 1},
-			{Item: "worker_connections", LineNum: 2},
-			{Item: "1024", LineNum: 2},
-			{Item: ";", LineNum: 2},
-			{Item: "}", LineNum: 3},
-			{Item: "http", LineNum: 5},
-			{Item: "{", LineNum: 5},
-			{Item: "server", LineNum: 6},
-			{Item: "{", LineNum: 6},
-			{Item: "listen", LineNum: 7},
-			{Item: "127.0.0.1:8080", LineNum: 7},
-			{Item: ";", LineNum: 7},
-			{Item: "server_name", LineNum: 8},
-			{Item: "default_server", LineNum: 8},
-			{Item: ";", LineNum: 8},
-			{Item: "location", LineNum: 9},
-			{Item: "/", LineNum: 9},
-			{Item: "{", LineNum: 9},
-			{Item: "return", LineNum: 10},
-			{Item: "200", LineNum: 10},
-			{Item: "foo bar baz", LineNum: 10},
-			{Item: ";", LineNum: 10},
-			{Item: "}", LineNum: 11},
-			{Item: "}", LineNum: 12},
-			{Item: "}", LineNum: 13},
-		},
-		// need payload struct
-		[]*Directive{
+		[]*parser.Directive{
 			{
 				Directive: "events",
 				Line:      1,
-				Block: []*Directive{
+				Block: []*parser.Directive{
 					{
 						Directive: "worker_connections",
 						Line:      2,
@@ -68,11 +55,11 @@ var tests = []struct {
 			{
 				Directive: "http",
 				Line:      5,
-				Block: []*Directive{
+				Block: []*parser.Directive{
 					{
 						Directive: "server",
 						Line:      6,
-						Block: []*Directive{
+						Block: []*parser.Directive{
 							{
 								Directive: "listen",
 								Args:      []string{"127.0.0.1:8080"},
@@ -87,7 +74,7 @@ var tests = []struct {
 								Directive: "location",
 								Args:      []string{"/"},
 								Line:      9,
-								Block: []*Directive{
+								Block: []*parser.Directive{
 									{
 										Directive: "return",
 										Args:      []string{"200", "foo bar baz"},
@@ -103,34 +90,21 @@ var tests = []struct {
 	},
 	{
 		"Test : with Comments",
-		ParseArgs{
+		parser.ParseArgs{
 			FileName:    "config/withComments.conf",
 			CatchErrors: true,
+			Comments:    true,
 		},
 		"config/withComments.conf",
-		[]lexer.LexicalItem{
-			{Item: "http", LineNum: 1},
-			{Item: "{", LineNum: 1},
-			{Item: "server", LineNum: 2},
-			{Item: "{", LineNum: 2},
-			{Item: "listen", LineNum: 3},
-			{Item: "127.0.0.1:8080", LineNum: 3},
-			{Item: ";", LineNum: 3},
-			{Item: "#listen", LineNum: 3},
-			{Item: "}", LineNum: 4},
-			{Item: "}", LineNum: 5},
-		},
-		// TODO: this should be an interpolation of lexer.LexicalItem
-		//       use the above definitions to build the tree below
-		[]*Directive{
+		[]*parser.Directive{
 			{
 				Directive: "http",
 				Line:      1,
-				Block: []*Directive{
+				Block: []*parser.Directive{
 					{
 						Directive: "server",
 						Line:      2,
-						Block: []*Directive{
+						Block: []*parser.Directive{
 							{
 								Directive: "listen",
 								Args:      []string{"127.0.0.1:8080"},
@@ -149,24 +123,13 @@ var tests = []struct {
 	},
 	{
 		"basic : messy test",
-		ParseArgs{
+		parser.ParseArgs{
 			FileName:    "config/messy.conf",
 			CatchErrors: true,
+			Comments:    true,
 		},
 		"config/messy.conf",
-		[]lexer.LexicalItem{
-			{Item: "user", LineNum: 1},
-			{Item: "nobody", LineNum: 1},
-			{Item: ";", LineNum: 1},
-			{Item: "# hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n", LineNum: 2},
-			{Item: "events", LineNum: 3},
-			{Item: "{", LineNum: 3},
-			{Item: "worker_connections", LineNum: 3},
-			{Item: "2048", LineNum: 3},
-			{Item: ";", LineNum: 3},
-			{Item: "}", LineNum: 3},
-		},
-		[]*Directive{
+		[]*parser.Directive{
 			{
 				Directive: "user",
 				Args:      []string{"nobody"},
@@ -180,7 +143,7 @@ var tests = []struct {
 			{
 				Directive: "events",
 				Line:      3,
-				Block: []*Directive{
+				Block: []*parser.Directive{
 					{
 						Directive: "worker_connections",
 						Args:      []string{"2048"},
@@ -191,7 +154,7 @@ var tests = []struct {
 			{
 				Directive: "http",
 				Line:      5,
-				Block: []*Directive{
+				Block: []*parser.Directive{
 					{
 						Directive: "#",
 						Line:      5,
@@ -220,7 +183,7 @@ var tests = []struct {
 					{
 						Directive: "server",
 						Line:      8,
-						Block: []*Directive{
+						Block: []*parser.Directive{
 							{
 								Directive: "listen",
 								Args:      []string{"8083"},
@@ -236,7 +199,7 @@ var tests = []struct {
 					{
 						Directive: "server",
 						Line:      12,
-						Block: []*Directive{
+						Block: []*parser.Directive{
 							{
 								Directive: "listen",
 								Args:      []string{"8080"},
@@ -251,7 +214,7 @@ var tests = []struct {
 								Directive: "location",
 								Args:      []string{"~", "/hello/world;"},
 								Line:      14,
-								Block: []*Directive{
+								Block: []*parser.Directive{
 									{
 										Directive: "return",
 										Args:      []string{"301", "/status.html"},
@@ -281,14 +244,14 @@ var tests = []struct {
 							},
 							{
 								Directive: "if",
-								Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST", ""}, // PAUL added empty string to array
+								Args:      []string{"$request_method", "=", "P\\{O\\)\\###\\;ST"},
 								Line:      17,
 							},
 							{
 								Directive: "location",
 								Args:      []string{"/status.html"},
 								Line:      18,
-								Block: []*Directive{
+								Block: []*parser.Directive{
 									{
 										Directive: "try_files",
 										Args:      []string{"/abc/${uri}", "/abc/${uri}.html", "=404"},
@@ -301,7 +264,7 @@ var tests = []struct {
 								Directive: "location",
 								Args:      []string{"/sta;\n                    tus"},
 								Line:      21,
-								Block: []*Directive{
+								Block: []*parser.Directive{
 									{
 										Directive: "return",
 										Args:      []string{"302", "/status.html"},
@@ -314,7 +277,7 @@ var tests = []struct {
 								Directive: "location",
 								Args:      []string{"/upstream_conf"},
 								Line:      23,
-								Block: []*Directive{
+								Block: []*parser.Directive{
 									{
 										Directive: "return",
 										Args:      []string{"200", "/status.html"},
@@ -335,27 +298,130 @@ var tests = []struct {
 }
 
 func TestParser(t *testing.T) {
-	for _, tes := range tests {
-		t.Logf("testing config: %s\n", tes.arg.FileName)
-		parsed, err := ParseFile(tes.arg.FileName, tes.arg.Ignore, tes.arg.CatchErrors, tes.arg.Single, tes.arg.Comments)
-		if parsed.Errors != nil {
-			t.Errorf("Errors encountered: %v", parsed.Errors)
-		}
-		if len(parsed.Config) < 1 {
-			t.Errorf("No configurations parsed for %s", tes.arg.FileName)
-		}
-		par := parsed.Config[0].Parsed
-		for p := 0; p < len(par); p++ {
-			compareDirectives(t, par[p], tes.config[p])
-		}
+	//t.Skip("switching to GM")
+	parser.Debugging = testing.Verbose()
+	tests := map[string]struct {
+		args parser.ParseArgs
+		want *parser.Payload
+	}{
+		"includes regular": {
+			parser.ParseArgs{
+				FileName:    HelperFilepath("includes-regular/nginx.conf"),
+				CatchErrors: true,
+				Comments:    false,
+			},
+			&parser.Payload{
+				Status: "failed",
+				Errors: []parser.ParseError{
+					{
+						File:   "testdata/configs/includes-regular/conf.d/server.conf",
+						Line:   5,
+						Column: 27,
+						Fail:   `[Errno 2] No such file or directory: 'testdata/configs/includes-regular/bar.conf'`,
+					},
+				},
 
-		if err != nil {
-			t.Fatal(err)
-		}
+				Config: []*parser.Config{
+					{
+						Status: "ok",
+						File:   "testdata/configs/includes-regular/nginx.conf",
+						Parsed: []*parser.Directive{
+							{
+								Directive: "events",
+								Line:      1,
+							},
+							{
+								Directive: "http",
+								Line:      5,
+								Block: []*parser.Directive{
+									{
+										Directive: "include",
+										Args:      []string{"conf.d/server.conf"},
+										Line:      5,
+									},
+								},
+							},
+						},
+					},
+					{
+						File:   "testdata/configs/includes-regular/foo.conf",
+						Status: "ok",
+						Parsed: []*parser.Directive{
+							{
+								Directive: "location",
+								Args:      []string{"/foo"},
+								Line:      4,
+								Block: []*parser.Directive{
+									{
+										Directive: "return",
+										Args:      []string{"200", "foo"},
+										Line:      5,
+									},
+								},
+							},
+						},
+					},
+					{
+						File:   "testdata/includes-regular/conf.d/server.conf",
+						Status: "ok",
+						Errors: []parser.ConfigError{
+							{
+								Line: 5,
+							},
+						},
+
+						Parsed: []*parser.Directive{
+							{
+								Directive: "server",
+								Line:      1,
+								Block: []*parser.Directive{
+									{
+										Directive: "listen",
+										Args:      []string{"127.0.0.1:8080"},
+										Line:      2,
+									},
+									{
+										Directive: "server_name",
+										Args:      []string{"default_server"},
+										Line:      3,
+									},
+									{
+										Directive: "include",
+										Args:      []string{"foo.conf"},
+										Line:      4,
+										Includes:  []int{1},
+									},
+									{
+										Directive: "include",
+										Args:      []string{"bar.conf"},
+										Line:      5,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			got, err := parser.Parse(tt.args)
+
+			if err != nil {
+				t.Fatalf("Failed to parse file, %s", err)
+			}
+
+			if diff := cmp.Diff(tt.want, got, cmpopts.EquateEmpty()); diff != "" {
+				t.Errorf("\nTest assertion failed (-want +got):\n%s", diff)
+			}
+		})
 	}
 }
 
 func TestParseString(t *testing.T) {
+	t.Skip("redo this")
 	for _, tes := range tests {
 		file, err := ioutil.ReadFile(tes.arg.FileName)
 		if err != nil {
@@ -363,7 +429,7 @@ func TestParseString(t *testing.T) {
 			continue
 		}
 		t.Logf("parsing: %s\n", tes.arg.FileName)
-		parsed, _ := ParseString(tes.arg.FileName, string(file), tes.arg.Ignore, tes.arg.CatchErrors, tes.arg.Single, tes.arg.Comments)
+		parsed, _ := parser.ParseString(string(file), tes.arg)
 		if parsed.Errors != nil {
 			t.Errorf("Errors encountered: %v", parsed.Errors)
 		}
@@ -377,74 +443,52 @@ func TestParseString(t *testing.T) {
 	}
 }
 
-func TestParseDump(t *testing.T) {
-	const fileName = "config/simple.conf"
-	var catcherr, single, comments bool
-	parsed, err := ParseFile(fileName, nil, catcherr, single, comments)
+func absConf(t *testing.T) error {
+	t.Helper()
+	args := parser.ParseArgs{FileName: "/etc/nginx/nginx.conf", ConfigDir: "/etc/nginx"}
+	_, err := parser.Parse(args)
+	return err
+}
+
+func TestChroot(t *testing.T) {
+	if os.Getuid() != 0 {
+		t.Skip("only runs as root")
+	}
+	fn, err := Chroot("config/absolute")
 	if err != nil {
 		t.Fatal(err)
 	}
-	var w io.Writer = ioutil.Discard
-	if testing.Verbose() {
-		w = os.Stdout
-	}
-	parsed.Dump(w)
-}
-
-func TestRetag(t *testing.T) {
-	t.Skip("No file config/tags.conf")
-	const fileName = "config/tags.conf"
-	var catcherr, single, comments bool
-	Debugging = testing.Verbose()
-	parsed, err := ParseFile(fileName, nil, catcherr, single, comments)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t0 := tagCount(parsed)
-	if t0 == 0 {
-		t.Fatal("no tags found in original file")
-	}
-	t.Logf("original has %d tags\n", t0)
-
-	// replicate marshaling payload to another process/server
-	b, _ := json.Marshal(parsed)
-	dupe := new(Payload)
-	if err := json.Unmarshal(b, dupe); err != nil {
-		t.Fatal(err)
-	}
-
-	t1 := tagCount(dupe)
-	if t1 > 0 {
-		t.Fatalf("expected no tags in dupe but found: %d", t1)
-	}
-
-	dupe.Retag()
-	t1 = tagCount(dupe)
-	if t1 != t0 {
-		t.Fatalf("expected %d tags but got %d", t0, t1)
-	}
-}
-
-func countTags(dirs []*Directive) int {
-	count := 0
-	for _, dir := range dirs {
-		if dir.tag != "" {
-			count++
+	defer func() {
+		if err := fn(); err != nil {
+			t.Error(err)
 		}
-		count += countTags(dir.Block)
+	}()
+	if err := absConf(t); err != nil {
+		t.Fatal(err)
 	}
-	return count
 }
 
-func tagCount(p *Payload) int {
-	count := 0
-	for _, conf := range p.Config {
-		count += countTags(conf.Parsed)
+func Chroot(path string) (func() error, error) {
+	root, err := os.Open("/")
+	if err != nil {
+		return nil, err
 	}
-	return count
+
+	if err := syscall.Chroot(path); err != nil {
+		root.Close()
+		return nil, err
+	}
+
+	return func() error {
+		defer root.Close()
+		if err := root.Chdir(); err != nil {
+			return err
+		}
+		return syscall.Chroot(".")
+	}, nil
 }
 
-func compareDirectives(t *testing.T, gen, config *Directive) {
+func compareDirectives(t *testing.T, gen, config *parser.Directive) {
 	t.Helper()
 	if gen.Directive != config.Directive {
 		t.Errorf("directives want:%q got:%q\n", config.Directive, gen.Directive)
@@ -463,9 +507,11 @@ func compareDirectives(t *testing.T, gen, config *Directive) {
 	if gen.Line != config.Line {
 		t.Errorf("(%s) line want:%d got:%d\n", config.Directive, config.Line, gen.Line)
 	}
-	if gen.File != config.File {
-		t.Errorf("File want:%q got:%q\n", config.File, gen.File)
-	}
+	/*
+		if gen.File != config.File {
+			t.Errorf("File want:%q got:%q\n", config.File, gen.File)
+		}
+	*/
 	if gen.Comment != config.Comment {
 		t.Errorf("Comment \nwant:%q\n got:%q\n", config.Comment, gen.Comment)
 	}
@@ -477,5 +523,29 @@ func compareDirectives(t *testing.T, gen, config *Directive) {
 	} else {
 		t.Errorf("(%s/%d) Mismatched blocks want:%d got:%d\nwant: %v\n got: %v\n",
 			config.Directive, config.Line, len(config.Directive), len(gen.Directive), config.Directive, gen.Directive)
+	}
+}
+
+func TestParseAbs(t *testing.T) {
+	t.Skip("redo this too")
+	if testing.Verbose() {
+		parser.Debugging = true
+	}
+
+	args := parser.ParseArgs{FileName: "config/absolute.conf", PrefixPath: "/etc/nginx/"}
+	_, err := parser.Parse(args)
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	args.FileName, err = filepath.Abs(args.FileName)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = parser.Parse(args)
+
+	if err != nil {
+		t.Fatal(err)
 	}
 }

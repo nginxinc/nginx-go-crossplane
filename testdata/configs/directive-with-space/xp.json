@@ -1,0 +1,49 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/directive-with-space/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "events",
+          "line": 1,
+          "args": []
+        },
+        {
+          "directive": "http",
+          "line": 3,
+          "args": [],
+          "block": [
+            {
+              "directive": "map",
+              "line": 4,
+              "args": [
+                "$http_user_agent",
+                "$mobile"
+              ],
+              "block": [
+                {
+                  "directive": "default",
+                  "line": 5,
+                  "args": [
+                    "0"
+                  ]
+                },
+                {
+                  "directive": "~Opera Mini",
+                  "line": 6,
+                  "args": [
+                    "1"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

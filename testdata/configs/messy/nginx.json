@@ -1,0 +1,238 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/messy/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "user",
+          "line": 1,
+          "args": [
+            "nobody"
+          ]
+        },
+        {
+          "directive": "#",
+          "line": 2,
+          "args": [],
+          "comment": " hello\\n\\\\n\\\\\\n worlddd  \\#\\\\#\\\\\\# dfsf\\n \\\\n \\\\\\n "
+        },
+        {
+          "directive": "events",
+          "line": 3,
+          "args": [],
+          "block": [
+            {
+              "directive": "worker_connections",
+              "line": 3,
+              "args": [
+                "2048"
+              ]
+            }
+          ]
+        },
+        {
+          "directive": "http",
+          "line": 5,
+          "args": [],
+          "block": [
+            {
+              "directive": "#",
+              "line": 5,
+              "args": [],
+              "comment": "forteen"
+            },
+            {
+              "directive": "#",
+              "line": 6,
+              "args": [],
+              "comment": " this is a comment"
+            },
+            {
+              "directive": "access_log",
+              "line": 7,
+              "args": [
+                "off"
+              ]
+            },
+            {
+              "directive": "default_type",
+              "line": 7,
+              "args": [
+                "text/plain"
+              ]
+            },
+            {
+              "directive": "error_log",
+              "line": 7,
+              "args": [
+                "off"
+              ]
+            },
+            {
+              "directive": "server",
+              "line": 8,
+              "args": [],
+              "block": [
+                {
+                  "directive": "listen",
+                  "line": 9,
+                  "args": [
+                    "8083"
+                  ]
+                },
+                {
+                  "directive": "return",
+                  "line": 10,
+                  "args": [
+                    "200",
+                    "Ser\" ' ' ver\\\\ \\ $server_addr:\\$server_port\\n\\nTime: $time_local\\n\\n"
+                  ]
+                }
+              ]
+            },
+            {
+              "directive": "server",
+              "line": 12,
+              "args": [],
+              "block": [
+                {
+                  "directive": "listen",
+                  "line": 12,
+                  "args": [
+                    "8080"
+                  ]
+                },
+                {
+                  "directive": "root",
+                  "line": 13,
+                  "args": [
+                    "/usr/share/nginx/html"
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 14,
+                  "args": [
+                    "~",
+                    "/hello/world;"
+                  ],
+                  "block": [
+                    {
+                      "directive": "return",
+                      "line": 14,
+                      "args": [
+                        "301",
+                        "/status.html"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 15,
+                  "args": [
+                    "/foo"
+                  ],
+                  "block": []
+                },
+                {
+                  "directive": "location",
+                  "line": 15,
+                  "args": [
+                    "/bar"
+                  ],
+                  "block": []
+                },
+                {
+                  "directive": "location",
+                  "line": 16,
+                  "args": [
+                    "/\\{\\;\\}\\ #\\ ab"
+                  ],
+                  "block": []
+                },
+                {
+                  "directive": "#",
+                  "line": 16,
+                  "args": [],
+                  "comment": " hello"
+                },
+                {
+                  "directive": "if",
+                  "line": 17,
+                  "args": [
+                    "$request_method",
+                    "=",
+                    "P\\{O\\)\\###\\;ST"
+                  ],
+                  "block": []
+                },
+                {
+                  "directive": "location",
+                  "line": 18,
+                  "args": [
+                    "/status.html"
+                  ],
+                  "block": [
+                    {
+                      "directive": "try_files",
+                      "line": 19,
+                      "args": [
+                        "/abc/${uri} /abc/${uri}.html",
+                        "=404"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 21,
+                  "args": [
+                    "/sta;\n                    tus"
+                  ],
+                  "block": [
+                    {
+                      "directive": "return",
+                      "line": 22,
+                      "args": [
+                        "302",
+                        "/status.html"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 23,
+                  "args": [
+                    "/upstream_conf"
+                  ],
+                  "block": [
+                    {
+                      "directive": "return",
+                      "line": 23,
+                      "args": [
+                        "200",
+                        "/status.html"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "directive": "server",
+              "line": 24,
+              "args": [],
+              "block": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

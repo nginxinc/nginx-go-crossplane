@@ -1,19 +1,23 @@
-// build skip
-
 package cmd
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"log"
 	"os"
+	"path"
 	"testing"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/builder"
 	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
 )
 
+func init() {
+	// work from project root
+	os.Chdir("..")
+}
 func TestParseAndBuild(t *testing.T) {
 	var tests = []struct {
 		name     string
@@ -26,18 +30,17 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/bad-args/nginx.conf",
 				Errors: []parser.ParseError{
 					{
 						File: "configs/bad-args/nginx.conf",
 						Line: 1,
-						Fail: errors.New("invalid number of arguements in user"),
+						Fail: "invalid number of arguements in user",
 					},
 				},
 				Config: []*parser.Config{
 					{
 						File:   "configs/bad-args/nginx.conf",
-						Errors: []parser.ParseError{},
+						Errors: []parser.ConfigError{},
 						Parsed: []*parser.Directive{
 							{
 								Directive: "events",
@@ -58,7 +61,6 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/directive-with-space/nginx.conf",
 				Config: []*parser.Config{
 					{
 						File: "configs/directive-with-space/nginx.conf",
@@ -99,7 +101,6 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/empty-value-map/nginx.conf",
 				Config: []*parser.Config{
 					{
 						File: "configs/empty-value-map/nginx.conf",
@@ -143,48 +144,41 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File:   "configs/includes-globbed/nginx.conf",
 				Errors: []parser.ParseError{},
 				Config: []*parser.Config{
 					{
 						File:   "configs/includes-globbed/nginx.conf",
-						Errors: []parser.ParseError{},
+						Errors: []parser.ConfigError{},
 						Parsed: []*parser.Directive{
 							{
 								Directive: "events",
-								File:      "configs/includes-globbed/nginx.conf",
 								Line:      1,
 								Block:     []*parser.Directive{},
 							}, {
 								Directive: "http",
 								Line:      1,
-								File:      "configs/includes-globbed/http.conf",
 								Block: []*parser.Directive{
 									{
 										Directive: "server",
 										Line:      1,
-										File:      "configs/includes-globbed/servers/server1.conf",
 										Block: []*parser.Directive{
 											{
 												Directive: "listen",
 												Args:      []string{"8080"},
 												Line:      2,
 												Comment:   "",
-												File:      "configs/includes-globbed/servers/server1.conf",
 												Block:     []*parser.Directive{},
 											}, {
 												Directive: "location",
 												Args:      []string{"/foo"},
 												Comment:   "",
 												Line:      1,
-												File:      "configs/includes-globbed/locations/location1.conf",
 												Block: []*parser.Directive{
 													{
 														Directive: "return",
 														Args:      []string{"200", "'foo'"},
 														Comment:   "",
 														Line:      2,
-														File:      "configs/includes-globbed/locations/location1.conf",
 													},
 												},
 											},
@@ -192,13 +186,11 @@ func TestParseAndBuild(t *testing.T) {
 												Directive: "location",
 												Args:      []string{"/bar"},
 												Line:      1,
-												File:      "configs/includes-globbed/locations/location2.conf",
 												Block: []*parser.Directive{
 													{
 														Directive: "return",
 														Args:      []string{"200", "'bar'"},
 														Line:      2,
-														File:      "configs/includes-globbed/locations/location2.conf",
 													},
 												},
 											},
@@ -207,25 +199,21 @@ func TestParseAndBuild(t *testing.T) {
 									{
 										Directive: "server",
 										Line:      1,
-										File:      "configs/includes-globbed/servers/server2.conf",
 										Block: []*parser.Directive{
 											{
 												Directive: "listen",
 												Args:      []string{"8081"},
 												Line:      2,
-												File:      "configs/includes-globbed/servers/server2.conf",
 												Block:     []*parser.Directive{},
 											}, {
 												Directive: "location",
 												Args:      []string{"/foo"},
 												Line:      1,
-												File:      "configs/includes-globbed/locations/location1.conf",
 												Block: []*parser.Directive{
 													{
 														Directive: "return",
 														Args:      []string{"200", "'foo'"},
 														Line:      2,
-														File:      "configs/includes-globbed/locations/location1.conf",
 													},
 												},
 											}, {
@@ -233,14 +221,12 @@ func TestParseAndBuild(t *testing.T) {
 												Args:      []string{"/bar"},
 												Comment:   "",
 												Line:      1,
-												File:      "configs/includes-globbed/locations/location2.conf",
 												Block: []*parser.Directive{
 													{
 														Directive: "return",
 														Args:      []string{"200", "'bar'"},
 														Comment:   "",
 														Line:      2,
-														File:      "configs/includes-globbed/locations/location2.conf",
 													},
 												},
 											},
@@ -260,60 +246,52 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/includes-regular/nginx.conf",
 				Errors: []parser.ParseError{
 					{
 						File: "configs/includes-regular/conf.d/server.conf",
 						Line: 5,
-						Fail: errors.New("open configs/includes-regular/bar.conf: no such file or directory"),
+						Fail: `open configs/includes-regular/bar.conf: no such file or directory`,
 					},
 				},
 				Config: []*parser.Config{
 					{
 						File:   "configs/includes-regular/nginx.conf",
-						Errors: []parser.ParseError{},
+						Errors: []parser.ConfigError{},
 						Parsed: []*parser.Directive{
 							{
 								Directive: "events",
 								Line:      1,
-								File:      "configs/includes-regular/nginx.conf",
 								Block:     []*parser.Directive{},
 							},
 							{
 								Directive: "http",
 								Line:      2,
-								File:      "configs/includes-regular/nginx.conf",
 								Block: []*parser.Directive{
 									{
 										Directive: "server",
 										Line:      1,
-										File:      "configs/includes-regular/conf.d/server.conf",
 										Block: []*parser.Directive{
 											{
 												Directive: "listen",
 												Args:      []string{"127.0.0.1:8080"},
 												Line:      2,
-												File:      "configs/includes-regular/conf.d/server.conf",
 												Block:     []*parser.Directive{},
 											},
 											{
 												Directive: "server_name",
 												Args:      []string{"default_server"},
 												Line:      3,
-												File:      "configs/includes-regular/conf.d/server.conf",
 												Block:     []*parser.Directive{},
 											},
 											{
 												Directive: "location",
 												Args:      []string{"/foo"},
 												Line:      1,
-												File:      "configs/includes-regular/foo.conf",
 												Block: []*parser.Directive{
 													{
 														Directive: "return",
 														Args:      []string{"200", "'foo'"},
 														Line:      2,
-														File:      "configs/includes-regular/foo.conf",
 													},
 												},
 											},
@@ -334,7 +312,6 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/messy/nginx.conf",
 				Config: []*parser.Config{
 					{
 						File: "configs/messy/nginx.conf",
@@ -385,7 +362,6 @@ func TestParseAndBuild(t *testing.T) {
 										Args:      []string{"\"text/plain\""},
 										Line:      7,
 										Comment:   "",
-										File:      "",
 									},
 									{
 										Directive: "error_log",
@@ -517,7 +493,6 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/missing-semicolon/",
 				Config: []*parser.Config{
 					{
 						File: "configs/missing-semicolon/broken-above.conf",
@@ -563,7 +538,7 @@ func TestParseAndBuild(t *testing.T) {
 					{
 
 						File:   "configs/missing-semicolon/broken-above.conf",
-						Errors: []parser.ParseError{},
+						Errors: []parser.ConfigError{},
 						Parsed: []*parser.Directive{
 							{
 								Directive: "http",
@@ -622,7 +597,6 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/russian-text/nginx.conf",
 				Config: []*parser.Config{
 					{
 						File: "configs/russian-text/nginx.conf",
@@ -648,7 +622,6 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/simple/nginx.conf",
 				Config: []*parser.Config{
 					{
 						File: "configs/simple/nginx.conf",
@@ -709,12 +682,11 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/spelling-mistake/nginx.conf",
 				Errors: []parser.ParseError{
 					{
 						File: "configs/spelling-mistake/nginx.conf",
 						Line: 7,
-						Fail: errors.New("unknown directive proxy_passs"),
+						Fail: "unknown directive proxy_passs",
 					},
 				},
 				Config: []*parser.Config{
@@ -754,11 +726,10 @@ func TestParseAndBuild(t *testing.T) {
 				CatchErrors: true,
 			},
 			parser.Payload{
-				File: "configs/with-comments/nginx.conf",
 				Config: []*parser.Config{
 					{
 						File:   "configs/with-comments/nginx.conf",
-						Errors: []parser.ParseError{},
+						Errors: []parser.ConfigError{},
 						Parsed: []*parser.Directive{
 							{
 								Directive: "events",
@@ -784,7 +755,6 @@ func TestParseAndBuild(t *testing.T) {
 										Directive: "server",
 										Comment:   "",
 										Line:      6,
-										File:      "",
 										Block: []*parser.Directive{
 											{
 												Directive: "listen",
@@ -812,14 +782,12 @@ func TestParseAndBuild(t *testing.T) {
 														Directive: "#",
 														Line:      9,
 														Args:      []string{},
-														File:      "",
 														Comment:   "# this is brace",
 														Block:     []*parser.Directive{},
 													},
 													{
 														Directive: "#",
 														Args:      []string{},
-														File:      "",
 														Comment:   " location /",
 														Line:      10,
 														Block:     []*parser.Directive{},
@@ -842,41 +810,73 @@ func TestParseAndBuild(t *testing.T) {
 			},
 		},
 	}
-
+	// use known dir whilst debugging tests
+	tmpDir := func() string {
+		dir := "/tmp/xptests"
+		if err := os.RemoveAll(dir); err != nil {
+			panic(err)
+		}
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			panic(err)
+		}
+		return dir
+	}
 	for _, test := range tests {
-		test.args.FileName = "configs/" + test.name
-		f := test.args.FileName
-		i := test.args.Ignore
-		catch := test.args.CatchErrors
-		sin := test.args.Single
-		com := test.args.Comments
-		parsed, err := parser.ParseFile(f, i, catch, sin, com)
+		// start with our test config
+		src := path.Join("testdata/configs/", test.name)
+		t.Logf("start with: %q\n", src)
+		test.args.FileName = src
+		parsed, err := parser.Parse(test.args)
 		if err != nil {
 			t.Errorf(err.Error())
 		}
 
-		_, err = builder.BuildFiles(*parsed, "test1", 4, false, false)
+		tmp := t.TempDir()
+		tmp = tmpDir()
+		d1 := path.Join(tmp, "test1")
+		//		d2 := path.Join(tmp, "test2")
+		//f1 := path.Join(d1, test.args.FileName)
+		f1 := test.args.FileName
+		//		f2 := path.Join(d2, test.args.FileName)
+
+		// render a copy to re-parse, so it's gone a full cycle
+		t.Logf("write parsed to: %q\n", d1)
+		opts := &builder.Options{Dirname: d1, Indent: 4}
+		_, err = builder.BuildFiles(parsed, opts)
 		if err != nil {
-			t.Errorf(err.Error())
-		}
-		f1 := "test1/" + test.args.FileName
-		f2 := "test2/test1/" + test.args.FileName
-		f = "test1/" + test.args.FileName
-		parsed1, err2 := parser.ParseFile(f, i, catch, sin, com)
-		if err2 != nil {
 			t.Fatal(err)
 		}
-		if len(parsed1.Config) < 1 {
-			t.Errorf("No configurations parsed for %s", test.args.FileName)
+
+		// now reload the the regen'd config
+		t.Logf("reload from (%s): %q\n", d1, f1)
+		test.args.FileName = f1
+		test.args.PrefixPath = d1
+		parsed1, err2 := parser.Parse(test.args)
+		if err2 != nil {
+			t.Fatal(err2)
 		}
-		_, err = builder.BuildFiles(*parsed1, "test2", 4, false, false)
-		if err != nil {
-			t.Errorf(err.Error())
+
+		if s := cmp.Diff(parsed, parsed1, cmpopts.EquateEmpty()); s != "" {
+			t.Fatalf("\ndiff: %s\n", s)
 		}
-		result, result2 := compareFiles(f1, f2)
-		if len(result) != 0 && len(result2) != 0 {
-			t.Errorf("\n%v\n\n%v ", string(result), string(result2))
-		}
+
+		/*
+			opts = &builder.Options{Dirname: "test2", Indent: 4}
+			_, err = builder.BuildFiles(parsed1, opts)
+			if err != nil {
+				t.Errorf(err.Error())
+			}
+
+			// TODO: strings *must* match exactly, at least get better reporting
+			//       on where it actually fails.
+			//
+			if false {
+				result, result2 := compareFiles(f1, f2)
+				if len(result) != 0 && len(result2) != 0 {
+					t.Errorf("\n%v\n\n%v ", string(result), string(result2))
+				}
+			}
+		*/
 	}
 }
 

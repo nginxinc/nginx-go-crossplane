@@ -1,0 +1,34 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/quote-behavior/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "outer-quote",
+          "line": 1,
+          "args": [
+            "left",
+            "-quote",
+            "right-\"quote\"",
+            "inner\"-\"quote"
+          ]
+        },
+        {
+          "directive": "",
+          "line": 2,
+          "args": [
+            "",
+            "left-empty",
+            "right-empty\"\"",
+            "inner\"\"empty",
+            "right-empty-single\""
+          ]
+        }
+      ]
+    }
+  ]
+}
