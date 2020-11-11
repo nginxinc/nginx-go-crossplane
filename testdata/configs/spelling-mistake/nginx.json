@@ -1,0 +1,55 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/spelling-mistake/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "events",
+          "line": 1,
+          "args": [],
+          "block": []
+        },
+        {
+          "directive": "http",
+          "line": 3,
+          "args": [],
+          "block": [
+            {
+              "directive": "server",
+              "line": 4,
+              "args": [],
+              "block": [
+                {
+                  "directive": "location",
+                  "line": 5,
+                  "args": [
+                    "/"
+                  ],
+                  "block": [
+                    {
+                      "directive": "#",
+                      "line": 6,
+                      "args": [],
+                      "comment": "directive is misspelled"
+                    },
+                    {
+                      "directive": "proxy_passs",
+                      "line": 7,
+                      "args": [
+                        "http://foo.bar"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

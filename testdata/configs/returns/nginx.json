@@ -1,0 +1,75 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/returns/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "user",
+          "line": 1,
+          "args": [
+            "nginx"
+          ]
+        },
+        {
+          "directive": "events",
+          "line": 2,
+          "args": [],
+          "block": []
+        },
+        {
+          "directive": "http",
+          "line": 4,
+          "args": [],
+          "block": [
+            {
+              "directive": "server",
+              "line": 5,
+              "args": [],
+              "block": [
+                {
+                  "directive": "listen",
+                  "line": 6,
+                  "args": [
+                    "8083"
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 7,
+                  "args": [
+                    "~",
+                    "/hello/world;"
+                  ],
+                  "block": [
+                    {
+                      "directive": "return",
+                      "line": 8,
+                      "args": [
+                        "301",
+                        "/status.html"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "directive": "if",
+                  "line": 10,
+                  "args": [
+                    "$request_method",
+                    "=",
+                    "P\\{O\\)\\###\\;ST"
+                  ],
+                  "block": []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

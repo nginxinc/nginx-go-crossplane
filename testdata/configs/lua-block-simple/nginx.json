@@ -1,0 +1,146 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/lua-block-simple/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "http",
+          "line": 1,
+          "args": [],
+          "block": [
+            {
+              "directive": "init_by_lua_block",
+              "line": 2,
+              "args": [
+                "\n        print(\"Lua block code with curly brace str {\")\n    "
+              ]
+            },
+            {
+              "directive": "init_worker_by_lua_block",
+              "line": 5,
+              "args": [
+                "\n        print(\"Work that every worker\")\n    "
+              ]
+            },
+            {
+              "directive": "body_filter_by_lua_block",
+              "line": 8,
+              "args": [
+                "\n        local data, eof = ngx.arg[1], ngx.arg[2]\n    "
+              ]
+            },
+            {
+              "directive": "header_filter_by_lua_block",
+              "line": 11,
+              "args": [
+                "\n        ngx.header[\"content-length\"] = nil\n    "
+              ]
+            },
+            {
+              "directive": "server",
+              "line": 14,
+              "args": [],
+              "block": [
+                {
+                  "directive": "listen",
+                  "line": 15,
+                  "args": [
+                    "127.0.0.1:8080"
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 16,
+                  "args": [
+                    "/"
+                  ],
+                  "block": [
+                    {
+                      "directive": "content_by_lua_block",
+                      "line": 17,
+                      "args": [
+                        "\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            "
+                      ]
+                    },
+                    {
+                      "directive": "return",
+                      "line": 20,
+                      "args": [
+                        "200",
+                        "foo bar baz"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "directive": "ssl_certificate_by_lua_block",
+                  "line": 22,
+                  "args": [
+                    "\n            print(\"About to initiate a new SSL handshake!\")\n        "
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 25,
+                  "args": [
+                    "/a"
+                  ],
+                  "block": [
+                    {
+                      "directive": "client_max_body_size",
+                      "line": 26,
+                      "args": [
+                        "100k"
+                      ]
+                    },
+                    {
+                      "directive": "client_body_buffer_size",
+                      "line": 27,
+                      "args": [
+                        "100k"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "directive": "upstream",
+              "line": 31,
+              "args": [
+                "foo"
+              ],
+              "block": [
+                {
+                  "directive": "server",
+                  "line": 32,
+                  "args": [
+                    "127.0.0.1"
+                  ]
+                },
+                {
+                  "directive": "balancer_by_lua_block",
+                  "line": 33,
+                  "args": [
+                    "\n            -- use Lua to do something interesting here\n        "
+                  ]
+                },
+                {
+                  "directive": "log_by_lua_block",
+                  "line": 36,
+                  "args": [
+                    "\n            print(\"I need no extra escaping here, for example: \\r\\nblah\")\n        "
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "status": "failed",
+  "errors": [
+    {
+      "file": "testdata/configs/bad-args/nginx.conf",
+      "error": "invalid number of arguments in \"user\" directive in testdata/configs/bad-args/nginx.conf:1",
+      "line": 1
+    }
+  ],
+  "config": [
+    {
+      "file": "testdata/configs/bad-args/nginx.conf",
+      "status": "failed",
+      "errors": [
+        {
+          "error": "invalid number of arguments in \"user\" directive in testdata/configs/bad-args/nginx.conf:1",
+          "line": 1
+        }
+      ],
+      "parsed": [
+        {
+          "directive": "events",
+          "line": 2,
+          "args": [],
+          "block": []
+        },
+        {
+          "directive": "http",
+          "line": 3,
+          "args": [],
+          "block": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/lua-block-larger/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "http",
+          "line": 1,
+          "args": [],
+          "block": [
+            {
+              "directive": "content_by_lua_block",
+              "line": 2,
+              "args": [
+                "\n        ngx.req.read_body()  -- explicitly read the req body\n        local data = ngx.req.get_body_data()\n        if data then\n            ngx.say(\"body data:\")\n            ngx.print(data)\n            return\n        end\n\n        -- body may get buffered in a temp file:\n        local file = ngx.req.get_body_file()\n        if file then\n            ngx.say(\"body is in file \", file)\n        else\n            ngx.say(\"no body found\")\n        end\n    "
+              ]
+            },
+            {
+              "directive": "access_by_lua_block",
+              "line": 19,
+              "args": [
+                "\n        -- check the client IP address is in our black list\n        if ngx.var.remote_addr == \"132.5.72.3\" then\n            ngx.exit(ngx.HTTP_FORBIDDEN)\n        end\n\n        -- check if the URI contains bad words\n        if ngx.var.uri and\n               string.match(ngx.var.request_body, \"evil\")\n        then\n            return ngx.redirect(\"/terms_of_use.html\")\n        end\n\n        -- tests passed\n    "
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/quoted-right-brace/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "events",
+          "line": 1,
+          "args": []
+        },
+        {
+          "directive": "http",
+          "line": 2,
+          "args": [],
+          "block": [
+            {
+              "directive": "log_format",
+              "line": 3,
+              "args": [
+                "main",
+                "escape=json",
+                "{ \"@timestamp\": \"$time_iso8601\", ",
+                "\"server_name\": \"$server_name\", ",
+                "\"host\": \"$host\", ",
+                "\"status\": \"$status\", ",
+                "\"request\": \"$request\", ",
+                "\"uri\": \"$uri\", ",
+                "\"args\": \"$args\", ",
+                "\"https\": \"$https\", ",
+                "\"request_method\": \"$request_method\", ",
+                "\"referer\": \"$http_referer\", ",
+                "\"agent\": \"$http_user_agent\"",
+                "}"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

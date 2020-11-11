@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -43,51 +42,37 @@ var lexCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(1),
 }
 
-var treeCmd = &cobra.Command{
-	Use:   "tree [/path/to/nginx.conf]",
-	Short: "Parses an NGINX config and prints tree",
-	Args:  cobra.ExactArgs(1),
-}
-
-var editCmd = &cobra.Command{
-	Use:   "edit [/path/to/nginx.conf] [/path/to/edits.json]",
-	Short: "Modifies an NGINX config by changesets",
-	Args:  cobra.ExactArgs(3),
-}
-
-var getCmd = &cobra.Command{
-	Use:   "get [/path/to/nginx.conf] [/config/path/entry]",
-	Short: "Prints the value (by path) of an NGINX config",
-	Args:  cobra.ExactArgs(2),
-}
-
 // Execute - cmd entrypoint
 func Execute() (err error) {
 	var (
-		indent      uint
-		outFile     string
-		combine     bool
-		comment     bool
-		single      bool
-		catchErrors bool
-		debug       bool
-		ignore      []string
+		indent  uint
+		outFile string
+		combine bool
+		comment bool
+		single  bool
+		noCatch bool
+		quotes  bool
+		debug   bool
+		ignore  []string
+		prefix  string
 	)
+	parseCmd.Flags().StringVarP(&prefix, "prefix", "p", "", "path prefix of the config file on the host")
 	parseCmd.Flags().UintVarP(&indent, "indent", "i", 4, "Set spaces for indentation")
 	parseCmd.Flags().StringVarP(&outFile, "out", "o", "", "Output to a file. If not specified, it will output to STDOUT")
-	parseCmd.Flags().BoolVar(&catchErrors, "catch-errors", false, "Stop parse after first error")
+	parseCmd.Flags().BoolVar(&noCatch, "no-catch", false, "Parse entire config and return all errors")
 	parseCmd.Flags().BoolVar(&combine, "combine", false, "Inline includes to create single config object")
 	parseCmd.Flags().BoolVar(&single, "single", false, "Skip includes")
-	parseCmd.Flags().BoolVar(&comment, "exclude-comments", false, "Exclude comments from json")
+	parseCmd.Flags().BoolVar(&quotes, "quotes", false, "Strip quotes in config")
+	parseCmd.Flags().BoolVar(&comment, "include-comments", false, "Include comments in json")
 	parseCmd.Flags().StringArrayVar(&ignore, "ignore", []string{}, "List of ignored directives")
 	parseCmd.Run = func(cmd *cobra.Command, args []string) {
 		filename := args[0]
-		payload, err := parser.ParseFile(filename, ignore, catchErrors, single, comment)
+		arg := parser.ParseArgs{FileName: filename, Ignore: ignore, CatchErrors: !noCatch, Comments: comment, PrefixPath: prefix, StripQuotes: quotes}
+		payload, err := parser.Parse(arg)
 		if err != nil {
 			log.Fatalf("Error parsing file %s: %v", filename, err)
 		}
 		if combine {
-			fmt.Println("unifying payload")
 			payload, err = payload.Unify()
 			if err != nil {
 				log.Fatal(err)
@@ -118,25 +103,21 @@ func Execute() (err error) {
 	buildCmd.Flags().BoolVarP(&force, "force", "f", false, "Force overwrite existing files")
 	buildCmd.Run = func(cmd *cobra.Command, args []string) {
 		filename := args[0]
-		_, err := os.Stat(filename)
-		if err != nil {
-			log.Fatalf("Error: cannot access file %s", filename)
-		}
-
-		f, err := ioutil.ReadFile(filename)
-		if err != nil {
-			log.Fatalf("Error: cannot read file %s: %v", filename, err)
-		}
-		input, err := builder.NewPayload(f)
+		input, err := parser.LoadPayload(filename)
 		if err != nil {
 			log.Fatalf("Error translating payload file %s: %v", filename, err)
 		}
-		output, err := builder.BuildFiles(input, buildPath, int(indent), tabs, false)
+		opts := &builder.Options{
+			Dirname: buildPath,
+			Indent:  int(indent),
+			Tabs:    tabs,
+		}
+		_, err = builder.BuildFiles(input, opts)
 		if err != nil {
 			log.Fatalf("Error: cannot build file %s: %v", filename, err)
 		}
-		os.Stdout.WriteString(output)
-		os.Stdout.Write([]byte("\n")) // compatibility: always return newline at end
+		// it used to print out the results of building,
+		// but the goods are in the files, so unnecessary
 	}
 
 	var (
@@ -145,6 +126,7 @@ func Execute() (err error) {
 	lexCmd.Flags().UintVarP(&indent, "indent", "i", 4, "Set spaces for indentation")
 	lexCmd.Flags().StringVarP(&outFile, "out", "o", "", "Output to a file. If not specified, it will output to STDOUT")
 	lexCmd.Flags().BoolVarP(&lineNumbers, "line-numbers", "n", false, "Include line numbers in output")
+	lexCmd.Flags().BoolVar(&quotes, "quotes", false, "Strip quotes in config")
 	lexCmd.Run = func(cmd *cobra.Command, args []string) {
 		filename := args[0]
 		_, err := os.Stat(filename)
@@ -156,7 +138,7 @@ func Execute() (err error) {
 			log.Fatalf("Error: cannot read file %s: %v", filename, err)
 		}
 		input := string(f)
-		tokenStream := lexer.LexScanner(input)
+		tokenStream := lexer.LexScanner(input, quotes)
 		li := []interface{}{}
 		for token := range tokenStream {
 			li = append(li, token.Repr(lineNumbers))
@@ -169,84 +151,7 @@ func Execute() (err error) {
 		os.Stdout.Write([]byte("\n")) // compatibility: always return newline at end
 	}
 
-	treeCmd.Flags().UintVarP(&indent, "indent", "i", 4, "Set spaces for indentation")
-	treeCmd.Flags().BoolVar(&combine, "combine", false, "Inline includes to create single config object")
-	treeCmd.Run = func(cmd *cobra.Command, args []string) {
-		filename := args[0]
-
-		// TODO: how to enable debugging from rootCmd to make it global?
-		parser.Debugging = debug
-
-		payload, err := parser.ParseFile(filename, ignore, catchErrors, single, comment)
-		if err != nil {
-			log.Fatalf("Error parsing file %s: %v", filename, err)
-		}
-		if combine {
-			payload, err = payload.Unify()
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-		parser.NewTree(payload).ShowTree(os.Stdout)
-	}
-
-	editCmd.Flags().UintVarP(&indent, "indent", "i", 4, "Set spaces for indentation")
-	editCmd.Run = func(cmd *cobra.Command, args []string) {
-		filename := args[0]
-		editname := args[1]
-		dirname := args[2]
-
-		parser.Debugging = debug
-
-		s, err := os.Stat(dirname)
-		if err != nil {
-			log.Fatalf("directory %q error: %v", dirname, err)
-		}
-		if !s.IsDir() {
-			log.Fatalf("%q is not a directory", dirname)
-		}
-
-		changed, err := parser.ChangeMe(filename, editname)
-		if err != nil {
-			log.Fatalf("change failed: %v", err)
-		}
-
-		indent = 4
-		tabs = false
-		header := false
-		_, err = builder.BuildFiles(*(changed.Payload), dirname, int(indent), tabs, header)
-		if err != nil {
-			log.Fatalf("oh crap: %v", err)
-		}
-		if debug {
-			parser.NewTree(changed.Payload).ShowTree(os.Stdout)
-		}
-	}
-
-	getCmd.Flags().BoolVar(&combine, "combine", false, "Inline includes to create single config object")
-	getCmd.Run = func(cmd *cobra.Command, args []string) {
-		filename := args[0]
-		key := args[1]
-		payload, err := parser.ParseFile(filename, ignore, catchErrors, single, comment)
-		if err != nil {
-			log.Fatalf("Error parsing file %s: %v", filename, err)
-		}
-		if combine {
-			payload, err = payload.Unify()
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-		tm := parser.NewTree(payload)
-		fmt.Println("GET:", key)
-		val, err := tm.Get(key)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("GOT (%T): %+v\n", val, val)
-	}
-
-	rootCmd.AddCommand(parseCmd, buildCmd, lexCmd, treeCmd, editCmd, getCmd)
+	rootCmd.AddCommand(parseCmd, buildCmd, lexCmd)
 	rootCmd.PersistentFlags().BoolVar(&debug, "debug", false, "enable debugging output")
 	return rootCmd.Execute()
 }

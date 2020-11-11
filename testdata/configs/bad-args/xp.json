@@ -1,0 +1,28 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/bad-args/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "user",
+          "line": 1,
+          "args": []
+        },
+        {
+          "directive": "events",
+          "line": 2,
+          "args": []
+        },
+        {
+          "directive": "http",
+          "line": 3,
+          "args": []
+        }
+      ]
+    }
+  ]
+}

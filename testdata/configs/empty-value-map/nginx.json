@@ -1,0 +1,50 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/empty-value-map/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "events",
+          "line": 1,
+          "args": [],
+          "block": []
+        },
+        {
+          "directive": "http",
+          "line": 3,
+          "args": [],
+          "block": [
+            {
+              "directive": "map",
+              "line": 4,
+              "args": [
+                "string",
+                "$variable"
+              ],
+              "block": [
+                {
+                  "directive": "",
+                  "line": 5,
+                  "args": [
+                    "$arg"
+                  ]
+                },
+                {
+                  "directive": "*.example.com",
+                  "line": 6,
+                  "args": [
+                    ""
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

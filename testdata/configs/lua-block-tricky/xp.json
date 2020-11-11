@@ -1,0 +1,60 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/lua-block-tricky/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "http",
+          "line": 1,
+          "args": [],
+          "block": [
+            {
+              "directive": "server",
+              "line": 2,
+              "args": [],
+              "block": [
+                {
+                  "directive": "listen",
+                  "line": 3,
+                  "args": [
+                    "127.0.0.1:8080"
+                  ]
+                },
+                {
+                  "directive": "server_name",
+                  "line": 4,
+                  "args": [
+                    "content_by_lua_block"
+                  ]
+                },
+                {
+                  "directive": "#",
+                  "line": 4,
+                  "args": [],
+                  "comment": " make sure this doesn't trip up lexers"
+                },
+                {
+                  "directive": "set_by_lua_block     $res     { -- irregular lua block directive\n            local a = 32\n            local b = 56\n\n            ngx.var.diff = a - b;  -- write to $diff directly\n            return a + b;          -- return the $sum value normally\n        }\n        \"rewrite_by_lua_block\" { -- have valid braces in Lua code and quotes around directive\n            do_something(\"hello, world!\\nhiya\\n\")\n            a = { 1, 2, 3 }\n            btn = iup.button({title=\"ok\"})\n        }\n    ",
+                  "line": 17,
+                  "args": []
+                },
+                {
+                  "directive": "upstream",
+                  "line": 18,
+                  "args": [
+                    "content_by_lua_block",
+                    "\n        # stuff\n    "
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
