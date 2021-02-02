@@ -482,3 +482,46 @@ func among(item string, list ...string) bool {
 	}
 	return false
 }
+
+func equals(a, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, x := range a {
+		if x != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+// Equal returns true if both blocks are functionally equivalent
+func (d *Directive) Equal(a *Directive) bool {
+	switch {
+	case a.Directive != d.Directive:
+		return false
+	case !equals(a.Args, d.Args):
+		return false
+	case len(a.Block) != len(d.Block):
+		return false
+	case len(a.Includes) != len(d.Includes):
+		return false
+	case a.Comment != d.Comment:
+		return false
+	case a.Line != d.Line:
+		return false
+	case a.File != d.File:
+		return false
+	}
+	for i, inc := range a.Includes {
+		if inc != d.Includes[i] {
+			return false
+		}
+	}
+	for i, dir := range a.Block {
+		if !dir.Equal(d.Block[i]) {
+			return false
+		}
+	}
+	return true
+}
