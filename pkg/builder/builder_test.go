@@ -1,6 +1,7 @@
 package builder
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -12,6 +13,12 @@ import (
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
+)
+
+var (
+	whitespace = regexp.MustCompile("[\t ]+")
+	newlines   = regexp.MustCompile("\n+")
+	empty      = regexp.MustCompile(" \n")
 )
 
 func walkob(dir string, do func(string) error) error {
@@ -485,8 +492,8 @@ http {
 		)
 
 		if result != expected {
-			fmt.Printf("WANT: %q\n", expected)
-			fmt.Printf(" GOT: %q\n", result)
+			t.Logf("WANT: %q\n", expected)
+			t.Logf(" GOT: %q\n", result)
 			t.Error(test.title)
 		}
 	}
@@ -592,4 +599,80 @@ func TestBuildStrings(t *testing.T) {
 	if len(sc.Files) != len(p.Config) {
 		t.Errorf("config files count: want %d, got %d", len(p.Config), len(sc.Files))
 	}
+}
+
+func TestEmptyBraces(t *testing.T) {
+	const conf = "testdata/configs/empty-braces/nginx.conf"
+	t.Log("testing config:", conf)
+	args := parser.ParseArgs{
+		FileName: conf,
+		Comments: true,
+	}
+	p, err := parser.Parse(args)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var sc StringsCreator
+	opts := &Options{Creator: &sc}
+	t.Log("building using line numbers")
+	_, err = BuildFiles(p, opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// confirm the build file is effectively the same
+	orig, _ := ioutil.ReadFile(conf)
+	err = compareBuilds(t, string(orig), sc.Files[0].Contents)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// build files has 2 internal versions,
+	// one that respects line numbers, and one that doesn't
+	// it uses a simple check to see if the first directive
+	// has a line number, and if not uses the latter
+	t.Log("building without line numbers")
+	p.Config[0].Parsed[1].Line = 0
+	var sc2 StringsCreator
+	opts = &Options{Creator: &sc2}
+	_, err = BuildFiles(p, opts)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, f := range sc.Files {
+		t.Log(f.Contents)
+	}
+}
+
+func prep(s string) []string {
+	s = whitespace.ReplaceAllString(s, " ")
+	s = newlines.ReplaceAllString(s, "\n")
+	s = empty.ReplaceAllString(s, "\n")
+	s = newlines.ReplaceAllString(s, "\n")
+	scanner := bufio.NewScanner(strings.NewReader(s))
+	var list []string
+	for scanner.Scan() {
+		if text := scanner.Text(); text != "" {
+			list = append(list, text)
+		}
+	}
+	return list
+}
+
+func dump(t *testing.T, list []string) {
+	for i, s := range list {
+		t.Logf("%3d %s\n", i, s)
+	}
+}
+
+func compareBuilds(t *testing.T, this, that string) error {
+	c1 := prep(this)
+	c2 := prep(that)
+	if len(c1) != len(c2) {
+		dump(t, c1)
+		dump(t, c2)
+		return fmt.Errorf("mismatch linecount, %d vs %d", len(c1), len(c2))
+	}
+	return nil
 }

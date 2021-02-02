@@ -111,7 +111,8 @@ func Build(parsed []*parser.Directive, opts *Options) string {
 	var b strings.Builder
 
 	// payloads without line numbers get their own renderer
-	if parsed[0].Line == 0 {
+	// TODO: we should use "normal" line numbers, not zero offset
+	if len(parsed) > 1 && parsed[1].Line == 0 {
 		if err := buildBlockNumberless(&b, parsed, 0, opts); err != nil {
 			log.Fatal(err)
 		}
@@ -196,10 +197,10 @@ func buildBlock(
 				if err != nil {
 					return thisLine, err
 				}
-				if thisLine > stmt.Line {
-					writeString("\n", indented)
+				if thisLine > stmt.Line || stmt.Directive != "events" {
+					writeString("\n")
 				}
-				writeString("}\n")
+				writeString(indented, "}\n")
 				thisLine += 2 // move past the brace
 			}
 		}
@@ -258,6 +259,9 @@ func buildBlockNumberless(
 			err = buildBlockNumberless(w, stmt.Block, depth+1, opts)
 			if err != nil {
 				return err
+			}
+			if len(stmt.Block) > 0 {
+				writeString(indented)
 			}
 			writeString("}\n")
 		}

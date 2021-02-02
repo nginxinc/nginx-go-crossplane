@@ -299,7 +299,6 @@ var tests = []struct {
 
 func TestParser(t *testing.T) {
 	//t.Skip("switching to GM")
-	parser.Debugging = testing.Verbose()
 	tests := map[string]struct {
 		args parser.ParseArgs
 		want *parser.Payload
@@ -528,9 +527,6 @@ func compareDirectives(t *testing.T, gen, config *parser.Directive) {
 
 func TestParseAbs(t *testing.T) {
 	t.Skip("redo this too")
-	if testing.Verbose() {
-		parser.Debugging = true
-	}
 
 	args := parser.ParseArgs{FileName: "config/absolute.conf", PrefixPath: "/etc/nginx/"}
 	_, err := parser.Parse(args)
