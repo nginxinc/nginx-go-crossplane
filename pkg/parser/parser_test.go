@@ -1,5 +1,4 @@
 // replacing these tests with python "golden master configs"
-// +build golden
 
 package parser_test
 
@@ -298,7 +297,7 @@ var tests = []struct {
 }
 
 func TestParser(t *testing.T) {
-	//t.Skip("switching to GM")
+	t.Skip("switching to GM")
 	tests := map[string]struct {
 		args parser.ParseArgs
 		want *parser.Payload
@@ -543,5 +542,40 @@ func TestParseAbs(t *testing.T) {
 
 	if err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestEmptyIf(t *testing.T) {
+	const conf = "testdata/configs/if-check/nginx.conf"
+	args := parser.ParseArgs{
+		FileName: conf,
+		Comments: true,
+	}
+	_, err := parser.Parse(args)
+	if err == nil {
+		t.Fatal(err)
+	}
+	t.Log("got expected error:", err)
+
+	// now verify captured error
+	args = parser.ParseArgs{
+		FileName:    conf,
+		Comments:    true,
+		CatchErrors: true,
+	}
+	p, err := parser.Parse(args)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(p.Errors) == 0 {
+		t.Fatalf("no errors captured")
+	}
+	expected := parser.ParseError{
+		File: conf,
+		Line: 24,
+		Fail: "if statement cannot be empty",
+	}
+	if p.Errors[0] != expected {
+		t.Fatalf("want: %+v\n got: %+v\n", expected, p.Errors[0])
 	}
 }
