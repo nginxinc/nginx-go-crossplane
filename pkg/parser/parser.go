@@ -324,6 +324,9 @@ func (run *runner) parse(config *Config, tokens <-chan lexer.LexicalItem, args P
 
 		if block.Directive == "if" {
 			block.Args = removeBrackets(block.Args)
+			if len(block.Args) == 0 || block.Args[0] == "()" {
+				return nil, fmt.Errorf("if statement cannot be empty")
+			}
 		}
 
 		if !args.Single && block.Directive == "include" {
