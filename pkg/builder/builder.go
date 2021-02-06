@@ -89,6 +89,7 @@ type Options struct {
 	Indent  int
 	Tabs    bool
 	Header  bool
+	Block   bool
 	Creator Creator
 	Writer  io.WriteCloser
 }
@@ -112,7 +113,7 @@ func Build(parsed []*parser.Directive, opts *Options) string {
 
 	// payloads without line numbers get their own renderer
 	// TODO: we should use "normal" line numbers, not zero offset
-	if len(parsed) > 1 && parsed[1].Line == 0 {
+	if (len(parsed) > 1 && parsed[1].Line == 0) || opts.Block {
 		if err := buildBlockNumberless(&b, parsed, 0, opts); err != nil {
 			log.Fatal(err)
 		}
