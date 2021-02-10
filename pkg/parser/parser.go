@@ -74,7 +74,7 @@ type Directive struct {
 	File      string       `json:"file,omitempty"`
 	Directive string       `json:"directive"`
 	Line      int          `json:"line"`
-	Args      []string     `json:"args"`
+	Args      []string     `json:"args,omitempty"`
 	Includes  []int        `json:"includes,omitempty"`
 	Block     []*Directive `json:"block,omitempty"`
 	Comment   string       `json:"comment,omitempty"`
