@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
+	"gitlab.com/f5/nginx/crossplane-go/pkg/parser"
 )
 
 // Creator abstracts file creation (to write configs to something other than files)

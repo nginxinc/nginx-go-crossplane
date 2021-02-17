@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/cmd"
+	"gitlab.com/f5/nginx/crossplane-go/cmd"
 )
 
 func main() {

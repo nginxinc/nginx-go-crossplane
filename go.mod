@@ -1,4 +1,4 @@
-module gitswarm.f5net.com/indigo/poc/crossplane-go
+module gitlab.com/f5/nginx/crossplane-go
 
 go 1.13
 
