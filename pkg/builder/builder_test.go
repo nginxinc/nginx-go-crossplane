@@ -12,7 +12,7 @@ import (
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/parser"
+	"gitlab.com/f5/nginx/crossplane-go/pkg/parser"
 )
 
 var (

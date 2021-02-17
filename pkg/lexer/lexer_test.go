@@ -8,7 +8,7 @@ package lexer_test
 import (
 	"testing"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
+	"gitlab.com/f5/nginx/crossplane-go/pkg/lexer"
 )
 
 func TestBalanceBraces(t *testing.T) {

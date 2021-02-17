@@ -11,7 +11,7 @@ import (
 	"sort"
 	"strings"
 
-	"gitswarm.f5net.com/indigo/poc/crossplane-go/pkg/lexer"
+	"gitlab.com/f5/nginx/crossplane-go/pkg/lexer"
 )
 
 type Opener func(string) (io.Reader, error)
