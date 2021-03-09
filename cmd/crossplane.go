@@ -112,7 +112,7 @@ func Execute() (err error) {
 			Indent:  int(indent),
 			Tabs:    tabs,
 		}
-		_, err = builder.BuildFiles(input, opts)
+		err = builder.BuildFiles(input, opts)
 		if err != nil {
 			log.Fatalf("Error: cannot build file %s: %v", filename, err)
 		}

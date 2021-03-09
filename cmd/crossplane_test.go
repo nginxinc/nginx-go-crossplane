@@ -842,7 +842,7 @@ func TestParseAndBuild(t *testing.T) {
 		// render a copy to re-parse, so it's gone a full cycle
 		t.Logf("write parsed to: %q\n", d1)
 		opts := &builder.Options{Dirname: d1, Indent: 4}
-		_, err = builder.BuildFiles(parsed, opts)
+		err = builder.BuildFiles(parsed, opts)
 		if err != nil {
 			t.Fatal(err)
 		}

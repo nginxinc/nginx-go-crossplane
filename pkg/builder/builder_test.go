@@ -16,7 +16,8 @@ import (
 )
 
 var (
-	whitespace = regexp.MustCompile("[\t ]+")
+	collapsed  = regexp.MustCompile("{[\t ]*}")
+	whitespace = regexp.MustCompile("[ \t\n]+")
 	newlines   = regexp.MustCompile("\n+")
 	empty      = regexp.MustCompile(" \n")
 )
@@ -295,12 +296,20 @@ http {
 	}
 
 	for _, test := range tests {
-		result := Build(test.input, &Options{Indent: 4, Tabs: false})
 		expected := strings.TrimLeft(
 			strings.ReplaceAll(test.expected, "\t", strings.Repeat(" ", 4)),
 			"\n",
 		)
+		sc := &StringsCreator{}
+		err := Build(test.input, &Options{Indent: 4, Creator: sc})
+		if err != nil {
+			t.Fatal(err)
+		}
 
+		if len(sc.Files) != 1 {
+			t.Fatalf("expect 1 file, got %d", len(sc.Files))
+		}
+		result := sc.Files[0].Contents
 		if expected != result {
 			t.Errorf("\nexpected:\n%s\ngot:\n%s\n", test.expected, result)
 		}
@@ -480,21 +489,22 @@ http {
 	}
 
 	for _, test := range tests {
-		opts := &Options{Dirname: t.TempDir(), Indent: 4}
-		result, err := BuildFiles(test.input, opts)
+		opts := &Options{Indent: 4}
+		results, err := BuildStrings(test.input, opts)
 		if err != nil {
-			t.Error(test.title)
+			t.Fatal(test.title)
 		}
-
+		if len(results) == 0 {
+			t.Fatal("no results returned")
+		}
 		expected := strings.TrimLeft(
 			strings.ReplaceAll(test.expected, "\t", strings.Repeat(" ", 4)),
 			"\n",
 		)
 
-		if result != expected {
-			t.Logf("WANT: %q\n", expected)
-			t.Logf(" GOT: %q\n", result)
-			t.Error(test.title)
+		got := results[0].Contents
+		if got != expected {
+			t.Errorf("For: %s\nWANT: %q\n GOT: %q\n", test.title, expected, got)
 		}
 	}
 }
@@ -515,7 +525,7 @@ func TestRebuild(t *testing.T) {
 			continue
 		}
 		opts := &Options{Dirname: dir}
-		_, err = BuildFiles(payload, opts)
+		err = BuildFiles(payload, opts)
 		if err != nil {
 			t.Error(err)
 			continue
@@ -592,7 +602,7 @@ func TestBuildStrings(t *testing.T) {
 	}
 	sc := &StringsCreator{}
 	opts := &Options{Creator: sc}
-	_, err = BuildFiles(p, opts)
+	err = BuildFiles(p, opts)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -612,13 +622,7 @@ func TestEmptyBraces(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	var sc StringsCreator
-	opts := &Options{Creator: &sc}
-	t.Log("building using line numbers")
-	_, err = BuildFiles(p, opts)
-	if err != nil {
-		t.Fatal(err)
-	}
+	sc := showme(t, p, &Options{Numbered: true}, "building using line numbers")
 
 	// confirm the build file is effectively the same
 	orig, _ := ioutil.ReadFile(conf)
@@ -627,26 +631,70 @@ func TestEmptyBraces(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// build files has 2 internal versions,
-	// one that respects line numbers, and one that doesn't
-	// it uses a simple check to see if the first directive
-	// has a line number, and if not uses the latter
-	t.Log("building without line numbers")
-	p.Config[0].Parsed[1].Line = 0
-	var sc2 StringsCreator
-	opts = &Options{Creator: &sc2}
-	_, err = BuildFiles(p, opts)
-	if err != nil {
+	t.Log()
+	for i := range p.Config[0].Parsed {
+		p.Config[0].Parsed[i].Line = 0
+	}
+	showme(t, p, nil, "building without line numbers")
+
+	opt := &Options{Spacer: true}
+	showme(t, p, opt, "building without line numbers with spacing")
+}
+
+func showme(t *testing.T, p *parser.Payload, opts *Options, title string) *StringsCreator {
+	t.Helper()
+	if title != "" {
+		t.Log(title)
+	}
+	if opts == nil {
+		opts = &Options{}
+	}
+	sc := &StringsCreator{}
+	opts.Creator = sc
+
+	if err := BuildFiles(p, opts); err != nil {
 		t.Fatal(err)
 	}
 
 	for _, f := range sc.Files {
+		t.Log("FILE:", f.Name)
 		t.Log(f.Contents)
 	}
+	return sc
+}
+
+func TestEmptiness(t *testing.T) {
+	const conf = "testdata/configs/emptiness/nginx.conf"
+	t.Log("testing config:", conf)
+	args := parser.ParseArgs{
+		FileName: conf,
+		Comments: true,
+	}
+	p, err := parser.Parse(args)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f1 := showme(t, p, nil, "building using line numbers")
+
+	// it uses a simple check to see if the first directive
+	// has a line number, and if not uses the latter
+	for i := range p.Config[0].Parsed {
+		p.Config[0].Parsed[i].Line = 0
+	}
+	f2 := showme(t, p, nil, "building without line numbers")
+
+	opts := &Options{Spacer: true}
+	f3 := showme(t, p, opts, "building without line numbers with spacer")
+	c1 := prep(f1.String())
+	c2 := prep(f2.String())
+	c3 := prep(f3.String())
+	compareSlices(t, c1, c2)
+	compareSlices(t, c1, c3)
 }
 
 func prep(s string) []string {
 	s = whitespace.ReplaceAllString(s, " ")
+	s = collapsed.ReplaceAllString(s, "{}")
 	s = newlines.ReplaceAllString(s, "\n")
 	s = empty.ReplaceAllString(s, "\n")
 	s = newlines.ReplaceAllString(s, "\n")
@@ -669,10 +717,19 @@ func dump(t *testing.T, list []string) {
 func compareBuilds(t *testing.T, this, that string) error {
 	c1 := prep(this)
 	c2 := prep(that)
+	return compareSlices(t, c1, c2)
+}
+
+func compareSlices(t *testing.T, c1, c2 []string) error {
 	if len(c1) != len(c2) {
 		dump(t, c1)
 		dump(t, c2)
 		return fmt.Errorf("mismatch linecount, %d vs %d", len(c1), len(c2))
+	}
+	for i, line := range c1 {
+		if line != c2[i] {
+			return fmt.Errorf("(%d) want: %q -- got: %q", i, line, c2[i])
+		}
 	}
 	return nil
 }
