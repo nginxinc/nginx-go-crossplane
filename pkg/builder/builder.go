@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 
 	"gitlab.com/f5/nginx/crossplane-go/pkg/parser"
 )
@@ -104,6 +106,7 @@ type Options struct {
 	Block    bool
 	Spacer   bool
 	Numbered bool // honor line numbers if config data has 'em
+	Enquote  bool
 	Creator  Creator
 	Writer   io.WriteCloser
 }
@@ -271,9 +274,12 @@ func (r *renderer) buildBlock(block []*parser.Directive, lastline, depth int, sp
 		}
 
 		if stmt.IsIf() {
-			r.writeString("if (", strings.Join(stmt.Args, " "), ")")
+			r.writeString("if (")
+			r.writeArgs(stmt.Args)
+			r.writeString(")")
 		} else if len(stmt.Args) > 0 {
-			r.writeString(stmt.Directive, " ", strings.Join(stmt.Args, " "))
+			r.writeString(stmt.Directive, " ")
+			r.writeArgs(stmt.Args)
 		} else {
 			r.writeString(stmt.Directive)
 		}
@@ -317,4 +323,121 @@ func (r *renderer) buildBlock(block []*parser.Directive, lastline, depth int, sp
 		lastline++
 	}
 	return lastline, nil
+}
+
+func (r *renderer) writeArgs(args []string) {
+	if !r.opts.Enquote {
+		r.writeString(strings.Join(args, " "))
+		return
+	}
+	for i, arg := range args {
+		if i > 0 {
+			r.writeString(" ")
+		}
+		r.writeString(enquote(arg))
+	}
+}
+
+func repr(s string) string {
+	q := fmt.Sprintf("%q", s)
+	for _, char := range q {
+		if char == '"' {
+			q = strings.ReplaceAll(q, `\"`, `"`)
+			q = strings.ReplaceAll(q, `'`, `\'`)
+			q = `'` + q[1:len(q)-1] + `'`
+			return q
+		}
+	}
+	return q
+}
+
+func enquote(arg string) string {
+	if !needsQuote(arg) {
+		return arg
+	}
+	return strings.ReplaceAll(repr(arg), `\\`, `\`)
+}
+
+func needsQuote(s string) bool {
+	if s == "" {
+		return true
+	}
+
+	// lexer should throw an error when variable expansion syntax
+	// is messed up, but just wrap it in quotes for now I guess
+	var char rune
+	chars := escape(s)
+
+	if len(chars) == 0 {
+		return true
+	}
+
+	// get first rune
+	char, off := utf8.DecodeRune([]byte(chars))
+
+	// arguments can't start with variable expansion syntax
+	if unicode.IsSpace(char) || strings.ContainsRune("{};\"'", char) || strings.HasPrefix(chars, "${") {
+		return true
+	}
+
+	chars = chars[off:]
+
+	expanding := false
+	var prev rune = 0
+	for _, c := range chars {
+		char = c
+
+		if prev == '\\' {
+			prev = 0
+			continue
+		}
+		if unicode.IsSpace(char) || strings.ContainsRune("{;\"'", char) {
+			return true
+		}
+
+		if (expanding && (prev == '$' && char == '{')) || (!expanding && char == '}') {
+			return true
+		}
+
+		if (expanding && char == '}') || (!expanding && (prev == '$' && char == '{')) {
+			expanding = !expanding
+		}
+
+		prev = char
+	}
+
+	return expanding || char == '\\' || char == '$'
+}
+
+func escape(s string) string {
+	if !strings.ContainsAny(s, "{}$;\\") {
+		return s
+	}
+
+	sb := strings.Builder{}
+	var pc, cc rune
+
+	for _, r := range s {
+		cc = r
+		if pc == '\\' || (pc == '$' && cc == '{') {
+			sb.WriteRune(pc)
+			sb.WriteRune(cc)
+			pc = 0
+			continue
+		}
+
+		if pc == '$' {
+			sb.WriteRune(pc)
+		}
+		if cc != '\\' && cc != '$' {
+			sb.WriteRune(cc)
+		}
+		pc = cc
+	}
+
+	if cc == '\\' || cc == '$' {
+		sb.WriteRune(cc)
+	}
+
+	return sb.String()
 }
