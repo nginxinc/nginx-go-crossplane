@@ -733,3 +733,95 @@ func compareSlices(t *testing.T, c1, c2 []string) error {
 	}
 	return nil
 }
+
+type buildFixture struct {
+	name     string
+	options  *Options
+	parsed   []*parser.Directive
+	expected string
+}
+
+type sbCloser struct {
+	*strings.Builder
+}
+
+func newSBCloser() *sbCloser {
+	return &sbCloser{Builder: new(strings.Builder)}
+}
+func (sb *sbCloser) Close() error {
+	return nil
+}
+
+var buildEnquoteFixtures = []buildFixture{
+	{
+		"no-quote",
+		&Options{},
+		[]*parser.Directive{
+			{
+				Directive: "log_format",
+				Args:      []string{"foo"},
+			},
+		},
+		"log_format foo;\n",
+	},
+	{
+		"no-quote",
+		&Options{Enquote: true},
+		[]*parser.Directive{
+			{
+				Directive: "log_format",
+				Args:      []string{"$foo"},
+			},
+		},
+		"log_format $foo;\n",
+	},
+	{
+		"quote space",
+		&Options{Enquote: true},
+		[]*parser.Directive{
+			{
+				Directive: "log_format",
+				Args:      []string{`foo bar`},
+			},
+		},
+		"log_format 'foo bar';\n",
+	},
+	{
+		"quote space",
+		&Options{Enquote: true},
+		[]*parser.Directive{
+			{
+				Directive: "log_format",
+				Args:      []string{`foo "bar"`},
+			},
+		},
+		`log_format 'foo "bar"';` + "\n",
+	},
+	{
+		"quote space",
+		&Options{Enquote: true},
+		[]*parser.Directive{
+			{
+				Directive: "log_format",
+				Args:      []string{`foo "bar"'`},
+			},
+		},
+		`log_format 'foo "bar"\'';` + "\n",
+	},
+}
+
+func TestBuildEnquote(t *testing.T) {
+	for _, fixture := range buildEnquoteFixtures {
+		t.Run(fixture.name, func(t *testing.T) {
+			sb := newSBCloser()
+			fixture.options.Writer = sb
+			if err := Build(fixture.parsed, fixture.options); err != nil {
+				t.Fatal(err)
+			}
+			got := sb.String()
+			if got != fixture.expected {
+				t.Fatalf("expected: %#v\nbut got: %#v", fixture.expected, got)
+			}
+		})
+	}
+}
