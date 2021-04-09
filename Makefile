@@ -1,41 +1,107 @@
-all: container
+PACKAGE           = $(notdir $(patsubst %/,%,$(dir $(realpath $(lastword $(MAKEFILE_LIST))))))
+OUT_DIR          ?= build
+VENDOR_DIR       ?= vendor
+RESULTS_DIR		 ?= results
+DOCKER_REGISTRY  ?= local
+DOCKER_TAG       ?= latest
+LINT_BIN := ./bin/golangci-lint
 
-VERSION = 0.0.1
-TAG = $(VERSION)
-PREFIX = nginx/crossplane-go
+SHELL=/bin/bash
+.SHELLFLAGS=-c -eo pipefail
 
-DOCKER_RUN = docker run --rm -v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go
-DOCKER_BUILD_RUN = docker run --rm -v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go -w /go/src/gitswarm.f5net.com/indigo/poc/crossplane-go
-BUILD_IN_CONTAINER = 1
-DOCKERFILEPATH = build
-GOLANG_CONTAINER = golang:1.12
+export GOPRIVATE=*.f5net.com,gitlab.com/f5
+export GOFLAGS=-mod=vendor
 
-requirements:
-	go get -u \
-    github.com/golang/dep/cmd/dep \
-    github.com/golangci/golangci-lint/cmd/golangci-lint
+#######################################
+## Local set up.
+#######################################
 
-dependencies:
-	dep ensure
+.PHONY: init deps deps-upgrade fmt test lint lint-shell gen
 
-build:
-ifeq ($(BUILD_IN_CONTAINER),1)
-	$(DOCKER_BUILD_RUN) -e CGO_ENABLED=0 $(GOLANG_CONTAINER) go build -installsuffix cgo -ldflags "-w" -o /go/src/gitswarm.f5net.com/indigo/poc/crossplane-go/crossplane-go
-else
-	CGO_ENABLED=0 GOOS=linux go build -installsuffix cgo -ldflags "-w" -o crossplane-go gitswarm.f5net.com/indigo/poc/crossplane-go/cmd/crossplane.go
-endif
+init:
+	git config core.hooksPath .githooks
+	go install github.com/maxbrunsfeld/counterfeiter/v6
+	go install golang.org/x/tools/cmd/goimports
+	go install github.com/jstemmer/go-junit-report
 
-test:
-ifeq ($(BUILD_IN_CONTAINER),1)
-	docker run --rm -v $(shell pwd):/go/src/gitswarm.f5net.com/indigo/poc/crossplane-go \
-	$(shell docker build -f ./build/Dockerfile -q .) \
-	go test $(shell go list ./... | grep -v /vendor/)
-else
-	go test ./...
-endif
+deps:
+	go mod download
+	go mod tidy
+	go mod verify
+	go mod vendor
 
-lint:
-	golangci-lint run
+deps-upgrade:
+	GOFLAGS="" go get -u ./...
+	$(MAKE) deps
 
-clean:
-	rm -f crossplane-go
+#######################################
+## Tests, codegen, lint and format.
+#######################################
+
+fmt: ; $(info Running goimports...) @
+	@goimports --local gitswarm.f5net.com/indigo,gitlab.com/f5 -w -e $$(find . -type f -name '*.go' -not -path "./vendor/*")
+
+test: fmt ; $(info Running unit tests...) @
+	mkdir -p $(RESULTS_DIR)
+	go test -race -v -cover ./... -coverprofile=$(RESULTS_DIR)/$(PACKAGE)-coverage.out 2>&1 | tee >(go-junit-report > $(RESULTS_DIR)/report.xml)
+	@echo "Total code coverage:"
+	@go tool cover -func=$(RESULTS_DIR)/$(PACKAGE)-coverage.out | grep 'total:' | tee $(RESULTS_DIR)/anybadge.out
+	@go tool cover -html=$(RESULTS_DIR)/$(PACKAGE)-coverage.out -o $(RESULTS_DIR)/coverage.html
+
+test-only-failed: fmt ; $(info Running unit tests (showing only failed ones with context)...) @
+	go test -v -race ./... | grep --color -B 45 -A 5 -E '^FAIL.+'
+
+$(LINT_BIN): fmt
+	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.36.0
+
+lint: $(LINT_BIN)
+	$(LINT_BIN) run
+
+lint-shell:
+	shellcheck -x $$(find . -name "*.sh" -type f -not -path "./vendor/*")
+
+gen:
+	go generate -x ./...
+	$(MAKE) fmt
+
+#######################################
+## Build artifacts for deployment.
+#######################################
+
+.PHONY: build-out-dir build build-linux images dev-k8s clean 
+
+build-out-dir:
+	@mkdir -p $(OUT_DIR)
+
+# Builds exectuable
+build: build-out-dir; $(info Building executable...) @
+	CGO_ENABLED=0 go build \
+        -v -tags 'release osusergo' \
+        -ldflags '-s -w -extldflags "-fno-PIC -static"' \
+        -o $(OUT_DIR)/$(PACKAGE) main.go
+
+build-darwin: build-out-dir; $(info Building executable...) @
+	CGO_ENABLED=1 go build \
+        -v -tags 'release osusergo' \
+        -ldflags '-s -w -extldflags "-fno-PIC"' \
+        -o $(OUT_DIR)/$(PACKAGE) main.go
+
+build-linux: export GOOS=linux
+build-linux: export GOARCH=amd64
+build-linux: build
+
+# Removes all build artifacts.
+clean: ; $(info Cleaning...) @
+	rm -rf $(OUT_DIR)/
+
+# Removes all files that could be downloaded/generated
+clean-force: clean; $(info Cleaning everything...) @
+	rm -rf $(VENDOR_DIR)/
+	rm -rf bin/
+	rm -f go.sum
+	go clean -cache
+	go clean -modcache
+	go clean -testcache
+
+images: build-linux
+	docker build --rm --no-cache -t $(DOCKER_REGISTRY)/$(PACKAGE):$(DOCKER_TAG) -f Dockerfile .
