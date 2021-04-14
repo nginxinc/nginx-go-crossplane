@@ -1,0 +1,10 @@
+# CODEOWNERS
+
+## Scripts and CI/CD
+.gitlab-ci.yml @indigo/users-devops/
+
+
+## Project owner
+* @b.rais
+
+

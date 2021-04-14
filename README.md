@@ -1,73 +1,74 @@
-# crossplane-go
+# go-crossplane
+A  Go port of the NGINX config/JSON converter [crossplane](https://github.com/nginxinc/crossplane).
 
-A quick and reliable way to convert NGINX configurations into JSON and back.
+## Parse
+This is an example that takes a path to an NGINX config file, converts it to JSON, and prints the result to stdout.
+```go
+package main
 
-built with ❤ by nginxinc and gophers who live in Cork and are from Cork
+import (
+	"encoding/json"
+	"fmt"
+	"os"
 
-```
-Usage:
-  crossplane [command]
+	"gitlab.com/f5/nginx/crossplane-go"
+)
 
-Available Commands:
-  build       Build an NGINX config using a JSON format
-  help        Help about any command
-  lex         Lexes tokens from an NGINX config file
-  parse       Parses an NGINX config for a JSON format
+func main() {
+	path := os.Args[1]
 
-Flags:
-  -h, --help   help for crossplane
+	payload, err := crossplane.Parse(path, &crossplane.ParseOptions{})
+	if err != nil {
+		panic(err)
+	}
 
-Use "crossplane [command] --help" for more information about a command.
-```
+	b, err := json.Marshal(payload)
+	if err != nil {
+		panic(err)
+	}
 
-## crossplane build
-
-```
-Build an NGINX config using a JSON format
-
-Usage:
-  crossplane build [/path/to/payload.json] [flags]
-
-Flags:
-  -f, --force         Force overwrite existing files
-  -h, --help          help for build
-  -i, --indent uint   Set spaces for indentation (default 4)
-  -d, --path string   Output to a directory. If not specified, it will output to STDOUT
-  -t, --tabs          Use tabs instead of spaces on built files
+	fmt.Println(string(b))
+}
 ```
 
-## crossplane parse
+## Build
+This is an example that takes a path to a JSON file, converts it to an NGINX config, and prints the result to stdout.
+```go
+package main
 
-```
-Parses an NGINX config for a JSON format
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"os"
 
-Usage:
-  crossplane parse [/path/to/nginx.conf] [flags]
+	"gitlab.com/f5/nginx/crossplane-go"
+)
 
-Flags:
-      --catch-errors         Stop parse after first error
-      --check-args           Run arg count analysis on directives
-      --check-ctx            Run context analysis on directives
-      --combine              Inline includes to create single config object
-  -h, --help                 help for parse
-      --ignore stringArray   List of ignored directives
-  -i, --indent uint          Set spaces for indentation (default 4)
-  -o, --out string           Output to a file. If not specified, it will output to STDOUT
-      --single               Skip includes
-      --strict               Strict mode: error on unrecognized directives
-```
+func main() {
+	path := os.Args[1]
 
-## crossplane lex
+	file, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
 
-```
-Lexes tokens from an NGINX config file
+	content, err := ioutil.ReadAll(file)
+	if err != nil {
+		panic(err)
+	}
 
-Usage:
-  crossplane lex [/path/to/tokens-file.txt] [flags]
+	var payload crossplane.Payload
+	if err = json.Unmarshal(content, &payload); err != nil {
+		panic(err)
+	}
 
-Flags:
-  -h, --help           help for lex
-  -i, --indent uint    Set spaces for indentation (default 4)
-  -n, --line-numbers   Include line numbers in output
-  -o, --out string     Output to a file. If not specified, it will output to STDOUT
+	var buf bytes.Buffer
+	if err = crossplane.Build(&buf, payload.Config[0], &crossplane.BuildOptions{}); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(buf.String())
+}
 ```
