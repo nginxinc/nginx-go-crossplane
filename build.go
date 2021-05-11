@@ -33,7 +33,7 @@ const header = `# This config was built from JSON using NGINX crossplane.
 // BuildFiles builds all of the config files in a crossplane.Payload and
 // writes them to disk.
 func BuildFiles(payload Payload, dir string, options *BuildOptions) error {
-	if len(dir) == 0 {
+	if dir == "" {
 		cwd, err := os.Getwd()
 		if err != nil {
 			return err
@@ -261,4 +261,24 @@ func escape(s string) string {
 	}
 
 	return sb.String()
+}
+
+// BuildInto builds all of the config files in a crossplane.Payload and
+// writes them to the Creator.
+func BuildInto(payload Payload, into Creator, options *BuildOptions) error {
+	for _, config := range payload.Config {
+		wc, err := into.Create(config.File)
+		if err != nil {
+			return err
+		}
+		if err := Build(wc, config, options); err != nil {
+			return err
+		}
+
+		if err := wc.Close(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
