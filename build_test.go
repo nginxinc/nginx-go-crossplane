@@ -516,3 +516,28 @@ func equalDirectives(d1, d2 Directive) bool {
 	}
 	return true
 }
+
+func TestBuildInto(t *testing.T) {
+	t.Parallel()
+	for _, fixture := range buildFilesFixtures {
+		fixture := fixture
+		t.Run(fixture.name, func(t *testing.T) {
+			t.Parallel()
+			fixture := fixture
+			sc := new(StringsCreator)
+
+			if err := BuildInto(fixture.payload, sc, &fixture.options); err != nil {
+				t.Fatal(err)
+			}
+
+			if len(sc.Files) == 0 {
+				t.Fatal("no buffer written")
+			}
+
+			got := sc.Files[0].String()
+			if got != fixture.expected {
+				t.Fatalf("expected: %#v\nbut got: %#v", fixture.expected, got)
+			}
+		})
+	}
+}
