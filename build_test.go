@@ -13,7 +13,7 @@ import (
 type buildFixture struct {
 	name     string
 	options  BuildOptions
-	parsed   []Directive
+	parsed   Directives
 	expected string
 }
 
@@ -34,11 +34,11 @@ var buildFixtures = []buildFixture{
 	{
 		name:    "nested-and-multiple-args",
 		options: BuildOptions{},
-		parsed: []Directive{
+		parsed: Directives{
 			{
 				Directive: "events",
 				Args:      []string{},
-				Block: &[]Directive{
+				Block: Directives{
 					{
 						Directive: "worker_connections",
 						Args:      []string{"1024"},
@@ -48,11 +48,11 @@ var buildFixtures = []buildFixture{
 			{
 				Directive: "http",
 				Args:      []string{},
-				Block: &[]Directive{
+				Block: Directives{
 					{
 						Directive: "server",
 						Args:      []string{},
-						Block: &[]Directive{
+						Block: Directives{
 							{
 								Directive: "listen",
 								Args:      []string{"127.0.0.1:8080"},
@@ -64,7 +64,7 @@ var buildFixtures = []buildFixture{
 							{
 								Directive: "location",
 								Args:      []string{"/"},
-								Block: &[]Directive{
+								Block: Directives{
 									{
 										Directive: "return",
 										Args:      []string{"200", "foo bar baz"},
@@ -94,12 +94,12 @@ var buildFixtures = []buildFixture{
 	{
 		name:    "with-comments",
 		options: BuildOptions{},
-		parsed: []Directive{
+		parsed: Directives{
 			{
 				Directive: "events",
 				Line:      1,
 				Args:      []string{},
-				Block: &[]Directive{
+				Block: Directives{
 					{
 						Directive: "worker_connections",
 						Line:      2,
@@ -117,12 +117,12 @@ var buildFixtures = []buildFixture{
 				Directive: "http",
 				Line:      5,
 				Args:      []string{},
-				Block: &[]Directive{
+				Block: Directives{
 					{
 						Directive: "server",
 						Line:      6,
 						Args:      []string{},
-						Block: &[]Directive{
+						Block: Directives{
 							{
 								Directive: "listen",
 								Line:      7,
@@ -143,7 +143,7 @@ var buildFixtures = []buildFixture{
 								Directive: "location",
 								Line:      9,
 								Args:      []string{"/"},
-								Block: &[]Directive{
+								Block: Directives{
 									{
 										Directive: "#",
 										Line:      9,
@@ -195,7 +195,7 @@ var buildFixtures = []buildFixture{
 	{
 		name:    "starts-with-comments",
 		options: BuildOptions{},
-		parsed: []Directive{
+		parsed: Directives{
 			{
 				Directive: "#",
 				Line:      1,
@@ -213,7 +213,7 @@ var buildFixtures = []buildFixture{
 	{
 		name:    "with-quoted-unicode",
 		options: BuildOptions{},
-		parsed: []Directive{
+		parsed: Directives{
 			{
 				Directive: "env",
 				Line:      1,
@@ -225,7 +225,7 @@ var buildFixtures = []buildFixture{
 	{
 		name:    "multiple-comments-on-one-line",
 		options: BuildOptions{},
-		parsed: []Directive{
+		parsed: Directives{
 			{
 				Directive: "#",
 				Line:      1,
@@ -281,7 +281,7 @@ var buildFilesFixtures = []buildFilesFixture{
 			Config: []Config{
 				{
 					File: "nginx.conf",
-					Parsed: []Directive{
+					Parsed: Directives{
 						{
 							Directive: "user",
 							Line:      1,
@@ -304,7 +304,7 @@ var buildFilesFixtures = []buildFilesFixture{
 					File:   "nginx.conf",
 					Status: "ok",
 					Errors: []ConfigError{},
-					Parsed: []Directive{
+					Parsed: Directives{
 						{
 							Directive: "user",
 							Line:      1,
@@ -437,10 +437,11 @@ func equalPayloadErrors(e1, e2 []PayloadError) bool {
 	}
 	for i := 0; i < len(e1); i++ {
 		if (e1[i].File != e2[i].File) ||
-			(e1[i].Error != e2[i].Error) ||
 			(e1[i].Error != nil && e2[i].Error != nil && e1[i].Error.Error() != e2[i].Error.Error()) ||
-			(e1[i].Line != e2[i].Line) ||
-			(*e1[i].Line != *e2[i].Line) {
+			(e1[i].Line == nil) != (e2[i].Line == nil) ||
+			(e1[i].Line != nil && *e1[i].Line != *e2[i].Line) {
+			println(e1[i].Error.Error())
+			println(e2[i].Error.Error())
 			return false
 		}
 	}
@@ -470,7 +471,7 @@ func equalConfigErrors(e1, e2 []ConfigError) bool {
 		return false
 	}
 	for i := 0; i < len(e1); i++ {
-		if e1[i].Error != e2[i].Error ||
+		if (e1[i].Error != nil && e2[i].Error != nil && e1[i].Error.Error() != e2[i].Error.Error()) ||
 			(e1[i].Line == nil) != (e2[i].Line == nil) ||
 			(e1[i].Line != nil && *e1[i].Line != *e2[i].Line) {
 			return false
@@ -479,7 +480,7 @@ func equalConfigErrors(e1, e2 []ConfigError) bool {
 	return true
 }
 
-func equalBlocks(b1, b2 []Directive) bool {
+func equalBlocks(b1, b2 Directives) bool {
 	if len(b1) != len(b2) {
 		return false
 	}
@@ -491,29 +492,40 @@ func equalBlocks(b1, b2 []Directive) bool {
 	return true
 }
 
-//nolint:gocognit
-func equalDirectives(d1, d2 Directive) bool {
+func equalArgs(b1, b2 []string) bool {
+	if len(b1) != len(b2) {
+		return false
+	}
+	for i := 0; i < len(b1); i++ {
+		if Enquote(b1[i]) != Enquote(b2[i]) {
+			return false
+		}
+	}
+	return true
+}
+
+func equalIncludes(b1, b2 []int) bool {
+	if len(b1) != len(b2) {
+		return false
+	}
+	for i := 0; i < len(b1); i++ {
+		if b1[i] != b2[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func equalDirectives(d1, d2 *Directive) bool {
 	if d1.Directive != d2.Directive ||
-		len(d1.Args) != len(d2.Args) ||
-		(d1.Includes == nil) != (d2.Includes == nil) ||
-		(d1.Block == nil) != (d2.Block == nil) ||
-		(d1.Block != nil && !equalBlocks(*d1.Block, *d2.Block)) ||
+		!equalArgs(d1.Args, d2.Args) ||
+		!equalIncludes(d1.Includes, d2.Includes) ||
+		!equalBlocks(d1.Block, d2.Block) ||
 		(d1.Comment == nil) != (d2.Comment == nil) ||
 		(d1.Comment != nil && *d1.Comment != *d2.Comment) {
 		return false
 	}
-	for i := 0; i < len(d1.Args); i++ {
-		if Enquote(d1.Args[i]) != Enquote(d2.Args[i]) {
-			return false
-		}
-	}
-	if d1.Includes != nil {
-		for i := 0; i < len(*d1.Includes); i++ {
-			if (*d1.Includes)[i] != (*d2.Includes)[i] {
-				return false
-			}
-		}
-	}
+
 	return true
 }
 

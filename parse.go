@@ -77,10 +77,8 @@ type ParseOptions struct {
 // Parse parses an NGINX configuration file.
 //nolint:funlen
 func Parse(filename string, options *ParseOptions) (*Payload, error) {
-	payload := Payload{
+	payload := &Payload{
 		Status: "ok",
-		Errors: []PayloadError{},
-		Config: []Config{},
 	}
 
 	handleError := func(config *Config, err error) {
@@ -88,7 +86,6 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		if e, ok := err.(ParseError); ok {
 			line = e.line
 		}
-
 		cerr := ConfigError{Line: line, Error: err}
 		perr := PayloadError{Line: line, Error: err, File: config.File}
 		if options.ErrorCallback != nil {
@@ -125,8 +122,6 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		config := Config{
 			File:   incl.path,
 			Status: "ok",
-			Errors: []ConfigError{},
-			Parsed: []Directive{},
 		}
 		parsed, err := p.parse(&config, tokens, incl.ctx, false)
 		if err != nil {
@@ -145,7 +140,7 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		return payload.Combined()
 	}
 
-	return &payload, nil
+	return payload, nil
 }
 
 func (p *parser) openFile(path string) (io.Reader, error) {
@@ -160,9 +155,7 @@ var ErrPrematureLexEnd = errors.New("premature end of file")
 
 // parse Recursively parses directives from an nginx config context.
 // nolint:gocyclo,funlen,gocognit
-func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, consume bool) ([]Directive, error) {
-	var parsed = []Directive{}
-
+func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, consume bool) (parsed Directives, err error) {
 	var tokenOk bool
 	// parse recursively by pulling from a flat stream of tokens
 	for t := range tokens {
@@ -188,7 +181,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 
 		// TODO: add a "File" key if combine is true
 		// the first token should always be an nginx directive
-		stmt := Directive{
+		stmt := &Directive{
 			Directive: t.Value,
 			Line:      t.Line,
 			Args:      []string{},
@@ -232,7 +225,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		}
 
 		// raise errors if this statement is invalid
-		err := analyze(parsing.File, stmt, t.Value, ctx, p.options)
+		err = analyze(parsing.File, stmt, t.Value, ctx, p.options)
 
 		if perr, ok := err.(ParseError); ok && !p.options.StopParsingOnError {
 			p.handleError(parsing, perr)
@@ -261,8 +254,6 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			if !filepath.IsAbs(pattern) {
 				pattern = filepath.Join(p.configDir, pattern)
 			}
-
-			stmt.Includes = &[]int{}
 
 			// get names of all included files
 			var fnames []string
@@ -301,18 +292,19 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 					p.included[fname] = len(p.included)
 					p.includes = append(p.includes, fileCtx{fname, ctx})
 				}
-				*stmt.Includes = append(*stmt.Includes, p.included[fname])
+				stmt.Includes = append(stmt.Includes, p.included[fname])
 			}
 		}
 
 		// if this statement terminated with "{" then it is a block
 		if t.Value == "{" && !t.IsQuoted {
+			stmt.Block = make(Directives, 0)
 			inner := enterBlockCtx(stmt, ctx) // get context for block
-			block, err := p.parse(parsing, tokens, inner, false)
+			blocks, err := p.parse(parsing, tokens, inner, false)
 			if err != nil {
 				return nil, err
 			}
-			stmt.Block = &block
+			stmt.Block = append(stmt.Block, blocks...)
 		}
 
 		parsed = append(parsed, stmt)
@@ -320,7 +312,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		// add all comments found inside args after stmt is added
 		for _, comment := range commentsInArgs {
 			comment := comment
-			parsed = append(parsed, Directive{
+			parsed = append(parsed, &Directive{
 				Directive: "#",
 				Line:      stmt.Line,
 				Args:      []string{},

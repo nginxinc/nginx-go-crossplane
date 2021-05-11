@@ -12,7 +12,7 @@ func TestAnalyze(t *testing.T) {
 	// Checks that the `state` directive should only be in certain contexts.
 	t.Run("state-directive", func(t *testing.T) {
 		t.Parallel()
-		stmt := Directive{
+		stmt := &Directive{
 			Directive: "state",
 			Args:      []string{"/path/to/state/file.conf"},
 			Line:      5, // this is arbitrary
@@ -58,7 +58,7 @@ func TestAnalyzeFlagArgs(t *testing.T) {
 	t.Run("flag-args", func(t *testing.T) {
 		t.Parallel()
 		ctx := blockCtx{"events"}
-		stmt := Directive{
+		stmt := &Directive{
 			Directive: "accept_mutex",
 			Line:      2, // this is arbitrary
 		}
