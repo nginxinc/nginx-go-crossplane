@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.1.2
+2021-05-12
+
+### Fixes
+
+- you should not have pointers to slices (cdc54848b53b8903a1d7100d8abcca7f27dd0672)
+
 ## 0.1.0
 2021-04-14
 
