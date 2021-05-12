@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.1.3
+2021-05-12
+
+### Fixes
+
+- we should not panic in the parsing when args are missing (6e5ade38ec520e14770bdd1689494a9688d026c6)
+
 ## 0.1.2
 2021-05-12
 
