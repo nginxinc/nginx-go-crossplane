@@ -7,7 +7,7 @@ import (
 )
 
 type included struct {
-	directive Directive
+	directive *Directive
 	err       error
 }
 
@@ -47,7 +47,7 @@ func validFlag(s string) bool {
 }
 
 // validExpr ensures an expression is enclused in '(' and ')' and is not empty.
-func validExpr(d Directive) bool {
+func validExpr(d *Directive) bool {
 	l := len(d.Args)
 	b := 0
 	e := l - 1
@@ -61,7 +61,7 @@ func validExpr(d Directive) bool {
 }
 
 // prepareIfArgs removes parentheses from an `if` directive's arguments.
-func prepareIfArgs(d Directive) Directive {
+func prepareIfArgs(d *Directive) *Directive {
 	b := 0
 	e := len(d.Args) - 1
 	if len(d.Args) > 0 && strings.HasPrefix(d.Args[0], "(") && strings.HasSuffix(d.Args[e], ")") {
@@ -79,9 +79,9 @@ func prepareIfArgs(d Directive) Directive {
 }
 
 // combineConfigs combines config files into one by using include directives.
-func combineConfigs(old Payload) (*Payload, error) {
+func combineConfigs(old *Payload) (*Payload, error) {
 	if len(old.Config) < 1 {
-		return &old, nil
+		return old, nil
 	}
 
 	status := old.Status
@@ -90,15 +90,10 @@ func combineConfigs(old Payload) (*Payload, error) {
 	}
 
 	errors := old.Errors
-	if errors == nil {
-		errors = []PayloadError{}
-	}
 
 	combined := Config{
 		File:   old.Config[0].File,
 		Status: "ok",
-		Errors: []ConfigError{},
-		Parsed: []Directive{},
 	}
 
 	for _, config := range old.Config {
@@ -122,22 +117,22 @@ func combineConfigs(old Payload) (*Payload, error) {
 	}, nil
 }
 
-func performIncludes(old Payload, fromfile string, block []Directive) chan included {
+func performIncludes(old *Payload, fromfile string, block Directives) chan included {
 	c := make(chan included)
 	go func() {
 		defer close(c)
 
 		for _, dir := range block {
 			if dir.IsBlock() {
-				block := []Directive{}
-				for incl := range performIncludes(old, fromfile, *dir.Block) {
+				block := Directives{}
+				for incl := range performIncludes(old, fromfile, dir.Block) {
 					if incl.err != nil {
 						c <- incl
 						return
 					}
 					block = append(block, incl.directive)
 				}
-				dir.Block = &block
+				dir.Block = block
 			}
 
 			if !dir.IsInclude() {
@@ -145,7 +140,7 @@ func performIncludes(old Payload, fromfile string, block []Directive) chan inclu
 				continue
 			}
 
-			for _, idx := range *dir.Includes {
+			for _, idx := range dir.Includes {
 				if idx >= len(old.Config) {
 					c <- included{
 						err: ParseError{

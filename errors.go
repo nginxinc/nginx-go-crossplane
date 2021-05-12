@@ -1,6 +1,7 @@
 package crossplane
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -19,4 +20,8 @@ func (e ParseError) Error() string {
 		return fmt.Sprintf("%s in %s:%d", e.what, file, *e.line)
 	}
 	return fmt.Sprintf("%s in %s", e.what, file)
+}
+
+func (e ParseError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(e.Error())
 }

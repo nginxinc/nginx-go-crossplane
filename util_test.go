@@ -16,29 +16,27 @@ func TestPayload(t *testing.T) {
 			Config: []Config{
 				{
 					File: "example1.conf",
-					Parsed: []Directive{
+					Parsed: Directives{
 						{
 							Directive: "include",
 							Args:      []string{"example2.conf"},
 							Line:      1,
-							Includes:  &[]int{1},
+							Includes:  []int{1},
 						},
 					},
 				},
 				{
 					File: "example2.conf",
-					Parsed: []Directive{
+					Parsed: Directives{
 						{
 							Directive: "events",
 							Args:      []string{},
 							Line:      1,
-							Block:     &[]Directive{},
 						},
 						{
 							Directive: "http",
 							Args:      []string{},
 							Line:      2,
-							Block:     &[]Directive{},
 						},
 					},
 				},
@@ -46,24 +44,20 @@ func TestPayload(t *testing.T) {
 		}
 		expected := Payload{
 			Status: "ok",
-			Errors: []PayloadError{},
 			Config: []Config{
 				{
 					File:   "example1.conf",
 					Status: "ok",
-					Errors: []ConfigError{},
-					Parsed: []Directive{
+					Parsed: Directives{
 						{
 							Directive: "events",
 							Args:      []string{},
 							Line:      1,
-							Block:     &[]Directive{},
 						},
 						{
 							Directive: "http",
 							Args:      []string{},
 							Line:      2,
-							Block:     &[]Directive{},
 						},
 					},
 				},

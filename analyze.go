@@ -72,7 +72,7 @@ var contexts = map[string]uint{
 	blockCtx{"http", "location", "limit_except"}.key(): ngxHTTPLmtConf,
 }
 
-func enterBlockCtx(stmt Directive, ctx blockCtx) blockCtx {
+func enterBlockCtx(stmt *Directive, ctx blockCtx) blockCtx {
 	// don't nest because ngxHTTPLocConf just means "location block in http"
 	if len(ctx) > 0 && ctx[0] == "http" && stmt.Directive == "location" {
 		return blockCtx{"http", "location"}
@@ -82,7 +82,7 @@ func enterBlockCtx(stmt Directive, ctx blockCtx) blockCtx {
 }
 
 // nolint:gocyclo,funlen,gocognit
-func analyze(fname string, stmt Directive, term string, ctx blockCtx, options *ParseOptions) error {
+func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *ParseOptions) error {
 	masks, knownDirective := directives[stmt.Directive]
 	currCtx, knownContext := contexts[ctx.key()]
 

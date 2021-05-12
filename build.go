@@ -102,7 +102,7 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 }
 
 //nolint:gocognit
-func buildBlock(sb io.StringWriter, parent *Directive, block []Directive, depth int, lastLine int, options *BuildOptions) {
+func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
 	for i, stmt := range block {
 		// if the this statement is a comment on the same line as the preview, do not emit EOL for this stmt
 		if stmt.Line == lastLine && stmt.IsComment() {
@@ -142,12 +142,12 @@ func buildBlock(sb io.StringWriter, parent *Directive, block []Directive, depth 
 				}
 			}
 
-			if stmt.Block == nil {
+			if !stmt.IsBlock() {
 				_, _ = sb.WriteString(";")
 			} else {
 				_, _ = sb.WriteString(" {")
 				stmt := stmt
-				buildBlock(sb, &stmt, *stmt.Block, depth+1, stmt.Line, options)
+				buildBlock(sb, stmt, stmt.Block, depth+1, stmt.Line, options)
 				_, _ = sb.WriteString("\n")
 				_, _ = sb.WriteString(margin(options, depth))
 				_, _ = sb.WriteString("}")

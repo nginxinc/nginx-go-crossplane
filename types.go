@@ -17,7 +17,7 @@ type Config struct {
 	File   string        `json:"file"`
 	Status string        `json:"status"`
 	Errors []ConfigError `json:"errors"`
-	Parsed []Directive   `json:"parsed"`
+	Parsed Directives    `json:"parsed"`
 }
 
 type ConfigError struct {
@@ -26,13 +26,14 @@ type ConfigError struct {
 }
 
 type Directive struct {
-	Directive string       `json:"directive"`
-	Line      int          `json:"line"`
-	Args      []string     `json:"args"`
-	Includes  *[]int       `json:"includes,omitempty"`
-	Block     *[]Directive `json:"block,omitempty"`
-	Comment   *string      `json:"comment,omitempty"`
+	Directive string     `json:"directive"`
+	Line      int        `json:"line"`
+	Args      []string   `json:"args"`
+	Includes  []int      `json:"includes,omitempty"`
+	Block     Directives `json:"block,omitempty"`
+	Comment   *string    `json:"comment,omitempty"`
 }
+type Directives []*Directive
 
 // IsBlock returns true if this is a block directive.
 func (d Directive) IsBlock() bool {
@@ -52,6 +53,6 @@ func (d Directive) IsComment() bool {
 // Combined returns a new Payload that is the same except that the inluding
 // logic is performed on its configs. This means that the resulting Payload
 // will always have 0 or 1 configs in its Config field.
-func (p Payload) Combined() (*Payload, error) {
+func (p *Payload) Combined() (*Payload, error) {
 	return combineConfigs(p)
 }
