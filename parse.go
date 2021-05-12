@@ -2,6 +2,7 @@ package crossplane
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -250,6 +251,18 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 
 		// add "includes" to the payload if this is an include statement
 		if !p.options.SingleFile && stmt.Directive == "include" {
+			if len(stmt.Args) == 0 {
+				return nil,  ParseError{
+					what: fmt.Sprintf(`invalid number of arguments in "%s" directive in %s:%d`,
+						stmt.Directive,
+						parsing.File,
+						stmt.Line,
+					),
+					file: &parsing.File,
+					line: &stmt.Line,
+				}
+			}
+
 			pattern := stmt.Args[0]
 			if !filepath.IsAbs(pattern) {
 				pattern = filepath.Join(p.configDir, pattern)
