@@ -2,6 +2,14 @@
 
 <!--- next entry here -->
 
+## 0.1.4
+2021-05-14
+
+### Fixes
+
+- add set directive to the stream>server (c15e045dc5d6d5200f76d8762bc2ebd8b4fb4f70)
+- restore payload defaults, avoid side effects in performIncludes (01f904337ad277b5e363e6c9b66d511d63a54da3)
+
 ## 0.1.3
 2021-05-12
 
