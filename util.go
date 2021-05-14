@@ -90,10 +90,15 @@ func combineConfigs(old *Payload) (*Payload, error) {
 	}
 
 	errors := old.Errors
+	if errors == nil {
+		errors = []PayloadError{}
+	}
 
 	combined := Config{
 		File:   old.Config[0].File,
 		Status: "ok",
+		Errors: []ConfigError{},
+		Parsed: Directives{},
 	}
 
 	for _, config := range old.Config {
@@ -121,25 +126,23 @@ func performIncludes(old *Payload, fromfile string, block Directives) chan inclu
 	c := make(chan included)
 	go func() {
 		defer close(c)
-
-		for _, dir := range block {
+		for _, d := range block {
+			dir := *d
 			if dir.IsBlock() {
-				block := Directives{}
+				nblock := Directives{}
 				for incl := range performIncludes(old, fromfile, dir.Block) {
 					if incl.err != nil {
 						c <- incl
 						return
 					}
-					block = append(block, incl.directive)
+					nblock = append(nblock, incl.directive)
 				}
-				dir.Block = block
+				dir.Block = nblock
 			}
-
 			if !dir.IsInclude() {
-				c <- included{directive: dir}
+				c <- included{directive: &dir}
 				continue
 			}
-
 			for _, idx := range dir.Includes {
 				if idx >= len(old.Config) {
 					c <- included{

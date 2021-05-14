@@ -80,6 +80,8 @@ type ParseOptions struct {
 func Parse(filename string, options *ParseOptions) (*Payload, error) {
 	payload := &Payload{
 		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{},
 	}
 
 	handleError := func(config *Config, err error) {
@@ -123,6 +125,8 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		config := Config{
 			File:   incl.path,
 			Status: "ok",
+			Errors: []ConfigError{},
+			Parsed: Directives{},
 		}
 		parsed, err := p.parse(&config, tokens, incl.ctx, false)
 		if err != nil {
@@ -252,7 +256,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		// add "includes" to the payload if this is an include statement
 		if !p.options.SingleFile && stmt.Directive == "include" {
 			if len(stmt.Args) == 0 {
-				return nil,  ParseError{
+				return nil, ParseError{
 					what: fmt.Sprintf(`invalid number of arguments in "%s" directive in %s:%d`,
 						stmt.Directive,
 						parsing.File,
