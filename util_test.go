@@ -44,10 +44,12 @@ func TestPayload(t *testing.T) {
 		}
 		expected := Payload{
 			Status: "ok",
+			Errors: []PayloadError{},
 			Config: []Config{
 				{
 					File:   "example1.conf",
 					Status: "ok",
+					Errors: []ConfigError{},
 					Parsed: Directives{
 						{
 							Directive: "events",

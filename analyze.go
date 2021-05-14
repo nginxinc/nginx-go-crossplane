@@ -1491,6 +1491,7 @@ var directives = map[string][]uint{
 	},
 	"set": {
 		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake2,
+		ngxStreamSrvConf | ngxConfTake2,
 	},
 	"set_real_ip_from": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
