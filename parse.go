@@ -49,6 +49,9 @@ type ParseOptions struct {
 	// If specified, use this alternative to open config files
 	Open func(path string) (io.Reader, error)
 
+	// Glob will return a matching list of files if specified
+	Glob func(path string) ([]string, error)
+
 	// If true, parsing will stop immediately if an error is found.
 	StopParsingOnError bool
 
@@ -82,6 +85,9 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		Status: "ok",
 		Errors: []PayloadError{},
 		Config: []Config{},
+	}
+	if options.Glob == nil {
+		options.Glob = filepath.Glob
 	}
 
 	handleError := func(config *Config, err error) {
@@ -275,7 +281,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			// get names of all included files
 			var fnames []string
 			if hasMagic.MatchString(pattern) {
-				fnames, err = filepath.Glob(pattern)
+				fnames, err = p.options.Glob(pattern)
 				if err != nil {
 					return nil, err
 				}
