@@ -265,7 +265,7 @@ func escape(s string) string {
 
 // BuildInto builds all of the config files in a crossplane.Payload and
 // writes them to the Creator.
-func BuildInto(payload Payload, into Creator, options *BuildOptions) error {
+func BuildInto(payload *Payload, into Creator, options *BuildOptions) error {
 	for _, config := range payload.Config {
 		wc, err := into.Create(config.File)
 		if err != nil {

@@ -538,7 +538,7 @@ func TestBuildInto(t *testing.T) {
 			fixture := fixture
 			sc := new(StringsCreator)
 
-			if err := BuildInto(fixture.payload, sc, &fixture.options); err != nil {
+			if err := BuildInto(&fixture.payload, sc, &fixture.options); err != nil {
 				t.Fatal(err)
 			}
 
