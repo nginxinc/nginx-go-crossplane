@@ -111,7 +111,7 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 				ctxMasks = append(ctxMasks, mask)
 			}
 		}
-		if len(ctxMasks) == 0 {
+		if len(ctxMasks) == 0 && !options.SkipDirectiveContextCheck {
 			return ParseError{
 				what: fmt.Sprintf(`"%s" directive is not allowed here`, stmt.Directive),
 				file: &fname,
