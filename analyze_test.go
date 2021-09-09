@@ -50,6 +50,69 @@ func TestAnalyze(t *testing.T) {
 	})
 }
 
+func TestAnalyze_auth_jwt(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"auth_jwt ok": {
+			&Directive{
+				Directive: "auth_jwt",
+				Args:      []string{"closed site", "token=$cookie_auth_token"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "location", "limit_except"},
+			false,
+		},
+		"auth_jwt_key_file": {
+			&Directive{
+				Directive: "auth_jwt_key_file",
+				Args:      []string{"some/weird/file"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "location", "limit_except"},
+			false,
+		},
+		"auth_jwt_key_request": {
+			&Directive{
+				Directive: "auth_jwt_key_request",
+				Args:      []string{"http://some.weird.uri"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "location", "limit_except"},
+			false,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
+			if tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if !tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+
+	stmt := &Directive{
+		Directive: "auth_jwt",
+		Args:      []string{"closed site", "token=$cookie_auth_token"},
+		Line:      5,
+	}
+	ctx := blockCtx{"http", "server", "location", "limit_except"}
+	if err := analyze("nginx.conf", stmt, ";", ctx, &ParseOptions{}); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestAnalyzeFlagArgs(t *testing.T) {
 	t.Parallel()
 	fname := "/path/to/nginx.conf"

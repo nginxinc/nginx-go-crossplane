@@ -1994,7 +1994,7 @@ var directives = map[string][]uint{
 		ngxHTTPLocConf | ngxConfNoArgs | ngxConfTake1,
 	},
 	"auth_jwt": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake12,
 	},
 	"auth_jwt_claim_set": {
 		ngxHTTPMainConf | ngxConf2More,
@@ -2003,10 +2003,10 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxConf2More,
 	},
 	"auth_jwt_key_file": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
 	},
 	"auth_jwt_key_request": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
 	},
 	"auth_jwt_leeway": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
