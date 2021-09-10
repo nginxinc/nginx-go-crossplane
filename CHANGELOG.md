@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.0
+2021-09-10
+
+### Features
+
+- Updates ParseError to export fields (64785758d836706a87fcda643fe4ae2c5e9491bf)
+
 ## 0.1.7
 2021-09-10
 
