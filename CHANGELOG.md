@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.1.7
+2021-09-10
+
+### Fixes
+
+- add helper for equal and stringer for directive (5ede0a29e3efc081e304f30378e07e307e1cd403)
+
 ## 0.1.4
 2021-05-14
 
