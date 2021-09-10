@@ -92,8 +92,8 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 
 	handleError := func(config *Config, err error) {
 		var line *int
-		if e, ok := err.(ParseError); ok {
-			line = e.line
+		if e, ok := err.(*ParseError); ok {
+			line = e.Line
 		}
 		cerr := ConfigError{Line: line, Error: err}
 		perr := PayloadError{Line: line, Error: err, File: config.File}
@@ -238,10 +238,10 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		// raise errors if this statement is invalid
 		err = analyze(parsing.File, stmt, t.Value, ctx, p.options)
 
-		if perr, ok := err.(ParseError); ok && !p.options.StopParsingOnError {
+		if perr, ok := err.(*ParseError); ok && !p.options.StopParsingOnError {
 			p.handleError(parsing, perr)
 			// if it was a block but shouldn"t have been then consume
-			if strings.HasSuffix(perr.what, ` is not terminated by ";"`) {
+			if strings.HasSuffix(perr.What, ` is not terminated by ";"`) {
 				if t.Value != "}" && !t.IsQuoted {
 					_, _ = p.parse(parsing, tokens, nil, true)
 				} else {
@@ -262,14 +262,14 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		// add "includes" to the payload if this is an include statement
 		if !p.options.SingleFile && stmt.Directive == "include" {
 			if len(stmt.Args) == 0 {
-				return nil, ParseError{
-					what: fmt.Sprintf(`invalid number of arguments in "%s" directive in %s:%d`,
+				return nil, &ParseError{
+					What: fmt.Sprintf(`invalid number of arguments in "%s" directive in %s:%d`,
 						stmt.Directive,
 						parsing.File,
 						stmt.Line,
 					),
-					file: &parsing.File,
-					line: &stmt.Line,
+					File: &parsing.File,
+					Line: &stmt.Line,
 				}
 			}
 
@@ -290,10 +290,10 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				// if the file pattern was explicit, nginx will check
 				// that the included file can be opened and read
 				if f, err := p.openFile(pattern); err != nil {
-					perr := ParseError{
-						what: err.Error(),
-						file: &parsing.File,
-						line: &stmt.Line,
+					perr := &ParseError{
+						What: err.Error(),
+						File: &parsing.File,
+						Line: &stmt.Line,
 					}
 					if !p.options.StopParsingOnError {
 						p.handleError(parsing, perr)

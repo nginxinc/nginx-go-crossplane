@@ -40,10 +40,10 @@ func TestAnalyze(t *testing.T) {
 				actx := blockCtx(strings.Split(key, ">"))
 				if err := analyze(fname, stmt, ";", actx, &ParseOptions{}); err == nil {
 					t.Fatalf("expected error to not be nil: %v", err)
-				} else if e, ok := err.(ParseError); !ok {
+				} else if e, ok := err.(*ParseError); !ok {
 					t.Fatalf("error was not a ParseError: %v", err)
-				} else if !strings.HasSuffix(e.what, `directive is not allowed here`) {
-					t.Fatalf("unexpected error message: %q", e.what)
+				} else if !strings.HasSuffix(e.What, `directive is not allowed here`) {
+					t.Fatalf("unexpected error message: %q", e.What)
 				}
 			}
 		}
@@ -63,8 +63,17 @@ func TestAnalyze_auth_jwt(t *testing.T) {
 				Args:      []string{"closed site", "token=$cookie_auth_token"},
 				Line:      5,
 			},
-			blockCtx{"http", "server", "location", "limit_except"},
-			false,
+			blockCtx{"http", "location", "limit_except"},
+			true,
+		},
+		"auth_jwt not ok": {
+			&Directive{
+				Directive: "auth_jwt",
+				Args:      []string{"closed site", "token=$cookie_auth_token"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
 		},
 		"auth_jwt_key_file": {
 			&Directive{
@@ -72,7 +81,7 @@ func TestAnalyze_auth_jwt(t *testing.T) {
 				Args:      []string{"some/weird/file"},
 				Line:      5,
 			},
-			blockCtx{"http", "server", "location", "limit_except"},
+			blockCtx{"http", "location", "limit_except"},
 			false,
 		},
 		"auth_jwt_key_request": {
@@ -81,7 +90,7 @@ func TestAnalyze_auth_jwt(t *testing.T) {
 				Args:      []string{"http://some.weird.uri"},
 				Line:      5,
 			},
-			blockCtx{"http", "server", "location", "limit_except"},
+			blockCtx{"http", "location", "limit_except"},
 			false,
 		},
 	}
@@ -100,16 +109,6 @@ func TestAnalyze_auth_jwt(t *testing.T) {
 				t.Fatal("expected error, got nil")
 			}
 		})
-	}
-
-	stmt := &Directive{
-		Directive: "auth_jwt",
-		Args:      []string{"closed site", "token=$cookie_auth_token"},
-		Line:      5,
-	}
-	ctx := blockCtx{"http", "server", "location", "limit_except"}
-	if err := analyze("nginx.conf", stmt, ";", ctx, &ParseOptions{}); err != nil {
-		t.Fatal(err)
 	}
 }
 
@@ -139,10 +138,10 @@ func TestAnalyzeFlagArgs(t *testing.T) {
 			stmt.Args = args
 			if err := analyze(fname, stmt, ";", ctx, &ParseOptions{}); err == nil {
 				t.Fatalf("expected error to not be nil: %v", err)
-			} else if e, ok := err.(ParseError); !ok {
+			} else if e, ok := err.(*ParseError); !ok {
 				t.Fatalf("error was not a ParseError: %v", err)
-			} else if !strings.HasSuffix(e.what, `it must be "on" or "off"`) {
-				t.Fatalf("unexpected error message: %q", e.what)
+			} else if !strings.HasSuffix(e.What, `it must be "on" or "off"`) {
+				t.Fatalf("unexpected error message: %q", e.What)
 			}
 		}
 	})

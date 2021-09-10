@@ -151,7 +151,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 					depth--
 					// early exit if unbalanced braces
 					if depth < 0 {
-						emit(tokenStartLine, false, &ParseError{file: &lexerFile, what: `unexpected "}"`, line: &tokenLine})
+						emit(tokenStartLine, false, &ParseError{File: &lexerFile, What: `unexpected "}"`, Line: &tokenLine})
 						close(tokenCh)
 						return
 					}
@@ -197,7 +197,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 		emit(tokenStartLine, lexState == inQuote, nil)
 	}
 	if depth > 0 {
-		emit(tokenStartLine, false, &ParseError{file: &lexerFile, what: `unexpected end of file, expecting "}"`, line: &tokenLine})
+		emit(tokenStartLine, false, &ParseError{File: &lexerFile, What: `unexpected end of file, expecting "}"`, Line: &tokenLine})
 	}
 
 	close(tokenCh)

@@ -146,10 +146,10 @@ func performIncludes(old *Payload, fromfile string, block Directives) chan inclu
 			for _, idx := range dir.Includes {
 				if idx >= len(old.Config) {
 					c <- included{
-						err: ParseError{
-							what: fmt.Sprintf("include config with index: %d", idx),
-							file: &fromfile,
-							line: &dir.Line,
+						err: &ParseError{
+							What: fmt.Sprintf("include config with index: %d", idx),
+							File: &fromfile,
+							Line: &dir.Line,
 						},
 					}
 					return
