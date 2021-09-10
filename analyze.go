@@ -88,10 +88,10 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 
 	// if strict and directive isn't recognized then throw error
 	if options.ErrorOnUnknownDirectives && !knownDirective {
-		return ParseError{
-			what: fmt.Sprintf(`unknown directive "%s"`, stmt.Directive),
-			file: &fname,
-			line: &stmt.Line,
+		return &ParseError{
+			What: fmt.Sprintf(`unknown directive "%s"`, stmt.Directive),
+			File: &fname,
+			Line: &stmt.Line,
 		}
 	}
 
@@ -112,10 +112,10 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 			}
 		}
 		if len(ctxMasks) == 0 && !options.SkipDirectiveContextCheck {
-			return ParseError{
-				what: fmt.Sprintf(`"%s" directive is not allowed here`, stmt.Directive),
-				file: &fname,
-				line: &stmt.Line,
+			return &ParseError{
+				What: fmt.Sprintf(`"%s" directive is not allowed here`, stmt.Directive),
+				File: &fname,
+				Line: &stmt.Line,
 			}
 		}
 	}
@@ -163,10 +163,10 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 		}
 	}
 
-	return ParseError{
-		what: what,
-		file: &fname,
-		line: &stmt.Line,
+	return &ParseError{
+		What: what,
+		File: &fname,
+		Line: &stmt.Line,
 	}
 }
 

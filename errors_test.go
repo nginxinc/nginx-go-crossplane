@@ -26,7 +26,7 @@ func TestErrorString(t *testing.T) {
 	}
 
 	for _, tc := range tcs {
-		e := ParseError{file: tc.f, line: tc.l, what: tc.w}
+		e := &ParseError{File: tc.f, Line: tc.l, What: tc.w}
 
 		assert.Equal(t, tc.exp, e.Error())
 	}

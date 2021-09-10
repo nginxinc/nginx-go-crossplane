@@ -6,22 +6,22 @@ import (
 )
 
 type ParseError struct {
-	what string
-	file *string
-	line *int
+	What string
+	File *string
+	Line *int
 }
 
-func (e ParseError) Error() string {
+func (e *ParseError) Error() string {
 	file := "(nofile)"
-	if e.file != nil {
-		file = *e.file
+	if e.File != nil {
+		file = *e.File
 	}
-	if e.line != nil {
-		return fmt.Sprintf("%s in %s:%d", e.what, file, *e.line)
+	if e.Line != nil {
+		return fmt.Sprintf("%s in %s:%d", e.What, file, *e.Line)
 	}
-	return fmt.Sprintf("%s in %s", e.what, file)
+	return fmt.Sprintf("%s in %s", e.What, file)
 }
 
-func (e ParseError) MarshalJSON() ([]byte, error) {
+func (e *ParseError) MarshalJSON() ([]byte, error) {
 	return json.Marshal(e.Error())
 }

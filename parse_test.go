@@ -43,7 +43,7 @@ var parseFixtures = []parseFixture{
 		Errors: []PayloadError{
 			{
 				File: getTestConfigPath("includes-regular", "conf.d", "server.conf"),
-				Error: ParseError{
+				Error: &ParseError{
 					fmt.Sprintf("open %s: %s",
 						getTestConfigPath("includes-regular", "bar.conf"),
 						noSuchFileErrMsg(),
@@ -84,7 +84,7 @@ var parseFixtures = []parseFixture{
 				Status: "failed",
 				Errors: []ConfigError{
 					{
-						Error: ParseError{
+						Error: &ParseError{
 							fmt.Sprintf("open %s: %s",
 								getTestConfigPath("includes-regular", "bar.conf"),
 								noSuchFileErrMsg(),
@@ -611,7 +611,7 @@ var parseFixtures = []parseFixture{
 		Errors: []PayloadError{
 			{
 				File: getTestConfigPath("spelling-mistake", "nginx.conf"),
-				Error: ParseError{
+				Error: &ParseError{
 					`unknown directive "proxy_passs"`,
 					pStr(getTestConfigPath("spelling-mistake", "nginx.conf")),
 					pInt(7),
@@ -625,7 +625,7 @@ var parseFixtures = []parseFixture{
 				Status: "failed",
 				Errors: []ConfigError{
 					{
-						Error: ParseError{
+						Error: &ParseError{
 							`unknown directive "proxy_passs"`,
 							pStr(getTestConfigPath("spelling-mistake", "nginx.conf")),
 							pInt(7),
@@ -676,7 +676,7 @@ var parseFixtures = []parseFixture{
 		Errors: []PayloadError{
 			{
 				File: getTestConfigPath("missing-semicolon-above", "nginx.conf"),
-				Error: ParseError{
+				Error: &ParseError{
 					`directive "proxy_pass" is not terminated by ";"`,
 					pStr(getTestConfigPath("missing-semicolon-above", "nginx.conf")),
 					pInt(4),
@@ -690,7 +690,7 @@ var parseFixtures = []parseFixture{
 				Status: "failed",
 				Errors: []ConfigError{
 					{
-						Error: ParseError{
+						Error: &ParseError{
 							`directive "proxy_pass" is not terminated by ";"`,
 							pStr(getTestConfigPath("missing-semicolon-above", "nginx.conf")),
 							pInt(4),
@@ -740,7 +740,7 @@ var parseFixtures = []parseFixture{
 		Errors: []PayloadError{
 			{
 				File: getTestConfigPath("missing-semicolon-below", "nginx.conf"),
-				Error: ParseError{
+				Error: &ParseError{
 					`directive "proxy_pass" is not terminated by ";"`,
 					pStr(getTestConfigPath("missing-semicolon-below", "nginx.conf")),
 					pInt(7),
@@ -754,7 +754,7 @@ var parseFixtures = []parseFixture{
 				Status: "failed",
 				Errors: []ConfigError{
 					{
-						Error: ParseError{
+						Error: &ParseError{
 							`directive "proxy_pass" is not terminated by ";"`,
 							pStr(getTestConfigPath("missing-semicolon-below", "nginx.conf")),
 							pInt(7),
