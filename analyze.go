@@ -1289,13 +1289,13 @@ var directives = map[string][]uint{
 	"resolver": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
 		ngxMailMainConf | ngxMailSrvConf | ngxConf1More,
-		ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
+		ngxStreamMainConf | ngxStreamUpsConf | ngxStreamSrvConf | ngxConf1More,
 		ngxHTTPUpsConf | ngxConf1More,
 	},
 	"resolver_timeout": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
-		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxStreamMainConf | ngxStreamUpsConf | ngxStreamSrvConf | ngxConfTake1,
 	},
 	"return": {
 		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake12,
