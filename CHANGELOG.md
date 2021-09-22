@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.1
+2021-09-22
+
+### Fixes
+
+- updated crossplane parser to support resolver in stream upstream (bc762ce7ba9bea18f3078b59c7013f20f4a6bf8e)
+
 ## 0.2.0
 2021-09-10
 
