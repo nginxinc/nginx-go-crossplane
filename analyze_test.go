@@ -112,6 +112,60 @@ func TestAnalyze_auth_jwt(t *testing.T) {
 	}
 }
 
+func TestAnalyze_stream_resolver(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"resolver ok": {
+			&Directive{
+				Directive: "resolver",
+				Args:      []string{"127.0.0.53:53", "valid=100s"},
+				Line:      5,
+			},
+			blockCtx{"stream", "upstream"},
+			false,
+		},
+		"resolver_timeout": {
+			&Directive{
+				Directive: "resolver_timeout",
+				Args:      []string{"10s"},
+				Line:      5,
+			},
+			blockCtx{"stream", "upstream"},
+			false,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
+			if tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if !tc.wantErr && err != nil {
+				t.Fatal("expected nil, got error")
+			}
+		})
+	}
+
+	stmt := &Directive{
+		Directive: "resolver",
+		Args:      []string{"127.0.0.53:53", "valid=100s"},
+		Line:      5,
+	}
+	ctx := blockCtx{"stream", "upstream"}
+	if err := analyze("nginx.conf", stmt, ";", ctx, &ParseOptions{}); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestAnalyzeFlagArgs(t *testing.T) {
 	t.Parallel()
 	fname := "/path/to/nginx.conf"
