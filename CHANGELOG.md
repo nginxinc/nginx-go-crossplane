@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.2
+2021-09-30
+
+### Fixes
+
+- update premature end of file to be a ParseError (ff8b7428284fa84fa399df031732561be97c7474)
+
 ## 0.2.1
 2021-09-22
 
