@@ -6,9 +6,10 @@ import (
 )
 
 type ParseError struct {
-	What string
-	File *string
-	Line *int
+	What        string
+	File        *string
+	Line        *int
+	originalErr error
 }
 
 func (e *ParseError) Error() string {
@@ -24,4 +25,8 @@ func (e *ParseError) Error() string {
 
 func (e *ParseError) MarshalJSON() ([]byte, error) {
 	return json.Marshal(e.Error())
+}
+
+func (e *ParseError) Unwrap() error {
+	return e.originalErr
 }

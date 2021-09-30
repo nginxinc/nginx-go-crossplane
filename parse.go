@@ -212,7 +212,12 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		// parse arguments by reading tokens
 		t, tokenOk = <-tokens
 		if !tokenOk {
-			return nil, ErrPrematureLexEnd
+			return nil, &ParseError{
+				What:        ErrPrematureLexEnd.Error(),
+				File:        &parsing.File,
+				Line:        &stmt.Line,
+				originalErr: ErrPrematureLexEnd,
+			}
 		}
 		for t.IsQuoted || (t.Value != "{" && t.Value != ";" && t.Value != "}") {
 			if strings.HasPrefix(t.Value, "#") && !t.IsQuoted {
@@ -222,7 +227,12 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			}
 			t, tokenOk = <-tokens
 			if !tokenOk {
-				return nil, ErrPrematureLexEnd
+				return nil, &ParseError{
+					What:        ErrPrematureLexEnd.Error(),
+					File:        &parsing.File,
+					Line:        &stmt.Line,
+					originalErr: ErrPrematureLexEnd,
+				}
 			}
 		}
 
