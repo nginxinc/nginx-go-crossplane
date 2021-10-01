@@ -315,32 +315,38 @@ var parseFixtures = []parseFixture{
 						Directive: "events",
 						Args:      []string{},
 						Line:      1,
+						File:      getTestConfigPath("includes-globbed", "nginx.conf"),
 						Block:     Directives{},
 					},
 					{
 						Directive: "http",
 						Args:      []string{},
 						Line:      1,
+						File:      getTestConfigPath("includes-globbed", "http.conf"),
 						Block: Directives{
 							{
 								Directive: "server",
 								Args:      []string{},
 								Line:      1,
+								File:      getTestConfigPath("includes-globbed", "servers", "server1.conf"),
 								Block: Directives{
 									{
 										Directive: "listen",
 										Args:      []string{"8080"},
 										Line:      2,
+										File:      getTestConfigPath("includes-globbed", "servers", "server1.conf"),
 									},
 									{
 										Directive: "location",
 										Args:      []string{"/foo"},
 										Line:      1,
+										File:      getTestConfigPath("includes-globbed", "locations", "location1.conf"),
 										Block: Directives{
 											{
 												Directive: "return",
 												Args:      []string{"200", "foo"},
 												Line:      2,
+												File:      getTestConfigPath("includes-globbed", "locations", "location1.conf"),
 											},
 										},
 									},
@@ -348,11 +354,13 @@ var parseFixtures = []parseFixture{
 										Directive: "location",
 										Args:      []string{"/bar"},
 										Line:      1,
+										File:      getTestConfigPath("includes-globbed", "locations", "location2.conf"),
 										Block: Directives{
 											{
 												Directive: "return",
 												Args:      []string{"200", "bar"},
 												Line:      2,
+												File:      getTestConfigPath("includes-globbed", "locations", "location2.conf"),
 											},
 										},
 									},
@@ -362,21 +370,25 @@ var parseFixtures = []parseFixture{
 								Directive: "server",
 								Args:      []string{},
 								Line:      1,
+								File:      getTestConfigPath("includes-globbed", "servers", "server2.conf"),
 								Block: Directives{
 									{
 										Directive: "listen",
 										Args:      []string{"8081"},
 										Line:      2,
+										File:      getTestConfigPath("includes-globbed", "servers", "server2.conf"),
 									},
 									{
 										Directive: "location",
 										Args:      []string{"/foo"},
 										Line:      1,
+										File:      getTestConfigPath("includes-globbed", "locations", "location1.conf"),
 										Block: Directives{
 											{
 												Directive: "return",
 												Args:      []string{"200", "foo"},
 												Line:      2,
+												File:      getTestConfigPath("includes-globbed", "locations", "location1.conf"),
 											},
 										},
 									},
@@ -384,11 +396,13 @@ var parseFixtures = []parseFixture{
 										Directive: "location",
 										Args:      []string{"/bar"},
 										Line:      1,
+										File:      getTestConfigPath("includes-globbed", "locations", "location2.conf"),
 										Block: Directives{
 											{
 												Directive: "return",
 												Args:      []string{"200", "bar"},
 												Line:      2,
+												File:      getTestConfigPath("includes-globbed", "locations", "location2.conf"),
 											},
 										},
 									},

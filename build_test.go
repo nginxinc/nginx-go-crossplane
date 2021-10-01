@@ -518,6 +518,7 @@ func equalIncludes(b1, b2 []int) bool {
 
 func equalDirectives(d1, d2 *Directive) bool {
 	if d1.Directive != d2.Directive ||
+		d1.File != d2.File ||
 		!equalArgs(d1.Args, d2.Args) ||
 		!equalIncludes(d1.Includes, d2.Includes) ||
 		!equalBlocks(d1.Block, d2.Block) ||

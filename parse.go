@@ -190,12 +190,17 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			continue
 		}
 
-		// TODO: add a "File" key if combine is true
+		var fileName string
+		if p.options.CombineConfigs {
+			fileName = parsing.File
+		}
+
 		// the first token should always be an nginx directive
 		stmt := &Directive{
 			Directive: t.Value,
 			Line:      t.Line,
 			Args:      []string{},
+			File:      fileName,
 		}
 
 		// if token is comment
@@ -349,6 +354,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				Directive: "#",
 				Line:      stmt.Line,
 				Args:      []string{},
+				File:      fileName,
 				Comment:   &comment,
 			})
 		}
