@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.3
+2021-10-01
+
+### Fixes
+
+- add file names to combined config directives (ac8eb89f81443237d02e5b9e51d2c6601037199d)
+
 ## 0.2.2
 2021-09-30
 
