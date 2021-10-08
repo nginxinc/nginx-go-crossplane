@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.4
+2021-10-08
+
+### Fixes
+
+- added http upstream to resolver (71c9ffd984ef1ee25fc458bfd1c73c1cfb4a8b8a)
+
 ## 0.2.3
 2021-10-01
 
