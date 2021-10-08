@@ -119,7 +119,7 @@ func TestAnalyze_stream_resolver(t *testing.T) {
 		ctx     blockCtx
 		wantErr bool
 	}{
-		"resolver ok": {
+		"resolver ok stream": {
 			&Directive{
 				Directive: "resolver",
 				Args:      []string{"127.0.0.53:53", "valid=100s"},
@@ -128,7 +128,16 @@ func TestAnalyze_stream_resolver(t *testing.T) {
 			blockCtx{"stream", "upstream"},
 			false,
 		},
-		"resolver_timeout": {
+		"resolver ok http": {
+			&Directive{
+				Directive: "resolver",
+				Args:      []string{"127.0.0.53:53", "valid=100s"},
+				Line:      5,
+			},
+			blockCtx{"http", "upstream"},
+			false,
+		},
+		"resolver_timeout stream": {
 			&Directive{
 				Directive: "resolver_timeout",
 				Args:      []string{"10s"},
