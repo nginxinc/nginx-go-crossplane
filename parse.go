@@ -171,7 +171,17 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 	// parse recursively by pulling from a flat stream of tokens
 	for t := range tokens {
 		if t.Error != nil {
-			return nil, t.Error
+			var perr *ParseError
+			if errors.As(t.Error, &perr) {
+				perr.File = &parsing.File
+				return nil, perr
+			}
+			return nil, &ParseError{
+				What:        t.Error.Error(),
+				File:        &parsing.File,
+				Line:        &t.Line,
+				originalErr: t.Error,
+			}
 		}
 
 		var commentsInArgs []string
