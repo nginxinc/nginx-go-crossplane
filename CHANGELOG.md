@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.5
+2021-10-18
+
+### Fixes
+
+- update lexing ParseError (888e9e42a316989620ec7dbfe7e1bf4611e36603)
+
 ## 0.2.4
 2021-10-08
 
