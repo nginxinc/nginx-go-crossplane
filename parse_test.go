@@ -1004,6 +1004,6 @@ func TestBalancingBraces(t *testing.T) {
 		payload, err := Parse(path, &ParseOptions{SingleFile: true, StopParsingOnError: true})
 		require.Nil(t, payload, "expected nil payload when reading bad test file: %s", path)
 		require.Error(t, err, "expected parsing error when reading test file: %s", path)
-		require.Contains(t, err.Error(), tc.err+" in lexer")
+		require.Contains(t, err.Error(), tc.err+" in "+path)
 	}
 }
