@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.6
+2021-10-20
+
+### Fixes
+
+- remove omitempty from agrs for backward compatibility (968dcde83bcad7b20928057f8c0e7e2fbbd4f4d5)
+
 ## 0.2.5
 2021-10-18
 
