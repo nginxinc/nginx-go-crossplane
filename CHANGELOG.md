@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.7
+2021-11-29
+
+### Fixes
+
+- add missing directives (5677235d6fd72fd6286406d7ea85d06ab6c61354)
+
 ## 0.2.6
 2021-10-20
 
