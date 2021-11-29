@@ -242,6 +242,9 @@ var directives = map[string][]uint{
 	"auth_basic_user_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
 	},
+	"auth_delay": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
 	"auth_http": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 	},
@@ -568,10 +571,10 @@ var directives = map[string][]uint{
 	"grpc_next_upstream": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
 	},
-	"grpc_next_upStreamtimeout": {
+	"grpc_next_upstream_timeout": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
-	"grpc_next_upStreamtries": {
+	"grpc_next_upstream_tries": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"grpc_pass": {
@@ -599,6 +602,9 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"grpc_ssl_ciphers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"grpc_ssl_conf_command": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"grpc_ssl_crl": {
@@ -646,7 +652,7 @@ var directives = map[string][]uint{
 	"gzip_disable": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
 	},
-	"gzip_Httpversion": {
+	"gzip_http_version": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"gzip_min_length": {
@@ -765,6 +771,10 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
 	},
 	"keepalive_requests": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxHTTPUpsConf | ngxConfTake1,
+	},
+	"keepalive_time": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 		ngxHTTPUpsConf | ngxConfTake1,
 	},
@@ -1078,6 +1088,9 @@ var directives = map[string][]uint{
 	"proxy_cookie_domain": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
 	},
+	"proxy_cookie_flags": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
+	},
 	"proxy_cookie_path": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
 	},
@@ -1096,7 +1109,7 @@ var directives = map[string][]uint{
 	"proxy_hide_header": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
-	"proxy_Httpversion": {
+	"proxy_http_version": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"proxy_ignore_client_abort": {
@@ -1121,11 +1134,11 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
 	},
-	"proxy_next_upStreamtimeout": {
+	"proxy_next_upstream_timeout": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
-	"proxy_next_upStreamtries": {
+	"proxy_next_upstream_tries": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
@@ -1197,6 +1210,10 @@ var directives = map[string][]uint{
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
 	"proxy_ssl_ciphers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+	},
+	"proxy_ssl_conf_command": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
@@ -1570,6 +1587,11 @@ var directives = map[string][]uint{
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
+	"ssl_conf_command": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+	},
 	"ssl_crl": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
@@ -1594,6 +1616,15 @@ var directives = map[string][]uint{
 	"ssl_handshake_timeout": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
+	"ssl_ocsp": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
+	"ssl_ocsp_cache": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
+	"ssl_ocsp_responder": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
 	"ssl_password_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
@@ -1611,6 +1642,9 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConf1More,
 		ngxMailMainConf | ngxMailSrvConf | ngxConf1More,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
+	},
+	"ssl_reject_handshake": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
 	},
 	"ssl_session_cache": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake12,
@@ -1721,6 +1755,9 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxConfBlock | ngxConfTake1,
 		ngxStreamMainConf | ngxConfBlock | ngxConfTake1,
 	},
+	"upstream_conf": {
+		ngxHTTPLocConf | ngxConfNoArgs,
+	},
 	"use": {
 		ngxEventConf | ngxConfTake1,
 	},
@@ -1734,6 +1771,9 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"userid_expires": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"userid_flags": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"userid_mark": {
@@ -2010,6 +2050,9 @@ var directives = map[string][]uint{
 	},
 	"auth_jwt_leeway": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"auth_jwt_type": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
 	},
 	"f4f": {
 		ngxHTTPLocConf | ngxConfNoArgs,
