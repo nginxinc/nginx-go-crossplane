@@ -2,6 +2,7 @@ package crossplane
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -238,6 +239,40 @@ func TestLex(t *testing.T) {
 					t.Fatalf("expected (%q,%d) but got (%q,%d)", expected.value, expected.line, token.Value, token.Line)
 				}
 				i++
+			}
+		})
+	}
+}
+
+func TestLex_unhappy(t *testing.T) {
+	t.Parallel()
+
+	testcases := map[string]string{
+		"unbalanced open brance":                  `http {{}`,
+		"unbalanced closing brace":                `http {}}`,
+		"multiple open braces":                    `http {{server {}}`,
+		"multiple closing braces after block end": `http {server {}}}`,
+		"multiple semicolons":                     `server { listen 80;; }`,
+		"semicolon afer closing brace":            `server { listen 80; };`,
+		"open brace after semicolon":              `server { listen 80; {}`,
+		"braces with no directive":                `http{}{}`,
+		"missing final brace":                     `http{`,
+	}
+
+	for name, c := range testcases {
+		c := c
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			var err error
+			for t := range Lex(strings.NewReader(c)) {
+				if t.Error != nil {
+					err = t.Error
+					break
+				}
+			}
+			if err == nil {
+				t.Fatal("expected an error")
 			}
 		})
 	}
