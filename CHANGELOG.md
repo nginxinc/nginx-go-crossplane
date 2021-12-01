@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.8
+2021-12-01
+
+### Fixes
+
+- handle unexpected symbols (190a847ebc96a4df62049eab4cee6cb2306dc280)
+
 ## 0.2.7
 2021-11-29
 
