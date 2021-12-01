@@ -2,6 +2,7 @@ package crossplane
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 )
@@ -49,6 +50,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 
 	lexState := skipSpace
 	newToken := false
+	dupSpecialChar := false
 	readNext := true
 	esc := false
 	depth := 0
@@ -120,6 +122,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 			if token.Len() > 0 && strings.HasSuffix(token.String(), "$") && la == "{" {
 				token.WriteString(la)
 				lexState = inVar
+				dupSpecialChar = false
 				continue
 			}
 
@@ -134,6 +137,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 					lexState = inQuote
 					tokenStartLine = tokenLine
 				}
+				dupSpecialChar = false
 				continue
 			}
 
@@ -143,6 +147,19 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 				if token.Len() > 0 {
 					emit(tokenStartLine, false, nil)
 				}
+
+				// only '}' can be repeated
+				if dupSpecialChar && la != "}" {
+					emit(tokenStartLine, false, &ParseError{
+						File: &lexerFile,
+						What: fmt.Sprintf(`unexpected "%s"`, la),
+						Line: &tokenLine,
+					})
+					close(tokenCh)
+					return
+				}
+
+				dupSpecialChar = true
 
 				if la == "{" {
 					depth++
@@ -163,6 +180,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 				continue
 			}
 
+			dupSpecialChar = false
 			token.WriteString(la)
 
 		case inComment:
