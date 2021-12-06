@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.9
+2021-12-06
+
+### Fixes
+
+- handle cycles caused by combining files (2ae6c12fa51636987f299ea035a2f5c591823f9c)
+
 ## 0.2.8
 2021-12-01
 
