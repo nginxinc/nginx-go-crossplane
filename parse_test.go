@@ -1007,3 +1007,28 @@ func TestBalancingBraces(t *testing.T) {
 		require.Contains(t, err.Error(), tc.err+" in "+path)
 	}
 }
+
+func TestCombinedIncludes(t *testing.T) {
+	t.Parallel()
+	tcs := map[string]struct {
+		fn  string
+		err bool
+	}{
+		"nested includes": {fn: "valid"},
+		"include cycle":   {fn: "invalid", err: true},
+	}
+
+	for n, tc := range tcs {
+		t.Log(n)
+		path := getTestConfigPath("includes-cycle", tc.fn, "nginx.conf")
+
+		payload, err := Parse(path, &ParseOptions{CombineConfigs: true, StopParsingOnError: true})
+		if tc.err {
+			require.Nil(t, payload, "expected nil payload when reading bad test file: %s", path)
+			require.Error(t, err, "expected parsing error when reading test file: %s", path)
+		} else {
+			require.NoError(t, err, "unexpected parsing error when reading test file: %s", path)
+			require.Len(t, payload.Config, 1)
+		}
+	}
+}

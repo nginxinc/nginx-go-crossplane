@@ -13,8 +13,9 @@ import (
 
 // nolint:gochecknoglobals
 var (
-	hasMagic = regexp.MustCompile(`[*?[]`)
-	osOpen   = func(path string) (io.Reader, error) { return os.Open(path) }
+	hasMagic           = regexp.MustCompile(`[*?[]`)
+	osOpen             = func(path string) (io.Reader, error) { return os.Open(path) }
+	ErrPrematureLexEnd = errors.New("premature end of file")
 )
 
 type blockCtx []string
@@ -29,11 +30,13 @@ type fileCtx struct {
 }
 
 type parser struct {
-	configDir   string
-	options     *ParseOptions
-	handleError func(*Config, error)
-	includes    []fileCtx
-	included    map[string]int
+	configDir       string
+	options         *ParseOptions
+	handleError     func(*Config, error)
+	includes        []fileCtx
+	included        map[string]int
+	includeEdges    map[string][]string
+	includeInDegree map[string]int
 }
 
 // ParseOptions determine the behavior of an NGINX config parse.
@@ -116,6 +119,10 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		handleError: handleError,
 		includes:    []fileCtx{{path: filename, ctx: blockCtx{}}},
 		included:    map[string]int{filename: 0},
+		// adjacency list where an edge exists between a file and the file it includes
+		includeEdges: map[string][]string{},
+		// number of times a file is included by another file
+		includeInDegree: map[string]int{filename: 0},
 	}
 
 	for len(p.includes) > 0 {
@@ -147,6 +154,10 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		payload.Config = append(payload.Config, config)
 	}
 
+	if p.isAcyclic() {
+		return nil, errors.New("configs contain include cycle")
+	}
+
 	if options.CombineConfigs {
 		return payload.Combined()
 	}
@@ -161,8 +172,6 @@ func (p *parser) openFile(path string) (io.Reader, error) {
 	}
 	return open(path)
 }
-
-var ErrPrematureLexEnd = errors.New("premature end of file")
 
 // parse Recursively parses directives from an nginx config context.
 // nolint:gocyclo,funlen,gocognit
@@ -341,6 +350,10 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 					p.includes = append(p.includes, fileCtx{fname, ctx})
 				}
 				stmt.Includes = append(stmt.Includes, p.included[fname])
+				// add edge between the current file and it's included file and
+				// increase the included file's in degree
+				p.includeEdges[stmt.File] = append(p.includeEdges[stmt.File], fname)
+				p.includeInDegree[fname]++
 			}
 		}
 
@@ -371,4 +384,36 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 	}
 
 	return parsed, nil
+}
+
+// isAcyclic performs a topological sort to check if there are cycles created by configs' includes.
+// First, it adds any files who are not being referenced by another file to a queue (in degree of 0).
+// For every file in the queue, it will remove the reference it has towards its neighbors.
+// At the end, if the queue is empty but not all files were once in the queue,
+// then files still exist with references, and therefore, a cycle is present.
+func (p *parser) isAcyclic() bool {
+	// add to queue if file is not being referenced by any other file
+	var queue []string
+	for k, v := range p.includeInDegree {
+		if v == 0 {
+			queue = append(queue, k)
+		}
+	}
+	fileCount := 0
+	for len(queue) > 0 {
+		// dequeue
+		file := queue[0]
+		queue = queue[1:]
+		fileCount++
+
+		// decrease each neighbor's in degree
+		neighbors := p.includeEdges[file]
+		for _, f := range neighbors {
+			p.includeInDegree[f]--
+			if p.includeInDegree[f] == 0 {
+				queue = append(queue, f)
+			}
+		}
+	}
+	return fileCount != len(p.includeInDegree)
 }
