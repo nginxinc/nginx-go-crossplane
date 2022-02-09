@@ -2091,11 +2091,37 @@ var directives = map[string][]uint{
 	"js_access": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
+	"js_body_filter": {
+		ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
+	},
 	"js_content": {
 		ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
 	},
+	"js_fetch_ciphers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+	},
+	"js_fetch_protocols": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
+	},
+	"js_fetch_trusted_certificate": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+	},
+	"js_fetch_verify_depth": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+	},
 	"js_filter": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+	},
+	"js_header_filter": {
+		ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
+	},
+	"js_import": {
+		ngxHTTPMainConf | ngxConfTake1,
+		ngxStreamMainConf | ngxConfTake1,
 	},
 	"js_include": {
 		ngxHTTPMainConf | ngxConfTake1,
@@ -2103,6 +2129,7 @@ var directives = map[string][]uint{
 	},
 	"js_path": {
 		ngxHTTPMainConf | ngxConfTake1,
+		ngxStreamMainConf | ngxConfTake1,
 	},
 	"js_preread": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
@@ -2110,6 +2137,10 @@ var directives = map[string][]uint{
 	"js_set": {
 		ngxHTTPMainConf | ngxConfTake2,
 		ngxStreamMainConf | ngxConfTake2,
+	},
+	"js_var": {
+		ngxHTTPMainConf | ngxConfTake12,
+		ngxStreamMainConf | ngxConfTake12,
 	},
 	"keyval": {
 		ngxHTTPMainConf | ngxConfTake3,

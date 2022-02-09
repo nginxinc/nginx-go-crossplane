@@ -112,6 +112,50 @@ func TestAnalyze_auth_jwt(t *testing.T) {
 	}
 }
 
+func TestAnalyze_njs(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"js_import ok": {
+			&Directive{
+				Directive: "js_import",
+				Args:      []string{"http.js"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"js_import not ok": {
+			&Directive{
+				Directive: "js_import",
+				Args:      []string{"http.js"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
 func TestAnalyze_stream_resolver(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
