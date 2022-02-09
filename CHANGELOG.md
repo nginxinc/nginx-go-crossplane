@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.10
+2022-02-09
+
+### Fixes
+
+- add njs directives (a103e9826caa316e82720dea76fef6d6c22c93f1)
+
 ## 0.2.9
 2021-12-06
 
