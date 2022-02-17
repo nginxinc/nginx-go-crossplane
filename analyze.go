@@ -1100,6 +1100,9 @@ var directives = map[string][]uint{
 	"proxy_force_ranges": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
 	},
+	"proxy_half_close": {
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+	},
 	"proxy_headers_hash_bucket_size": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
@@ -1563,6 +1566,9 @@ var directives = map[string][]uint{
 	"ssl": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
+	},
+	"ssl_alpn": {
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
 	},
 	"ssl_buffer_size": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -2042,6 +2048,9 @@ var directives = map[string][]uint{
 	"auth_jwt_header_set": {
 		ngxHTTPMainConf | ngxConf2More,
 	},
+	"auth_jwt_key_cache": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
 	"auth_jwt_key_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
 	},
@@ -2169,6 +2178,9 @@ var directives = map[string][]uint{
 	},
 	"mp4_limit_rate_after": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"mp4_start_key_frame": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
 	},
 	"ntlm": {
 		ngxHTTPUpsConf | ngxConfNoArgs,
