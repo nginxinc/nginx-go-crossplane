@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.11
+2022-02-17
+
+### Fixes
+
+- allow new r26 directives (e2bb73e6f5c724d372852e5f11c3a71df526ac23)
+
 ## 0.2.10
 2022-02-09
 
