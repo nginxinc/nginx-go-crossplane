@@ -22,8 +22,8 @@ const (
 	ngxConf2More = 0x00002000 // >=2 args
 
 	// some helpful argument style aliases.
-	ngxConfTake12 = ngxConfTake1 | ngxConfTake2
-	// ngxConfTake13   = (ngxConfTake1 | ngxConfTake3) (currently unused).
+	ngxConfTake12   = ngxConfTake1 | ngxConfTake2
+	ngxConfTake13   = ngxConfTake1 | ngxConfTake3
 	ngxConfTake23   = ngxConfTake2 | ngxConfTake3
 	ngxConfTake34   = ngxConfTake3 | ngxConfTake4
 	ngxConfTake123  = ngxConfTake12 | ngxConfTake3
@@ -2129,8 +2129,8 @@ var directives = map[string][]uint{
 		ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
 	},
 	"js_import": {
-		ngxHTTPMainConf | ngxConfTake1,
-		ngxStreamMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxConfTake13,
+		ngxStreamMainConf | ngxConfTake13,
 	},
 	"js_include": {
 		ngxHTTPMainConf | ngxConfTake1,
