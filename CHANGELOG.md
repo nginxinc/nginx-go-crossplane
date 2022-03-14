@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.13
+2022-03-14
+
+### Fixes
+
+- correct edges used for cycle detection when combined files option is false (3b20ccbdd8403d50dedddb1aae356effbf4808c3)
+
 ## 0.2.12
 2022-03-14
 
