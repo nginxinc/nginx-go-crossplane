@@ -1032,3 +1032,10 @@ func TestCombinedIncludes(t *testing.T) {
 		}
 	}
 }
+
+func TestDefaultUbuntu(t *testing.T) {
+	t.Parallel()
+	path := getTestConfigPath("ubuntu-default", "nginx.conf")
+	_, err := Parse(path, &ParseOptions{SingleFile: false, StopParsingOnError: true})
+	require.NoError(t, err, "unexpected parsing error when reading test file: %s", path)
+}

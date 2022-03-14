@@ -352,7 +352,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				stmt.Includes = append(stmt.Includes, p.included[fname])
 				// add edge between the current file and it's included file and
 				// increase the included file's in degree
-				p.includeEdges[stmt.File] = append(p.includeEdges[stmt.File], fname)
+				p.includeEdges[parsing.File] = append(p.includeEdges[parsing.File], fname)
 				p.includeInDegree[fname]++
 			}
 		}
