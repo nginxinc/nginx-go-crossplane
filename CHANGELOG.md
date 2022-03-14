@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.12
+2022-03-14
+
+### Fixes
+
+- update number of args for js_import (82b73de5f2ef04823b0d2359fe4207a12cb8c12e)
+
 ## 0.2.11
 2022-02-17
 
