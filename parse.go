@@ -260,6 +260,23 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			}
 		}
 
+		// if inside map block - add contents to payload, but do not parse further
+		if len(ctx) > 0 && (ctx[len(ctx)-1] == "map" || ctx[len(ctx)-1] == "charset_map") {
+			mapErr := analyzeMapContents(parsing.File, stmt, t.Value)
+			if mapErr != nil && p.options.StopParsingOnError {
+				return nil, mapErr
+			} else if mapErr != nil {
+				p.handleError(parsing, mapErr)
+				// consume invalid block
+				if t.Value == "{" && !t.IsQuoted {
+					_, _ = p.parse(parsing, tokens, nil, true)
+				}
+				continue
+			}
+			parsed = append(parsed, stmt)
+			continue
+		}
+
 		// consume the directive if it is ignored and move on
 		if contains(p.options.IgnoreDirectives, stmt.Directive) {
 			// if this directive was a block consume it too
@@ -416,4 +433,22 @@ func (p *parser) isAcyclic() bool {
 		}
 	}
 	return fileCount != len(p.includeInDegree)
+}
+
+func analyzeMapContents(fname string, stmt *Directive, term string) error {
+	if term != ";" {
+		return &ParseError{
+			What: fmt.Sprintf(`unexpected "%s"`, term),
+			File: &fname,
+			Line: &stmt.Line,
+		}
+	}
+	if len(stmt.Args) != 1 {
+		return &ParseError{
+			What: "invalid number of the map parameters",
+			File: &fname,
+			Line: &stmt.Line,
+		}
+	}
+	return nil
 }

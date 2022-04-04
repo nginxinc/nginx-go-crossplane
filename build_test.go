@@ -356,7 +356,7 @@ var compareFixtures = []compareFixture{
 	{"empty-value-map", ParseOptions{}},
 	{"russian-text", ParseOptions{}},
 	{"quoted-right-brace", ParseOptions{}},
-	{"directive-with-space", ParseOptions{}},
+	{"directive-with-space", ParseOptions{ErrorOnUnknownDirectives: true}},
 	{"empty-config", ParseOptions{}},
 }
 

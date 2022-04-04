@@ -907,6 +907,178 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"directive-with-space", "", ParseOptions{ErrorOnUnknownDirectives: true}, Payload{
+		Status: "ok",
+		Config: []Config{
+			{
+				File:   getTestConfigPath("directive-with-space", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "events",
+						Args:      []string{},
+						Line:      1,
+						Block:     Directives{},
+					},
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      3,
+						Block: Directives{
+							{
+								Directive: "map",
+								Args:      []string{"$http_user_agent", "$mobile"},
+								Line:      4,
+								Block: Directives{
+									{
+										Directive: "default",
+										Args:      []string{"0"},
+										Line:      5,
+										Block:     Directives{},
+									},
+									{
+										Directive: "~Opera Mini",
+										Args:      []string{"1"},
+										Line:      6,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "charset_map",
+								Args:      []string{"koi8-r", "utf-8"},
+								Line:      9,
+								Block: Directives{
+									{
+										Directive: "C0",
+										Args:      []string{"D18E"},
+										Line:      10,
+										Block:     Directives{},
+									},
+									{
+										Directive: "C1",
+										Args:      []string{"D0B0"},
+										Line:      11,
+										Block:     Directives{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"invalid-map", "", ParseOptions{ErrorOnUnknownDirectives: true}, Payload{
+		Status: "failed",
+		Errors: []PayloadError{
+			{
+				File: getTestConfigPath("invalid-map", "nginx.conf"),
+				Error: &ParseError{
+					`unexpected "{"`,
+					pStr(getTestConfigPath("invalid-map", "nginx.conf")),
+					pInt(7),
+					nil,
+				},
+				Line: pInt(7),
+			},
+			{
+				File: getTestConfigPath("invalid-map", "nginx.conf"),
+				Error: &ParseError{
+					`invalid number of the map parameters`,
+					pStr(getTestConfigPath("invalid-map", "nginx.conf")),
+					pInt(10),
+					nil,
+				},
+				Line: pInt(10),
+			},
+			{
+				File: getTestConfigPath("invalid-map", "nginx.conf"),
+				Error: &ParseError{
+					`invalid number of the map parameters`,
+					pStr(getTestConfigPath("invalid-map", "nginx.conf")),
+					pInt(14),
+					nil,
+				},
+				Line: pInt(14),
+			},
+		},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("invalid-map", "nginx.conf"),
+				Status: "failed",
+				Errors: []ConfigError{
+					{
+						Error: &ParseError{
+							`unexpected "{"`,
+							pStr(getTestConfigPath("invalid-map", "nginx.conf")),
+							pInt(7),
+							nil,
+						},
+						Line: pInt(7),
+					},
+					{
+						Error: &ParseError{
+							`invalid number of the map parameters`,
+							pStr(getTestConfigPath("invalid-map", "nginx.conf")),
+							pInt(10),
+							nil,
+						},
+						Line: pInt(10),
+					},
+					{
+						Error: &ParseError{
+							`invalid number of the map parameters`,
+							pStr(getTestConfigPath("invalid-map", "nginx.conf")),
+							pInt(14),
+							nil,
+						},
+						Line: pInt(14),
+					},
+				},
+				Parsed: Directives{
+					{
+						Directive: "events",
+						Args:      []string{},
+						Line:      1,
+						Block:     Directives{},
+					},
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      3,
+						Block: Directives{
+							{
+								Directive: "map",
+								Args:      []string{"$http_user_agent", "$mobile"},
+								Line:      4,
+								Block: Directives{
+									{
+										Directive: "default",
+										Args:      []string{"0"},
+										Line:      5,
+										Block:     Directives{},
+									},
+									{
+										Directive: "~Opera Mini",
+										Args:      []string{"1"},
+										Line:      6,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "charset_map",
+								Args:      []string{"koi8-r", "utf-8"},
+								Line:      13,
+								Block:     Directives{},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {
