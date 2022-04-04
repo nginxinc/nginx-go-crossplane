@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.2.14
+2022-04-04
+
+### Fixes
+
+- add map directive parameters to parse payload without parsing (297a777cfbf5bd4d097df375558c500022607499)
+
 ## 0.2.13
 2022-03-14
 
