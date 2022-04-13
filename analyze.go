@@ -2291,4 +2291,43 @@ var directives = map[string][]uint{
 	"zone_sync_timeout": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
+
+	// nginx app protect specific and global directives
+	// [https://docs.nginx.com/nginx-app-protect/configuration-guide/configuration/#directives]
+	"app_protect_compressed_requests_action": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_cookie_seed": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_cpu_thresholds": {
+		ngxHTTPMainConf | ngxConfTake2,
+	},
+	"app_protect_enable": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
+	},
+	"app_protect_failure_mode_action": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_physical_memory_util_thresholds": {
+		ngxHTTPMainConf | ngxConfTake2,
+	},
+	"app_protect_policy_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"app_protect_reconnect_period_seconds": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_request_buffer_overflow_action": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_security_log_enable": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
+	},
+	"app_protect_security_log": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+	},
+	"app_protect_user_defined_signatures": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
 }
