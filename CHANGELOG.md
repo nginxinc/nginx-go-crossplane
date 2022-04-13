@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.3.0
+2022-04-13
+
+### Features
+
+- Resolve IND-33283 "Validate nap directives" (46dcd7601971951c776c32cd14af2bebe1e25257)
+
 ## 0.2.14
 2022-04-04
 
