@@ -605,7 +605,7 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"grpc_ssl_conf_command": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
 	},
 	"grpc_ssl_crl": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1217,8 +1217,8 @@ var directives = map[string][]uint{
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
 	"proxy_ssl_conf_command": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
-		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
 	},
 	"proxy_ssl_crl": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1594,9 +1594,9 @@ var directives = map[string][]uint{
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
 	"ssl_conf_command": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
-		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
-		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake2,
+		ngxMailMainConf | ngxMailSrvConf | ngxConfTake2,
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
 	},
 	"ssl_crl": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
