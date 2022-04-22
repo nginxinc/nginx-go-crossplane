@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.3.1
+2022-04-22
+
+### Fixes
+
+- update *ssl_conf_command to take two args (4d0cc0d45698d4d8d5d4494452b3c2db9cb911ad)
+
 ## 0.3.0
 2022-04-13
 
