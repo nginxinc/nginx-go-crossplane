@@ -1079,6 +1079,100 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"geo", "", ParseOptions{ErrorOnUnknownDirectives: true}, Payload{
+		Status: "ok",
+		Config: []Config{
+			{
+				File:   getTestConfigPath("directive-with-space", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "events",
+						Args:      []string{},
+						Line:      1,
+						Block: Directives{
+							{
+								Directive: "worker_connections",
+								Args:      []string{"1024"},
+								Line:      2,
+							},
+						},
+					},
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      5,
+						Block: Directives{
+							{
+								Directive: "geo",
+								Args:      []string{"$geo"},
+								Line:      6,
+								Block: Directives{
+									{
+										Directive: "default",
+										Args:      []string{"0"},
+										Line:      7,
+										Block:     Directives{},
+									},
+									{
+										Directive: "192.168.1.0/24",
+										Args:      []string{"1"},
+										Line:      8,
+										Block:     Directives{},
+									},
+									{
+										Directive: "127.0.0.1",
+										Args:      []string{"2"},
+										Line:      9,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "server",
+								Args:      []string{},
+								Line:      11,
+								Block: Directives{
+									{
+										Directive: "listen",
+										Args:      []string{"127.0.0.1:8080"},
+										Line:      12,
+										Block:     Directives{},
+									},
+									{
+										Directive: "server_name",
+										Args:      []string{"default_server"},
+										Line:      13,
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Args:      []string{"/"},
+										Line:      14,
+										Block: Directives{
+											{
+												Directive: "if",
+												Args:      []string{"$geo", "=", "2"},
+												Line:      15,
+												Block: Directives{
+													{
+														Directive: "return",
+														Args:      []string{"403"},
+														Line:      16,
+														Block:     Directives{},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {

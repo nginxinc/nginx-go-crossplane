@@ -260,8 +260,8 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			}
 		}
 
-		// if inside map block - add contents to payload, but do not parse further
-		if len(ctx) > 0 && (ctx[len(ctx)-1] == "map" || ctx[len(ctx)-1] == "charset_map") {
+		// if inside map or geo block - add contents to payload, but do not parse further
+		if len(ctx) > 0 && (ctx[len(ctx)-1] == "map" || ctx[len(ctx)-1] == "charset_map" || ctx[len(ctx)-1] == "geo") {
 			mapErr := analyzeMapContents(parsing.File, stmt, t.Value)
 			if mapErr != nil && p.options.StopParsingOnError {
 				return nil, mapErr
@@ -445,7 +445,7 @@ func analyzeMapContents(fname string, stmt *Directive, term string) error {
 	}
 	if len(stmt.Args) != 1 {
 		return &ParseError{
-			What: "invalid number of the map parameters",
+			What: "invalid number of parameters",
 			File: &fname,
 			Line: &stmt.Line,
 		}
