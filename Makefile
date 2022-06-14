@@ -52,7 +52,7 @@ test-only-failed: fmt ; $(info Running unit tests (showing only failed ones with
 	go test -v -race ./... | grep --color -B 45 -A 5 -E '^FAIL.+'
 
 $(LINT_BIN): fmt
-	curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.36.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.36.0
 
 lint: $(LINT_BIN)
 	$(LINT_BIN) run
