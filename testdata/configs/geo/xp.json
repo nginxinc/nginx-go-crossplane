@@ -1,0 +1,112 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/geo/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "events",
+          "line": 1,
+          "args": [],
+          "block": [
+            {
+              "directive": "worker_connections",
+              "line": 2,
+              "args": [
+                "1024"
+              ]
+            }
+          ]
+        },
+        {
+          "directive": "http",
+          "line": 5,
+          "args": [],
+          "block": [
+            {
+              "directive": "geo",
+              "line": 6,
+              "args": [
+                "$geo"
+              ],
+              "block": [
+                {
+                  "directive": "default",
+                  "line": 7,
+                  "args": [
+                    "0"
+                  ]
+                },
+                {
+                  "directive": "192.168.1.0/24",
+                  "line": 8,
+                  "args": [
+                    "1"
+                  ]
+                },
+                {
+                  "directive": "127.0.0.1",
+                  "line": 9,
+                  "args": [
+                    "2"
+                  ]
+                }
+              ]
+            },
+            {
+              "directive": "server",
+              "line": 11,
+              "args": [],
+              "block": [
+                {
+                  "directive": "listen",
+                  "line": 12,
+                  "args": [
+                    "127.0.0.1:8080"
+                  ]
+                },
+                {
+                  "directive": "server_name",
+                  "line": 13,
+                  "args": [
+                    "default_server"
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 14,
+                  "args": [
+                    "/"
+                  ],
+                  "block": [
+                    {
+                      "directive": "if",
+                      "line": 15,
+                      "args": [
+                        "$geo",
+                        "=",
+                        "2"
+                      ],
+                      "block": [
+                        {
+                          "directive": "return",
+                          "line": 16,
+                          "args": [
+                            "403"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
