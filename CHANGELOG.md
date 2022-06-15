@@ -2,6 +2,13 @@
 
 <!--- next entry here -->
 
+## 0.3.2
+2022-06-15
+
+### Fixes
+
+- add geo directive to the payload without further parsing (9880a3804ab92e1da65a44308776f3ea8bba446e)
+
 ## 0.3.1
 2022-04-22
 
