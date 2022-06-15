@@ -2,6 +2,14 @@
 
 <!--- next entry here -->
 
+## 0.3.3
+2022-06-15
+
+### Fixes
+
+- add validation for geo range parameter (8f1ac3e09ce693dc53995a2757840200d82b154a)
+- fix typo (4bf8d9f6a74cb16e1e9e1952e3f839e53bacb2cc)
+
 ## 0.3.2
 2022-06-15
 
