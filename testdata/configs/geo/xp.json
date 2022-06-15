@@ -34,22 +34,27 @@
               ],
               "block": [
                 {
-                  "directive": "default",
+                  "directive": "ranges",
                   "line": 7,
+                  "args": []
+                },
+                {
+                  "directive": "default",
+                  "line": 8,
                   "args": [
                     "0"
                   ]
                 },
                 {
                   "directive": "192.168.1.0/24",
-                  "line": 8,
+                  "line": 9,
                   "args": [
                     "1"
                   ]
                 },
                 {
                   "directive": "127.0.0.1",
-                  "line": 9,
+                  "line": 10,
                   "args": [
                     "2"
                   ]
@@ -58,33 +63,33 @@
             },
             {
               "directive": "server",
-              "line": 11,
+              "line": 12,
               "args": [],
               "block": [
                 {
                   "directive": "listen",
-                  "line": 12,
+                  "line": 13,
                   "args": [
                     "127.0.0.1:8080"
                   ]
                 },
                 {
                   "directive": "server_name",
-                  "line": 13,
+                  "line": 14,
                   "args": [
                     "default_server"
                   ]
                 },
                 {
                   "directive": "location",
-                  "line": 14,
+                  "line": 15,
                   "args": [
                     "/"
                   ],
                   "block": [
                     {
                       "directive": "if",
-                      "line": 15,
+                      "line": 16,
                       "args": [
                         "$geo",
                         "=",
@@ -93,7 +98,7 @@
                       "block": [
                         {
                           "directive": "return",
-                          "line": 16,
+                          "line": 17,
                           "args": [
                             "403"
                           ]
