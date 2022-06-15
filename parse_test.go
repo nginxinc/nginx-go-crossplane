@@ -1109,7 +1109,7 @@ var parseFixtures = []parseFixture{
 								Line:      6,
 								Block: Directives{
 									{
-										Directive: "range",
+										Directive: "ranges",
 										Args:      []string{},
 										Line:      7,
 										Block:     Directives{},

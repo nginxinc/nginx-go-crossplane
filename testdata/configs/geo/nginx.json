@@ -34,7 +34,7 @@
               ],
               "block": [
                 {
-                  "directive": "range",
+                  "directive": "ranges",
                   "line": 7,
                   "args": []
                 },
