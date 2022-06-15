@@ -443,7 +443,7 @@ func analyzeMapContents(fname string, stmt *Directive, term string) error {
 			Line: &stmt.Line,
 		}
 	}
-	if len(stmt.Args) != 1 {
+	if len(stmt.Args) != 1 && stmt.Directive != "range" {
 		return &ParseError{
 			What: "invalid number of parameters",
 			File: &fname,

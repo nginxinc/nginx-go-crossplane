@@ -985,7 +985,7 @@ var parseFixtures = []parseFixture{
 			{
 				File: getTestConfigPath("invalid-map", "nginx.conf"),
 				Error: &ParseError{
-					`invalid number of the map parameters`,
+					`invalid number of parameters`,
 					pStr(getTestConfigPath("invalid-map", "nginx.conf")),
 					pInt(10),
 					nil,
@@ -995,7 +995,7 @@ var parseFixtures = []parseFixture{
 			{
 				File: getTestConfigPath("invalid-map", "nginx.conf"),
 				Error: &ParseError{
-					`invalid number of the map parameters`,
+					`invalid number of parameters`,
 					pStr(getTestConfigPath("invalid-map", "nginx.conf")),
 					pInt(14),
 					nil,
@@ -1019,7 +1019,7 @@ var parseFixtures = []parseFixture{
 					},
 					{
 						Error: &ParseError{
-							`invalid number of the map parameters`,
+							`invalid number of parameters`,
 							pStr(getTestConfigPath("invalid-map", "nginx.conf")),
 							pInt(10),
 							nil,
@@ -1028,7 +1028,7 @@ var parseFixtures = []parseFixture{
 					},
 					{
 						Error: &ParseError{
-							`invalid number of the map parameters`,
+							`invalid number of parameters`,
 							pStr(getTestConfigPath("invalid-map", "nginx.conf")),
 							pInt(14),
 							nil,
@@ -1083,7 +1083,7 @@ var parseFixtures = []parseFixture{
 		Status: "ok",
 		Config: []Config{
 			{
-				File:   getTestConfigPath("directive-with-space", "nginx.conf"),
+				File:   getTestConfigPath("geo", "nginx.conf"),
 				Status: "ok",
 				Parsed: Directives{
 					{
@@ -1109,21 +1109,27 @@ var parseFixtures = []parseFixture{
 								Line:      6,
 								Block: Directives{
 									{
+										Directive: "range",
+										Args:      []string{},
+										Line:      7,
+										Block:     Directives{},
+									},
+									{
 										Directive: "default",
 										Args:      []string{"0"},
-										Line:      7,
+										Line:      8,
 										Block:     Directives{},
 									},
 									{
 										Directive: "192.168.1.0/24",
 										Args:      []string{"1"},
-										Line:      8,
+										Line:      9,
 										Block:     Directives{},
 									},
 									{
 										Directive: "127.0.0.1",
 										Args:      []string{"2"},
-										Line:      9,
+										Line:      10,
 										Block:     Directives{},
 									},
 								},
@@ -1131,34 +1137,34 @@ var parseFixtures = []parseFixture{
 							{
 								Directive: "server",
 								Args:      []string{},
-								Line:      11,
+								Line:      12,
 								Block: Directives{
 									{
 										Directive: "listen",
 										Args:      []string{"127.0.0.1:8080"},
-										Line:      12,
+										Line:      13,
 										Block:     Directives{},
 									},
 									{
 										Directive: "server_name",
 										Args:      []string{"default_server"},
-										Line:      13,
+										Line:      14,
 										Block:     Directives{},
 									},
 									{
 										Directive: "location",
 										Args:      []string{"/"},
-										Line:      14,
+										Line:      15,
 										Block: Directives{
 											{
 												Directive: "if",
 												Args:      []string{"$geo", "=", "2"},
-												Line:      15,
+												Line:      16,
 												Block: Directives{
 													{
 														Directive: "return",
 														Args:      []string{"403"},
-														Line:      16,
+														Line:      17,
 														Block:     Directives{},
 													},
 												},
