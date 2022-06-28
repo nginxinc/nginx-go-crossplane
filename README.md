@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"os"
 
-	"gitlab.com/f5/nginx/crossplane-go"
+	"github.com/nginxinc/crossplane-go"
 )
 
 func main() {
@@ -43,7 +43,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"gitlab.com/f5/nginx/crossplane-go"
+	"github.com/nginxinc/crossplane-go"
 )
 
 func main() {
