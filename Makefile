@@ -9,9 +9,6 @@ LINT_BIN := ./bin/golangci-lint
 SHELL=/bin/bash
 .SHELLFLAGS=-c -eo pipefail
 
-export GOPRIVATE=*.f5net.com,gitlab.com/f5
-export GOFLAGS=-mod=vendor
-
 #######################################
 ## Local set up.
 #######################################
@@ -37,9 +34,8 @@ deps-upgrade:
 #######################################
 ## Tests, codegen, lint and format.
 #######################################
-
 fmt: ; $(info Running goimports...) @
-	@goimports --local gitswarm.f5net.com/indigo,gitlab.com/f5 -w -e $$(find . -type f -name '*.go' -not -path "./vendor/*")
+	@goimports -w -e $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 test: fmt ; $(info Running unit tests...) @
 	mkdir -p $(RESULTS_DIR)
@@ -99,9 +95,3 @@ clean-force: clean; $(info Cleaning everything...) @
 	rm -rf $(VENDOR_DIR)/
 	rm -rf bin/
 	rm -f go.sum
-	go clean -cache
-	go clean -modcache
-	go clean -testcache
-
-images: build-linux
-	docker build --rm --no-cache -t $(DOCKER_REGISTRY)/$(PACKAGE):$(DOCKER_TAG) -f Dockerfile .

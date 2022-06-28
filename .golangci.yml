@@ -21,6 +21,10 @@ linters:
     - errorlint
     - ifshort
     - paralleltest
+    - interfacer
+    - golint
+    - maligned
+    - scopelint
 
 
 # Run options
