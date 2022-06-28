@@ -35,7 +35,7 @@ deps-upgrade:
 ## Tests, codegen, lint and format.
 #######################################
 fmt: ; $(info Running goimports...) @
-	@goimports --local gitswarm.f5net.com/indigo,gitlab.com/f5 -w -e $$(find . -type f -name '*.go' -not -path "./vendor/*")
+	@goimports -w -e $$(find . -type f -name '*.go' -not -path "./vendor/*")
 
 test: fmt ; $(info Running unit tests...) @
 	mkdir -p $(RESULTS_DIR)
@@ -48,7 +48,7 @@ test-only-failed: fmt ; $(info Running unit tests (showing only failed ones with
 	go test -v -race ./... | grep --color -B 45 -A 5 -E '^FAIL.+'
 
 $(LINT_BIN): fmt
-    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.36.0
+	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.36.0
 
 lint: $(LINT_BIN)
 	$(LINT_BIN) run
@@ -95,6 +95,3 @@ clean-force: clean; $(info Cleaning everything...) @
 	rm -rf $(VENDOR_DIR)/
 	rm -rf bin/
 	rm -f go.sum
-
-images: build-linux
-	docker build --rm --no-cache -t $(DOCKER_REGISTRY)/$(PACKAGE):$(DOCKER_TAG) -f Dockerfile .
