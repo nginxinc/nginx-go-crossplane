@@ -1,0 +1,48 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - reopened
+      - synchronize
+
+jobs:
+  checks:
+    name: Formatting and Linting
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Setup Golang Environment
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.15'
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Lint code
+        run: |
+          make init
+          make fmt
+          make lint
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-20.04
+    needs: checks
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+      - name: Setup Golang Environment
+        uses: actions/setup-go@v3
+      - name: Run Tests
+        run: make test
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./results/crossplane-go-coverage.out
