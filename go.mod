@@ -1,4 +1,4 @@
-module github.com/nginxinc/crossplane-go
+module github.com/nginxinc/nginx-go-crossplane
 
 go 1.15
 

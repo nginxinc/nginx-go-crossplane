@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	. "github.com/nginxinc/crossplane-go"
+	. "github.com/nginxinc/nginx-go-crossplane"
 )
 
 //nolint:funlen
