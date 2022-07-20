@@ -11,7 +11,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/nginxinc/crossplane-go"
+	"github.com/nginxinc/nginx-go-crossplane"
 )
 
 func main() {
@@ -43,7 +43,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/nginxinc/crossplane-go"
+	"github.com/nginxinc/nginx-go-crossplane"
 )
 
 func main() {
