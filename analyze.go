@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) F5, Inc.
+ *
+ * This source code is licensed under the Apache License, Version 2.0 license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 package crossplane
 
 import (
@@ -179,14 +186,18 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 //   - which contexts it's allowed to be in
 //
 // Since some directives can have different behaviors in different contexts, we
-//   use lists of bit masks, each describing a valid way to use the directive.
+//
+//	use lists of bit masks, each describing a valid way to use the directive.
 //
 // Definitions for directives that're available in the open source version of
-//   nginx were taken directively from the source code. In fact, the variable
-//   names for the bit masks defined above were taken from the nginx source code.
+//
+//	nginx were taken directively from the source code. In fact, the variable
+//	names for the bit masks defined above were taken from the nginx source code.
 //
 // Definitions for directives that're only available for nginx+ were inferred
-//   from the documentation at http://nginx.org/en/docs/.
+//
+//	from the documentation at http://nginx.org/en/docs/.
+//
 //nolint:gochecknoglobals
 var directives = map[string][]uint{
 	"absolute_redirect": {
