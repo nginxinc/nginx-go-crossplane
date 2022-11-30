@@ -56,6 +56,9 @@ $(LINT_BIN):
 lint: $(LINT_BIN)
 	$(LINT_BIN) run
 
+lint-docker:
+	docker run --rm -v "${PWD}":/app -w /app golangci/golangci-lint:v1.36.0 golangci-lint run
+
 lint-shell:
 	shellcheck -x $$(find . -name "*.sh" -type f -not -path "./vendor/*")
 
@@ -63,38 +66,3 @@ gen:
 	go generate -x ./...
 	$(MAKE) fmt
 
-#######################################
-## Build artifacts for deployment.
-#######################################
-
-.PHONY: build-out-dir build build-linux images dev-k8s clean 
-
-build-out-dir:
-	@mkdir -p $(OUT_DIR)
-
-# Builds exectuable
-build: build-out-dir; $(info Building executable...) @
-	CGO_ENABLED=0 go build \
-        -v -tags 'release osusergo' \
-        -ldflags '-s -w -extldflags "-fno-PIC -static"' \
-        -o $(OUT_DIR)/$(PACKAGE) main.go
-
-build-darwin: build-out-dir; $(info Building executable...) @
-	CGO_ENABLED=1 go build \
-        -v -tags 'release osusergo' \
-        -ldflags '-s -w -extldflags "-fno-PIC"' \
-        -o $(OUT_DIR)/$(PACKAGE) main.go
-
-build-linux: export GOOS=linux
-build-linux: export GOARCH=amd64
-build-linux: build
-
-# Removes all build artifacts.
-clean: ; $(info Cleaning...) @
-	rm -rf $(OUT_DIR)/
-
-# Removes all files that could be downloaded/generated
-clean-force: clean; $(info Cleaning everything...) @
-	rm -rf $(VENDOR_DIR)/
-	rm -rf bin/
-	rm -f go.sum
