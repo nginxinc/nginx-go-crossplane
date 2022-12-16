@@ -71,7 +71,7 @@ func TestAnalyze_auth_jwt(t *testing.T) {
 				Line:      5,
 			},
 			blockCtx{"http", "location", "limit_except"},
-			true,
+			false,
 		},
 		"auth_jwt not ok": {
 			&Directive{
@@ -108,11 +108,11 @@ func TestAnalyze_auth_jwt(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
 
-			if tc.wantErr && err != nil {
+			if !tc.wantErr && err != nil {
 				t.Fatal(err)
 			}
 
-			if !tc.wantErr && err == nil {
+			if tc.wantErr && err == nil {
 				t.Fatal("expected error, got nil")
 			}
 		})
