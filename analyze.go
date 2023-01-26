@@ -2074,6 +2074,9 @@ var directives = map[string][]uint{
 	"auth_jwt_type": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
 	},
+	"auth_jwt_require": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConf1More,
+	},
 	"f4f": {
 		ngxHTTPLocConf | ngxConfNoArgs,
 	},
