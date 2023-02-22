@@ -17,9 +17,6 @@ SHELL=/bin/bash
 
 init:
 	git config core.hooksPath .githooks
-	go get golang.org/x/tools/cmd/goimports@v0.1.10
-	go get github.com/maxbrunsfeld/counterfeiter/v6@latest
-	go get github.com/jstemmer/go-junit-report@latest
 	go install golang.org/x/tools/cmd/goimports
 	go install github.com/maxbrunsfeld/counterfeiter/v6
 	go install github.com/jstemmer/go-junit-report
@@ -65,4 +62,3 @@ lint-shell:
 gen:
 	go generate -x ./...
 	$(MAKE) fmt
-
