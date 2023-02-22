@@ -16,24 +16,23 @@ on:
 
 jobs:
   checks:
-    name: Formatting and Linting
-    runs-on: ubuntu-20.04
+    name: Linting
+    runs-on: ubuntu-22.04
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - name: Setup Golang Environment
         uses: actions/setup-go@v3
         with:
-          go-version: '1.15'
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Lint code
-        run: |
-          make init
-          make fmt
-          make lint
+          go-version-file: go.mod
+      - name: Lint Code
+        uses: golangci/golangci-lint-action@v3
+        with:
+          only-new-issues: true
 
   unit-tests:
     name: Unit Tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: checks
     steps:
       - name: Checkout Repository
