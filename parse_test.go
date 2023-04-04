@@ -43,7 +43,7 @@ func getTestConfigPath(parts ...string) string {
 	return filepath.Join("testdata", "configs", filepath.Join(parts...))
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals,exhaustruct
 var parseFixtures = []parseFixture{
 	{"includes-regular", "", ParseOptions{}, Payload{
 		Status: "failed",
@@ -1177,6 +1177,42 @@ var parseFixtures = []parseFixture{
 												},
 											},
 										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"types", "", ParseOptions{ErrorOnUnknownDirectives: true}, Payload{
+		Status: "ok",
+		Config: []Config{
+			{
+				File:   getTestConfigPath("types", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      1,
+						Block: Directives{
+							{
+								Directive: "types",
+								Line:      2,
+								Block: Directives{
+									{
+										Directive: "text/html",
+										Args:      []string{"html", "htm", "shtml"},
+										Line:      3,
+										Block:     Directives{},
+									},
+									{
+										Directive: "text/css",
+										Args:      []string{"css"},
+										Line:      4,
+										Block:     Directives{},
 									},
 								},
 							},

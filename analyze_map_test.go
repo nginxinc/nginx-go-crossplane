@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// nolint:funlen
+//nolint:funlen,exhaustruct
 func TestAnalyzeMapBody(t *testing.T) {
 	t.Parallel()
 
@@ -81,6 +81,26 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term: ";",
+		},
+		"valid types": {
+			mapDirective: "types",
+			parameter: &Directive{
+				Directive: "text/html",
+				Args:      []string{"html htm shtml"},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term: ";",
+		},
+		"invalid types with special parameter": {
+			mapDirective: "types",
+			parameter: &Directive{
+				Directive: "hostnames",
+				Line:      5,
+				Block:     Directives{},
+			},
+			term:    ";",
+			wantErr: &ParseError{What: "invalid number of parameters"},
 		},
 		"invalid geo proxy_recursive parameter": {
 			mapDirective: "geo",
