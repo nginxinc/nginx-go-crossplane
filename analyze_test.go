@@ -172,6 +172,7 @@ func TestAnalyze_auth_jwt_require(t *testing.T) {
 	}
 }
 
+//nolint:exhaustruct
 func TestAnalyze_njs(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -179,13 +180,22 @@ func TestAnalyze_njs(t *testing.T) {
 		ctx     blockCtx
 		wantErr bool
 	}{
-		"js_import ok": {
+		"js_import in http location context ok": {
 			&Directive{
 				Directive: "js_import",
 				Args:      []string{"http.js"},
 				Line:      5,
 			},
-			blockCtx{"http"},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"js_import in stream server context ok": {
+			&Directive{
+				Directive: "js_import",
+				Args:      []string{"http.js"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
 			false,
 		},
 		"js_import not ok": {
@@ -194,7 +204,25 @@ func TestAnalyze_njs(t *testing.T) {
 				Args:      []string{"http.js"},
 				Line:      5,
 			},
-			blockCtx{"http", "location"},
+			blockCtx{"http", "location", "if"},
+			true,
+		},
+		"js_content in location if context ok": {
+			&Directive{
+				Directive: "js_content",
+				Args:      []string{"function"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "if"},
+			false,
+		},
+		"js_content not ok": {
+			&Directive{
+				Directive: "js_content",
+				Args:      []string{"function"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "if"},
 			true,
 		},
 	}
