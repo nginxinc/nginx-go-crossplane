@@ -144,6 +144,27 @@ func TestAnalyzeMapBody(t *testing.T) {
 			term:    ";",
 			wantErr: &ParseError{What: "invalid number of parameters"},
 		},
+		"valid split_clients": {
+			mapDirective: "split_clients",
+			parameter: &Directive{
+				Directive: "0.5%",
+				Args:      []string{"google.com"},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term: ";",
+		},
+		"invalid split_clients": {
+			mapDirective: "split_clients",
+			parameter: &Directive{
+				Directive: "0.5%",
+				Args:      []string{"google.com", "testme"},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term:    ";",
+			wantErr: &ParseError{What: "invalid number of parameters"},
+		},
 		"missing semicolon": {
 			mapDirective: "map",
 			parameter: &Directive{
