@@ -9,6 +9,10 @@ on:
       - reopened
       - synchronize
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   checks:
     name: Linting
