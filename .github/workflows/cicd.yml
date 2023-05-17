@@ -26,8 +26,6 @@ jobs:
           go-version-file: go.mod
       - name: Lint Code
         uses: golangci/golangci-lint-action@v3
-        with:
-          only-new-issues: true
 
   unit-tests:
     name: Unit Tests
