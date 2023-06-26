@@ -881,6 +881,29 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"comments-between-args-disable-parse", "", ParseOptions{ParseComments: false}, Payload{
+		Status: "ok",
+		Config: []Config{
+			{
+				File:   getTestConfigPath("comments-between-args-disable-parse", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      1,
+						Block: Directives{
+							{
+								Directive: "log_format",
+								Args:      []string{"\\#arg\\ 1", "#arg 2"},
+								Line:      2,
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 	{"premature-eof", "", ParseOptions{}, Payload{
 		Status: "failed",
 		Errors: []PayloadError{
