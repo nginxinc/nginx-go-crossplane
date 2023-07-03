@@ -44,17 +44,17 @@ var mapBodies = map[string]mapParameterMasks{
 // that don't contain nginx directives, and therefore cannot be analyzed in the same way as other blocks.
 func analyzeMapBody(fname string, parameter *Directive, term string, mapCtx string) error {
 	masks, known := mapBodies[mapCtx]
-
 	// if we're not inside a known map-like directive, don't bother analyzing
 	if !known {
 		return nil
 	}
-
 	if term != ";" {
 		return &ParseError{
-			What: fmt.Sprintf(`unexpected "%s"`, term),
-			File: &fname,
-			Line: &parameter.Line,
+			What:      fmt.Sprintf(`unexpected "%s"`, term),
+			File:      &fname,
+			Line:      &parameter.Line,
+			Statement: parameter.String(),
+			BlockCtx:  mapCtx,
 		}
 	}
 
@@ -65,9 +65,11 @@ func analyzeMapBody(fname string, parameter *Directive, term string, mapCtx stri
 		}
 
 		return &ParseError{
-			What: "invalid number of parameters",
-			File: &fname,
-			Line: &parameter.Line,
+			What:      "invalid number of parameters",
+			File:      &fname,
+			Line:      &parameter.Line,
+			Statement: parameter.String(),
+			BlockCtx:  mapCtx,
 		}
 	}
 
@@ -79,9 +81,11 @@ func analyzeMapBody(fname string, parameter *Directive, term string, mapCtx stri
 	}
 
 	return &ParseError{
-		What: "invalid number of parameters",
-		File: &fname,
-		Line: &parameter.Line,
+		What:      "invalid number of parameters",
+		File:      &fname,
+		Line:      &parameter.Line,
+		Statement: parameter.String(),
+		BlockCtx:  mapCtx,
 	}
 }
 

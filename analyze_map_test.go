@@ -51,7 +51,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term:    ";",
-			wantErr: &ParseError{What: "invalid number of parameters"},
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "map"},
 		},
 		"valid map hostnames parameter": {
 			mapDirective: "map",
@@ -71,7 +71,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term:    ";",
-			wantErr: &ParseError{What: "invalid number of parameters"},
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "map"},
 		},
 		"valid geo proxy_recursive parameter": {
 			mapDirective: "geo",
@@ -100,7 +100,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term:    ";",
-			wantErr: &ParseError{What: "invalid number of parameters"},
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "types"},
 		},
 		"invalid geo proxy_recursive parameter": {
 			mapDirective: "geo",
@@ -111,7 +111,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term:    ";",
-			wantErr: &ParseError{What: "invalid number of parameters"},
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "geo"},
 		},
 		"valid geo ranges parameter": {
 			mapDirective: "geo",
@@ -131,7 +131,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term:    ";",
-			wantErr: &ParseError{What: "invalid number of parameters"},
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "geo"},
 		},
 		"invalid number of parameters in map": {
 			mapDirective: "map",
@@ -142,7 +142,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term:    ";",
-			wantErr: &ParseError{What: "invalid number of parameters"},
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "map"},
 		},
 		"valid split_clients": {
 			mapDirective: "split_clients",
@@ -163,7 +163,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term:    ";",
-			wantErr: &ParseError{What: "invalid number of parameters"},
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "split_clients"},
 		},
 		"missing semicolon": {
 			mapDirective: "map",
@@ -174,7 +174,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 				Block:     Directives{},
 			},
 			term:    "}",
-			wantErr: &ParseError{What: `unexpected "}"`},
+			wantErr: &ParseError{What: `unexpected "}"`, BlockCtx: "map"},
 		},
 	}
 
@@ -194,6 +194,7 @@ func TestAnalyzeMapBody(t *testing.T) {
 			var perr *ParseError
 			require.ErrorAs(t, err, &perr)
 			require.Equal(t, tc.wantErr.What, perr.What)
+			require.Equal(t, tc.wantErr.BlockCtx, perr.BlockCtx)
 		})
 	}
 }

@@ -96,9 +96,11 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 	// if strict and directive isn't recognized then throw error
 	if options.ErrorOnUnknownDirectives && !knownDirective {
 		return &ParseError{
-			What: fmt.Sprintf(`unknown directive "%s"`, stmt.Directive),
-			File: &fname,
-			Line: &stmt.Line,
+			What:      fmt.Sprintf(`unknown directive "%s"`, stmt.Directive),
+			File:      &fname,
+			Line:      &stmt.Line,
+			Statement: stmt.String(),
+			BlockCtx:  ctx.getLastBlock(),
 		}
 	}
 
@@ -120,9 +122,11 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 		}
 		if len(ctxMasks) == 0 && !options.SkipDirectiveContextCheck {
 			return &ParseError{
-				What: fmt.Sprintf(`"%s" directive is not allowed here`, stmt.Directive),
-				File: &fname,
-				Line: &stmt.Line,
+				What:      fmt.Sprintf(`"%s" directive is not allowed here`, stmt.Directive),
+				File:      &fname,
+				Line:      &stmt.Line,
+				Statement: stmt.String(),
+				BlockCtx:  ctx.getLastBlock(),
 			}
 		}
 	}
@@ -136,7 +140,6 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 	var what string
 	for i := 0; i < len(ctxMasks); i++ {
 		mask := ctxMasks[i]
-
 		// if the directive is an expression type, there must be '(' 'expr' ')' args
 		if (mask&ngxConfExpr) > 0 && !validExpr(stmt) {
 			what = fmt.Sprintf(`directive "%s"'s is not enclosed in parentheses`, stmt.Directive)
@@ -171,9 +174,11 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 	}
 
 	return &ParseError{
-		What: what,
-		File: &fname,
-		Line: &stmt.Line,
+		What:      what,
+		File:      &fname,
+		Line:      &stmt.Line,
+		Statement: stmt.String(),
+		BlockCtx:  ctx.getLastBlock(),
 	}
 }
 
