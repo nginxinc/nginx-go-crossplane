@@ -31,6 +31,13 @@ func (c blockCtx) key() string {
 	return strings.Join(c, ">")
 }
 
+func (c blockCtx) getLastBlock() string {
+	if len(c) == 0 {
+		return "main"
+	}
+	return c[len(c)-1]
+}
+
 type fileCtx struct {
 	path string
 	ctx  blockCtx
@@ -191,6 +198,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			var perr *ParseError
 			if errors.As(t.Error, &perr) {
 				perr.File = &parsing.File
+				perr.BlockCtx = ctx.getLastBlock()
 				return nil, perr
 			}
 			return nil, &ParseError{
@@ -198,6 +206,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				File:        &parsing.File,
 				Line:        &t.Line,
 				originalErr: t.Error,
+				BlockCtx:    ctx.getLastBlock(),
 			}
 		}
 
@@ -249,6 +258,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				File:        &parsing.File,
 				Line:        &stmt.Line,
 				originalErr: ErrPrematureLexEnd,
+				BlockCtx:    ctx.getLastBlock(),
 			}
 		}
 		for t.IsQuoted || (t.Value != "{" && t.Value != ";" && t.Value != "}") {
@@ -264,6 +274,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 					File:        &parsing.File,
 					Line:        &stmt.Line,
 					originalErr: ErrPrematureLexEnd,
+					BlockCtx:    ctx.getLastBlock(),
 				}
 			}
 		}
@@ -329,8 +340,10 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 						parsing.File,
 						stmt.Line,
 					),
-					File: &parsing.File,
-					Line: &stmt.Line,
+					File:      &parsing.File,
+					Line:      &stmt.Line,
+					Statement: stmt.String(),
+					BlockCtx:  ctx.getLastBlock(),
 				}
 			}
 
@@ -352,9 +365,11 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				// that the included file can be opened and read
 				if f, err := p.openFile(pattern); err != nil {
 					perr := &ParseError{
-						What: err.Error(),
-						File: &parsing.File,
-						Line: &stmt.Line,
+						What:      err.Error(),
+						File:      &parsing.File,
+						Line:      &stmt.Line,
+						Statement: stmt.String(),
+						BlockCtx:  ctx.getLastBlock(),
 					}
 					if !p.options.StopParsingOnError {
 						p.handleError(parsing, perr)
