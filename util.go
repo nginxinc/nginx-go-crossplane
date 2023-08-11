@@ -36,16 +36,16 @@ func isEOL(s string) bool {
 }
 
 func repr(s string) string {
-	quote := fmt.Sprintf("%q", s)
+	q := fmt.Sprintf("%q", s)
 	for _, char := range s {
 		if char == '"' {
-			quote = strings.ReplaceAll(quote, `\"`, `"`)
-			quote = strings.ReplaceAll(quote, `'`, `\'`)
-			quote = `'` + quote[1:len(quote)-1] + `'`
-			return quote
+			q = strings.ReplaceAll(q, `\"`, `"`)
+			q = strings.ReplaceAll(q, `'`, `\'`)
+			q = `'` + q[1:len(q)-1] + `'`
+			return q
 		}
 	}
-	return quote
+	return q
 }
 
 func validFlag(s string) bool {
@@ -54,35 +54,35 @@ func validFlag(s string) bool {
 }
 
 // validExpr ensures an expression is enclused in '(' and ')' and is not empty.
-func validExpr(directive *Directive) bool {
-	length := len(directive.Args)
-	begin := 0
-	end := length - 1
+func validExpr(dir *Directive) bool {
+	l := len(dir.Args)
+	b := 0
+	e := l - 1
 
-	return length > 0 &&
-		strings.HasPrefix(directive.Args[begin], "(") &&
-		strings.HasSuffix(directive.Args[end], ")") &&
-		((length == 1 && len(directive.Args[begin]) > 2) || // empty expression single arg '()'
-			(length == 2 && (len(directive.Args[begin]) > 1 || len(directive.Args[end]) > 1)) || // empty expression two args '(', ')'
-			(length > 2))
+	return l > 0 &&
+		strings.HasPrefix(dir.Args[b], "(") &&
+		strings.HasSuffix(dir.Args[e], ")") &&
+		((l == 1 && len(dir.Args[b]) > 2) || // empty expression single arg '()'
+			(l == 2 && (len(dir.Args[b]) > 1 || len(dir.Args[e]) > 1)) || // empty expression two args '(', ')'
+			(l > 2))
 }
 
 // prepareIfArgs removes parentheses from an `if` directive's arguments.
-func prepareIfArgs(directive *Directive) *Directive {
-	begin := 0
-	end := len(directive.Args) - 1
-	if len(directive.Args) > 0 && strings.HasPrefix(directive.Args[0], "(") && strings.HasSuffix(directive.Args[end], ")") {
-		directive.Args[0] = strings.TrimLeftFunc(strings.TrimPrefix(directive.Args[0], "("), unicode.IsSpace)
-		directive.Args[end] = strings.TrimRightFunc(strings.TrimSuffix(directive.Args[end], ")"), unicode.IsSpace)
-		if len(directive.Args[0]) == 0 {
-			begin++
+func prepareIfArgs(d *Directive) *Directive {
+	b := 0
+	e := len(d.Args) - 1
+	if len(d.Args) > 0 && strings.HasPrefix(d.Args[0], "(") && strings.HasSuffix(d.Args[e], ")") {
+		d.Args[0] = strings.TrimLeftFunc(strings.TrimPrefix(d.Args[0], "("), unicode.IsSpace)
+		d.Args[e] = strings.TrimRightFunc(strings.TrimSuffix(d.Args[e], ")"), unicode.IsSpace)
+		if len(d.Args[0]) == 0 {
+			b++
 		}
-		if len(directive.Args[end]) == 0 {
-			end--
+		if len(d.Args[e]) == 0 {
+			e--
 		}
-		directive.Args = directive.Args[begin : end+1]
+		d.Args = d.Args[b : e+1]
 	}
-	return directive
+	return d
 }
 
 // combineConfigs combines config files into one by using include directives.
@@ -130,16 +130,16 @@ func combineConfigs(old *Payload) (*Payload, error) {
 }
 
 func performIncludes(old *Payload, fromfile string, block Directives) chan included {
-	channel := make(chan included)
+	c := make(chan included)
 	go func() {
-		defer close(channel)
+		defer close(c)
 		for _, d := range block {
 			dir := *d
 			if dir.IsBlock() {
 				nblock := Directives{}
 				for incl := range performIncludes(old, fromfile, dir.Block) {
 					if incl.err != nil {
-						channel <- incl
+						c <- incl
 						return
 					}
 					nblock = append(nblock, incl.directive)
@@ -147,12 +147,12 @@ func performIncludes(old *Payload, fromfile string, block Directives) chan inclu
 				dir.Block = nblock
 			}
 			if !dir.IsInclude() {
-				channel <- included{directive: &dir}
+				c <- included{directive: &dir}
 				continue
 			}
 			for _, idx := range dir.Includes {
 				if idx >= len(old.Config) {
-					channel <- included{
+					c <- included{
 						err: &ParseError{
 							What:      fmt.Sprintf("include config with index: %d", idx),
 							File:      &fromfile,
@@ -163,10 +163,10 @@ func performIncludes(old *Payload, fromfile string, block Directives) chan inclu
 					return
 				}
 				for incl := range performIncludes(old, old.Config[idx].File, old.Config[idx].Parsed) {
-					channel <- incl
+					c <- incl
 				}
 			}
 		}
 	}()
-	return channel
+	return c
 }

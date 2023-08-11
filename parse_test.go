@@ -1363,7 +1363,6 @@ func TestParse(t *testing.T) {
 	}
 }
 
-//nolint:errchkjson
 func TestParseVarArgs(t *testing.T) {
 	t.Parallel()
 	tcs := map[string]struct {
@@ -1432,14 +1431,14 @@ func TestBalancingBraces(t *testing.T) {
 		"missing brace": {fn: "missing-brace", err: `unexpected end of file, expecting "}"`},
 	}
 
-	for key, testcase := range tcs {
-		t.Log(key)
-		path := getTestConfigPath("braces", testcase.fn+".conf")
+	for n, tc := range tcs {
+		t.Log(n)
+		path := getTestConfigPath("braces", tc.fn+".conf")
 
 		payload, err := Parse(path, &ParseOptions{SingleFile: true, StopParsingOnError: true})
 		require.Nil(t, payload, "expected nil payload when reading bad test file: %s", path)
 		require.Error(t, err, "expected parsing error when reading test file: %s", path)
-		require.Contains(t, err.Error(), testcase.err+" in "+path)
+		require.Contains(t, err.Error(), tc.err+" in "+path)
 	}
 }
 

@@ -33,10 +33,10 @@ const (
 
 const TokenChanCap = 2048
 
-//nolint:gochecknoglobals
+// nolint:gochecknoglobals
 var lexerFile = "lexer" // pseudo file name for use by parse errors
 
-//nolint:gochecknoglobals
+// nolint:gochecknoglobals
 var tokChanCap = TokenChanCap // capacity of lexer token channel
 
 // note: this is only used during tests, should not be changed
@@ -49,7 +49,7 @@ func Lex(reader io.Reader) chan NgxToken {
 	return tc
 }
 
-//nolint:gocyclo,gocognit,cyclop,funlen
+// nolint:gocyclo,funlen,gocognit
 func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 	token := strings.Builder{}
 	tokenLine := 1
@@ -61,7 +61,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 	readNext := true
 	esc := false
 	depth := 0
-	var inputText, quote string
+	var la, quote string
 
 	scanner := bufio.NewScanner(reader)
 	scanner.Split(bufio.ScanRunes)
@@ -78,8 +78,8 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 				break // done
 			}
 
-			inputText = scanner.Text()
-			if isEOL(inputText) {
+			la = scanner.Text()
+			if isEOL(la) {
 				tokenLine++
 			}
 		} else {
@@ -87,22 +87,22 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 		}
 
 		// skip CRs
-		if inputText == "\r" || inputText == "\\\r" {
+		if la == "\r" || la == "\\\r" {
 			continue
 		}
 
-		if inputText == "\\" && !esc {
+		if la == "\\" && !esc {
 			esc = true
 			continue
 		}
 		if esc {
 			esc = false
-			inputText = "\\" + inputText
+			la = "\\" + la
 		}
 
 		switch lexState {
 		case skipSpace:
-			if !isSpace(inputText) {
+			if !isSpace(la) {
 				lexState = inWord
 				newToken = true
 				readNext = false // re-eval
@@ -112,35 +112,35 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 		case inWord:
 			if newToken {
 				newToken = false
-				if inputText == "#" {
-					token.WriteString(inputText)
+				if la == "#" {
+					token.WriteString(la)
 					lexState = inComment
 					tokenStartLine = tokenLine
 					continue
 				}
 			}
 
-			if isSpace(inputText) {
+			if isSpace(la) {
 				emit(tokenStartLine, false, nil)
 				continue
 			}
 
 			// handle parameter expansion syntax (ex: "${var[@]}")
-			if token.Len() > 0 && strings.HasSuffix(token.String(), "$") && inputText == "{" {
-				token.WriteString(inputText)
+			if token.Len() > 0 && strings.HasSuffix(token.String(), "$") && la == "{" {
+				token.WriteString(la)
 				lexState = inVar
 				dupSpecialChar = false
 				continue
 			}
 
 			// if a quote is found, add the whole string to the token buffer
-			if inputText == `"` || inputText == "'" {
+			if la == `"` || la == "'" {
 				if token.Len() > 0 {
 					// if a quote is inside a token, treat it like any other char
-					token.WriteString(inputText)
+					token.WriteString(la)
 				} else {
 					// swallow quote and change state
-					quote = inputText
+					quote = la
 					lexState = inQuote
 					tokenStartLine = tokenLine
 				}
@@ -149,17 +149,17 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 			}
 
 			// handle special characters that are treated like full tokens
-			if inputText == "{" || inputText == "}" || inputText == ";" {
+			if la == "{" || la == "}" || la == ";" {
 				// if token complete yield it and reset token buffer
 				if token.Len() > 0 {
 					emit(tokenStartLine, false, nil)
 				}
 
 				// only '}' can be repeated
-				if dupSpecialChar && inputText != "}" {
+				if dupSpecialChar && la != "}" {
 					emit(tokenStartLine, false, &ParseError{
 						File: &lexerFile,
-						What: fmt.Sprintf(`unexpected "%s"`, inputText),
+						What: fmt.Sprintf(`unexpected "%s"`, la),
 						Line: &tokenLine,
 					})
 					close(tokenCh)
@@ -168,10 +168,10 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 
 				dupSpecialChar = true
 
-				if inputText == "{" {
+				if la == "{" {
 					depth++
 				}
-				if inputText == "}" {
+				if la == "}" {
 					depth--
 					// early exit if unbalanced braces
 					if depth < 0 {
@@ -181,39 +181,39 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 					}
 				}
 
-				token.WriteString(inputText)
+				token.WriteString(la)
 				// this character is a full token so emit it
 				emit(tokenStartLine, false, nil)
 				continue
 			}
 
 			dupSpecialChar = false
-			token.WriteString(inputText)
+			token.WriteString(la)
 
 		case inComment:
-			if isEOL(inputText) {
+			if isEOL(la) {
 				emit(tokenStartLine, false, nil)
 				continue
 			}
-			token.WriteString(inputText)
+			token.WriteString(la)
 
 		case inVar:
+			token.WriteString(la)
 			// this is using the same logic as the exiting lexer, but this is wrong since it does not terminate on token boundary
-			token.WriteString(inputText)
-			if !strings.HasSuffix(token.String(), "}") && !isSpace(inputText) {
+			if !strings.HasSuffix(token.String(), "}") && !isSpace(la) {
 				continue
 			}
 			lexState = inWord
 
 		case inQuote:
-			if inputText == quote {
+			if la == quote {
 				emit(tokenStartLine, true, nil)
 				continue
 			}
-			if inputText == "\\"+quote {
-				inputText = quote
+			if la == "\\"+quote {
+				la = quote
 			}
-			token.WriteString(inputText)
+			token.WriteString(la)
 		}
 	}
 

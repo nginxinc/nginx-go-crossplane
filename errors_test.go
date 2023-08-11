@@ -15,9 +15,9 @@ import (
 
 func TestErrorString(t *testing.T) {
 	t.Parallel()
-	testconfig := "test.conf"
-	line := 1
-	var err error
+	tf := "test.conf"
+	tl := 1
+	var te error
 
 	tcs := []struct {
 		f *string
@@ -27,11 +27,11 @@ func TestErrorString(t *testing.T) {
 
 		exp string
 	}{
-		{&testconfig, "error", &line, err, "error in test.conf:1"},
-		{nil, "error", &line, err, "error in (nofile):1"},
-		{nil, "error", nil, err, "error in (nofile)"},
-		{&testconfig, "error", nil, err, "error in test.conf"},
-		{nil, "", nil, err, " in (nofile)"},
+		{&tf, "error", &tl, te, "error in test.conf:1"},
+		{nil, "error", &tl, te, "error in (nofile):1"},
+		{nil, "error", nil, te, "error in (nofile)"},
+		{&tf, "error", nil, te, "error in test.conf"},
+		{nil, "", nil, te, " in (nofile)"},
 	}
 
 	for _, tc := range tcs {

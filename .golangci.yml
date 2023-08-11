@@ -4,7 +4,6 @@
 linters:
   enable-all: true
   disable:
-    - depguard
     - goimports # handled by `make format`
     - gofmt # handled by `make format`
     - wsl # hyper specific to a the creator and not configurable enough to be useful - https://github.com/bombsimon/wsl

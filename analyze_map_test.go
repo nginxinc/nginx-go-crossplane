@@ -178,13 +178,13 @@ func TestAnalyzeMapBody(t *testing.T) {
 		},
 	}
 
-	for name, test := range testcases {
-		testcase := test
+	for name, tc := range testcases {
+		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			err := analyzeMapBody("nginx.conf", testcase.parameter, testcase.term, testcase.mapDirective)
-			if testcase.wantErr == nil {
+			err := analyzeMapBody("nginx.conf", tc.parameter, tc.term, tc.mapDirective)
+			if tc.wantErr == nil {
 				require.NoError(t, err)
 				return
 			}
@@ -193,8 +193,8 @@ func TestAnalyzeMapBody(t *testing.T) {
 
 			var perr *ParseError
 			require.ErrorAs(t, err, &perr)
-			require.Equal(t, testcase.wantErr.What, perr.What)
-			require.Equal(t, testcase.wantErr.BlockCtx, perr.BlockCtx)
+			require.Equal(t, tc.wantErr.What, perr.What)
+			require.Equal(t, tc.wantErr.BlockCtx, perr.BlockCtx)
 		})
 	}
 }

@@ -12,6 +12,7 @@ import (
 	"compress/bzip2"
 	"flag"
 	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
@@ -20,13 +21,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//nolint:gochecknoglobals
+// nolint:gochecknoglobals
 var (
 	runBenchLocally = flag.Bool("local-parse-bench", false, "perform local parse benchmark test")
 
-	once       sync.Once
-	cfgPath    string
-	removeFunc func()
+	once    sync.Once
+	cfgPath string
+	rm      func()
 )
 
 func getLargeConfig(b *testing.B) (string, func()) {
@@ -37,15 +38,15 @@ func getLargeConfig(b *testing.B) (string, func()) {
 	path := getTestConfigPath("large-config", "nginx.conf.bz2")
 
 	// unpack compressed log file and place in a temporary directory
-	file, err := os.Open(path)
-	if err != nil {
+	f, e := os.Open(path)
+	if e != nil {
 		b.Skip("cannot open input file")
 	}
-	defer file.Close()
+	defer f.Close()
 
 	// Open output file
-	tmpdir, err := os.MkdirTemp("", "alog")
-	if err != nil {
+	tmpdir, e := ioutil.TempDir("", "alog")
+	if e != nil {
 		b.Skip("cannot create output dir")
 	}
 	remove := func() {
@@ -54,19 +55,19 @@ func getLargeConfig(b *testing.B) (string, func()) {
 	}
 
 	tmpFile := filepath.Join(tmpdir, "nginx.conf")
-	truncFile, err := os.Create(tmpFile)
-	if err != nil {
+	of, e := os.Create(tmpFile)
+	if e != nil {
 		b.Skip("cannot create output file")
 	}
 
-	bz2r := bzip2.NewReader(file)
+	bz2r := bzip2.NewReader(f)
 
-	_, err = io.Copy(truncFile, bz2r)
-	if err != nil {
+	_, e = io.Copy(of, bz2r)
+	if e != nil {
 		b.Skip("cannot copy to output file")
 	}
 
-	_ = truncFile.Close()
+	_ = of.Close()
 
 	b.Logf("Opened large config file %s", tmpFile)
 	return tmpFile, remove
@@ -74,12 +75,12 @@ func getLargeConfig(b *testing.B) (string, func()) {
 
 func getLargeConfigOnce(b *testing.B) string {
 	once.Do(func() {
-		cfgPath, removeFunc = getLargeConfig(b)
+		cfgPath, rm = getLargeConfig(b)
 	})
 	return cfgPath
 }
 
-func benchmarkParseLargeConfig(b *testing.B, size int) {
+func benchmarkParseLargeConfig(b *testing.B, sz int) {
 	defer func() { SetTokenChanCap(TokenChanCap) }()
 
 	path := getLargeConfigOnce(b)
@@ -89,7 +90,7 @@ func benchmarkParseLargeConfig(b *testing.B, size int) {
 	b.StopTimer()
 	b.StartTimer()
 
-	SetTokenChanCap(size)
+	SetTokenChanCap(sz)
 	for i := 0; i < b.N; i++ {
 		_, _ = Parse(path, &ParseOptions{SingleFile: true, StopParsingOnError: true})
 	}
@@ -97,8 +98,8 @@ func benchmarkParseLargeConfig(b *testing.B, size int) {
 
 func TestMain(b *testing.M) {
 	b.Run()
-	if removeFunc != nil {
-		removeFunc()
+	if rm != nil {
+		rm()
 	}
 	os.Exit(0)
 }
@@ -127,28 +128,28 @@ func BenchmarkParseLargeConfig_TokBuf_1024(b *testing.B) { benchmarkParseLargeCo
 func BenchmarkParseLargeConfig_TokBuf_2048(b *testing.B) { benchmarkParseLargeConfig(b, 2048) }
 func BenchmarkParseLargeConfig_TokBuf_4096(b *testing.B) { benchmarkParseLargeConfig(b, 4096) }
 
-func benchmarkParseBuildLargeConfig(b *testing.B, inclParse bool, size int,
+func benchmarkParseBuildLargeConfig(b *testing.B, inclParse bool, sz int,
 	build func(w io.Writer, config Config, options *BuildOptions) error) {
 	defer func() { SetTokenChanCap(TokenChanCap) }()
 	path := getLargeConfigOnce(b)
 
-	payload, err := Parse(path, &ParseOptions{SingleFile: true, StopParsingOnError: true})
+	pl, err := Parse(path, &ParseOptions{SingleFile: true, StopParsingOnError: true})
 	require.NoError(b, err)
 
 	b.ReportAllocs()
 	b.StopTimer()
 	b.ResetTimer()
 	b.StartTimer()
-	SetTokenChanCap(size)
+	SetTokenChanCap(sz)
 	for i := 0; i < b.N; i++ {
 		if inclParse {
-			payload, err = Parse(path, &ParseOptions{SingleFile: true, StopParsingOnError: true})
+			pl, err = Parse(path, &ParseOptions{SingleFile: true, StopParsingOnError: true})
 			require.NoError(b, err)
 		}
 		b := &bytes.Buffer{}
 		bo := &BuildOptions{Tabs: true}
 
-		_ = build(b, payload.Config[0], bo)
+		_ = build(b, pl.Config[0], bo)
 	}
 }
 

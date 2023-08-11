@@ -14,7 +14,7 @@ import (
 )
 
 func TestDirective_String(t *testing.T) {
-	for _, directives := range []struct {
+	for _, dir := range []struct {
 		directive *Directive
 		expected  string
 	}{
@@ -39,16 +39,16 @@ func TestDirective_String(t *testing.T) {
 			expected: "location ~ \\.(gif|jpg|png)$ {...}",
 		},
 	} {
-		s := directives.directive.String()
-		assert.Equal(t, s, directives.expected)
+		s := dir.directive.String()
+		assert.Equal(t, s, dir.expected)
 	}
 }
 
-//nolint:funlen
+// nolint:funlen
 func TestDirective_Equal(t *testing.T) {
 	commentPtr := pStr("foo")
 
-	for _, directives := range []struct {
+	for _, dir := range []struct {
 		a     *Directive
 		b     *Directive
 		equal bool
@@ -285,11 +285,11 @@ func TestDirective_Equal(t *testing.T) {
 			equal: true,
 		},
 	} {
-		eq := directives.a.Equal(directives.b)
-		if eq != directives.equal {
-			t.Logf("a=%#v, b=%#v", directives.a, directives.b)
+		eq := dir.a.Equal(dir.b)
+		if eq != dir.equal {
+			t.Logf("a=%#v, b=%#v", dir.a, dir.b)
 		}
 
-		assert.Equal(t, eq, directives.equal)
+		assert.Equal(t, eq, dir.equal)
 	}
 }

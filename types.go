@@ -76,49 +76,47 @@ func equals(a, b []string) bool {
 }
 
 // strPtrEqual returns true if the content of the provided string pointer are equal.
-func strPtrEqual(str1, str2 *string) bool {
-	if str1 == str2 {
+func strPtrEqual(a, b *string) bool {
+	if a == b {
 		return true
 	}
-	if str1 == nil || str2 == nil {
+	if a == nil || b == nil {
 		return false
 	}
-	return *str1 == *str2
+	return *a == *b
 }
 
 // Equal returns true if both blocks are functionally equivalent.
-//
-//nolint:cyclop
-func (d *Directive) Equal(directive *Directive) bool {
-	if d == directive {
+func (d *Directive) Equal(a *Directive) bool {
+	if d == a {
 		// same ptr, or both nil
 		return true
 	}
-	if d == nil || directive == nil {
+	if d == nil || a == nil {
 		return false
 	}
 	switch {
-	case directive.Directive != d.Directive:
+	case a.Directive != d.Directive:
 		return false
-	case !equals(directive.Args, d.Args):
+	case !equals(a.Args, d.Args):
 		return false
-	case len(directive.Block) != len(d.Block):
+	case len(a.Block) != len(d.Block):
 		return false
-	case len(directive.Includes) != len(d.Includes):
+	case len(a.Includes) != len(d.Includes):
 		return false
-	case !strPtrEqual(directive.Comment, d.Comment):
+	case !strPtrEqual(a.Comment, d.Comment):
 		return false
-	case directive.Line != d.Line:
+	case a.Line != d.Line:
 		return false
-	case directive.File != d.File:
+	case a.File != d.File:
 		return false
 	}
-	for i, inc := range directive.Includes {
+	for i, inc := range a.Includes {
 		if inc != d.Includes[i] {
 			return false
 		}
 	}
-	for i, dir := range directive.Block {
+	for i, dir := range a.Block {
 		if !dir.Equal(d.Block[i]) {
 			return false
 		}
