@@ -367,7 +367,7 @@ var compareFixtures = []compareFixture{
 	{"empty-config", ParseOptions{}},
 }
 
-//nolint:gocognit,cyclop,funlen
+//nolint:cyclop,funlen,gocognit
 func TestCompareParsedAndBuilt(t *testing.T) {
 	t.Parallel()
 	for _, fixture := range compareFixtures {

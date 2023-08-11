@@ -89,7 +89,7 @@ func enterBlockCtx(stmt *Directive, ctx blockCtx) blockCtx {
 	return append(ctx, stmt.Directive)
 }
 
-//nolint:gocyclo,cyclop,funlen,gocognit
+//nolint:gocyclo,gocognit,cyclop,funlen
 func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *ParseOptions) error {
 	masks, knownDirective := directives[stmt.Directive]
 	currCtx, knownContext := contexts[ctx.key()]

@@ -190,7 +190,7 @@ func (p *parser) openFile(path string) (io.Reader, error) {
 
 // parse Recursively parses directives from an nginx config context.
 //
-//nolint:gocyclo,cyclop,funlen,gocognit,maintidx,nonamedreturns
+//nolint:gocyclo,gocognit,cyclop,funlen,maintidx,nonamedreturns
 func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, consume bool) (parsed Directives, err error) {
 	var tokenOk bool
 	// parse recursively by pulling from a flat stream of tokens

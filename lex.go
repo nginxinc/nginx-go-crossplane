@@ -49,7 +49,7 @@ func Lex(reader io.Reader) chan NgxToken {
 	return tc
 }
 
-//nolint:gocyclo,cyclop,funlen,gocognit
+//nolint:gocyclo,gocognit,cyclop,funlen
 func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 	token := strings.Builder{}
 	tokenLine := 1
