@@ -184,7 +184,7 @@ func Enquote(arg string) string {
 	return strings.ReplaceAll(repr(arg), `\\`, `\`)
 }
 
-//nolint:gocyclo,gocognit
+//nolint:gocyclo
 func needsQuote(s string) bool {
 	if s == "" {
 		return true
