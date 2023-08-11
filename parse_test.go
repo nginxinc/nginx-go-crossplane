@@ -491,6 +491,70 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"simple-variable-with-braces", "-ignore-directives-1", ParseOptions{IgnoreDirectives: []string{"listen", "server_name"}}, Payload{
+		Status: "ok",
+		Config: []Config{
+			{
+				File:   getTestConfigPath("simple-variable-with-braces", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "events",
+						Args:      []string{},
+						Line:      1,
+						Block: Directives{
+							{
+								Directive: "worker_connections",
+								Args:      []string{"1024"},
+								Line:      2,
+							},
+						},
+					},
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      5,
+						Block: Directives{
+							{
+								Directive: "server",
+								Args:      []string{},
+								Line:      6,
+								Block: Directives{
+									{
+										Directive: "location",
+										Args:      []string{"/proxy"},
+										Line:      9,
+										Block: Directives{
+											{
+												Directive: "set",
+												Args:      []string{"$backend_protocol", "http"},
+												Line:      10,
+											},
+											{
+												Directive: "set",
+												Args:      []string{"$backend_host", "bar"},
+												Line:      11,
+											},
+											{
+												Directive: "set",
+												Args:      []string{"$foo", ""},
+												Line:      12,
+											},
+											{
+												Directive: "proxy_pass",
+												Args:      []string{"$backend_protocol://$backend_host${foo}"},
+												Line:      13,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 	{"with-comments", "-true", ParseOptions{ParseComments: true}, Payload{
 		Status: "ok",
 		Config: []Config{
@@ -1299,6 +1363,7 @@ func TestParse(t *testing.T) {
 	}
 }
 
+//nolint:errchkjson
 func TestParseVarArgs(t *testing.T) {
 	t.Parallel()
 	tcs := map[string]struct {
@@ -1367,14 +1432,14 @@ func TestBalancingBraces(t *testing.T) {
 		"missing brace": {fn: "missing-brace", err: `unexpected end of file, expecting "}"`},
 	}
 
-	for n, tc := range tcs {
-		t.Log(n)
-		path := getTestConfigPath("braces", tc.fn+".conf")
+	for key, testcase := range tcs {
+		t.Log(key)
+		path := getTestConfigPath("braces", testcase.fn+".conf")
 
 		payload, err := Parse(path, &ParseOptions{SingleFile: true, StopParsingOnError: true})
 		require.Nil(t, payload, "expected nil payload when reading bad test file: %s", path)
 		require.Error(t, err, "expected parsing error when reading test file: %s", path)
-		require.Contains(t, err.Error(), tc.err+" in "+path)
+		require.Contains(t, err.Error(), testcase.err+" in "+path)
 	}
 }
 

@@ -18,7 +18,7 @@ import (
 	"strings"
 )
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var (
 	hasMagic           = regexp.MustCompile(`[*?[]`)
 	osOpen             = func(path string) (io.Reader, error) { return os.Open(path) }
@@ -128,7 +128,7 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 	}
 
 	// Start with the main nginx config file/context.
-	p := parser{
+	parserObj := parser{
 		configDir:   filepath.Dir(filename),
 		options:     options,
 		handleError: handleError,
@@ -140,11 +140,11 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		includeInDegree: map[string]int{filename: 0},
 	}
 
-	for len(p.includes) > 0 {
-		incl := p.includes[0]
-		p.includes = p.includes[1:]
+	for len(parserObj.includes) > 0 {
+		incl := parserObj.includes[0]
+		parserObj.includes = parserObj.includes[1:]
 
-		file, err := p.openFile(incl.path)
+		file, err := parserObj.openFile(incl.path)
 		if err != nil {
 			return nil, err
 		}
@@ -156,7 +156,7 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 			Errors: []ConfigError{},
 			Parsed: Directives{},
 		}
-		parsed, err := p.parse(&config, tokens, incl.ctx, false)
+		parsed, err := parserObj.parse(&config, tokens, incl.ctx, false)
 		if err != nil {
 			if options.StopParsingOnError {
 				return nil, err
@@ -169,7 +169,7 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		payload.Config = append(payload.Config, config)
 	}
 
-	if p.isAcyclic() {
+	if parserObj.isAcyclic() {
 		return nil, errors.New("configs contain include cycle")
 	}
 
@@ -189,23 +189,24 @@ func (p *parser) openFile(path string) (io.Reader, error) {
 }
 
 // parse Recursively parses directives from an nginx config context.
-// nolint:gocyclo,funlen,gocognit
+//
+//nolint:gocyclo,cyclop,funlen,gocognit,maintidx,nonamedreturns
 func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, consume bool) (parsed Directives, err error) {
 	var tokenOk bool
 	// parse recursively by pulling from a flat stream of tokens
-	for t := range tokens {
-		if t.Error != nil {
+	for token := range tokens {
+		if token.Error != nil {
 			var perr *ParseError
-			if errors.As(t.Error, &perr) {
+			if errors.As(token.Error, &perr) {
 				perr.File = &parsing.File
 				perr.BlockCtx = ctx.getLastBlock()
 				return nil, perr
 			}
 			return nil, &ParseError{
-				What:        t.Error.Error(),
+				What:        token.Error.Error(),
 				File:        &parsing.File,
-				Line:        &t.Line,
-				originalErr: t.Error,
+				Line:        &token.Line,
+				originalErr: token.Error,
 				BlockCtx:    ctx.getLastBlock(),
 			}
 		}
@@ -213,14 +214,14 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		var commentsInArgs []string
 
 		// we are parsing a block, so break if it's closing
-		if t.Value == "}" && !t.IsQuoted {
+		if token.Value == "}" && !token.IsQuoted {
 			break
 		}
 
 		// if we are consuming, then just continue until end of context
 		if consume {
 			// if we find a block inside this context, consume it too
-			if t.Value == "{" && !t.IsQuoted {
+			if token.Value == "{" && !token.IsQuoted {
 				_, _ = p.parse(parsing, tokens, nil, true)
 			}
 			continue
@@ -233,16 +234,16 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 
 		// the first token should always be an nginx directive
 		stmt := &Directive{
-			Directive: t.Value,
-			Line:      t.Line,
+			Directive: token.Value,
+			Line:      token.Line,
 			Args:      []string{},
 			File:      fileName,
 		}
 
 		// if token is comment
-		if strings.HasPrefix(t.Value, "#") && !t.IsQuoted {
+		if strings.HasPrefix(token.Value, "#") && !token.IsQuoted {
 			if p.options.ParseComments {
-				comment := t.Value[1:]
+				comment := token.Value[1:]
 				stmt.Directive = "#"
 				stmt.Comment = &comment
 				parsed = append(parsed, stmt)
@@ -251,7 +252,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		}
 
 		// parse arguments by reading tokens
-		t, tokenOk = <-tokens
+		token, tokenOk = <-tokens
 		if !tokenOk {
 			return nil, &ParseError{
 				What:        ErrPrematureLexEnd.Error(),
@@ -261,13 +262,13 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				BlockCtx:    ctx.getLastBlock(),
 			}
 		}
-		for t.IsQuoted || (t.Value != "{" && t.Value != ";" && t.Value != "}") {
-			if !strings.HasPrefix(t.Value, "#") || t.IsQuoted {
-				stmt.Args = append(stmt.Args, t.Value)
+		for token.IsQuoted || (token.Value != "{" && token.Value != ";" && token.Value != "}") {
+			if !strings.HasPrefix(token.Value, "#") || token.IsQuoted {
+				stmt.Args = append(stmt.Args, token.Value)
 			} else if p.options.ParseComments {
-				commentsInArgs = append(commentsInArgs, t.Value[1:])
+				commentsInArgs = append(commentsInArgs, token.Value[1:])
 			}
-			t, tokenOk = <-tokens
+			token, tokenOk = <-tokens
 			if !tokenOk {
 				return nil, &ParseError{
 					What:        ErrPrematureLexEnd.Error(),
@@ -278,17 +279,16 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				}
 			}
 		}
-
 		// if inside "map-like" block - add contents to payload, but do not parse further
 		if len(ctx) > 0 {
 			if _, ok := mapBodies[ctx[len(ctx)-1]]; ok {
-				mapErr := analyzeMapBody(parsing.File, stmt, t.Value, ctx[len(ctx)-1])
+				mapErr := analyzeMapBody(parsing.File, stmt, token.Value, ctx[len(ctx)-1])
 				if mapErr != nil && p.options.StopParsingOnError {
 					return nil, mapErr
 				} else if mapErr != nil {
 					p.handleError(parsing, mapErr)
 					// consume invalid block
-					if t.Value == "{" && !t.IsQuoted {
+					if token.Value == "{" && !token.IsQuoted {
 						_, _ = p.parse(parsing, tokens, nil, true)
 					}
 					continue
@@ -301,20 +301,20 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		// consume the directive if it is ignored and move on
 		if contains(p.options.IgnoreDirectives, stmt.Directive) {
 			// if this directive was a block consume it too
-			if t.Value == "{" && !t.IsQuoted {
+			if token.Value == "{" && !token.IsQuoted {
 				_, _ = p.parse(parsing, tokens, nil, true)
 			}
 			continue
 		}
 
 		// raise errors if this statement is invalid
-		err = analyze(parsing.File, stmt, t.Value, ctx, p.options)
+		err = analyze(parsing.File, stmt, token.Value, ctx, p.options)
 
 		if perr, ok := err.(*ParseError); ok && !p.options.StopParsingOnError {
 			p.handleError(parsing, perr)
 			// if it was a block but shouldn"t have been then consume
 			if strings.HasSuffix(perr.What, ` is not terminated by ";"`) {
-				if t.Value != "}" && !t.IsQuoted {
+				if token.Value != "}" && !token.IsQuoted {
 					_, _ = p.parse(parsing, tokens, nil, true)
 				} else {
 					break
@@ -363,7 +363,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			} else {
 				// if the file pattern was explicit, nginx will check
 				// that the included file can be opened and read
-				if f, err := p.openFile(pattern); err != nil {
+				if file, err := p.openFile(pattern); err != nil {
 					perr := &ParseError{
 						What:      err.Error(),
 						File:      &parsing.File,
@@ -377,7 +377,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 						return nil, perr
 					}
 				} else {
-					if c, ok := f.(io.Closer); ok {
+					if c, ok := file.(io.Closer); ok {
 						_ = c.Close()
 					}
 					fnames = []string{pattern}
@@ -400,7 +400,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 		}
 
 		// if this statement terminated with "{" then it is a block
-		if t.Value == "{" && !t.IsQuoted {
+		if token.Value == "{" && !token.IsQuoted {
 			stmt.Block = make(Directives, 0)
 			inner := enterBlockCtx(stmt, ctx) // get context for block
 			blocks, err := p.parse(parsing, tokens, inner, false)

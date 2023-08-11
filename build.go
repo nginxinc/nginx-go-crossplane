@@ -25,7 +25,7 @@ type BuildOptions struct {
 
 const MaxIndent = 100
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var (
 	marginSpaces = strings.Repeat(" ", MaxIndent)
 	marginTabs   = strings.Repeat("\t", MaxIndent)
@@ -66,16 +66,16 @@ func BuildFiles(payload Payload, dir string, options *BuildOptions) error {
 			return err
 		}
 
-		f, err := os.Create(path)
+		file, err := os.Create(path)
 		if err != nil {
 			return err
 		}
 
 		output := append(bytes.TrimRightFunc(buf.Bytes(), unicode.IsSpace), '\n')
-		if _, err := f.Write(output); err != nil {
+		if _, err := file.Write(output); err != nil {
 			return err
 		}
-		if err := f.Close(); err != nil {
+		if err := file.Close(); err != nil {
 			return err
 		}
 	}
@@ -84,13 +84,13 @@ func BuildFiles(payload Payload, dir string, options *BuildOptions) error {
 }
 
 // Build creates an NGINX config from a crossplane.Config.
-func Build(w io.Writer, config Config, options *BuildOptions) error {
+func Build(writer io.Writer, config Config, options *BuildOptions) error {
 	if options.Indent == 0 {
 		options.Indent = 4
 	}
 
 	if options.Header {
-		_, err := w.Write([]byte(header))
+		_, err := writer.Write([]byte(header))
 		if err != nil {
 			return err
 		}
@@ -104,60 +104,60 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 		bodyStr = bodyStr[:len(bodyStr)-1]
 	}
 
-	_, err := w.Write([]byte(bodyStr))
+	_, err := writer.Write([]byte(bodyStr))
 	return err
 }
 
-//nolint:gocognit
-func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
-	for i, stmt := range block {
+//nolint:cyclop
+func buildBlock(writer io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
+	for index, stmt := range block {
 		// if the this statement is a comment on the same line as the preview, do not emit EOL for this stmt
 		if stmt.Line == lastLine && stmt.IsComment() {
-			_, _ = sb.WriteString(" #")
-			_, _ = sb.WriteString(*stmt.Comment)
+			_, _ = writer.WriteString(" #")
+			_, _ = writer.WriteString(*stmt.Comment)
 			// sb.WriteString("\n")
 			continue
 		}
 
-		if i != 0 || parent != nil {
-			_, _ = sb.WriteString("\n")
+		if index != 0 || parent != nil {
+			_, _ = writer.WriteString("\n")
 		}
 
-		_, _ = sb.WriteString(margin(options, depth))
+		_, _ = writer.WriteString(margin(options, depth))
 
 		if stmt.IsComment() {
-			_, _ = sb.WriteString("#")
-			_, _ = sb.WriteString(*stmt.Comment)
+			_, _ = writer.WriteString("#")
+			_, _ = writer.WriteString(*stmt.Comment)
 		} else {
 			directive := Enquote(stmt.Directive)
-			_, _ = sb.WriteString(directive)
+			_, _ = writer.WriteString(directive)
 
 			// special handling for if statements
 			if directive == "if" {
-				_, _ = sb.WriteString(" (")
+				_, _ = writer.WriteString(" (")
 				for i, arg := range stmt.Args {
 					if i > 0 {
-						_, _ = sb.WriteString(" ")
+						_, _ = writer.WriteString(" ")
 					}
-					_, _ = sb.WriteString(Enquote(arg))
+					_, _ = writer.WriteString(Enquote(arg))
 				}
-				_, _ = sb.WriteString(")")
+				_, _ = writer.WriteString(")")
 			} else {
 				for _, arg := range stmt.Args {
-					_, _ = sb.WriteString(" ")
-					_, _ = sb.WriteString(Enquote(arg))
+					_, _ = writer.WriteString(" ")
+					_, _ = writer.WriteString(Enquote(arg))
 				}
 			}
 
 			if !stmt.IsBlock() {
-				_, _ = sb.WriteString(";")
+				_, _ = writer.WriteString(";")
 			} else {
-				_, _ = sb.WriteString(" {")
+				_, _ = writer.WriteString(" {")
 				stmt := stmt
-				buildBlock(sb, stmt, stmt.Block, depth+1, stmt.Line, options)
-				_, _ = sb.WriteString("\n")
-				_, _ = sb.WriteString(margin(options, depth))
-				_, _ = sb.WriteString("}")
+				buildBlock(writer, stmt, stmt.Block, depth+1, stmt.Line, options)
+				_, _ = writer.WriteString("\n")
+				_, _ = writer.WriteString(margin(options, depth))
+				_, _ = writer.WriteString("}")
 			}
 		}
 		lastLine = stmt.Line
@@ -185,23 +185,23 @@ func Enquote(arg string) string {
 	return strings.ReplaceAll(repr(arg), `\\`, `\`)
 }
 
-// nolint:gocyclo,gocognit
-func needsQuote(s string) bool {
-	if s == "" {
+//nolint:gocyclo,cyclop,gocognit
+func needsQuote(input string) bool {
+	if input == "" {
 		return true
 	}
 
 	// lexer should throw an error when variable expansion syntax
 	// is messed up, but just wrap it in quotes for now I guess
 	var char rune
-	chars := escape(s)
+	chars := escape(input)
 
 	if len(chars) == 0 {
 		return true
 	}
 
 	// get first rune
-	char, off := utf8.DecodeRune([]byte(chars))
+	char, off := utf8.DecodeRuneInString(chars)
 
 	// arguments can't start with variable expansion syntax
 	if unicode.IsSpace(char) || strings.ContainsRune("{};\"'", char) || strings.HasPrefix(chars, "${") {
@@ -211,7 +211,7 @@ func needsQuote(s string) bool {
 	chars = chars[off:]
 
 	expanding := false
-	var prev rune = 0
+	var prev rune
 	for _, c := range chars {
 		char = c
 
@@ -237,52 +237,53 @@ func needsQuote(s string) bool {
 	return expanding || char == '\\' || char == '$'
 }
 
-func escape(s string) string {
-	if !strings.ContainsAny(s, "{}$;\\") {
-		return s
+//nolint:cyclop
+func escape(input string) string {
+	if !strings.ContainsAny(input, "{}$;\\") {
+		return input
 	}
 
-	sb := strings.Builder{}
-	var pc, cc rune
+	builder := strings.Builder{}
+	var prevChar, currentChar rune
 
-	for _, r := range s {
-		cc = r
-		if pc == '\\' || (pc == '$' && cc == '{') {
-			sb.WriteRune(pc)
-			sb.WriteRune(cc)
-			pc = 0
+	for _, r := range input {
+		currentChar = r
+		if prevChar == '\\' || (prevChar == '$' && currentChar == '{') {
+			builder.WriteRune(prevChar)
+			builder.WriteRune(currentChar)
+			prevChar = 0
 			continue
 		}
 
-		if pc == '$' {
-			sb.WriteRune(pc)
+		if prevChar == '$' {
+			builder.WriteRune(prevChar)
 		}
-		if cc != '\\' && cc != '$' {
-			sb.WriteRune(cc)
+		if currentChar != '\\' && currentChar != '$' {
+			builder.WriteRune(currentChar)
 		}
-		pc = cc
+		prevChar = currentChar
 	}
 
-	if cc == '\\' || cc == '$' {
-		sb.WriteRune(cc)
+	if currentChar == '\\' || currentChar == '$' {
+		builder.WriteRune(currentChar)
 	}
 
-	return sb.String()
+	return builder.String()
 }
 
 // BuildInto builds all of the config files in a crossplane.Payload and
 // writes them to the Creator.
 func BuildInto(payload *Payload, into Creator, options *BuildOptions) error {
 	for _, config := range payload.Config {
-		wc, err := into.Create(config.File)
+		writerCloser, err := into.Create(config.File)
 		if err != nil {
 			return err
 		}
-		if err := Build(wc, config, options); err != nil {
+		if err := Build(writerCloser, config, options); err != nil {
 			return err
 		}
 
-		if err := wc.Close(); err != nil {
+		if err := writerCloser.Close(); err != nil {
 			return err
 		}
 	}

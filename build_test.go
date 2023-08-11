@@ -10,7 +10,7 @@ package crossplane
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,7 +36,7 @@ type compareFixture struct {
 	options ParseOptions
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var buildFixtures = []buildFixture{
 	{
 		name:    "nested-and-multiple-args",
@@ -279,7 +279,7 @@ func TestBuild(t *testing.T) {
 	}
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var buildFilesFixtures = []buildFilesFixture{
 	{
 		name:    "with-missing-status-and-errors",
@@ -332,7 +332,7 @@ func TestBuildFiles(t *testing.T) {
 		t.Run(fixture.name, func(t *testing.T) {
 			t.Parallel()
 			fixture := fixture
-			tmpdir, err := ioutil.TempDir("", "TestBuildFiles-")
+			tmpdir, err := os.MkdirTemp("", "TestBuildFiles-")
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -342,7 +342,7 @@ func TestBuildFiles(t *testing.T) {
 				t.Fatal(err)
 			}
 
-			content, err := ioutil.ReadFile(filepath.Join(tmpdir, "nginx.conf"))
+			content, err := os.ReadFile(filepath.Join(tmpdir, "nginx.conf"))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -355,7 +355,7 @@ func TestBuildFiles(t *testing.T) {
 	}
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var compareFixtures = []compareFixture{
 	{"simple", ParseOptions{}},
 	{"messy", ParseOptions{}},
@@ -367,14 +367,14 @@ var compareFixtures = []compareFixture{
 	{"empty-config", ParseOptions{}},
 }
 
-//nolint:gocognit,funlen
+//nolint:gocognit,cyclop,funlen
 func TestCompareParsedAndBuilt(t *testing.T) {
 	t.Parallel()
 	for _, fixture := range compareFixtures {
 		fixture := fixture
 		t.Run(fixture.name, func(t *testing.T) {
 			t.Parallel()
-			tmpdir, err2 := ioutil.TempDir("", "TestCompareParsedAndBuilt-")
+			tmpdir, err2 := os.MkdirTemp("", "TestCompareParsedAndBuilt-")
 			if err2 != nil {
 				t.Fatal(err2)
 			}
@@ -391,7 +391,7 @@ func TestCompareParsedAndBuilt(t *testing.T) {
 			}
 			build1File := filepath.Join(tmpdir, "build1.conf")
 			build1Config := build1Buffer.Bytes()
-			if err := ioutil.WriteFile(build1File, build1Config, os.ModePerm); err != nil {
+			if err := os.WriteFile(build1File, build1Config, os.ModePerm); err != nil {
 				t.Fatal(err)
 			}
 			build1Payload, err2 := Parse(build1File, &fixture.options)
@@ -413,7 +413,7 @@ func TestCompareParsedAndBuilt(t *testing.T) {
 			}
 			build2File := filepath.Join(tmpdir, "build2.conf")
 			build2Config := build2Buffer.Bytes()
-			if err := ioutil.WriteFile(build2File, build2Config, os.ModePerm); err != nil {
+			if err := os.WriteFile(build2File, build2Config, os.ModePerm); err != nil {
 				t.Fatal(err)
 			}
 			build2Payload, err2 := Parse(build2File, &fixture.options)
@@ -438,17 +438,17 @@ func equalPayloads(p1, p2 Payload) bool {
 		equalPayloadConfigs(p1.Config, p2.Config)
 }
 
-func equalPayloadErrors(e1, e2 []PayloadError) bool {
-	if len(e1) != len(e2) {
+func equalPayloadErrors(error1, error2 []PayloadError) bool {
+	if len(error1) != len(error2) {
 		return false
 	}
-	for i := 0; i < len(e1); i++ {
-		if (e1[i].File != e2[i].File) ||
-			(e1[i].Error != nil && e2[i].Error != nil && e1[i].Error.Error() != e2[i].Error.Error()) ||
-			(e1[i].Line == nil) != (e2[i].Line == nil) ||
-			(e1[i].Line != nil && *e1[i].Line != *e2[i].Line) {
-			println(e1[i].Error.Error())
-			println(e2[i].Error.Error())
+	for index := 0; index < len(error1); index++ {
+		if (error1[index].File != error2[index].File) ||
+			(error1[index].Error != nil && error2[index].Error != nil && error1[index].Error.Error() != error2[index].Error.Error()) ||
+			(error1[index].Line == nil) != (error2[index].Line == nil) ||
+			(error1[index].Line != nil && *error1[index].Line != *error2[index].Line) {
+			log.Println(error1[index].Error.Error())
+			log.Println(error2[index].Error.Error())
 			return false
 		}
 	}
@@ -473,14 +473,14 @@ func equalConfigs(c1, c2 Config) bool {
 		equalBlocks(c1.Parsed, c2.Parsed)
 }
 
-func equalConfigErrors(e1, e2 []ConfigError) bool {
-	if len(e1) != len(e2) {
+func equalConfigErrors(error1, error2 []ConfigError) bool {
+	if len(error1) != len(error2) {
 		return false
 	}
-	for i := 0; i < len(e1); i++ {
-		if (e1[i].Error != nil && e2[i].Error != nil && e1[i].Error.Error() != e2[i].Error.Error()) ||
-			(e1[i].Line == nil) != (e2[i].Line == nil) ||
-			(e1[i].Line != nil && *e1[i].Line != *e2[i].Line) {
+	for i := 0; i < len(error1); i++ {
+		if (error1[i].Error != nil && error2[i].Error != nil && error1[i].Error.Error() != error2[i].Error.Error()) ||
+			(error1[i].Line == nil) != (error2[i].Line == nil) ||
+			(error1[i].Line != nil && *error1[i].Line != *error2[i].Line) {
 			return false
 		}
 	}
@@ -523,14 +523,14 @@ func equalIncludes(b1, b2 []int) bool {
 	return true
 }
 
-func equalDirectives(d1, d2 *Directive) bool {
-	if d1.Directive != d2.Directive ||
-		d1.File != d2.File ||
-		!equalArgs(d1.Args, d2.Args) ||
-		!equalIncludes(d1.Includes, d2.Includes) ||
-		!equalBlocks(d1.Block, d2.Block) ||
-		(d1.Comment == nil) != (d2.Comment == nil) ||
-		(d1.Comment != nil && *d1.Comment != *d2.Comment) {
+func equalDirectives(directive1, directive2 *Directive) bool {
+	if directive1.Directive != directive2.Directive ||
+		directive1.File != directive2.File ||
+		!equalArgs(directive1.Args, directive2.Args) ||
+		!equalIncludes(directive1.Includes, directive2.Includes) ||
+		!equalBlocks(directive1.Block, directive2.Block) ||
+		(directive1.Comment == nil) != (directive2.Comment == nil) ||
+		(directive1.Comment != nil && *directive1.Comment != *directive2.Comment) {
 		return false
 	}
 
@@ -544,17 +544,17 @@ func TestBuildInto(t *testing.T) {
 		t.Run(fixture.name, func(t *testing.T) {
 			t.Parallel()
 			fixture := fixture
-			sc := new(StringsCreator)
+			creator := new(StringsCreator)
 
-			if err := BuildInto(&fixture.payload, sc, &fixture.options); err != nil {
+			if err := BuildInto(&fixture.payload, creator, &fixture.options); err != nil {
 				t.Fatal(err)
 			}
 
-			if len(sc.Files) == 0 {
+			if len(creator.Files) == 0 {
 				t.Fatal("no buffer written")
 			}
 
-			got := sc.Files[0].String()
+			got := creator.Files[0].String()
 			if got != fixture.expected {
 				t.Fatalf("expected: %#v\nbut got: %#v", fixture.expected, got)
 			}

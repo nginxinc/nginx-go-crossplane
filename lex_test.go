@@ -23,7 +23,7 @@ type lexFixture struct {
 	tokens []tokenLine
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var lexFixtures = []lexFixture{
 	{"simple", []tokenLine{
 		{"events", 1},
@@ -160,7 +160,8 @@ var lexFixtures = []lexFixture{
 		{"/status.html", 18},
 		{"{", 18},
 		{"try_files", 19},
-		{"/abc/${uri} /abc/${uri}.html", 19},
+		{"/abc/${uri}", 19},
+		{"/abc/${uri}.html", 19},
 		{"=404", 19},
 		{";", 19},
 		{"}", 20},
@@ -239,13 +240,13 @@ func TestLex(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer file.Close()
-			i := 0
+			index := 0
 			for token := range Lex(file) {
-				expected := fixture.tokens[i]
+				expected := fixture.tokens[index]
 				if token.Value != expected.value || token.Line != expected.line {
 					t.Fatalf("expected (%q,%d) but got (%q,%d)", expected.value, expected.line, token.Value, token.Line)
 				}
-				i++
+				index++
 			}
 		})
 	}
