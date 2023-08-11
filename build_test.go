@@ -332,7 +332,6 @@ func TestBuildFiles(t *testing.T) {
 			t.Parallel()
 			fixture := fixture
 			tmpdir := t.TempDir()
-			defer os.RemoveAll(tmpdir)
 
 			if err := BuildFiles(fixture.payload, tmpdir, &fixture.options); err != nil {
 				t.Fatal(err)
@@ -371,7 +370,6 @@ func TestCompareParsedAndBuilt(t *testing.T) {
 		t.Run(fixture.name, func(t *testing.T) {
 			t.Parallel()
 			tmpdir := t.TempDir()
-			defer os.RemoveAll(tmpdir)
 
 			origPayload, err2 := Parse(getTestConfigPath(fixture.name, "nginx.conf"), &fixture.options)
 			if err2 != nil {
