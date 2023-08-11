@@ -23,7 +23,7 @@ type lexFixture struct {
 	tokens []tokenLine
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var lexFixtures = []lexFixture{
 	{"simple", []tokenLine{
 		{"events", 1},
