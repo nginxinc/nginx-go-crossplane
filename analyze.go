@@ -545,6 +545,10 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxConfBlock | ngxConfTake12,
 		ngxStreamMainConf | ngxConfBlock | ngxConfTake12,
 	},
+	"geoip2": {
+		ngxHTTPMainConf | ngxConfBlock | ngxConfTake1,
+		ngxStreamMainConf | ngxConfBlock | ngxConfTake1,
+	},
 	"geoip_city": {
 		ngxHTTPMainConf | ngxConfTake12,
 		ngxStreamMainConf | ngxConfTake12,
