@@ -491,6 +491,70 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"simple-variable-with-braces", "-ignore-directives-1", ParseOptions{IgnoreDirectives: []string{"listen", "server_name"}}, Payload{
+		Status: "ok",
+		Config: []Config{
+			{
+				File:   getTestConfigPath("simple-variable-with-braces", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "events",
+						Args:      []string{},
+						Line:      1,
+						Block: Directives{
+							{
+								Directive: "worker_connections",
+								Args:      []string{"1024"},
+								Line:      2,
+							},
+						},
+					},
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      5,
+						Block: Directives{
+							{
+								Directive: "server",
+								Args:      []string{},
+								Line:      6,
+								Block: Directives{
+									{
+										Directive: "location",
+										Args:      []string{"/proxy"},
+										Line:      9,
+										Block: Directives{
+											{
+												Directive: "set",
+												Args:      []string{"$backend_protocol", "http"},
+												Line:      10,
+											},
+											{
+												Directive: "set",
+												Args:      []string{"$backend_host", "bar"},
+												Line:      11,
+											},
+											{
+												Directive: "set",
+												Args:      []string{"$foo", ""},
+												Line:      12,
+											},
+											{
+												Directive: "proxy_pass",
+												Args:      []string{"$backend_protocol://$backend_host${foo}"},
+												Line:      13,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 	{"with-comments", "-true", ParseOptions{ParseComments: true}, Payload{
 		Status: "ok",
 		Config: []Config{

@@ -198,12 +198,11 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 			token.WriteString(la)
 
 		case inVar:
+			token.WriteString(la)
 			// this is using the same logic as the exiting lexer, but this is wrong since it does not terminate on token boundary
 			if !strings.HasSuffix(token.String(), "}") && !isSpace(la) {
-				token.WriteString(la)
 				continue
 			}
-			token.WriteString(la)
 			lexState = inWord
 
 		case inQuote:
