@@ -18,7 +18,7 @@ import (
 	"strings"
 )
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var (
 	hasMagic           = regexp.MustCompile(`[*?[]`)
 	osOpen             = func(path string) (io.Reader, error) { return os.Open(path) }
@@ -189,7 +189,8 @@ func (p *parser) openFile(path string) (io.Reader, error) {
 }
 
 // parse Recursively parses directives from an nginx config context.
-// nolint:gocyclo,funlen,gocognit
+//
+//nolint:gocyclo,funlen,gocognit,maintidx,nonamedreturns
 func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, consume bool) (parsed Directives, err error) {
 	var tokenOk bool
 	// parse recursively by pulling from a flat stream of tokens

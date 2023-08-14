@@ -172,7 +172,7 @@ func TestAnalyze_auth_jwt_require(t *testing.T) {
 	}
 }
 
-//nolint:exhaustruct
+//nolint:exhaustruct,funlen
 func TestAnalyze_njs(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {

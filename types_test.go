@@ -44,7 +44,7 @@ func TestDirective_String(t *testing.T) {
 	}
 }
 
-// nolint:funlen
+//nolint:funlen
 func TestDirective_Equal(t *testing.T) {
 	commentPtr := pStr("foo")
 

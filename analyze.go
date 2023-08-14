@@ -61,7 +61,8 @@ const ngxAnyConf = ngxMainConf | ngxEventConf | ngxMailMainConf | ngxMailSrvConf
 	ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPUpsConf
 
 // map for getting bitmasks from certain context tuples
-// nolint:gochecknoglobals
+//
+//nolint:gochecknoglobals
 var contexts = map[string]uint{
 	blockCtx{}.key():                                   ngxMainConf,
 	blockCtx{"events"}.key():                           ngxEventConf,
@@ -88,7 +89,7 @@ func enterBlockCtx(stmt *Directive, ctx blockCtx) blockCtx {
 	return append(ctx, stmt.Directive)
 }
 
-// nolint:gocyclo,funlen,gocognit
+//nolint:gocyclo,funlen,gocognit
 func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *ParseOptions) error {
 	masks, knownDirective := directives[stmt.Directive]
 	currCtx, knownContext := contexts[ctx.key()]
@@ -159,7 +160,7 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 		}
 
 		// use mask to check the directive's arguments
-		// nolint:gocritic
+		//nolint:gocritic
 		if ((mask>>len(stmt.Args)&1) != 0 && len(stmt.Args) <= 7) || // NOARGS to TAKE7
 			((mask&ngxConfFlag) != 0 && len(stmt.Args) == 1 && validFlag(stmt.Args[0])) ||
 			((mask & ngxConfAny) != 0) ||

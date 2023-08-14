@@ -33,10 +33,10 @@ const (
 
 const TokenChanCap = 2048
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var lexerFile = "lexer" // pseudo file name for use by parse errors
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var tokChanCap = TokenChanCap // capacity of lexer token channel
 
 // note: this is only used during tests, should not be changed
@@ -49,7 +49,7 @@ func Lex(reader io.Reader) chan NgxToken {
 	return tc
 }
 
-// nolint:gocyclo,funlen,gocognit
+//nolint:gocyclo,funlen,gocognit
 func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 	token := strings.Builder{}
 	tokenLine := 1

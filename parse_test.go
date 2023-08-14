@@ -1290,7 +1290,7 @@ func TestParse(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if !equalPayloads(*payload, fixture.expected) {
+			if !equalPayloads(t, *payload, fixture.expected) {
 				b1, _ := json.Marshal(fixture.expected)
 				b2, _ := json.Marshal(payload)
 				t.Fatalf("expected: %s\nbut got: %s", b1, b2)
@@ -1299,6 +1299,7 @@ func TestParse(t *testing.T) {
 	}
 }
 
+//nolint:errchkjson
 func TestParseVarArgs(t *testing.T) {
 	t.Parallel()
 	tcs := map[string]struct {
