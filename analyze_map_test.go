@@ -165,6 +165,16 @@ func TestAnalyzeMapBody(t *testing.T) {
 			term:    ";",
 			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "split_clients"},
 		},
+		"valid geoip2": {
+			mapDirective: "geoip2",
+			parameter: &Directive{
+				Directive: "$geoip2_data_continent_code",
+				Args:      []string{"continent", "code"},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term: ";",
+		},
 		"missing semicolon": {
 			mapDirective: "map",
 			parameter: &Directive{
