@@ -698,6 +698,9 @@ var directives = map[string][]uint{
 	"http": {
 		ngxMainConf | ngxConfBlock | ngxConfNoArgs,
 	},
+	"http2": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
+	},
 	"http2_body_preread_size": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
