@@ -785,6 +785,9 @@ var directives = map[string][]uint{
 	"internal": {
 		ngxHTTPLocConf | ngxConfNoArgs,
 	},
+	"internal_redirect": {
+		ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
 	"ip_hash": {
 		ngxHTTPUpsConf | ngxConfNoArgs,
 	},
