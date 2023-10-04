@@ -1147,6 +1147,15 @@ func TestAnalyze_http3(t *testing.T) {
 			blockCtx{"http", "server"},
 			false,
 		},
+		"http3_max_concurrent_streams not ok": {
+			&Directive{
+				Directive: "http3_max_concurrent_streams",
+				Args:      []string{"10"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
 		"http3_stream_buffer_size ok": {
 			&Directive{
 				Directive: "http3_stream_buffer_size",
@@ -1155,6 +1164,15 @@ func TestAnalyze_http3(t *testing.T) {
 			},
 			blockCtx{"http", "server"},
 			false,
+		},
+		"http3_stream_buffer_size not ok": {
+			&Directive{
+				Directive: "http3_stream_buffer_size",
+				Args:      []string{"128k"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
 		},
 	}
 
@@ -1191,6 +1209,15 @@ func TestAnalyze_quic(t *testing.T) {
 			},
 			blockCtx{"http", "server"},
 			false,
+		},
+		"quic_active_connection_id_limit not ok": {
+			&Directive{
+				Directive: "quic_active_connection_id_limit",
+				Args:      []string{"2"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
 		},
 		"quic_bpf ok": {
 			&Directive{
