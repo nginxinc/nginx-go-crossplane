@@ -753,7 +753,7 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
 	"quic_bpf": {
-		ngxMainConf | ngxConfFlag,
+		ngxMainConf | ngxDirectConf | ngxConfFlag,
 	},
 	"quic_gso": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
