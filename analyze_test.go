@@ -1122,7 +1122,7 @@ func TestAnalyze_http3(t *testing.T) {
 		},
 		"http3_hq ok": {
 			&Directive{
-				Directive: "http3",
+				Directive: "http3_hq",
 				Args:      []string{"on"},
 				Line:      5,
 			},
@@ -1131,7 +1131,7 @@ func TestAnalyze_http3(t *testing.T) {
 		},
 		"http3_hq not ok": {
 			&Directive{
-				Directive: "http3",
+				Directive: "http3_hq",
 				Args:      []string{"somevalue"},
 				Line:      5,
 			},
