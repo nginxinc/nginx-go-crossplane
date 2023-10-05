@@ -225,33 +225,6 @@ func TestAnalyze_njs(t *testing.T) {
 			blockCtx{"http", "server", "if"},
 			true,
 		},
-		"js_periodic ok in http": {
-			&Directive{
-				Directive: "js_periodic",
-				Args:      []string{"function"},
-				Line:      5,
-			},
-			blockCtx{"http", "location"},
-			false,
-		},
-		"js_periodic not ok in http": {
-			&Directive{
-				Directive: "js_periodic",
-				Args:      []string{"function"},
-				Line:      5,
-			},
-			blockCtx{"http", "location", "if"},
-			true,
-		},
-		"js_periodic ok in stream": {
-			&Directive{
-				Directive: "js_periodic",
-				Args:      []string{"function"},
-				Line:      5,
-			},
-			blockCtx{"stream", "server"},
-			false,
-		},
 	}
 
 	for name, tc := range testcases {
@@ -259,6 +232,7 @@ func TestAnalyze_njs(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
 			}

@@ -2213,10 +2213,6 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
-	"js_periodic": {
-		ngxHTTPLocConf | ngxConfAny,
-		ngxStreamSrvConf | ngxConfAny,
-	},
 	"js_preload_object": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake13,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake13,
