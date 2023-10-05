@@ -749,21 +749,6 @@ var directives = map[string][]uint{
 	"http3_stream_buffer_size": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
-	"quic_active_connection_id_limit": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
-	},
-	"quic_bpf": {
-		ngxMainConf | ngxDirectConf | ngxConfFlag,
-	},
-	"quic_gso": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
-	},
-	"quic_host_key": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
-	},
-	"quic_retry": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
-	},
 	"if": {
 		ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfBlock | ngxConfExpr | ngxConf1More,
 	},
@@ -1328,6 +1313,21 @@ var directives = map[string][]uint{
 	},
 	"proxy_upload_rate": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+	},
+	"quic_active_connection_id_limit": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
+	"quic_bpf": {
+		ngxMainConf | ngxDirectConf | ngxConfFlag,
+	},
+	"quic_gso": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
+	},
+	"quic_host_key": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
+	"quic_retry": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
 	},
 	"random": {
 		ngxHTTPUpsConf | ngxConfNoArgs | ngxConfTake12,
