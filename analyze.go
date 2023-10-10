@@ -265,13 +265,13 @@ var directives = map[string][]uint{
 	"auth_http": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 	},
-	"auth_Httpheader": {
+	"auth_http_header": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake2,
 	},
-	"auth_Httppass_client_cert": {
+	"auth_http_pass_client_cert": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
 	},
-	"auth_Httptimeout": {
+	"auth_http_timeout": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 	},
 	"auth_request": {
