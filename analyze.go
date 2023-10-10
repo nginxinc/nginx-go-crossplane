@@ -1010,6 +1010,24 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1234,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1234,
 	},
+	"otel_exporter": {
+		ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
+	},
+	"otel_service_name": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"otel_span_attr": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+	},
+	"otel_span_name": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"otel_trace": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"otel_trace_context": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
 	"output_buffers": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
 	},
