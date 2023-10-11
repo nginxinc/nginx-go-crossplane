@@ -922,6 +922,9 @@ var directives = map[string][]uint{
 	"master_process": {
 		ngxMainConf | ngxDirectConf | ngxConfFlag,
 	},
+	"max_errors": {
+		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+	},
 	"max_ranges": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
@@ -1223,6 +1226,7 @@ var directives = map[string][]uint{
 	},
 	"proxy_protocol": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+		ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
 	},
 	"proxy_protocol_timeout": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
@@ -1253,6 +1257,9 @@ var directives = map[string][]uint{
 	},
 	"proxy_set_header": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+	},
+	"proxy_smtp_auth": {
+		ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
 	},
 	"proxy_socket_keepalive": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
