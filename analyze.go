@@ -265,13 +265,13 @@ var directives = map[string][]uint{
 	"auth_http": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 	},
-	"auth_Httpheader": {
+	"auth_http_header": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake2,
 	},
-	"auth_Httppass_client_cert": {
+	"auth_http_pass_client_cert": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
 	},
-	"auth_Httptimeout": {
+	"auth_http_timeout": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 	},
 	"auth_request": {
@@ -922,6 +922,9 @@ var directives = map[string][]uint{
 	"master_process": {
 		ngxMainConf | ngxDirectConf | ngxConfFlag,
 	},
+	"max_errors": {
+		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+	},
 	"max_ranges": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
@@ -1009,6 +1012,24 @@ var directives = map[string][]uint{
 	"open_log_file_cache": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1234,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1234,
+	},
+	"otel_exporter": {
+		ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
+	},
+	"otel_service_name": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"otel_span_attr": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+	},
+	"otel_span_name": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"otel_trace": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"otel_trace_context": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
 	"output_buffers": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
@@ -1205,6 +1226,7 @@ var directives = map[string][]uint{
 	},
 	"proxy_protocol": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+		ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
 	},
 	"proxy_protocol_timeout": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
@@ -1235,6 +1257,9 @@ var directives = map[string][]uint{
 	},
 	"proxy_set_header": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+	},
+	"proxy_smtp_auth": {
+		ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
 	},
 	"proxy_socket_keepalive": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,

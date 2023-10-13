@@ -175,6 +175,27 @@ func TestAnalyzeMapBody(t *testing.T) {
 			},
 			term: ";",
 		},
+		"valid otel_exporter": {
+			mapDirective: "otel_exporter",
+			parameter: &Directive{
+				Directive: "endpoint",
+				Args:      []string{"localhost:4317"},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term: ";",
+		},
+		"invalid otel_exporter": {
+			mapDirective: "otel_exporter",
+			parameter: &Directive{
+				Directive: "endpoint",
+				Args:      []string{"localhost:4317", "localhost:1234"},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term:    ";",
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "otel_exporter"},
+		},
 		"missing semicolon": {
 			mapDirective: "map",
 			parameter: &Directive{

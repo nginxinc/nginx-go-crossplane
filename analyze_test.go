@@ -234,7 +234,7 @@ func TestAnalyze_njs(t *testing.T) {
 			blockCtx{"http", "location"},
 			false,
 		},
-		"js_periodic not ok in http": {
+		"js_periodic not ok in http if": {
 			&Directive{
 				Directive: "js_periodic",
 				Args:      []string{"function"},
@@ -251,6 +251,15 @@ func TestAnalyze_njs(t *testing.T) {
 			},
 			blockCtx{"stream", "server"},
 			false,
+		},
+		"js_periodic not ok in stream": {
+			&Directive{
+				Directive: "js_periodic",
+				Args:      []string{"function"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
 		},
 	}
 
