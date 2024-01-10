@@ -377,6 +377,140 @@ func TestAnalyzeFlagArgs(t *testing.T) {
 	})
 }
 
+//nolint:funlen
+func TestAnalyze_zone_sync(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"zone_sync in stream server context ok": {
+			&Directive{
+				Directive: "zone_sync",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"zone_sync invalid context": {
+			&Directive{
+				Directive: "zone_sync",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"zone_sync invalid args": {
+			&Directive{
+				Directive: "zone_sync",
+				Args:      []string{"invalid"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			true,
+		},
+		"zone_sync_ssl in stream context ok": {
+			&Directive{
+				Directive: "zone_sync_ssl",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			false,
+		},
+		"zone_sync_ssl in stream server context ok": {
+			&Directive{
+				Directive: "zone_sync_ssl",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"zone_sync_ssl invalid context": {
+			&Directive{
+				Directive: "zone_sync_ssl",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"zone_sync_ssl invalid args": {
+			&Directive{
+				Directive: "zone_sync_ssl",
+				Args:      []string{"invalid"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"zone_sync_ssl_conf_command in stream context ok": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{"somename", "somevalue"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			false,
+		},
+		"zone_sync_ssl_conf_command in stream server context ok": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{"somename", "somevalue"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"zone_sync_ssl_conf_command invalid context": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{"somename", "somevalue"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"zone_sync_ssl_conf_command missing one arg": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{"somename"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			true,
+		},
+		"zone_sync_ssl_conf_command missing both args": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
 func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
