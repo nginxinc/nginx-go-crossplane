@@ -2370,6 +2370,9 @@ var directives = map[string][]uint{
 	"zone_sync_ssl_ciphers": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
+	"zone_sync_ssl_conf_command": {
+		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
+	},
 	"zone_sync_ssl_crl": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
