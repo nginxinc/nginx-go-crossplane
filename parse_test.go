@@ -491,6 +491,70 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"simple-variable-with-braces", "-ignore-directives-1", ParseOptions{IgnoreDirectives: []string{"listen", "server_name"}}, Payload{
+		Status: "ok",
+		Config: []Config{
+			{
+				File:   getTestConfigPath("simple-variable-with-braces", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "events",
+						Args:      []string{},
+						Line:      1,
+						Block: Directives{
+							{
+								Directive: "worker_connections",
+								Args:      []string{"1024"},
+								Line:      2,
+							},
+						},
+					},
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      5,
+						Block: Directives{
+							{
+								Directive: "server",
+								Args:      []string{},
+								Line:      6,
+								Block: Directives{
+									{
+										Directive: "location",
+										Args:      []string{"/proxy"},
+										Line:      9,
+										Block: Directives{
+											{
+												Directive: "set",
+												Args:      []string{"$backend_protocol", "http"},
+												Line:      10,
+											},
+											{
+												Directive: "set",
+												Args:      []string{"$backend_host", "bar"},
+												Line:      11,
+											},
+											{
+												Directive: "set",
+												Args:      []string{"$foo", ""},
+												Line:      12,
+											},
+											{
+												Directive: "proxy_pass",
+												Args:      []string{"$backend_protocol://$backend_host${foo}"},
+												Line:      13,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 	{"with-comments", "-true", ParseOptions{ParseComments: true}, Payload{
 		Status: "ok",
 		Config: []Config{
@@ -1290,7 +1354,7 @@ func TestParse(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			if !equalPayloads(*payload, fixture.expected) {
+			if !equalPayloads(t, *payload, fixture.expected) {
 				b1, _ := json.Marshal(fixture.expected)
 				b2, _ := json.Marshal(payload)
 				t.Fatalf("expected: %s\nbut got: %s", b1, b2)
@@ -1299,6 +1363,7 @@ func TestParse(t *testing.T) {
 	}
 }
 
+//nolint:errchkjson
 func TestParseVarArgs(t *testing.T) {
 	t.Parallel()
 	tcs := map[string]struct {

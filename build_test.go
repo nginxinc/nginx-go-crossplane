@@ -10,7 +10,6 @@ package crossplane
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -36,7 +35,7 @@ type compareFixture struct {
 	options ParseOptions
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var buildFixtures = []buildFixture{
 	{
 		name:    "nested-and-multiple-args",
@@ -279,7 +278,7 @@ func TestBuild(t *testing.T) {
 	}
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var buildFilesFixtures = []buildFilesFixture{
 	{
 		name:    "with-missing-status-and-errors",
@@ -332,17 +331,13 @@ func TestBuildFiles(t *testing.T) {
 		t.Run(fixture.name, func(t *testing.T) {
 			t.Parallel()
 			fixture := fixture
-			tmpdir, err := ioutil.TempDir("", "TestBuildFiles-")
-			if err != nil {
-				t.Fatal(err)
-			}
-			defer os.RemoveAll(tmpdir)
+			tmpdir := t.TempDir()
 
-			if err = BuildFiles(fixture.payload, tmpdir, &fixture.options); err != nil {
+			if err := BuildFiles(fixture.payload, tmpdir, &fixture.options); err != nil {
 				t.Fatal(err)
 			}
 
-			content, err := ioutil.ReadFile(filepath.Join(tmpdir, "nginx.conf"))
+			content, err := os.ReadFile(filepath.Join(tmpdir, "nginx.conf"))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -355,7 +350,7 @@ func TestBuildFiles(t *testing.T) {
 	}
 }
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var compareFixtures = []compareFixture{
 	{"simple", ParseOptions{}},
 	{"messy", ParseOptions{}},
@@ -367,18 +362,14 @@ var compareFixtures = []compareFixture{
 	{"empty-config", ParseOptions{}},
 }
 
-//nolint:gocognit,funlen
+//nolint:gocognit
 func TestCompareParsedAndBuilt(t *testing.T) {
 	t.Parallel()
 	for _, fixture := range compareFixtures {
 		fixture := fixture
 		t.Run(fixture.name, func(t *testing.T) {
 			t.Parallel()
-			tmpdir, err2 := ioutil.TempDir("", "TestCompareParsedAndBuilt-")
-			if err2 != nil {
-				t.Fatal(err2)
-			}
-			defer os.RemoveAll(tmpdir)
+			tmpdir := t.TempDir()
 
 			origPayload, err2 := Parse(getTestConfigPath(fixture.name, "nginx.conf"), &fixture.options)
 			if err2 != nil {
@@ -391,7 +382,7 @@ func TestCompareParsedAndBuilt(t *testing.T) {
 			}
 			build1File := filepath.Join(tmpdir, "build1.conf")
 			build1Config := build1Buffer.Bytes()
-			if err := ioutil.WriteFile(build1File, build1Config, os.ModePerm); err != nil {
+			if err := os.WriteFile(build1File, build1Config, os.ModePerm); err != nil {
 				t.Fatal(err)
 			}
 			build1Payload, err2 := Parse(build1File, &fixture.options)
@@ -399,7 +390,7 @@ func TestCompareParsedAndBuilt(t *testing.T) {
 				t.Fatal(err2)
 			}
 
-			if !equalPayloads(*origPayload, *build1Payload) {
+			if !equalPayloads(t, *origPayload, *build1Payload) {
 				b1, _ := json.Marshal(origPayload)
 				b2, _ := json.Marshal(build1Payload)
 				if string(b1) != string(b2) {
@@ -413,7 +404,7 @@ func TestCompareParsedAndBuilt(t *testing.T) {
 			}
 			build2File := filepath.Join(tmpdir, "build2.conf")
 			build2Config := build2Buffer.Bytes()
-			if err := ioutil.WriteFile(build2File, build2Config, os.ModePerm); err != nil {
+			if err := os.WriteFile(build2File, build2Config, os.ModePerm); err != nil {
 				t.Fatal(err)
 			}
 			build2Payload, err2 := Parse(build2File, &fixture.options)
@@ -421,7 +412,7 @@ func TestCompareParsedAndBuilt(t *testing.T) {
 				t.Fatal(err2)
 			}
 
-			if !equalPayloads(*build1Payload, *build2Payload) {
+			if !equalPayloads(t, *build1Payload, *build2Payload) {
 				b1, _ := json.Marshal(build1Payload)
 				b2, _ := json.Marshal(build2Payload)
 				if string(b1) != string(b2) {
@@ -432,13 +423,13 @@ func TestCompareParsedAndBuilt(t *testing.T) {
 	}
 }
 
-func equalPayloads(p1, p2 Payload) bool {
+func equalPayloads(t *testing.T, p1, p2 Payload) bool {
 	return p1.Status == p2.Status &&
-		equalPayloadErrors(p1.Errors, p2.Errors) &&
+		equalPayloadErrors(t, p1.Errors, p2.Errors) &&
 		equalPayloadConfigs(p1.Config, p2.Config)
 }
 
-func equalPayloadErrors(e1, e2 []PayloadError) bool {
+func equalPayloadErrors(t *testing.T, e1, e2 []PayloadError) bool {
 	if len(e1) != len(e2) {
 		return false
 	}
@@ -447,8 +438,8 @@ func equalPayloadErrors(e1, e2 []PayloadError) bool {
 			(e1[i].Error != nil && e2[i].Error != nil && e1[i].Error.Error() != e2[i].Error.Error()) ||
 			(e1[i].Line == nil) != (e2[i].Line == nil) ||
 			(e1[i].Line != nil && *e1[i].Line != *e2[i].Line) {
-			println(e1[i].Error.Error())
-			println(e2[i].Error.Error())
+			t.Log(e1[i].Error.Error())
+			t.Log(e2[i].Error.Error())
 			return false
 		}
 	}

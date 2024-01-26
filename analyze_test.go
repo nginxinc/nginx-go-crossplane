@@ -172,7 +172,7 @@ func TestAnalyze_auth_jwt_require(t *testing.T) {
 	}
 }
 
-//nolint:exhaustruct
+//nolint:exhaustruct,funlen
 func TestAnalyze_njs(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -225,6 +225,42 @@ func TestAnalyze_njs(t *testing.T) {
 			blockCtx{"http", "server", "if"},
 			true,
 		},
+		"js_periodic ok in http": {
+			&Directive{
+				Directive: "js_periodic",
+				Args:      []string{"function"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"js_periodic not ok in http if": {
+			&Directive{
+				Directive: "js_periodic",
+				Args:      []string{"function"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "if"},
+			true,
+		},
+		"js_periodic ok in stream": {
+			&Directive{
+				Directive: "js_periodic",
+				Args:      []string{"function"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"js_periodic not ok in stream": {
+			&Directive{
+				Directive: "js_periodic",
+				Args:      []string{"function"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
 	}
 
 	for name, tc := range testcases {
@@ -232,7 +268,6 @@ func TestAnalyze_njs(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
-
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
 			}
@@ -340,6 +375,140 @@ func TestAnalyzeFlagArgs(t *testing.T) {
 			}
 		}
 	})
+}
+
+//nolint:funlen
+func TestAnalyze_zone_sync(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"zone_sync in stream server context ok": {
+			&Directive{
+				Directive: "zone_sync",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"zone_sync invalid context": {
+			&Directive{
+				Directive: "zone_sync",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"zone_sync invalid args": {
+			&Directive{
+				Directive: "zone_sync",
+				Args:      []string{"invalid"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			true,
+		},
+		"zone_sync_ssl in stream context ok": {
+			&Directive{
+				Directive: "zone_sync_ssl",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			false,
+		},
+		"zone_sync_ssl in stream server context ok": {
+			&Directive{
+				Directive: "zone_sync_ssl",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"zone_sync_ssl invalid context": {
+			&Directive{
+				Directive: "zone_sync_ssl",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"zone_sync_ssl invalid args": {
+			&Directive{
+				Directive: "zone_sync_ssl",
+				Args:      []string{"invalid"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"zone_sync_ssl_conf_command in stream context ok": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{"somename", "somevalue"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			false,
+		},
+		"zone_sync_ssl_conf_command in stream server context ok": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{"somename", "somevalue"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"zone_sync_ssl_conf_command invalid context": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{"somename", "somevalue"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"zone_sync_ssl_conf_command missing one arg": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{"somename"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			true,
+		},
+		"zone_sync_ssl_conf_command missing both args": {
+			&Directive{
+				Directive: "zone_sync_ssl_conf_command",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
 }
 
 func TestAnalyze_nap_app_protect_enable(t *testing.T) {
@@ -1047,6 +1216,213 @@ func TestAnalyze_nap_app_protect_reconnect_period_seconds(t *testing.T) {
 				Line:      5,
 			},
 			blockCtx{"http"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+//nolint:funlen
+func TestAnalyze_http3(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"http3 ok": {
+			&Directive{
+				Directive: "http3",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"http3 not ok": {
+			&Directive{
+				Directive: "http3",
+				Args:      []string{"somevalue"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"http3_hq ok": {
+			&Directive{
+				Directive: "http3_hq",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"http3_hq not ok": {
+			&Directive{
+				Directive: "http3_hq",
+				Args:      []string{"somevalue"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"http3_max_concurrent_streams ok": {
+			&Directive{
+				Directive: "http3_max_concurrent_streams",
+				Args:      []string{"10"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"http3_max_concurrent_streams not ok": {
+			&Directive{
+				Directive: "http3_max_concurrent_streams",
+				Args:      []string{"10"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"http3_stream_buffer_size ok": {
+			&Directive{
+				Directive: "http3_stream_buffer_size",
+				Args:      []string{"128k"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"http3_stream_buffer_size not ok": {
+			&Directive{
+				Directive: "http3_stream_buffer_size",
+				Args:      []string{"128k"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+//nolint:funlen
+func TestAnalyze_quic(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"quic_active_connection_id_limit ok": {
+			&Directive{
+				Directive: "quic_active_connection_id_limit",
+				Args:      []string{"2"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"quic_active_connection_id_limit not ok": {
+			&Directive{
+				Directive: "quic_active_connection_id_limit",
+				Args:      []string{"2"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"quic_bpf ok": {
+			&Directive{
+				Directive: "quic_bpf",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"main"},
+			false,
+		},
+		"quic_bpf not ok": {
+			&Directive{
+				Directive: "quic_bpf",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"quic_gso ok": {
+			&Directive{
+				Directive: "quic_gso",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"quic_gso not ok": {
+			&Directive{
+				Directive: "quic_gso",
+				Args:      []string{"somevalue"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"quic_host_key ok": {
+			&Directive{
+				Directive: "http3_max_concurrent_streams",
+				Args:      []string{"somefile"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"quic_retry ok": {
+			&Directive{
+				Directive: "quic_retry",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"quic_retry not ok": {
+			&Directive{
+				Directive: "quic_retry",
+				Args:      []string{"somevalue"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
 			true,
 		},
 	}
