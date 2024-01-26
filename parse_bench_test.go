@@ -92,12 +92,12 @@ func benchmarkParseLargeConfig(b *testing.B, sz int) {
 	}
 }
 
-func TestMain(b *testing.M) {
-	b.Run()
+func TestMain(m *testing.M) {
+	code := m.Run()
 	if rm != nil {
 		rm()
 	}
-	os.Exit(0)
+	os.Exit(code)
 }
 
 func BenchmarkParseLargeConfig_Slow_TokBuf_0(b *testing.B)   { benchmarkParseLargeConfig(b, 0) }
