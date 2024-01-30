@@ -93,6 +93,9 @@ type ParseOptions struct {
 
 	// If true, checks that directives have a valid number of arguments.
 	SkipDirectiveArgsCheck bool
+
+	// Specifies a root configuration file (e.g. nginx.conf) for acyclic check.
+	RootConfFile string
 }
 
 // Parse parses an NGINX configuration file.
@@ -169,10 +172,14 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		payload.Config = append(payload.Config, config)
 	}
 
-	if p.isAcyclic() {
-		return nil, errors.New("configs contain include cycle")
+	// acyclic check if no root conf file specified (default) or filename being parsed matches
+	if len(p.options.RootConfFile) == 0 || strings.EqualFold(filename, p.options.RootConfFile) {
+		if p.isAcyclic() {
+			return nil, errors.New("configs contain include cycle")
+		}
 	}
 
+	// do not allow combine configs if skipped acyclic check
 	if options.CombineConfigs {
 		return payload.Combined()
 	}
