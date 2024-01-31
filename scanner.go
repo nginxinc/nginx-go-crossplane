@@ -58,6 +58,7 @@ type Scanner struct {
 	tokenDepth         int
 	repeateSpecialChar bool //  only '}' can be repeated
 	prev               string
+	err                error
 }
 
 // NewScanner returns a new Scanner to read from r.
@@ -75,6 +76,20 @@ func NewScanner(r io.Reader) *Scanner {
 	return s
 }
 
+// Err returns the first non-EOF error that was encountered by the Scanner.
+func (s *Scanner) Err() error {
+	if s.err == io.EOF {
+		return nil
+	}
+	return s.err
+}
+
+func (s *Scanner) setErr(err error) {
+	if s.err == nil || s.err != io.EOF {
+		s.err = err
+	}
+}
+
 // Scan reads the next token from source and returns it.. It returns io.EOF at the end of the source. Scanner errors are
 // returned when encountered.
 func (s *Scanner) Scan() (Token, error) { //nolint: funlen, gocognit, gocyclo
@@ -88,10 +103,13 @@ func (s *Scanner) Scan() (Token, error) { //nolint: funlen, gocognit, gocyclo
 	var r, quote string
 
 	for {
+		if s.err != nil {
+			return Token{}, s.err
+		}
+
 		switch {
 		case s.prev != "":
-			r = s.prev
-			s.prev = ""
+			r, s.prev = s.prev, ""
 		case readNext:
 			if !s.scanner.Scan() {
 				if tok.Len() > 0 {
@@ -99,10 +117,12 @@ func (s *Scanner) Scan() (Token, error) { //nolint: funlen, gocognit, gocyclo
 				}
 
 				if s.tokenDepth > 0 {
-					return Token{}, &scannerError{line: s.tokenStartLine, msg: "unexpected end of file, expecting }"}
+					s.setErr(&scannerError{line: s.tokenStartLine, msg: "unexpected end of file, expecting }"})
+					return Token{}, s.err
 				}
 
-				return Token{}, io.EOF
+				s.setErr(io.EOF)
+				return Token{}, s.err
 			}
 
 			nextRune := s.scanner.Text()
@@ -185,7 +205,8 @@ func (s *Scanner) Scan() (Token, error) { //nolint: funlen, gocognit, gocyclo
 
 				// only } can be repeated
 				if s.repeateSpecialChar && r != "}" {
-					return Token{}, newScannerErrf(s.tokenStartLine, "unxpected %q", r)
+					s.setErr(newScannerErrf(s.tokenStartLine, "unxpected %q", r))
+					return Token{}, s.err
 				}
 
 				s.repeateSpecialChar = true
@@ -196,7 +217,8 @@ func (s *Scanner) Scan() (Token, error) { //nolint: funlen, gocognit, gocyclo
 				if r == "}" {
 					s.tokenDepth--
 					if s.tokenDepth < 0 {
-						return Token{}, &scannerError{line: s.tokenStartLine, msg: `unexpected "}"`}
+						s.setErr(&scannerError{line: s.tokenStartLine, msg: `unexpected "}"`})
+						return Token{}, s.err
 					}
 				}
 

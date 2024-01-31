@@ -1,6 +1,7 @@
 package crossplane
 
 import (
+	"errors"
 	"io"
 	"os"
 	"strings"
@@ -66,7 +67,16 @@ func TestScanner_unhappy(t *testing.T) {
 
 				if err != nil {
 					t.Logf("got error: %v", err)
-					return
+
+					if gotErr := s.Err(); !errors.Is(gotErr, err) {
+						t.Fatalf("error do not match: have=%+v, want=%+v", gotErr, err)
+					}
+
+					if _, gotErr := s.Scan(); !errors.Is(gotErr, err) {
+						t.Fatalf("error after scan does not match: have=%+v, want=%+v", gotErr, err)
+					}
+
+					break
 				}
 			}
 		})
