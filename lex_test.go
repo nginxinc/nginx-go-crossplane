@@ -252,22 +252,53 @@ func TestLex(t *testing.T) {
 	}
 }
 
+var lexToken NgxToken //nolint: gochecknoglobals // trying to avoid return value being optimzed away
+
+func BenchmarkLex(b *testing.B) {
+	var t NgxToken
+
+	for _, bm := range lexFixtures {
+		b.Run(bm.name, func(b *testing.B) {
+			path := getTestConfigPath(bm.name, "nginx.conf")
+			file, err := os.Open(path)
+			if err != nil {
+				b.Fatal(err)
+			}
+			defer file.Close()
+			b.ResetTimer()
+
+			for i := 0; i < b.N; i++ {
+				if _, err := file.Seek(0, 0); err != nil {
+					b.Fatal(err)
+				}
+
+				for tok := range Lex(file) {
+					t = tok
+				}
+			}
+		})
+	}
+
+	lexToken = t
+}
+
+//nolint:gochecknoglobals
+var unhappyFixtures = map[string]string{
+	"unbalanced open brance":                  `http {{}`,
+	"unbalanced closing brace":                `http {}}`,
+	"multiple open braces":                    `http {{server {}}`,
+	"multiple closing braces after block end": `http {server {}}}`,
+	"multiple semicolons":                     `server { listen 80;; }`,
+	"semicolon afer closing brace":            `server { listen 80; };`,
+	"open brace after semicolon":              `server { listen 80; {}`,
+	"braces with no directive":                `http{}{}`,
+	"missing final brace":                     `http{`,
+}
+
 func TestLex_unhappy(t *testing.T) {
 	t.Parallel()
 
-	testcases := map[string]string{
-		"unbalanced open brance":                  `http {{}`,
-		"unbalanced closing brace":                `http {}}`,
-		"multiple open braces":                    `http {{server {}}`,
-		"multiple closing braces after block end": `http {server {}}}`,
-		"multiple semicolons":                     `server { listen 80;; }`,
-		"semicolon afer closing brace":            `server { listen 80; };`,
-		"open brace after semicolon":              `server { listen 80; {}`,
-		"braces with no directive":                `http{}{}`,
-		"missing final brace":                     `http{`,
-	}
-
-	for name, c := range testcases {
+	for name, c := range unhappyFixtures {
 		c := c
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
