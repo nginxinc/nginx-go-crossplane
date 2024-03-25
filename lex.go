@@ -29,6 +29,8 @@ const (
 	inComment
 	inVar
 	inQuote
+	inLua
+	inLuaState
 )
 
 const TokenChanCap = 2048
@@ -43,6 +45,7 @@ var tokChanCap = TokenChanCap // capacity of lexer token channel
 func SetTokenChanCap(size int) {
 	tokChanCap = size
 }
+
 func Lex(reader io.Reader) chan NgxToken {
 	tc := make(chan NgxToken, tokChanCap)
 	go tokenize(reader, tc)
@@ -60,6 +63,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 	dupSpecialChar := false
 	readNext := true
 	esc := false
+	// inLuaBlock := false
 	depth := 0
 	var la, quote string
 
@@ -110,6 +114,17 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 			}
 			continue
 		case inWord:
+			// if la == "init_by_lua_block" {
+			// 	emit(tokenStartLine, false, nil)
+			// 	// if strings.Contains(la, "_by_lua_block") {
+			// 	// inLuaBlock = true
+			// 	lexState = inLua
+			// 	// tokenStartLine = tokenLine
+			// 	// readNext = false
+			// 	token.Reset() // start a new token for lua block content
+			// 	depth = 1     // start tracking {} for lua block content
+			// }
+
 			if newToken {
 				newToken = false
 				if la == "#" {
@@ -117,6 +132,30 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 					lexState = inComment
 					tokenStartLine = tokenLine
 					continue
+				}
+				// handle lua blocks
+				// if strings.Contains(la, "_by_lua_block") {
+				// 	token.WriteString(la)
+				// 	lexState = inLua
+				// 	newToken = true
+
+				// 	readNext = false
+				// 	tokenStartLine = tokenLine
+				// 	token.Reset()
+				// 	continue
+				// }
+
+				if token.String() == "init_by_lua_block" && la == "{" {
+					emit(tokenStartLine, false, nil)
+					// if strings.Contains(la, "_by_lua_block") {
+					// inLuaBlock = true
+					// token.WriteString(la)
+					lexState = inLua
+					// tokenStartLine = tokenLine
+					// continue
+					// readNext = false
+					token.Reset() // start a new token for lua block content
+					depth = 1     // start tracking {} for lua block content
 				}
 			}
 
@@ -214,6 +253,50 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 				la = quote
 			}
 			token.WriteString(la)
+
+		case inLuaState:
+			if la == "{" {
+				lexState = inLua
+			} else {
+				token.WriteString(la)
+			}
+		case inLua:
+			// if la == "{" {
+			// 	depth++
+			// }
+			if la == "{" || la == "}" || isEOL(la) {
+				continue
+			}
+			token.WriteString(la)
+			// if la == "}" {
+			// 	// if token.Len() > 0 {
+			// 	// 	emit(tokenStartLine, false, nil)
+			// 	// }
+			// 	// inLuaBlock = false
+			// 	token.WriteString(la)
+			// 	emit(tokenStartLine, false, nil)
+			// 	continue
+			// 	// 	depth--
+			// 	// 	// token.WriteString(la)
+			// 	// 	if depth == 0 {
+			// 	// 		emit(tokenStartLine, false, nil)
+			// 	// 		// lexState = skipSpace
+			// 	// 		// token.Reset()
+			// 	// 		// continue
+			// 	// 	}
+			// }
+			// if la == "{" || la == "}" || isEOL(la) {
+			// 	continue
+			// }
+			token.WriteString(la)
+			if la == "}" && depth == 1 {
+				emit(tokenStartLine, false, nil)
+				lexState = skipSpace
+			} else if la == "{" {
+				depth++
+			} else if la == "}" {
+				depth--
+			}
 		}
 	}
 
@@ -221,7 +304,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken) {
 		emit(tokenStartLine, lexState == inQuote, nil)
 	}
 	if depth > 0 {
-		emit(tokenStartLine, false, &ParseError{File: &lexerFile, What: `unexpected end of file, expecting "}"`, Line: &tokenLine})
+		emit(tokenStartLine, false, &ParseError{File: &lexerFile, What: `unexpected end of file, expecting "}" +1`, Line: &tokenLine})
 	}
 
 	close(tokenCh)

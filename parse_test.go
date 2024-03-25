@@ -1341,6 +1341,130 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"lua-block-simple", "", ParseOptions{ErrorOnUnknownDirectives: true}, Payload{
+		Status: "ok",
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-simple", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      1,
+						Block: Directives{
+							{
+								Directive: "init_by_lua_block",
+								Args:      []string{"\n        print(\"Lua block code with curly brace str {\")\n    "},
+								Line:      2,
+								Block:     Directives{},
+							},
+							{
+								Directive: "init_worker_by_lua_block",
+								Args:      []string{"\n        print(\"Work that every worker\")\n    "},
+								Line:      5,
+								Block:     Directives{},
+							},
+							{
+								Directive: "body_filter_by_lua_block",
+								Args:      []string{"\n        local data, eof = ngx.arg[1], ngx.arg[2]\n    "},
+								Line:      8,
+								Block:     Directives{},
+							},
+							{
+								Directive: "header_filter_by_lua_block",
+								Args:      []string{"\n        ngx.header[\"content-length\"] = nil\n    "},
+								Line:      11,
+								Block:     Directives{},
+							},
+							{
+								Directive: "server",
+								Args:      []string{},
+								Line:      14,
+								Block: Directives{
+									{
+										Directive: "listen",
+										Args:      []string{"127.0.0.1:8080"},
+										Line:      15,
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Args:      []string{"/"},
+										Line:      16,
+										Block: Directives{
+											{
+												Directive: "content_by_lua_block",
+												Args:      []string{"\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            "},
+												Line:      17,
+												Block:     Directives{},
+											},
+											{
+												Directive: "return",
+												Args:      []string{"200", "foo bar baz"},
+												Line:      20,
+												Block:     Directives{},
+											},
+										},
+									},
+									{
+										Directive: "ssl_certificate_by_lua_block",
+										Args:      []string{"\n            print(\"About to initiate a new SSL handshake!\")\n        "},
+										Line:      22,
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Args:      []string{"/a"},
+										Line:      25,
+										Block: Directives{
+											{
+												Directive: "client_max_body_size",
+												Args:      []string{"100k"},
+												Line:      26,
+												Block:     Directives{},
+											},
+											{
+												Directive: "client_body_buffer_size",
+												Args:      []string{"100k"},
+												Line:      27,
+												Block:     Directives{},
+											},
+										},
+									},
+								},
+							},
+							{
+								Directive: "upstream",
+								Args:      []string{"foo"},
+								Line:      31,
+								Block: Directives{
+									{
+										Directive: "server",
+										Args:      []string{"127.0.0.1"},
+										Line:      32,
+										Block:     Directives{},
+									},
+									{
+										Directive: "balancer_by_lua_block",
+										Args:      []string{"\n            -- use Lua to do something interesting here\n        "},
+										Line:      33,
+										Block:     Directives{},
+									},
+									{
+										Directive: "log_by_lua_block",
+										Args:      []string{"\n            print(\"I need no extra escaping here, for example: \\r\\nblah\")\n        "},
+										Line:      36,
+										Block:     Directives{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {

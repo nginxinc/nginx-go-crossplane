@@ -2440,4 +2440,267 @@ var directives = map[string][]uint{
 	"app_protect_user_defined_signatures": {
 		ngxHTTPMainConf | ngxConfTake1,
 	},
+
+	// Lua directives
+	// https://github.com/openresty/lua-nginx-module/tree/master?tab=readme-ov-file#directives
+	"lua_capture_error_log": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_use_default_type": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
+	},
+	"lua_malloc_trim": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_code_cache": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
+	},
+	"lua_thread_cache_max_entries": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_regex_cache_max_entries": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_regex_match_limit": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_package_path": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_package_cpath": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	// string parse error
+	"init_by_lua": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	// script parse error
+	"init_by_lua_block": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"init_by_lua_file": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	// script parse error
+	"init_worker_by_lua": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	// script parse error
+	"init_worker_by_lua_block": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"init_worker_by_lua_file": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	// script parse error
+	"exit_worker_by_lua_block": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"exit_worker_by_lua_file": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	// string
+	// ngxConfAny???
+	"set_by_lua": {
+		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfAny,
+	},
+	// script parse error
+	"set_by_lua_block": {
+		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	"set_by_lua_file": {
+		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// script parse error
+	"content_by_lua": {
+		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// script parse error
+	"content_by_lua_block": {
+		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	"content_by_lua_file": {
+		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// script parse error
+	"server_rewrite_by_lua_block": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
+	"server_rewrite_by_lua_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
+	// script parse error
+	"rewrite_by_lua": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// script parse error
+	"rewrite_by_lua_block": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	"rewrite_by_lua_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// string parse error
+	"access_by_lua": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// script parse error
+	"access_by_lua_block": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	"access_by_lua_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// string parse error
+	"header_filter_by_lua": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// script parse error
+	"header_filter_by_lua_block": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	"header_filter_by_lua_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// string parse error
+	"body_filter_by_lua": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// string parse error
+	"body_filter_by_lua_block": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	"body_filter_by_lua_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// string parse error
+	"log_by_lua": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// script parse erro
+	"log_by_lua_block": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	"log_by_lua_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+	},
+	// script parse error
+	//? stream
+	"balancer_by_lua_block": {
+		ngxHTTPUpsConf | ngxConfTake1,
+		ngxStreamUpsConf | ngxConfTake1,
+	},
+	"balancer_by_lua_file": {
+		ngxHTTPUpsConf | ngxConfTake1,
+		ngxStreamUpsConf | ngxConfTake1,
+	},
+	"lua_need_request_body": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
+	},
+	// script parse error
+	"ssl_client_hello_by_lua_block": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
+	"ssl_client_hello_by_lua_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+	},
+	// script parse error
+	"ssl_certificate_by_lua_block": {
+		ngxHTTPSrvConf | ngxConfTake1,
+	},
+	"ssl_certificate_by_lua_file": {
+		ngxHTTPSrvConf | ngxConfTake1,
+	},
+	// script parse error
+	"ssl_session_fetch_by_lua_block": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"ssl_session_fetch_by_lua_file": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	// script parse error
+	"ssl_session_store_by_lua_block": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"ssl_session_store_by_lua_file": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_shared_dict": {
+		ngxHTTPMainConf | ngxConfTake2,
+	},
+	"lua_socket_connect_timeout": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_socket_send_timeout": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_socket_send_lowat": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_socket_read_timeout": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_socket_buffer_size": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_socket_pool_size": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_socket_keepalive_timeout": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_socket_log_errors": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
+	},
+	"lua_ssl_ciphers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_ssl_crl": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_ssl_protocols": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_ssl_certificate": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_ssl_certificate_key": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_ssl_trusted_certificate": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_ssl_verify_depth": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_ssl_conf_command": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"lua_http10_buffering": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
+	},
+	"rewrite_by_lua_no_postpone": {
+		ngxHTTPMainConf | ngxConfFlag,
+	},
+	"access_by_lua_no_postpone": {
+		ngxHTTPMainConf | ngxConfFlag,
+	},
+	"lua_transform_underscores_in_response_headers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
+	},
+	"lua_check_client_abort": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
+	},
+	"lua_max_pending_timers": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_max_running_timers": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"lua_sa_restart": {
+		ngxHTTPMainConf | ngxConfFlag,
+	},
+	"lua_worker_thread_vm_pool_size": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
 }

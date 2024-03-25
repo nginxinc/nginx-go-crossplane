@@ -1443,3 +1443,164 @@ func TestAnalyze_quic(t *testing.T) {
 		})
 	}
 }
+//nolint:funlen
+func TestAnalyze_lua(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"init_by_lua ok": {
+			&Directive{
+				Directive: "init_by_lua",
+				Args:      []string{"some strings"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"init_by_lua_block ok": {
+			&Directive{
+				Directive: "init_by_lua_block",
+				Args:      []string{ "{local dogs = ngx.shared.dogs dogs:set('Tom', 56)}"},
+				Line:      5,
+			},
+			blockCtx{"location", "location if"},
+			false,
+		},
+		"init_by_lua_file ok": {
+			&Directive{
+				Directive: "init_by_lua_file",
+				Args:      []string{"foo/bar.lua"},
+				Line:      5,
+			},
+			blockCtx{"location", "location if"},
+			false,
+		},
+		"set_by_lua ok": {
+			&Directive{
+				Directive: "set_by_lua",
+				Args:      []string{" $res ' return 32 + math.cos(32) '"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "server if", "location", "location if"},
+			false,
+		},
+		"set_by_lua_block ok": {
+			&Directive{
+				Directive: "set_by_lua_block",
+				Args:      []string{"$bar { return tonumber(ngx.var.foo) + 1 }"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "server if", "location", "location if"},
+			false,
+		},
+		"set_by_lua_file ok": {
+			&Directive{
+				Directive: "set_by_lua_file",
+				Args:      []string{"$res <path-to-lua-script-file> "},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "server if", "location", "location if"},
+			false,
+		},
+		"content_by_lua ok": {
+			&Directive{
+				Directive: "content_by_lua",
+				Args:      []string{"'ngx.say('I need no extra escaping here, for example: \r\nblah')"},
+				Line:      5,
+			},
+			blockCtx{"http",  "location", "location if"},
+			false,
+		},
+		"content_by_lua_block ok": {
+			&Directive{
+				Directive: "content_by_lua_block",
+				Args:      []string{"{ngx.say(`I need no extra escaping here, for example: \r\nblah`)}"},
+				Line:      5,
+			},
+			blockCtx{"http", "location","location if"},
+			false,
+		},
+		"content_by_lua_file ok": {
+			&Directive{
+				Directive: "content_by_lua_file",
+				Args:      []string{"/path/to/lua/app/root/$path.lua"},
+				Line:      5,
+			},
+			blockCtx{"http", "location","location if"},
+			false,
+		},
+		"server_rewrite_by_lua_blockk": {
+			&Directive{
+				Directive: "server_rewrite_by_lua_block",
+				Args:      []string{"{ngx.ctx.a = `server_rewrite_by_lua_block in http`}"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"access_by_lua ok": {
+			&Directive{
+				Directive: "access_by_lua",
+				Args:      []string{"'do_something(`hello, world!\nhiya\n`)';"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "location","location if"},
+			false,
+		},
+		"access_by_lua_block ok": {
+			&Directive{
+				Directive: "access_by_lua_block",
+				Args:      []string{"{local res = ngx.location.capture`/auth`)}"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "location","location if"},
+			false,
+		},
+		"ssl_certificate_by_lua_block ok": {
+			&Directive{
+				Directive: "ssl_certificate_by_lua_block",
+				Args:      []string{"{ print(`About to initiate a new SSL handshake!`)}"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "location","location if"},
+			false,
+		},
+		"lua_shared_dict ok": {
+			&Directive{
+				Directive: "lua_shared_dict",
+				Args:      []string{"dogs", "10m"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"lua_sa_restart ok": {
+			&Directive{
+				Directive: "lua_sa_restart",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
