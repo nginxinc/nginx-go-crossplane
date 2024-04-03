@@ -94,6 +94,14 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 	masks, knownDirective := directives[stmt.Directive]
 	currCtx, knownContext := contexts[ctx.key()]
 
+	if !knownDirective {
+		for _, matchFn := range options.MatchFuncs {
+			if masks, knownDirective = matchFn(stmt.Directive); knownDirective {
+				break
+			}
+		}
+	}
+
 	// if strict and directive isn't recognized then throw error
 	if options.ErrorOnUnknownDirectives && !knownDirective {
 		return &ParseError{
@@ -2401,9 +2409,11 @@ var directives = map[string][]uint{
 	"zone_sync_timeout": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
+}
 
-	// nginx app protect specific and global directives
-	// [https://docs.nginx.com/nginx-app-protect/configuration-guide/configuration/#directives]
+// nginx app protect specific and global directives
+// [https://docs.nginx.com/nginx-app-protect/configuration-guide/configuration/#directives]
+var appProtectWAFv4Directives = map[string][]uint{
 	"app_protect_compressed_requests_action": {
 		ngxHTTPMainConf | ngxConfTake1,
 	},
@@ -2440,4 +2450,59 @@ var directives = map[string][]uint{
 	"app_protect_user_defined_signatures": {
 		ngxHTTPMainConf | ngxConfTake1,
 	},
+}
+
+// MatchAppProtectWAFv4 is a match function for parsing an NGINX config that contains the
+// App Protect v4 module.
+func MatchAppProtectWAFv4(directive string) (masks []uint, matched bool) {
+	masks, matched = appProtectWAFv4Directives[directive]
+	return
+}
+
+var appProtectWAFv5Directives = map[string][]uint{
+	// https://docs.nginx.com/nginx-app-protect-waf/v5/configuration-guide/configuration/#global-directives
+	"app_protect_physical_memory_util_thresholds": {
+		ngxHTTPMainConf | ngxConfTake2,
+	},
+	"app_protect_cpu_thresholds": {
+		ngxHTTPMainConf | ngxConfTake2,
+	},
+	"app_protect_failure_mode_action": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_cookie_seed": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_request_buffer_overflow_action": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_reconnect_period_seconds": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	// https://docs.nginx.com/nginx-app-protect-waf/v5/configuration-guide/configuration/#app-protect-specific-directives
+	"app_protect_enforcer_address": {
+		ngxHTTPMainConf | ngxConfTake1,
+	},
+	"app_protect_enable": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
+	},
+	"app_protect_policy_file": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"app_protect_security_log_enable": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
+	},
+	"app_protect_security_log": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+	},
+	"app_protect_custom_log_attribute": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLmtConf | ngxConfTake2,
+	},
+}
+
+// MatchAppProtectWAFv5 is a match function for parsing an NGINX config that contains the
+// App Protect v5 module.
+func MatchAppProtectWAFv5(directive string) (masks []uint, matched bool) {
+	masks, matched = appProtectWAFv5Directives[directive]
+	return
 }
