@@ -560,7 +560,9 @@ func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -622,7 +624,9 @@ func TestAnalyze_nap_app_protect_security_log_enable(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -675,7 +679,9 @@ func TestAnalyze_nap_app_protect_security_log(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -728,7 +734,9 @@ func TestAnalyze_nap_app_protect_policy_file(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -790,7 +798,9 @@ func TestAnalyze_nap_app_protect_physical_memory_util_thresholds(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -852,7 +862,9 @@ func TestAnalyze_nap_app_protect_cpu_thresholds(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -914,7 +926,9 @@ func TestAnalyze_nap_app_protect_failure_mode_action(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -976,7 +990,9 @@ func TestAnalyze_nap_app_protect_cookie_seed(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -1038,7 +1054,9 @@ func TestAnalyze_nap_app_protect_compressed_requests_action(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -1100,7 +1118,9 @@ func TestAnalyze_nap_app_protect_request_buffer_overflow_action(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -1162,7 +1182,9 @@ func TestAnalyze_nap_app_protect_user_defined_signatures(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -1224,7 +1246,9 @@ func TestAnalyze_nap_app_protect_reconnect_period_seconds(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
