@@ -415,6 +415,20 @@ var lexFixtures = []lexFixture{
 		{"}", 20},
 		{"}", 21},
 	}},
+	{"comments-between-args", []tokenLine{
+		{"http", 1},
+		{"{", 1},
+		{"#comment 1", 1},
+		{"log_format", 2},
+		{"#comment 2", 2},
+		{"\\#arg\\ 1", 3},
+		{"#comment 3", 3},
+		{"#arg 2", 4},
+		{"#comment 4", 4},
+		{"#comment 5", 5},
+		{";", 6},
+		{"}", 7},
+	}},
 }
 
 func TestLex(t *testing.T) {

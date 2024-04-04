@@ -241,7 +241,7 @@ func (s *Scanner) Scan() (Token, error) { //nolint: funlen, gocognit, gocyclo
 			lexState = inWord
 		case inQuote:
 			if r == quote {
-				return Token{Text: tok.String(), Line: s.tokenStartLine}, nil
+				return Token{Text: tok.String(), Line: s.tokenStartLine, IsQuoted: true}, nil
 			}
 			if r == "\\"+quote {
 				r = quote
