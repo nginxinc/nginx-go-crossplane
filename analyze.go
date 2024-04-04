@@ -2413,6 +2413,8 @@ var directives = map[string][]uint{
 
 // nginx app protect specific and global directives
 // [https://docs.nginx.com/nginx-app-protect/configuration-guide/configuration/#directives]
+//
+//nolint:gochecknoglobals
 var appProtectWAFv4Directives = map[string][]uint{
 	"app_protect_compressed_requests_action": {
 		ngxHTTPMainConf | ngxConfTake1,
@@ -2454,11 +2456,12 @@ var appProtectWAFv4Directives = map[string][]uint{
 
 // MatchAppProtectWAFv4 is a match function for parsing an NGINX config that contains the
 // App Protect v4 module.
-func MatchAppProtectWAFv4(directive string) (masks []uint, matched bool) {
-	masks, matched = appProtectWAFv4Directives[directive]
-	return
+func MatchAppProtectWAFv4(directive string) ([]uint, bool) {
+	masks, matched := appProtectWAFv4Directives[directive]
+	return masks, matched
 }
 
+//nolint:gochecknoglobals
 var appProtectWAFv5Directives = map[string][]uint{
 	// https://docs.nginx.com/nginx-app-protect-waf/v5/configuration-guide/configuration/#global-directives
 	"app_protect_physical_memory_util_thresholds": {
@@ -2502,7 +2505,7 @@ var appProtectWAFv5Directives = map[string][]uint{
 
 // MatchAppProtectWAFv5 is a match function for parsing an NGINX config that contains the
 // App Protect v5 module.
-func MatchAppProtectWAFv5(directive string) (masks []uint, matched bool) {
-	masks, matched = appProtectWAFv5Directives[directive]
-	return
+func MatchAppProtectWAFv5(directive string) ([]uint, bool) {
+	masks, matched := appProtectWAFv5Directives[directive]
+	return masks, matched
 }
