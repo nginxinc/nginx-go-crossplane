@@ -8,6 +8,8 @@
 package crossplane
 
 import (
+	"encoding/json"
+	"io"
 	"os"
 	"strings"
 	"testing"
@@ -312,4 +314,62 @@ func TestLex_unhappy(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestLex_lua(t *testing.T) {
+	t.Parallel()
+
+	r := strings.NewReader(`http {
+		server {
+			location / {
+				content_by_lua_block {
+					ngx.say('Hello, world!')
+				}
+				return 200, "OK";
+			}
+			listen 8080; # check that lua hasn't messed up context/depth and lineno
+		}
+	}`)
+
+	options := LexOptions{
+		ExternalLexers: []ExtLexer{
+			&LuaLexer{},
+		},
+	}
+
+	for tok := range LexWithOptions(r, options) {
+		t.Logf("{%q, %d}", tok.Value, tok.Line)
+	}
+}
+
+func TestParse_lua(t *testing.T) {
+	t.Parallel()
+
+	r := strings.NewReader(`http {
+		server {
+			location / {
+				content_by_lua_block {
+					ngx.say('Hello, world!')
+				}
+				return 200, "OK";
+			}
+			listen 8080; # check that lua hasn't messed up context/depth and lineno
+		}
+	}`)
+
+	payload, err := Parse("nginx.conf", &ParseOptions{
+		Open: func(path string) (io.Reader, error) { return r, nil },
+		LexOptions: LexOptions{
+			ExternalLexers: []ExtLexer{
+				&LuaLexer{},
+			},
+		},
+	})
+
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	b, _ := json.MarshalIndent(payload, "", "  ")
+	t.Log(string(b))
 }
