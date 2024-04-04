@@ -2499,7 +2499,7 @@ var appProtectWAFv5Directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
 	},
 	"app_protect_custom_log_attribute": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLmtConf | ngxConfTake2,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
 	},
 }
 

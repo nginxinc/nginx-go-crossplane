@@ -1467,3 +1467,456 @@ func TestAnalyze_quic(t *testing.T) {
 		})
 	}
 }
+
+//nolint:funlen,maintidx
+func TestAnalyze_nap_app_protect_waf_v5(t *testing.T) {
+	t.Parallel()
+
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"app_protect_enable ok http": {
+			&Directive{
+				Directive: "app_protect_enable",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_enable not ok stream": {
+			&Directive{
+				Directive: "app_protect_enable",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_enable not ok true": {
+			&Directive{
+				Directive: "app_protect_enable",
+				Args:      []string{"true"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"app_protect_enable not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_enable",
+				Args:      []string{"on", "off"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"app_protect_security_log_enable ok http": {
+			&Directive{
+				Directive: "app_protect_security_log_enable",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_security_log_enable not ok stream": {
+			&Directive{
+				Directive: "app_protect_security_log_enable",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_security_log_enable not ok false": {
+			&Directive{
+				Directive: "app_protect_security_log_enable",
+				Args:      []string{"false"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"app_protect_security_log_enable not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_security_log_enable",
+				Args:      []string{"on", "off"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"app_protect_security_log ok http": {
+			&Directive{
+				Directive: "app_protect_security_log",
+				Args:      []string{"/etc/app_protect/nap_log_format.json", "syslog:localhost:522"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_security_log not ok stream": {
+			&Directive{
+				Directive: "app_protect_security_log",
+				Args:      []string{"/etc/app_protect/nap_log_format.json", "syslog:localhost:522"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_security_log not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_security_log",
+				Args:      []string{"/etc/app_protect/nap_log_format.json", "syslog:localhost:522", "true"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"app_protect_policy_file ok http": {
+			&Directive{
+				Directive: "app_protect_policy_file",
+				Args:      []string{"/etc/app_protect/nap_policy.json"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_policy_file not ok stream": {
+			&Directive{
+				Directive: "app_protect_policy_file",
+				Args:      []string{"/etc/app_protect/nap_policy.json"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_policy_file not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_policy_file",
+				Args:      []string{"/etc/app_protect/nap_policy.json", "/etc/app_protect/nap_policy2.json"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"app_protect_physical_memory_util_thresholds ok http": {
+			&Directive{
+				Directive: "app_protect_physical_memory_util_thresholds",
+				Args:      []string{"high=100", "low=10"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_physical_memory_util_thresholds not ok stream": {
+			&Directive{
+				Directive: "app_protect_physical_memory_util_thresholds",
+				Args:      []string{"high=100", "low=10"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_physical_memory_util_thresholds not ok http location": {
+			&Directive{
+				Directive: "app_protect_physical_memory_util_thresholds",
+				Args:      []string{"high=100", "low=10"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"app_protect_physical_memory_util_thresholds not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_physical_memory_util_thresholds",
+				Args:      []string{"high=100", "low=10", "true"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"app_protect_cpu_thresholds ok http": {
+			&Directive{
+				Directive: "app_protect_cpu_thresholds",
+				Args:      []string{"high=100", "low=10"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_cpu_thresholds not ok stream": {
+			&Directive{
+				Directive: "app_protect_cpu_thresholds",
+				Args:      []string{"high=100", "low=10"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_cpu_thresholds not ok http server": {
+			&Directive{
+				Directive: "app_protect_cpu_thresholds",
+				Args:      []string{"high=100", "low=10"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"app_protect_cpu_thresholds not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_cpu_thresholds",
+				Args:      []string{"high=100", "low=10", "true"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"app_protect_failure_mode_action ok http": {
+			&Directive{
+				Directive: "app_protect_failure_mode_action",
+				Args:      []string{"pass"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_failure_mode_action not ok stream": {
+			&Directive{
+				Directive: "app_protect_failure_mode_action",
+				Args:      []string{"drop"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_failure_mode_action not ok http server": {
+			&Directive{
+				Directive: "app_protect_failure_mode_action",
+				Args:      []string{"pass"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"app_protect_failure_mode_action not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_failure_mode_action",
+				Args:      []string{"pass", "on"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"app_protect_cookie_seed ok http": {
+			&Directive{
+				Directive: "app_protect_cookie_seed",
+				Args:      []string{"jkldsf90upiokasdj120"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_cookie_seed not ok stream": {
+			&Directive{
+				Directive: "app_protect_cookie_seed",
+				Args:      []string{"jkldsf90upiokasdj120"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_cookie_seed not ok http location": {
+			&Directive{
+				Directive: "app_protect_cookie_seed",
+				Args:      []string{"jkldsf90upiokasdj120"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"app_protect_cookie_seed not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_cookie_seed",
+				Args:      []string{"jkldsf90upiokasdj120", "on"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"app_protect_request_buffer_overflow_action ok http": {
+			&Directive{
+				Directive: "app_protect_request_buffer_overflow_action",
+				Args:      []string{"pass"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_request_buffer_overflow_action not ok stream": {
+			&Directive{
+				Directive: "app_protect_request_buffer_overflow_action",
+				Args:      []string{"drop"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_request_buffer_overflow_action not ok http server": {
+			&Directive{
+				Directive: "app_protect_request_buffer_overflow_action",
+				Args:      []string{"drop"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"app_protect_request_buffer_overflow_action not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_request_buffer_overflow_action",
+				Args:      []string{"drop", "on"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"app_protect_reconnect_period_seconds ok http": {
+			&Directive{
+				Directive: "app_protect_reconnect_period_seconds",
+				Args:      []string{"10"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_reconnect_period_seconds not ok stream": {
+			&Directive{
+				Directive: "app_protect_reconnect_period_seconds",
+				Args:      []string{"10"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_reconnect_period_seconds not ok http server": {
+			&Directive{
+				Directive: "app_protect_reconnect_period_seconds",
+				Args:      []string{"10"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"app_protect_reconnect_period_seconds not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_reconnect_period_seconds",
+				Args:      []string{"10", "20"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"app_protect_enforcer_address ok http": {
+			&Directive{
+				Directive: "app_protect_enforcer_address",
+				Args:      []string{"127.0.0.1:50000"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_enforcer_address not ok stream": {
+			&Directive{
+				Directive: "app_protect_enforcer_address",
+				Args:      []string{"127.0.0.1:50000"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_enforcer_address not ok http server": {
+			&Directive{
+				Directive: "app_protect_enforcer_address",
+				Args:      []string{"127.0.0.1:50000"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+		"app_protect_enforcer_address not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_enforcer_address",
+				Args:      []string{"127.0.0.1:50000", "foo"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"app_protect_custom_log_attribute ok http": {
+			&Directive{
+				Directive: "app_protect_custom_log_attribute",
+				Args:      []string{"environment", "env1"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"app_protect_custom_log_attribute ok http location": {
+			&Directive{
+				Directive: "app_protect_custom_log_attribute",
+				Args:      []string{"environment", "env1"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"app_protect_custom_log_attribute not ok stream": {
+			&Directive{
+				Directive: "app_protect_custom_log_attribute",
+				Args:      []string{"environment", "env1"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"app_protect_security_log_enable not ok too few paramseters": {
+			&Directive{
+				Directive: "app_protect_custom_log_attribute",
+				Args:      []string{"environment"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"app_protect_custom_log_attribute not ok extra parameters": {
+			&Directive{
+				Directive: "app_protect_custom_log_attribute",
+				Args:      []string{"environment", "env1", "env2"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchAppProtectWAFv5},
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
