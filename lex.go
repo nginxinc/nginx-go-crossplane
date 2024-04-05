@@ -48,6 +48,7 @@ type LexScanner interface {
 	Scan() bool
 	Err() error
 	Text() string
+	Line() int
 }
 
 type ExtLexer interface {
@@ -68,6 +69,25 @@ func LexWithOptions(r io.Reader, options LexOptions) chan NgxToken {
 func Lex(reader io.Reader) chan NgxToken {
 	return LexWithOptions(reader, LexOptions{})
 }
+
+type extScanner struct {
+	scanner   *bufio.Scanner
+	tokenLine int
+}
+
+func (e *extScanner) Scan() bool {
+	if !e.scanner.Scan() {
+		return false
+	}
+	if t := e.scanner.Text(); isEOL(t) {
+		e.tokenLine++
+	}
+	return true
+}
+
+func (e *extScanner) Err() error   { return e.scanner.Err() }
+func (e *extScanner) Text() string { return e.scanner.Text() }
+func (e *extScanner) Line() int    { return e.tokenLine }
 
 //nolint:gocyclo,funlen,gocognit
 func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
@@ -93,12 +113,17 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	}
 
 	var externalLexers map[string]ExtLexer
+	var externalScanner *extScanner
 	for _, ext := range options.ExternalLexers {
 		if externalLexers == nil {
 			externalLexers = make(map[string]ExtLexer)
 		}
 
-		for _, d := range ext.Register(scanner) {
+		if externalScanner == nil {
+			externalScanner = &extScanner{scanner: scanner, tokenLine: tokenLine}
+		}
+
+		for _, d := range ext.Register(externalScanner) {
 			externalLexers[d] = ext
 		}
 	}
@@ -151,13 +176,14 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 				// 	}
 				// 	tokenCh <- tok
 				// }
-
+				externalScanner.tokenLine = tokenLine
 				extTokenCh := ext.Lex()
 				for tok := range extTokenCh {
 					tokenCh <- tok
 				}
 
 				lexState = skipSpace
+				tokenLine = externalScanner.tokenLine
 			}
 		}
 
@@ -302,7 +328,6 @@ func (ll *LuaLexer) Register(s LexScanner) []string {
 func (ll *LuaLexer) Lex() <-chan NgxToken {
 	tokenCh := make(chan NgxToken)
 
-	tokenLine := 1
 	tokenDepth := 0
 
 	go func() {
@@ -327,14 +352,15 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 			case next == "}":
 				tokenDepth--
 				if tokenDepth < 0 {
-					tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: `unexpected "}"`, Line: &tokenLine}}
+					lineno := ll.s.Line()
+					tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: `unexpected "}"`, Line: &lineno}}
 					return
 				}
 
 				if tokenDepth == 0 {
 					// tokenCh <- NgxToken{Value: next, Line: 0}
-					tokenCh <- NgxToken{Value: tok.String(), Line: 0}
-					tokenCh <- NgxToken{Value: ";", Line: 0} // For an end to the Lua string, seems hacky.
+					tokenCh <- NgxToken{Value: tok.String(), Line: ll.s.Line()}
+					tokenCh <- NgxToken{Value: ";", Line: ll.s.Line()} // For an end to the Lua string, seems hacky.
 					// See: https://github.com/nginxinc/crossplane/blob/master/crossplane/ext/lua.py#L122C25-L122C41
 					return
 				}
@@ -342,7 +368,6 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 				if tok.Len() == 0 {
 					continue
 				}
-				// tokenCh <- NgxToken{Value: tok.String(), Line: 0}
 				tok.WriteString(next)
 			default:
 				tok.WriteString(next)
