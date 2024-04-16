@@ -1920,3 +1920,95 @@ func TestAnalyze_nap_app_protect_waf_v5(t *testing.T) {
 		})
 	}
 }
+
+//nolint:funlen
+func TestAnalyze_lua(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"content_by_lua_file ok": {
+			&Directive{
+				Directive: "content_by_lua_file",
+				Args:      []string{"/path/to/lua/app/root/$path.lua"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "location if"},
+			false,
+		},
+		"content_by_lua_file relative path ok": {
+			&Directive{
+				Directive: "content_by_lua_file",
+				Args:      []string{"foo/bar.lua"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "location if"},
+			false,
+		},
+		"content_by_lua_file nor ok": {
+			&Directive{
+				Directive: "content_by_lua_file",
+				Args:      []string{"foo/bar.lua"},
+				Line:      5,
+			},
+			blockCtx{"server"},
+			false,
+		},
+		"lua_shared_dict ok": {
+			&Directive{
+				Directive: "lua_shared_dict",
+				Args:      []string{"dogs", "10m"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"lua_shared_dict not ok": {
+			&Directive{
+				Directive: "lua_shared_dict",
+				Args:      []string{"10m"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"lua_sa_restart ok": {
+			&Directive{
+				Directive: "lua_sa_restart",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"lua_sa_restart not ok": {
+			&Directive{
+				Directive: "lua_sa_restart",
+				Args:      []string{"something"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchLua},
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}

@@ -1,0 +1,73 @@
+{
+  "status": "ok",
+  "errors": [],
+  "config": [
+    {
+      "file": "testdata/configs/lua-block-larger/nginx.conf",
+      "status": "ok",
+      "errors": [],
+      "parsed": [
+        {
+          "directive": "http",
+          "line": 1,
+          "args": [],
+          "block": [
+            {
+              "directive": "init_by_lua",
+              "line": 2,
+              "args": [
+                "\n        print(\"I need no extra escaping here, for example: \\r\\nblah\")\n    "
+              ]
+            },
+            {
+              "directive": "lua_shared_dict",
+              "line": 5,
+              "args": [
+                "dogs",
+                "1m"
+              ]
+            },
+            {
+              "directive": "server",
+              "line": 7,
+              "args": [],
+              "block": [
+                {
+                  "directive": "listen",
+                  "line": 7,
+                  "args": [
+                    "8080"
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 8,
+                  "args": [
+                    "/"
+                  ],
+                  "block": [
+                    {
+                      "directive": "set_by_lua",
+                      "line": 9,
+                      "args": [
+                        "$res",
+                        " return 32 + math.cos(32) "
+                      ]
+                    },
+                    {
+                      "directive": "access_by_lua_file",
+                      "line": 10,
+                      "args": [
+                        "/path/to/lua/access.lua"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
