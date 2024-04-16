@@ -53,6 +53,16 @@ type parser struct {
 	includeInDegree map[string]int
 }
 
+// MatchFunc is the signature of the match function used to identify NGINX directives that
+// can be encountered when parsing an NGINX configuration that references dynamic or
+// non-core modules. The argument is the name of a directive found when parsing an NGINX
+// configuration.
+//
+// The return value is a list of bitmasks that indicate the valid contexts in which the
+// directive may appear as well as the number of arguments the directive accepts. The
+// return value must contain at least one non-zero bitmask if matched is true.
+type MatchFunc func(directive string) (masks []uint, matched bool)
+
 // ParseOptions determine the behavior of an NGINX config parse.
 type ParseOptions struct {
 	// An array of directives to skip over and not include in the payload.
@@ -93,6 +103,12 @@ type ParseOptions struct {
 
 	// If true, checks that directives have a valid number of arguments.
 	SkipDirectiveArgsCheck bool
+
+	// MatchFuncs are called in order when an unknown or non-core NGINX directive is
+	// encountered by the parser to determine the valid contexts and argument count of the
+	// directive. Set this option to enable parsing of directives belonging to non-core or
+	// dynamic NGINX modules that follow the usual grammar rules of an NGINX configuration.
+	MatchFuncs []MatchFunc
 }
 
 // Parse parses an NGINX configuration file.

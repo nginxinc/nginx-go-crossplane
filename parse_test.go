@@ -1341,6 +1341,301 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"nap-waf-v4", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		MatchFuncs:               []MatchFunc{MatchAppProtectWAFv4},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("nap-waf-v4", "nginx.conf"),
+				Status: "ok",
+				Errors: []ConfigError{},
+				Parsed: Directives{
+					{
+						Directive: "user",
+						Args:      []string{"nginx"},
+						Line:      1,
+					},
+					{
+						Directive: "worker_processes",
+						Line:      2,
+						Args:      []string{"4"},
+					},
+					{
+						Directive: "load_module",
+						Line:      4,
+						Args:      []string{"modules/ngx_http_app_protect_module.so"},
+					},
+					{
+						Directive: "error_log",
+						Line:      6,
+						Args:      []string{"/var/log/nginx/error.log", "debug"},
+					},
+					{
+						Directive: "events",
+						Line:      8,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "worker_connections",
+								Line:      9,
+								Args:      []string{"65536"},
+							},
+						},
+					},
+					{
+						Directive: "http",
+						Line:      12,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "include",
+								Line:      13,
+								Args:      []string{"/etc/nginx/mime.types"},
+							},
+							{
+								Directive: "default_type",
+								Line:      14,
+								Args:      []string{"application/octet-stream"},
+							},
+							{
+								Directive: "sendfile",
+								Line:      15,
+								Args:      []string{"on"},
+							},
+							{
+								Directive: "keepalive_timeout",
+								Line:      16,
+								Args:      []string{"65"},
+							},
+							{
+								Directive: "app_protect_enable",
+								Line:      18,
+								Args:      []string{"on"},
+							},
+							{
+								Directive: "app_protect_policy_file",
+								Line:      19,
+								Args: []string{
+									"/etc/app_protect/conf/NginxDefaultPolicy.json",
+								},
+							},
+							{
+								Directive: "app_protect_security_log_enable",
+								Line:      20,
+								Args:      []string{"on"},
+							},
+							{
+								Directive: "app_protect_security_log",
+								Line:      21,
+								Args: []string{
+									"/etc/app_protect/conf/log_default.json",
+									"syslog:server=127.0.0.1:515",
+								},
+							},
+							{
+								Directive: "server",
+								Line:      23,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      24,
+										Args:      []string{"80"},
+									},
+									{
+										Directive: "server_name",
+										Line:      25,
+										Args:      []string{"localhost"},
+									},
+									{
+										Directive: "proxy_http_version",
+										Line:      26,
+										Args:      []string{"1.1"},
+									},
+									{
+										Directive: "location",
+										Line:      28,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "client_max_body_size",
+												Line:      29,
+												Args:      []string{"0"},
+											},
+											{
+												Directive: "default_type",
+												Line:      30,
+												Args:      []string{"text/html"},
+											},
+											{
+												Directive: "proxy_pass",
+												Line:      31,
+												Args:      []string{"http://172.29.38.211:80$request_uri"},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"nap-waf-v5", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		MatchFuncs:               []MatchFunc{MatchAppProtectWAFv5},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("nap-waf-v5", "nginx.conf"),
+				Status: "ok",
+				Errors: []ConfigError{},
+				Parsed: Directives{
+					{
+						Directive: "user",
+						Args:      []string{"nginx"},
+						Line:      1,
+					},
+					{
+						Directive: "worker_processes",
+						Line:      2,
+						Args:      []string{"4"},
+					},
+					{
+						Directive: "load_module",
+						Line:      4,
+						Args:      []string{"modules/ngx_http_app_protect_module.so"},
+					},
+					{
+						Directive: "error_log",
+						Line:      6,
+						Args:      []string{"/var/log/nginx/error.log", "debug"},
+					},
+					{
+						Directive: "events",
+						Line:      8,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "worker_connections",
+								Line:      9,
+								Args:      []string{"65536"},
+							},
+						},
+					},
+					{
+						Directive: "http",
+						Line:      12,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "include",
+								Line:      13,
+								Args:      []string{"/etc/nginx/mime.types"},
+							},
+							{
+								Directive: "default_type",
+								Line:      14,
+								Args:      []string{"application/octet-stream"},
+							},
+							{
+								Directive: "sendfile",
+								Line:      15,
+								Args:      []string{"on"},
+							},
+							{
+								Directive: "keepalive_timeout",
+								Line:      16,
+								Args:      []string{"65"},
+							},
+							{
+								Directive: "app_protect_enforcer_address",
+								Line:      18,
+								Args:      []string{"127.0.0.1:50000"},
+							},
+							{
+								Directive: "app_protect_enable",
+								Line:      19,
+								Args:      []string{"on"},
+							},
+							{
+								Directive: "app_protect_policy_file",
+								Line:      20,
+								Args: []string{
+									"/policies/policy1.tgz",
+								},
+							},
+							{
+								Directive: "app_protect_security_log_enable",
+								Line:      21,
+								Args:      []string{"on"},
+							},
+							{
+								Directive: "app_protect_security_log",
+								Line:      22,
+								Args: []string{
+									"log_all",
+									"syslog:server=127.0.0.1:515",
+								},
+							},
+							{
+								Directive: "server",
+								Line:      24,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      25,
+										Args:      []string{"80"},
+									},
+									{
+										Directive: "server_name",
+										Line:      26,
+										Args:      []string{"localhost"},
+									},
+									{
+										Directive: "proxy_http_version",
+										Line:      27,
+										Args:      []string{"1.1"},
+									},
+									{
+										Directive: "location",
+										Line:      29,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "client_max_body_size",
+												Line:      30,
+												Args:      []string{"0"},
+											},
+											{
+												Directive: "default_type",
+												Line:      31,
+												Args:      []string{"text/html"},
+											},
+											{
+												Directive: "proxy_pass",
+												Line:      32,
+												Args:      []string{"http://172.29.38.211/"},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {
