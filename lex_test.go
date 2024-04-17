@@ -233,6 +233,7 @@ var lexFixtures = []lexFixture{
 		{"{", 1},
 		{"init_by_lua", 2},
 		{"\n        print(\"I need no extra escaping here, for example: \\r\\nblah\")\n    ", 2},
+		{";", 4},
 		{"lua_shared_dict", 5},
 		{"dogs", 5},
 		{"1m", 5},
@@ -256,6 +257,152 @@ var lexFixtures = []lexFixture{
 		{"}", 12},
 		{"}", 13},
 	}},
+	{"lua-block-simple", []tokenLine{
+		{"http", 1},
+		{"{", 1},
+		{"init_by_lua_block", 2},
+		{"\n        print(\"Lua block code with curly brace str {\")\n    ", 4},
+		{";", 4},
+		{"init_worker_by_lua_block", 5},
+		{"\n        print(\"Work that every worker\")\n    ", 7},
+		{";", 7},
+		{"body_filter_by_lua_block", 8},
+		{"\n        local data, eof = ngx.arg[1], ngx.arg[2]\n    ", 10},
+		{";", 10},
+		{"header_filter_by_lua_block", 11},
+		{"\n        ngx.header[\"content-length\"] = nil\n    ", 13},
+		{";", 13},
+		{"server", 14},
+		{"{", 14},
+		{"listen", 15},
+		{"127.0.0.1:8080", 15},
+		{";", 15},
+		{"location", 16},
+		{"/", 16},
+		{"{", 16},
+		{"content_by_lua_block", 17},
+		{"\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            ", 19},
+		{";", 19},
+		{"return", 20},
+		{"200", 20},
+		{"foo bar baz", 20},
+		{";", 20},
+		{"}", 21},
+		{"ssl_certificate_by_lua_block", 22},
+		{"\n            print(\"About to initiate a new SSL handshake!\")\n        ", 24},
+		{";", 24},
+		{"location", 25},
+		{"/a", 25},
+		{"{", 25},
+		{"client_max_body_size", 26},
+		{"100k", 26},
+		{";", 26},
+		{"client_body_buffer_size", 27},
+		{"100k", 27},
+		{";", 27},
+		{"}", 28},
+		{"}", 29},
+		{"upstream", 31},
+		{"foo", 31},
+		{"{", 31},
+		{"server", 32},
+		{"127.0.0.1", 32},
+		{";", 32},
+		{"balancer_by_lua_block", 33},
+		{"\n            -- use Lua to do something interesting here\n        ", 35},
+		{";", 35},
+		{"log_by_lua_block", 36},
+		{"\n            print(\"I need no extra escaping here, for example: \\r\\nblah\")\n        ", 38},
+		{";", 38},
+		{"}", 39},
+		{"}", 40},
+	}},
+	{"lua-block-larger", []tokenLine{
+		{"http", 1},
+		{"{", 1},
+		{"content_by_lua_block", 2},
+		{
+			"\n        ngx.req.read_body()  -- explicitly read the req body" +
+				"\n        local data = ngx.req.get_body_data()" +
+				"\n        if data then" +
+				"\n            ngx.say(\"body data:\")" +
+				"\n            ngx.print(data)" +
+				"\n            return" +
+				"\n        end" +
+				"\n" +
+				"\n        -- body may get buffered in a temp file:" +
+				"\n        local file = ngx.req.get_body_file()" +
+				"\n        if file then" +
+				"\n            ngx.say(\"body is in file \", file)" +
+				"\n        else" +
+				"\n            ngx.say(\"no body found\")" +
+				"\n        end" +
+				"\n    ", 18,
+		},
+		{";", 18},
+		{"access_by_lua_block", 19},
+		{
+			"\n        -- check the client IP address is in our black list" +
+				"\n        if ngx.var.remote_addr == \"132.5.72.3\" then" +
+				"\n            ngx.exit(ngx.HTTP_FORBIDDEN)" +
+				"\n        end" +
+				"\n" +
+				"\n        -- check if the URI contains bad words" +
+				"\n        if ngx.var.uri and" +
+				"\n               string.match(ngx.var.request_body, \"evil\")" +
+				"\n        then" +
+				"\n            return ngx.redirect(\"/terms_of_use.html\")" +
+				"\n        end" +
+				"\n" +
+				"\n        -- tests passed" +
+				"\n    ", 33,
+		},
+		{";", 33},
+		{"}", 34},
+	}},
+	{"lua-block-tricky", []tokenLine{
+		{"http", 1},
+		{"{", 1},
+		{"server", 2},
+		{"{", 2},
+		{"listen", 3},
+		{"127.0.0.1:8080", 3},
+		{";", 3},
+		{"server_name", 4},
+		{"content_by_lua_block", 4},
+		{";", 4},
+		{"# make sure this doesn't trip up lexers", 4},
+		{"set_by_lua_block", 5},
+		{"$res", 5},
+		{
+			" -- irregular lua block directi" +
+				"\n            local a = 32" +
+				"\n            local b = 56" +
+				"\n" +
+				"\n            ngx.var.diff = a - b;  -- write to $diff directly" +
+				"\n            return a + b;          -- return the $sum value normally" +
+				"\n        ",
+			11,
+		},
+		{";", 11},
+		{"rewrite_by_lua_block", 12},
+		{
+			" -- have valid braces in Lua code and quotes around directive" +
+				"\n            do_something(\"hello, world!\\nhiya\\n\")" +
+				"\n            a = { 1, 2, 3 }" +
+				"\n            btn = iup.button({title=\"ok\"})" +
+				"\n        ",
+			16,
+		},
+		{";", 16},
+		{"}", 17},
+		{"upstream", 18},
+		{"content_by_lua_block", 18},
+		{"{", 18},
+		{"# stuff", 19},
+		{"}", 20},
+		{"}", 21},
+	}},
 }
 
 func TestLex(t *testing.T) {
@@ -270,8 +417,14 @@ func TestLex(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer file.Close()
+			options := LexOptions{
+				ExternalLexers: []ExtLexer{
+					&LuaLexer{},
+				},
+			}
 			i := 0
-			for token := range Lex(file) {
+
+			for token := range LexWithOptions(file, options) {
 				expected := fixture.tokens[i]
 				if token.Value != expected.value || token.Line != expected.line {
 					t.Fatalf("expected (%q,%d) but got (%q,%d)", expected.value, expected.line, token.Value, token.Line)
@@ -365,7 +518,6 @@ func TestParse_lua(t *testing.T) {
 			},
 		},
 	})
-
 	if err != nil {
 		t.Fatal(err)
 	}

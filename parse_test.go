@@ -1636,6 +1636,72 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"lua-basic", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		MatchFuncs:               []MatchFunc{MatchLua},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-basic", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "init_by_lua",
+								Line:      2,
+								Args:      []string{"\n        print(\"I need no extra escaping here, for example: \\r\\nblah\")\n    "},
+								Block:     Directives{},
+							},
+							{
+								Directive: "lua_shared_dict",
+								Line:      5,
+								Args:      []string{"dogs", "1m"},
+								Block:     Directives{},
+							},
+							{
+								Directive: "server",
+								Line:      6,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      7,
+										Args:      []string{"8080"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      8,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "set_by_lua",
+												Line:      9,
+												Args:      []string{"$res", " return 32 + math.cos(32) "},
+											},
+											{
+												Directive: "access_by_lua_file",
+												Line:      10,
+												Args:      []string{"/path/to/lua/access.lua"},
+												Block:     Directives{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {

@@ -321,7 +321,22 @@ type LuaLexer struct {
 func (ll *LuaLexer) Register(s LexScanner) []string {
 	ll.s = s
 	return []string{
+		"init_by_lua_block",
+		"init_worker_by_lua_block",
+		"exit_worker_by_lua_block",
+		"set_by_lua_block",
 		"content_by_lua_block",
+		"server_rewrite_by_lua_block",
+		"rewrite_by_lua_block",
+		"access_by_lua_block",
+		"header_filter_by_lua_block",
+		"body_filter_by_lua_block",
+		"log_by_lua_block",
+		"balancer_by_lua_block",
+		"ssl_client_hello_by_lua_block",
+		"ssl_certificate_by_lua_block",
+		"ssl_session_fetch_by_lua_block",
+		"ssl_session_store_by_lua_block",
 	}
 }
 
@@ -329,10 +344,13 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 	tokenCh := make(chan NgxToken)
 
 	tokenDepth := 0
+	var leadingWhitespace strings.Builder
 
 	go func() {
 		defer close(tokenCh)
 		var tok strings.Builder
+		var inQuotes bool
+		var startedText bool
 
 		for {
 			if !ll.s.Scan() {
@@ -340,16 +358,27 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 			}
 
 			if err := ll.s.Err(); err != nil {
-				// TODO: error case
+				lineno := ll.s.Line()
+				tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: err.Error(), Line: &lineno}}
+
 			}
 
 			next := ll.s.Text()
 
+			// Handle leading whitespace
+			if !startedText && isSpace(next) && tokenDepth == 0 && !inQuotes {
+				leadingWhitespace.WriteString(next)
+				continue
+			}
+
+			// As soon as we hit a nonspace, we consider text to have started.
+			startedText = true
+
 			switch {
-			case next == "{":
+			case next == "{" && !inQuotes:
 				tokenDepth++
 
-			case next == "}":
+			case next == "}" && !inQuotes:
 				tokenDepth--
 				if tokenDepth < 0 {
 					lineno := ll.s.Line()
@@ -359,22 +388,39 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 
 				if tokenDepth == 0 {
 					// tokenCh <- NgxToken{Value: next, Line: 0}
-					tokenCh <- NgxToken{Value: tok.String(), Line: ll.s.Line()}
-					tokenCh <- NgxToken{Value: ";", Line: ll.s.Line()} // For an end to the Lua string, seems hacky.
+					// Before finishing the block, prepend any leading whitespace.
+					finalTokenValue := leadingWhitespace.String() + tok.String()
+					// tokenCh <- NgxToken{Value: tok.String(), Line: ll.s.Line(), IsQuoted: true}
+					tokenCh <- NgxToken{Value: finalTokenValue, Line: ll.s.Line(), IsQuoted: true}
+					tok.Reset()
+					leadingWhitespace.Reset()
+					tokenCh <- NgxToken{Value: ";", Line: ll.s.Line(), IsQuoted: false} // For an end to the Lua string, seems hacky.
 					// See: https://github.com/nginxinc/crossplane/blob/master/crossplane/ext/lua.py#L122C25-L122C41
 					return
 				}
-			case isSpace(next):
-				if tok.Len() == 0 {
-					continue
+			case next == `"` || next == "'":
+				if !inQuotes {
+					inQuotes = true
+				} else {
+					inQuotes = false
 				}
 				tok.WriteString(next)
+
+			// case isSpace(next):
+			// 	if tok.Len() == 0 {
+			// 		continue
+			// 	}
+			// 	tok.WriteString(next)
 			default:
 				tok.WriteString(next)
 			}
 
-			if tokenDepth == 0 {
-				return
+			// if tokenDepth == 0 {
+			// 	return
+			// }
+			if tokenDepth == 0 && !inQuotes {
+				startedText = false
+				leadingWhitespace.Reset()
 			}
 		}
 	}()
