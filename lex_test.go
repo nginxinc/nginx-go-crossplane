@@ -375,7 +375,7 @@ var lexFixtures = []lexFixture{
 		{"set_by_lua_block", 5},
 		{"$res", 5},
 		{
-			" -- irregular lua block directi" +
+			" -- irregular lua block directive" +
 				"\n            local a = 32" +
 				"\n            local b = 56" +
 				"\n" +
@@ -411,6 +411,9 @@ func TestLex(t *testing.T) {
 		fixture := fixture
 		t.Run(fixture.name, func(t *testing.T) {
 			t.Parallel()
+			// if fixture.name != "lua-block-simple" {
+			// 	t.Skip()
+			// }
 			path := getTestConfigPath(fixture.name, "nginx.conf")
 			file, err := os.Open(path)
 			if err != nil {

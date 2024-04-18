@@ -53,7 +53,7 @@ type LexScanner interface {
 
 type ExtLexer interface {
 	Register(LexScanner) []string
-	Lex() <-chan NgxToken
+	Lex(matchedToken string) <-chan NgxToken
 }
 
 type LexOptions struct {
@@ -157,7 +157,8 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		}
 
 		if token.Len() > 0 {
-			if ext, ok := externalLexers[token.String()]; ok {
+			tokenStr := token.String()
+			if ext, ok := externalLexers[tokenStr]; ok {
 				emit(tokenStartLine, false, nil)
 				// for {
 				// 	tok, err := ext.Lex()
@@ -177,7 +178,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 				// 	tokenCh <- tok
 				// }
 				externalScanner.tokenLine = tokenLine
-				extTokenCh := ext.Lex()
+				extTokenCh := ext.Lex(tokenStr)
 				for tok := range extTokenCh {
 					tokenCh <- tok
 				}
@@ -340,17 +341,64 @@ func (ll *LuaLexer) Register(s LexScanner) []string {
 	}
 }
 
-func (ll *LuaLexer) Lex() <-chan NgxToken {
+func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 	tokenCh := make(chan NgxToken)
 
 	tokenDepth := 0
-	var leadingWhitespace strings.Builder
+	// var leadingWhitespace strings.Builder
 
 	go func() {
 		defer close(tokenCh)
 		var tok strings.Builder
 		var inQuotes bool
 		var startedText bool
+
+		if matchedToken == "set_by_lua_block" {
+			arg := ""
+			for {
+				if !ll.s.Scan() {
+					return
+				}
+
+				next := ll.s.Text()
+				if isSpace(next) {
+					if arg != "" {
+						tokenCh <- NgxToken{Value: arg, Line: ll.s.Line(), IsQuoted: false}
+						break
+					}
+
+					for isSpace(next) {
+						if !ll.s.Scan() {
+							return
+						}
+						next = ll.s.Text()
+					}
+				}
+				arg += next
+			}
+		}
+
+		for {
+			if !ll.s.Scan() {
+				return
+			}
+			if next := ll.s.Text(); !isSpace(next) {
+				break
+			}
+		}
+
+		if !ll.s.Scan() {
+			// TODO: err?
+			return
+		}
+
+		if next := ll.s.Text(); next != "{" {
+			// TODO: Return error, need { to open blockj
+		}
+
+		tokenDepth += 1
+
+		// TODO: check for opening brace?
 
 		for {
 			if !ll.s.Scan() {
@@ -367,7 +415,7 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 
 			// Handle leading whitespace
 			if !startedText && isSpace(next) && tokenDepth == 0 && !inQuotes {
-				leadingWhitespace.WriteString(next)
+				// leadingWhitespace.WriteString(next)
 				continue
 			}
 
@@ -389,11 +437,11 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 				if tokenDepth == 0 {
 					// tokenCh <- NgxToken{Value: next, Line: 0}
 					// Before finishing the block, prepend any leading whitespace.
-					finalTokenValue := leadingWhitespace.String() + tok.String()
-					// tokenCh <- NgxToken{Value: tok.String(), Line: ll.s.Line(), IsQuoted: true}
-					tokenCh <- NgxToken{Value: finalTokenValue, Line: ll.s.Line(), IsQuoted: true}
-					tok.Reset()
-					leadingWhitespace.Reset()
+					// finalTokenValue := leadingWhitespace.String() + tok.String()
+					tokenCh <- NgxToken{Value: tok.String(), Line: ll.s.Line(), IsQuoted: true}
+					// tokenCh <- NgxToken{Value: finalTokenValue, Line: ll.s.Line(), IsQuoted: true}
+					// tok.Reset()
+					// leadingWhitespace.Reset()
 					tokenCh <- NgxToken{Value: ";", Line: ll.s.Line(), IsQuoted: false} // For an end to the Lua string, seems hacky.
 					// See: https://github.com/nginxinc/crossplane/blob/master/crossplane/ext/lua.py#L122C25-L122C41
 					return
@@ -412,6 +460,12 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 			// 	}
 			// 	tok.WriteString(next)
 			default:
+				// Expected first token encountered to be a "{" to open a Lua block. Handle any other non-whitespace
+				// character to mean we are not about to tokenize Lua.
+				if tokenDepth == 0 {
+					tokenCh <- NgxToken{Value: next, Line: ll.s.Line(), IsQuoted: false}
+					return
+				}
 				tok.WriteString(next)
 			}
 
@@ -420,7 +474,7 @@ func (ll *LuaLexer) Lex() <-chan NgxToken {
 			// }
 			if tokenDepth == 0 && !inQuotes {
 				startedText = false
-				leadingWhitespace.Reset()
+				// leadingWhitespace.Reset()
 			}
 		}
 	}()
