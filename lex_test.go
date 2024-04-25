@@ -411,7 +411,7 @@ func TestLex(t *testing.T) {
 		fixture := fixture
 		t.Run(fixture.name, func(t *testing.T) {
 			t.Parallel()
-			// if fixture.name != "lua-block-simple" {
+			// if fixture.name != "lua-block-tricky" {
 			// 	t.Skip()
 			// }
 			path := getTestConfigPath(fixture.name, "nginx.conf")

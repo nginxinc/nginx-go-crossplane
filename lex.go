@@ -160,23 +160,6 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 			tokenStr := token.String()
 			if ext, ok := externalLexers[tokenStr]; ok {
 				emit(tokenStartLine, false, nil)
-				// for {
-				// 	tok, err := ext.Lex()
-
-				// 	if errors.Is(err, StopExtLexer{}) {
-				// 		break
-				// 	}
-
-				// 	if err != nil {
-				// 		emit(tokenStartLine, false, &ParseError{
-				// 			File: &lexerFile,
-				// 			What: err.Error(),
-				// 			Line: &tokenLine, // TODO: I See this used but never updated
-				// 		})
-				// 		continue
-				// 	}
-				// 	tokenCh <- tok
-				// }
 				externalScanner.tokenLine = tokenLine
 				extTokenCh := ext.Lex(tokenStr)
 				for tok := range extTokenCh {
@@ -341,17 +324,16 @@ func (ll *LuaLexer) Register(s LexScanner) []string {
 	}
 }
 
+//nolint:funlen
 func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 	tokenCh := make(chan NgxToken)
 
 	tokenDepth := 0
-	// var leadingWhitespace strings.Builder
 
 	go func() {
 		defer close(tokenCh)
 		var tok strings.Builder
 		var inQuotes bool
-		var startedText bool
 
 		if matchedToken == "set_by_lua_block" {
 			arg := ""
@@ -359,7 +341,6 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 				if !ll.s.Scan() {
 					return
 				}
-
 				next := ll.s.Text()
 				if isSpace(next) {
 					if arg != "" {
@@ -376,55 +357,44 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 				}
 				arg += next
 			}
+			// skip leading whitespace after the return value
+			for {
+				if !ll.s.Scan() {
+					return
+				}
+				next := ll.s.Text()
+
+				if !isSpace(next) {
+					if next != "{" {
+						lineno := ll.s.Line()
+						tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: `unexpected "}"`, Line: &lineno}}
+						return
+					}
+					tokenDepth++
+					break
+				}
+			}
 		}
 
+		// Grab everything in Lua block as a single token and watch for curly brace '{' in strings
 		for {
 			if !ll.s.Scan() {
 				return
 			}
-			if next := ll.s.Text(); !isSpace(next) {
-				break
-			}
-		}
 
-		if !ll.s.Scan() {
-			// TODO: err?
-			return
-		}
-
-		if next := ll.s.Text(); next != "{" {
-			// TODO: Return error, need { to open blockj
-		}
-
-		tokenDepth += 1
-
-		// TODO: check for opening brace?
-
-		for {
-			if !ll.s.Scan() {
-				return // shrug emoji
-			}
-
+			next := ll.s.Text()
 			if err := ll.s.Err(); err != nil {
 				lineno := ll.s.Line()
 				tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: err.Error(), Line: &lineno}}
 
 			}
 
-			next := ll.s.Text()
-
-			// Handle leading whitespace
-			if !startedText && isSpace(next) && tokenDepth == 0 && !inQuotes {
-				// leadingWhitespace.WriteString(next)
-				continue
-			}
-
-			// As soon as we hit a nonspace, we consider text to have started.
-			startedText = true
-
 			switch {
 			case next == "{" && !inQuotes:
 				tokenDepth++
+				if tokenDepth > 1 { // not the first open brace
+					tok.WriteString(next)
+				}
 
 			case next == "}" && !inQuotes:
 				tokenDepth--
@@ -434,50 +404,62 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 					return
 				}
 
+				if tokenDepth > 0 { // not the last close brace for it to be 0
+					tok.WriteString(next)
+				}
+
 				if tokenDepth == 0 {
-					// tokenCh <- NgxToken{Value: next, Line: 0}
-					// Before finishing the block, prepend any leading whitespace.
-					// finalTokenValue := leadingWhitespace.String() + tok.String()
 					tokenCh <- NgxToken{Value: tok.String(), Line: ll.s.Line(), IsQuoted: true}
-					// tokenCh <- NgxToken{Value: finalTokenValue, Line: ll.s.Line(), IsQuoted: true}
-					// tok.Reset()
-					// leadingWhitespace.Reset()
 					tokenCh <- NgxToken{Value: ";", Line: ll.s.Line(), IsQuoted: false} // For an end to the Lua string, seems hacky.
 					// See: https://github.com/nginxinc/crossplane/blob/master/crossplane/ext/lua.py#L122C25-L122C41
 					return
 				}
+
 			case next == `"` || next == "'":
-				if !inQuotes {
-					inQuotes = true
-				} else {
-					inQuotes = false
-				}
+				inQuotes = !inQuotes
 				tok.WriteString(next)
 
-			// case isSpace(next):
-			// 	if tok.Len() == 0 {
-			// 		continue
-			// 	}
-			// 	tok.WriteString(next)
 			default:
 				// Expected first token encountered to be a "{" to open a Lua block. Handle any other non-whitespace
 				// character to mean we are not about to tokenize Lua.
+
+				// ignoring everything until first open brace where tokenDepth > 0
+				if isSpace(next) && tokenDepth == 0 {
+					continue
+				}
+
+				// stricly check that first non space character is {
 				if tokenDepth == 0 {
 					tokenCh <- NgxToken{Value: next, Line: ll.s.Line(), IsQuoted: false}
 					return
 				}
 				tok.WriteString(next)
 			}
-
-			// if tokenDepth == 0 {
-			// 	return
-			// }
-			if tokenDepth == 0 && !inQuotes {
-				startedText = false
-				// leadingWhitespace.Reset()
-			}
 		}
 	}()
 
 	return tokenCh
 }
+
+// TODO: 1. check for opening brace?
+// assume nested parathesis only with () and [], no curly parathesis
+// ignore space until first {
+// // rewrite_by_lua_block x will be accepted -- work on this case
+// stricly check that first non space character is {
+
+/* commit 2. do we strictly check for equal number of open and close braces rewite_by_lua_block { {1,2 // parser will use close from outside of lua block
+
+http{ server {
+rewite_by_lua_block { {1,2
+
+}}
+
+==>
+scenario 1
+error for http and server block
+rewite_by_lua_block { {1,2}}
+
+scenario 2
+error for rewite_by_lua_block with insufficient close
+http and server parse succeeds
+*/
