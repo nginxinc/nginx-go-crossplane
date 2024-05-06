@@ -103,11 +103,15 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	depth := 0
 	var la, quote string
 
+	// check the lua token is not the directive start
+	processdLine := make(map[int]bool)
+
 	scanner := bufio.NewScanner(reader)
 	scanner.Split(bufio.ScanRunes)
 
 	emit := func(line int, quoted bool, err error) {
 		tokenCh <- NgxToken{Value: token.String(), Line: line, IsQuoted: quoted, Error: err}
+		processdLine[line] = true
 		token.Reset()
 		lexState = skipSpace
 	}
@@ -158,7 +162,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 
 		if token.Len() > 0 {
 			tokenStr := token.String()
-			if ext, ok := externalLexers[tokenStr]; ok {
+			if ext, ok := externalLexers[tokenStr]; ok && !processdLine[tokenLine] {
 				emit(tokenStartLine, false, nil)
 				externalScanner.tokenLine = tokenLine
 				extTokenCh := ext.Lex(tokenStr)
@@ -440,26 +444,3 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 
 	return tokenCh
 }
-
-// TODO: 1. check for opening brace?
-// assume nested parathesis only with () and [], no curly parathesis
-// ignore space until first {
-// // rewrite_by_lua_block x will be accepted -- work on this case
-// stricly check that first non space character is {
-
-/* commit 2. do we strictly check for equal number of open and close braces rewite_by_lua_block { {1,2 // parser will use close from outside of lua block
-
-http{ server {
-rewite_by_lua_block { {1,2
-
-}}
-
-==>
-scenario 1
-error for http and server block
-rewite_by_lua_block { {1,2}}
-
-scenario 2
-error for rewite_by_lua_block with insufficient close
-http and server parse succeeds
-*/
