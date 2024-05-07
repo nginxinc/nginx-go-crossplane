@@ -89,6 +89,10 @@ func (e *extScanner) Err() error   { return e.scanner.Err() }
 func (e *extScanner) Text() string { return e.scanner.Text() }
 func (e *extScanner) Line() int    { return e.tokenLine }
 
+type tokenInfo struct {
+	LineNumberExists bool
+}
+
 //nolint:gocyclo,funlen,gocognit
 func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	token := strings.Builder{}
@@ -103,15 +107,15 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	depth := 0
 	var la, quote string
 
-	// check the lua token is not the directive start
-	processdLine := make(map[int]bool)
+	// check if the lua token is directive, if token line is already processd, then this is not the directive
+	nextTokenIsDirective := make(map[int]tokenInfo)
 
 	scanner := bufio.NewScanner(reader)
 	scanner.Split(bufio.ScanRunes)
 
 	emit := func(line int, quoted bool, err error) {
 		tokenCh <- NgxToken{Value: token.String(), Line: line, IsQuoted: quoted, Error: err}
-		processdLine[line] = true
+		nextTokenIsDirective[line] = tokenInfo{LineNumberExists: true}
 		token.Reset()
 		lexState = skipSpace
 	}
@@ -162,16 +166,29 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 
 		if token.Len() > 0 {
 			tokenStr := token.String()
-			if ext, ok := externalLexers[tokenStr]; ok && !processdLine[tokenLine] {
-				emit(tokenStartLine, false, nil)
-				externalScanner.tokenLine = tokenLine
-				extTokenCh := ext.Lex(tokenStr)
-				for tok := range extTokenCh {
-					tokenCh <- tok
-				}
+			if ext, ok := externalLexers[tokenStr]; ok {
+				if _, exists := nextTokenIsDirective[tokenLine]; !exists {
+					// saving lex state before emitting tokenStr to know if we encountered start quote
+					lastLexState := lexState
+					if lexState == inQuote {
+						emit(tokenStartLine, true, nil)
+					} else {
+						emit(tokenStartLine, false, nil)
+					}
 
-				lexState = skipSpace
-				tokenLine = externalScanner.tokenLine
+					externalScanner.tokenLine = tokenLine
+					extTokenCh := ext.Lex(tokenStr)
+					for tok := range extTokenCh {
+						tokenCh <- tok
+					}
+					tokenLine = externalScanner.tokenLine
+
+					// if we detected a start quote and current char after external lexer processing is end quote we skip it
+					if lastLexState == inQuote && la == quote {
+						continue
+					}
+
+				}
 			}
 		}
 
