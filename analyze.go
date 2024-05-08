@@ -2591,7 +2591,7 @@ var LuaDirectives = map[string][]uint{
 	"init_by_lua": {
 		ngxHTTPMainConf | ngxConfTake1,
 	},
-	"inby_lua_blockit_": {
+	"init_by_lua_block": {
 		ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
 	},
 	"init_by_lua_file": {

@@ -166,7 +166,6 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 			return nil, err
 		}
 
-		// tokens := Lex(file)
 		tokens := LexWithOptions(file, options.LexOptions)
 		config := Config{
 			File:   incl.path,
