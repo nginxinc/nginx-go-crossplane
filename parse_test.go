@@ -1833,6 +1833,99 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"lua-block-larger", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		MatchFuncs:               []MatchFunc{MatchLua},
+		LexOptions: LexOptions{
+			ExternalLexers: []ExtLexer{
+				&LuaLexer{},
+			},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-larger", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "access_by_lua_block",
+								Line:      2,
+								Args: []string{"\n        -- check the client IP address is in our black list" +
+									"\n        if ngx.var.remote_addr == \"132.5.72.3\" then" +
+									"\n            ngx.exit(ngx.HTTP_FORBIDDEN)" +
+									"\n        end" +
+									"\n" +
+									"\n        -- check if the URI contains bad words" +
+									"\n        if ngx.var.uri and" +
+									"\n               string.match(ngx.var.request_body, \"evil\")" +
+									"\n        then" +
+									"\n            return ngx.redirect(\"/terms_of_use.html\")" +
+									"\n        end" +
+									"\n" +
+									"\n        -- tests passed" +
+									"\n    "},
+								Block: Directives{},
+							},
+							{
+								Directive: "server",
+								Line:      17,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      18,
+										Args:      []string{"127.0.0.1:8080"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      19,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "content_by_lua_block",
+												Line:      20,
+												Args: []string{"\n                ngx.req.read_body()  -- explicitly read the req body" +
+													"\n                local data = ngx.req.get_body_data()" +
+													"\n                if data then" +
+													"\n                    ngx.say(\"body data:\")" +
+													"\n                    ngx.print(data)" +
+													"\n                    return" +
+													"\n                end" +
+													"\n" +
+													"\n                -- body may get buffered in a temp file:" +
+													"\n                local file = ngx.req.get_body_file()" +
+													"\n                if file then" +
+													"\n                    ngx.say(\"body is in file \", file)" +
+													"\n                else" +
+													"\n                    ngx.say(\"no body found\")" +
+													"\n                end" +
+													"\n            "},
+												Block: Directives{},
+											},
+											{
+												Directive: "return",
+												Args:      []string{"200", "foo bar baz"},
+												Line:      37,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {

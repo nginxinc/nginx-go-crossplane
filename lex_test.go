@@ -320,27 +320,7 @@ var lexFixtures = []lexFixture{
 	{"lua-block-larger", []tokenLine{
 		{"http", 1},
 		{"{", 1},
-		{"content_by_lua_block", 2},
-		{
-			"\n        ngx.req.read_body()  -- explicitly read the req body" +
-				"\n        local data = ngx.req.get_body_data()" +
-				"\n        if data then" +
-				"\n            ngx.say(\"body data:\")" +
-				"\n            ngx.print(data)" +
-				"\n            return" +
-				"\n        end" +
-				"\n" +
-				"\n        -- body may get buffered in a temp file:" +
-				"\n        local file = ngx.req.get_body_file()" +
-				"\n        if file then" +
-				"\n            ngx.say(\"body is in file \", file)" +
-				"\n        else" +
-				"\n            ngx.say(\"no body found\")" +
-				"\n        end" +
-				"\n    ", 18,
-		},
-		{";", 18},
-		{"access_by_lua_block", 19},
+		{"access_by_lua_block", 2},
 		{
 			"\n        -- check the client IP address is in our black list" +
 				"\n        if ngx.var.remote_addr == \"132.5.72.3\" then" +
@@ -355,10 +335,44 @@ var lexFixtures = []lexFixture{
 				"\n        end" +
 				"\n" +
 				"\n        -- tests passed" +
-				"\n    ", 33,
+				"\n    ", 16,
 		},
-		{";", 33},
-		{"}", 34},
+		{";", 16},
+		{"server", 17},
+		{"{", 17},
+		{"listen", 18},
+		{"127.0.0.1:8080", 18},
+		{";", 18},
+		{"location", 19},
+		{"/", 19},
+		{"{", 19},
+		{"content_by_lua_block", 20},
+		{
+			"\n                ngx.req.read_body()  -- explicitly read the req body" +
+				"\n                local data = ngx.req.get_body_data()" +
+				"\n                if data then" +
+				"\n                    ngx.say(\"body data:\")" +
+				"\n                    ngx.print(data)" +
+				"\n                    return" +
+				"\n                end" +
+				"\n" +
+				"\n                -- body may get buffered in a temp file:" +
+				"\n                local file = ngx.req.get_body_file()" +
+				"\n                if file then" +
+				"\n                    ngx.say(\"body is in file \", file)" +
+				"\n                else" +
+				"\n                    ngx.say(\"no body found\")" +
+				"\n                end" +
+				"\n            ", 36,
+		},
+		{";", 36},
+		{"return", 37},
+		{"200", 37},
+		{"foo bar baz", 37},
+		{";", 37},
+		{"}", 38},
+		{"}", 39},
+		{"}", 40},
 	}},
 	{"lua-block-tricky", []tokenLine{
 		{"http", 1},

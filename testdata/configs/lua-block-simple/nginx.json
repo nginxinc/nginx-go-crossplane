@@ -84,22 +84,29 @@
                   ]
                 },
                 {
-                  "directive": "location",
+                  "directive": "log_by_lua_block",
                   "line": 25,
+                  "args": [
+                    "\n            print(\"I need no extra escaping here, for example: \\r\\nblah\")\n        "
+                  ]
+                },
+                {
+                  "directive": "location",
+                  "line": 28,
                   "args": [
                     "/a"
                   ],
                   "block": [
                     {
                       "directive": "client_max_body_size",
-                      "line": 26,
+                      "line": 29,
                       "args": [
                         "100k"
                       ]
                     },
                     {
                       "directive": "client_body_buffer_size",
-                      "line": 27,
+                      "line": 30,
                       "args": [
                         "100k"
                       ]
@@ -110,30 +117,23 @@
             },
             {
               "directive": "upstream",
-              "line": 31,
+              "line": 34,
               "args": [
                 "foo"
               ],
               "block": [
                 {
                   "directive": "server",
-                  "line": 32,
+                  "line": 35,
                   "args": [
                     "127.0.0.1"
                   ]
                 },
                 {
                   "directive": "balancer_by_lua_block",
-                  "line": 33,
-                  "args": [
-                    "\n            -- use Lua to do something interesting here\n        "
-                  ]
-                },
-                {
-                  "directive": "log_by_lua_block",
                   "line": 36,
                   "args": [
-                    "\n            print(\"I need no extra escaping here, for example: \\r\\nblah\")\n        "
+                    "\n            -- use Lua to do something interesting here\n        "
                   ]
                 }
               ]
