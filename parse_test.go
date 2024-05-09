@@ -1926,6 +1926,95 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"lua-block-tricky", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		ParseComments:            true,
+		MatchFuncs:               []MatchFunc{MatchLua},
+		LexOptions: LexOptions{
+			ExternalLexers: []ExtLexer{
+				&LuaLexer{},
+			},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-tricky", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "server",
+								Line:      2,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      3,
+										Args:      []string{"127.0.0.1:8080"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "server_name",
+										Line:      4,
+										Args:      []string{"content_by_lua_block"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "#",
+										Args:      []string{},
+										Line:      4,
+										Comment:   pStr(" make sure this doesn't trip up lexers"),
+									},
+									{
+										Directive: "set_by_lua_block",
+										Line:      5,
+										Args: []string{"$res", " -- irregular lua block directive" +
+											"\n            local a = 32" +
+											"\n            local b = 56" +
+											"\n" +
+											"\n            ngx.var.diff = a - b;  -- write to $diff directly" +
+											"\n            return a + b;          -- return the $sum value normally" +
+											"\n        "},
+										Block: Directives{},
+									},
+									{
+										Directive: "rewrite_by_lua_block",
+										Line:      12,
+										Args: []string{" -- have valid braces in Lua code and quotes around directive" +
+											"\n            do_something(\"hello, world!\\nhiya\\n\")" +
+											"\n            a = { 1, 2, 3 }" +
+											"\n            btn = iup.button({title=\"ok\"})" +
+											"\n        "},
+										Block: Directives{},
+									},
+								},
+							},
+							{
+								Directive: "upstream",
+								Line:      18,
+								Args:      []string{"content_by_lua_block"},
+								Block: Directives{
+									{
+										Directive: "#",
+										Args:      []string{},
+										Line:      19,
+										Comment:   pStr(" stuff"),
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {
