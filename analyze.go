@@ -158,6 +158,28 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 			continue
 		}
 
+		// check if the directive is a lua block
+		////nolint:ineffassign
+		if options.LexOptions.ExternalLexers != nil {
+			for _, lexer := range options.LexOptions.ExternalLexers {
+				if _, ok := lexer.(*LuaLexer); ok {
+					if (mask&ngxConfBlock) != 0 && term != ";" { // lua block end with ; not {
+						what = fmt.Sprintf(`Lua directive "%s" has no opening "{"`, stmt.Directive)
+						continue
+					}
+					// *_by_lua_block takes ngxConfNoArgs, set_by_lua_block: ngxConfTake1
+					// but parse takes a block as an extra argument and we need to +1
+					if ((mask&ngxConfNoArgs) != 0 && len(stmt.Args) == 1) ||
+						((mask&ngxConfTake1) != 0 && len(stmt.Args) == 2) {
+						return nil
+					} else {
+						what = fmt.Sprintf(`invalid number of arguments in "%s" directive`, stmt.Directive)
+						continue
+					}
+				}
+			}
+		}
+
 		// if the directive isn't a block but should be according to the mask
 		if (mask&ngxConfBlock) != 0 && term != "{" {
 			what = fmt.Sprintf(`directive "%s" has no opening "{"`, stmt.Directive)

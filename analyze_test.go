@@ -1984,7 +1984,7 @@ func TestAnalyze_lua(t *testing.T) {
 			blockCtx{"http", "location", "location if"},
 			false,
 		},
-		"content_by_lua_file nor ok": {
+		"content_by_lua_file not ok": {
 			&Directive{
 				Directive: "content_by_lua_file",
 				Args:      []string{"foo/bar.lua"},
@@ -2029,6 +2029,78 @@ func TestAnalyze_lua(t *testing.T) {
 			blockCtx{"http"},
 			true,
 		},
+		"set_by_lua ok": {
+			&Directive{
+				Directive: "set_by_lua",
+				Args:      []string{"$res", "' return 32 + math.cos(32) '"},
+				Line:      5,
+			},
+			blockCtx{"server"},
+			false,
+		},
+		"set_by_lua not ok": {
+			&Directive{
+				Directive: "set_by_lua",
+				Args:      []string{"' return 32 + math.cos(32) '"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"set_by_lua_block ok": {
+			&Directive{
+				Directive: "set_by_lua_block",
+				Args:      []string{"$res", "{ return tonumber(ngx.var.foo) + 1 }"},
+				Line:      5,
+			},
+			blockCtx{"server"},
+			false,
+		},
+		"set_by_lua_block not ok": {
+			&Directive{
+				Directive: "set_by_lua_block",
+				Args:      []string{"{ return tonumber(ngx.var.foo) + 1 }"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"content_by_lua ok": {
+			&Directive{
+				Directive: "content_by_lua",
+				Args:      []string{"'ngx.say('I need no extra escaping here, for example: \r\nblah')'"},
+				Line:      5,
+			},
+			blockCtx{"location"},
+			false,
+		},
+		"content_by_lua not ok": {
+			&Directive{
+				Directive: "content_by_lua",
+				Args:      []string{"'ngx.say('I need no extra escaping here, for example: \r\nblah')'"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"content_by_lua_block ok": {
+			&Directive{
+				Directive: "content_by_lua_block",
+				Args:      []string{"{ngx.say('I need no extra escaping here, for example: \r\nblah')}"},
+				Line:      5,
+			},
+			blockCtx{"location"},
+			false,
+		},
+		"content_by_lua_block not ok": {
+			&Directive{
+				Directive: "content_by_lua_block",
+				Args:      []string{"{ngx.say('I need no extra escaping here, for example: \r\nblah')}"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
 	}
 
 	for name, tc := range testcases {
@@ -2037,6 +2109,11 @@ func TestAnalyze_lua(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
 				MatchFuncs: []MatchFunc{MatchLua},
+				LexOptions: LexOptions{
+					ExternalLexers: []ExtLexer{
+						&LuaLexer{},
+					},
+				},
 			})
 
 			if !tc.wantErr && err != nil {
