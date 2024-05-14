@@ -131,37 +131,52 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 			directive := Enquote(stmt.Directive)
 			_, _ = sb.WriteString(directive)
 
-			// special handling for if statements
-			if directive == "if" {
-				_, _ = sb.WriteString(" (")
-				for i, arg := range stmt.Args {
-					if i > 0 {
-						_, _ = sb.WriteString(" ")
-					}
-					_, _ = sb.WriteString(Enquote(arg))
-				}
-				_, _ = sb.WriteString(")")
-			} else {
-				for _, arg := range stmt.Args {
-					_, _ = sb.WriteString(" ")
-					_, _ = sb.WriteString(Enquote(arg))
-				}
-			}
-
-			if !stmt.IsBlock() {
-				_, _ = sb.WriteString(";")
-			} else {
+			// special handling for'set_by_lua_block' directive
+			if directive == "set_by_lua_block" {
+				_, _ = sb.WriteString(" ")
+				_, _ = sb.WriteString(stmt.Args[0]) // argument for return value
 				_, _ = sb.WriteString(" {")
-				stmt := stmt
-				buildBlock(sb, stmt, stmt.Block, depth+1, stmt.Line, options)
-				_, _ = sb.WriteString("\n")
-				_, _ = sb.WriteString(margin(options, depth))
+				_, _ = sb.WriteString(stmt.Args[1]) // argument containing block content
 				_, _ = sb.WriteString("}")
+				// handling other lua block directives
+			} else if strings.Contains(directive, "_by_lua_block") {
+				_, _ = sb.WriteString(" {")
+				_, _ = sb.WriteString(stmt.Args[0])
+				_, _ = sb.WriteString("}")
+			} else {
+				// special handling for if statements
+				if directive == "if" {
+					_, _ = sb.WriteString(" (")
+					for i, arg := range stmt.Args {
+						if i > 0 {
+							_, _ = sb.WriteString(" ")
+						}
+						_, _ = sb.WriteString(Enquote(arg))
+					}
+					_, _ = sb.WriteString(")")
+				} else {
+					for _, arg := range stmt.Args {
+						_, _ = sb.WriteString(" ")
+						_, _ = sb.WriteString(Enquote(arg))
+					}
+				}
+
+				if !stmt.IsBlock() {
+					_, _ = sb.WriteString(";")
+				} else {
+					_, _ = sb.WriteString(" {")
+					stmt := stmt
+					buildBlock(sb, stmt, stmt.Block, depth+1, stmt.Line, options)
+					_, _ = sb.WriteString("\n")
+					_, _ = sb.WriteString(margin(options, depth))
+					_, _ = sb.WriteString("}")
+				}
 			}
 		}
 		lastLine = stmt.Line
 	}
 }
+
 func margin(options *BuildOptions, depth int) string {
 	indent := depth * options.Indent
 	if indent < MaxIndent {
