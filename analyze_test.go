@@ -2050,7 +2050,7 @@ func TestAnalyze_lua(t *testing.T) {
 		"set_by_lua_block ok": {
 			&Directive{
 				Directive: "set_by_lua_block",
-				Args:      []string{"$res", "{ return tonumber(ngx.var.foo) + 1 }"},
+				Args:      []string{"$res", "return tonumber(ngx.var.foo) + 1"},
 				Line:      5,
 			},
 			blockCtx{"http", "server"},
@@ -2059,11 +2059,11 @@ func TestAnalyze_lua(t *testing.T) {
 		"set_by_lua_block not ok no return value": {
 			&Directive{
 				Directive: "set_by_lua_block",
-				Args:      []string{"{ return tonumber(ngx.var.foo) + 1 }"},
+				Args:      []string{"return tonumber(ngx.var.foo) + 1"},
 				Line:      5,
 			},
 			blockCtx{"http", "server"},
-			false,
+			true,
 		},
 		"content_by_lua ok": {
 			&Directive{
@@ -2074,31 +2074,31 @@ func TestAnalyze_lua(t *testing.T) {
 			blockCtx{"http", "location"},
 			false,
 		},
-		"content_by_lua not ok": {
+		"content_by_lua not ok stream": {
 			&Directive{
 				Directive: "content_by_lua",
 				Args:      []string{"'ngx.say('I need no extra escaping here, for example: \r\nblah')'"},
 				Line:      5,
 			},
-			blockCtx{"http", "location"},
+			blockCtx{"stream"},
 			true,
 		},
 		"content_by_lua_block ok": {
 			&Directive{
 				Directive: "content_by_lua_block",
-				Args:      []string{"{ngx.say('I need no extra escaping here, for example: \r\nblah')}"},
+				Args:      []string{"ngx.say('I need no extra escaping here, for example: \r\nblah')"},
 				Line:      5,
 			},
-			blockCtx{"http", "server","location"},
+			blockCtx{"http", "location", "if"},
 			false,
 		},
-		"content_by_lua_block not ok": {
+		"content_by_lua_block not ok extra argument": {
 			&Directive{
 				Directive: "content_by_lua_block",
-				Args:      []string{"{ngx.say('I need no extra escaping here, for example: \r\nblah')}"},
+				Args:      []string{"1", "ngx.say('I need no extra escaping here, for example: \r\nblah')"},
 				Line:      5,
 			},
-			blockCtx{"http", "location"},
+			blockCtx{"http", "location", "if"},
 			true,
 		},
 	}

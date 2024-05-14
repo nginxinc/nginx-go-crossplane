@@ -158,28 +158,6 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 			continue
 		}
 
-		// check if the directive is a lua block
-		////nolint:ineffassign
-		if options.LexOptions.ExternalLexers != nil {
-			for _, lexer := range options.LexOptions.ExternalLexers {
-				if _, ok := lexer.(*LuaLexer); ok {
-					if (mask&ngxConfBlock) != 0 && term != ";" { // lua block end with ; not {
-						what = fmt.Sprintf(`Lua directive "%s" has no opening "{"`, stmt.Directive)
-						continue
-					}
-					// *_by_lua_block takes ngxConfNoArgs, set_by_lua_block: ngxConfTake1
-					// but parse takes a block as an extra argument and we need to +1
-					if ((mask&ngxConfNoArgs) != 0 && len(stmt.Args) == 1) ||
-						((mask&ngxConfTake1) != 0 && len(stmt.Args) == 2) {
-						return nil
-					} else {
-						what = fmt.Sprintf(`invalid number of arguments in "%s" directive`, stmt.Directive)
-						continue
-					}
-				}
-			}
-		}
-
 		// if the directive isn't a block but should be according to the mask
 		if (mask&ngxConfBlock) != 0 && term != "{" {
 			what = fmt.Sprintf(`directive "%s" has no opening "{"`, stmt.Directive)
@@ -2614,7 +2592,7 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"init_by_lua_block": {
-		ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"init_by_lua_file": {
 		ngxHTTPMainConf | ngxConfTake1,
@@ -2623,13 +2601,13 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"init_worker_by_lua_block": {
-		ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"init_worker_by_lua_file": {
 		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"exit_worker_by_lua_block": {
-		ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"exit_worker_by_lua_file": {
 		ngxHTTPMainConf | ngxConfTake1,
@@ -2638,7 +2616,7 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConf2More,
 	},
 	"set_by_lua_block": {
-		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1 | ngxConfBlock,
+		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake2,
 	},
 	"set_by_lua_file": {
 		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConf2More,
@@ -2647,13 +2625,13 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"content_by_lua_block": {
-		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"content_by_lua_file": {
 		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"server_rewrite_by_lua_block": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
 	"server_rewrite_by_lua_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -2662,7 +2640,7 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"rewrite_by_lua_block": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"rewrite_by_lua_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
@@ -2671,7 +2649,7 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"access_by_lua_block": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"access_by_lua_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
@@ -2680,7 +2658,7 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"header_filter_by_lua_block": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"header_filter_by_lua_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
@@ -2689,7 +2667,7 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"body_filter_by_lua_block": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"body_filter_by_lua_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
@@ -2698,13 +2676,13 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"log_by_lua_block": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"log_by_lua_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"balancer_by_lua_block": {
-		ngxHTTPUpsConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPUpsConf | ngxConfTake1,
 	},
 	"balancer_by_lua_file": {
 		ngxHTTPUpsConf | ngxConfTake1,
@@ -2713,25 +2691,25 @@ var LuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
 	},
 	"ssl_client_hello_by_lua_block": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
 	"ssl_client_hello_by_lua_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
 	"ssl_certificate_by_lua_block": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
 	"ssl_certificate_by_lua_file": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
 	"ssl_session_fetch_by_lua_block": {
-		ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"ssl_session_fetch_by_lua_file": {
 		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"ssl_session_store_by_lua_block": {
-		ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
+		ngxHTTPMainConf | ngxConfTake1,
 	},
 	"ssl_session_store_by_lua_file": {
 		ngxHTTPMainConf | ngxConfTake1,
