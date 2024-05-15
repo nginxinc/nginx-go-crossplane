@@ -52,7 +52,7 @@ type LexScanner interface {
 }
 
 type ExtLexer interface {
-	Register(LexScanner) []string
+	Register(scanner LexScanner) []string
 	Lex(matchedToken string) <-chan NgxToken
 }
 
@@ -93,7 +93,7 @@ type tokenInfo struct {
 	LineNumberExists bool
 }
 
-//nolint:gocyclo,funlen,gocognit
+//nolint:gocyclo,funlen,gocognit,maintidx
 func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	token := strings.Builder{}
 	tokenLine := 1
@@ -164,6 +164,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 			la = "\\" + la
 		}
 
+		// special handling for *_by_lua_block directives
 		if token.Len() > 0 {
 			tokenStr := token.String()
 			if ext, ok := externalLexers[tokenStr]; ok {
@@ -187,7 +188,6 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 					if lastLexState == inQuote && la == quote {
 						continue
 					}
-
 				}
 			}
 		}
@@ -345,7 +345,7 @@ func (ll *LuaLexer) Register(s LexScanner) []string {
 	}
 }
 
-//nolint:funlen
+//nolint:funlen,gocognit,gocyclo
 func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 	tokenCh := make(chan NgxToken)
 
@@ -356,7 +356,8 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 		var tok strings.Builder
 		var inQuotes bool
 
-		if matchedToken == "set_by_lua_block" {
+		// special handling for'set_by_lua_block' directive
+		if matchedToken == "set_by_lua_block" { // #nosec G101
 			arg := ""
 			for {
 				if !ll.s.Scan() {
@@ -407,7 +408,6 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 			if err := ll.s.Err(); err != nil {
 				lineno := ll.s.Line()
 				tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: err.Error(), Line: &lineno}}
-
 			}
 
 			switch {
@@ -431,7 +431,7 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 
 				if tokenDepth == 0 {
 					tokenCh <- NgxToken{Value: tok.String(), Line: ll.s.Line(), IsQuoted: true}
-					tokenCh <- NgxToken{Value: ";", Line: ll.s.Line(), IsQuoted: false} // For an end to the Lua string, seems hacky.
+					tokenCh <- NgxToken{Value: ";", Line: ll.s.Line(), IsQuoted: false} // For an end to the Lua string based on the nginx bahavior
 					// See: https://github.com/nginxinc/crossplane/blob/master/crossplane/ext/lua.py#L122C25-L122C41
 					return
 				}
@@ -442,8 +442,7 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 
 			default:
 				// Expected first token encountered to be a "{" to open a Lua block. Handle any other non-whitespace
-				// character to mean we are not about to tokenize Lua.
-
+				// character to mean we are not about to tokenize Lua
 				// ignoring everything until first open brace where tokenDepth > 0
 				if isSpace(next) && tokenDepth == 0 {
 					continue

@@ -35,7 +35,7 @@ type compareFixture struct {
 	options ParseOptions
 }
 
-//nolint:gochecknoglobals, goconst
+//nolint:gochecknoglobals
 var buildFixtures = []buildFixture{
 	{
 		name:    "nested-and-multiple-args",

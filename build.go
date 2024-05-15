@@ -108,6 +108,7 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 	return err
 }
 
+//nolint:funlen,gocognit
 func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
 	for i, stmt := range block {
 		// if the this statement is a comment on the same line as the preview, do not emit EOL for this stmt
@@ -131,19 +132,21 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 			directive := Enquote(stmt.Directive)
 			_, _ = sb.WriteString(directive)
 
+			switch {
 			// special handling for'set_by_lua_block' directive
-			if directive == "set_by_lua_block" {
+			case directive == "set_by_lua_block":
 				_, _ = sb.WriteString(" ")
 				_, _ = sb.WriteString(stmt.Args[0]) // argument for return value
 				_, _ = sb.WriteString(" {")
 				_, _ = sb.WriteString(stmt.Args[1]) // argument containing block content
 				_, _ = sb.WriteString("}")
 				// handling other lua block directives
-			} else if strings.Contains(directive, "_by_lua_block") {
+			case strings.Contains(directive, "_by_lua_block"):
 				_, _ = sb.WriteString(" {")
 				_, _ = sb.WriteString(stmt.Args[0])
 				_, _ = sb.WriteString("}")
-			} else {
+
+			default:
 				// special handling for if statements
 				if directive == "if" {
 					_, _ = sb.WriteString(" (")
