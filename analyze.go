@@ -38,6 +38,7 @@ const (
 
 	// bit masks for different directive locations.
 	ngxDirectConf     = 0x00010000 // main file (not used)
+	ngxMgmtMainConf   = 0x00020000 // mgmt // unique bitmask that may not match NGINX source
 	ngxMainConf       = 0x00040000 // main context
 	ngxEventConf      = 0x00080000 // events
 	ngxMailMainConf   = 0x00100000 // mail
@@ -55,6 +56,7 @@ const (
 )
 
 // helpful directive location alias describing "any" context
+// doesn't include ngxHTTPSifConf, ngxHTTPLifConf, ngxHTTPLmtConf, or ngxMgmtMainConf.
 const ngxAnyConf = ngxMainConf | ngxEventConf | ngxMailMainConf | ngxMailSrvConf |
 	ngxStreamMainConf | ngxStreamSrvConf | ngxStreamUpsConf |
 	ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPUpsConf |
@@ -78,6 +80,7 @@ var contexts = map[string]uint{
 	blockCtx{"http", "server", "if"}.key():             ngxHTTPSifConf,
 	blockCtx{"http", "location", "if"}.key():           ngxHTTPLifConf,
 	blockCtx{"http", "location", "limit_except"}.key(): ngxHTTPLmtConf,
+	blockCtx{"mgmt"}.key():                             ngxMgmtMainConf,
 }
 
 func enterBlockCtx(stmt *Directive, ctx blockCtx) blockCtx {
@@ -338,6 +341,9 @@ var directives = map[string][]uint{
 	},
 	"client_max_body_size": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"connect_timeout": {
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"connection_pool_size": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -972,6 +978,9 @@ var directives = map[string][]uint{
 	"merge_slashes": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
 	},
+	"mgmt": {
+		ngxMainConf | ngxConfBlock | ngxConfNoArgs,
+	},
 	"min_delete_depth": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
@@ -1372,6 +1381,9 @@ var directives = map[string][]uint{
 	"read_ahead": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
+	"read_timeout": {
+		ngxMgmtMainConf | ngxConfTake1,
+	},
 	"real_ip_header": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
 	},
@@ -1398,11 +1410,13 @@ var directives = map[string][]uint{
 		ngxMailMainConf | ngxMailSrvConf | ngxConf1More,
 		ngxStreamMainConf | ngxStreamUpsConf | ngxStreamSrvConf | ngxConf1More,
 		ngxHTTPUpsConf | ngxConf1More,
+		ngxMgmtMainConf | ngxConf1More,
 	},
 	"resolver_timeout": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPUpsConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamUpsConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"return": {
 		ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake12,
@@ -1566,6 +1580,7 @@ var directives = map[string][]uint{
 	},
 	"send_timeout": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"sendfile": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
@@ -1654,6 +1669,7 @@ var directives = map[string][]uint{
 	"ssl": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
+		ngxMgmtMainConf | ngxConfFlag,
 	},
 	"ssl_alpn": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
@@ -1665,16 +1681,19 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"ssl_certificate_key": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"ssl_ciphers": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"ssl_client_certificate": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -1690,6 +1709,7 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"ssl_dhparam": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -1710,6 +1730,9 @@ var directives = map[string][]uint{
 	"ssl_handshake_timeout": {
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
+	"ssl_name": {
+		ngxMgmtMainConf | ngxConfTake1,
+	},
 	"ssl_ocsp": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
@@ -1723,6 +1746,7 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"ssl_prefer_server_ciphers": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
@@ -1736,9 +1760,13 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConf1More,
 		ngxMailMainConf | ngxMailSrvConf | ngxConf1More,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
+		ngxMgmtMainConf | ngxConf1More,
 	},
 	"ssl_reject_handshake": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
+	},
+	"ssl_server_name": {
+		ngxMgmtMainConf | ngxConfFlag,
 	},
 	"ssl_session_cache": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake12,
@@ -1776,6 +1804,10 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
+	},
+	"ssl_verify": {
+		ngxMgmtMainConf | ngxConfFlag,
 	},
 	"ssl_verify_client": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -1786,6 +1818,7 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"starttls": {
 		ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
@@ -1852,6 +1885,9 @@ var directives = map[string][]uint{
 	"upstream_conf": {
 		ngxHTTPLocConf | ngxConfNoArgs,
 	},
+	"usage_report": {
+		ngxMgmtMainConf | ngxConfNoArgs | ngxConfTake1 | ngxConfTake2,
+	},
 	"use": {
 		ngxEventConf | ngxConfTake1,
 	},
@@ -1884,6 +1920,9 @@ var directives = map[string][]uint{
 	},
 	"userid_service": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+	},
+	"uuid_file": {
+		ngxMgmtMainConf | ngxConfTake1,
 	},
 	"uwsgi_bind": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
