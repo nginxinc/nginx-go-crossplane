@@ -345,7 +345,7 @@ func (ll *LuaLexer) Register(s LexScanner) []string {
 	}
 }
 
-//nolint:funlen,gocognit,gocyclo
+//nolint:funlen,gocognit,gocyclo,nosec
 func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 	tokenCh := make(chan NgxToken)
 
@@ -357,7 +357,8 @@ func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
 		var inQuotes bool
 
 		// special handling for'set_by_lua_block' directive
-		if matchedToken == "set_by_lua_block" { // #nosec G101
+		// #nosec G101
+		if matchedToken == "set_by_lua_block" { //nolint
 			arg := ""
 			for {
 				if !ll.s.Scan() {
