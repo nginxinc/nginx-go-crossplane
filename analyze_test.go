@@ -538,6 +538,7 @@ func TestAnalyze_zone_sync(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -602,6 +603,7 @@ func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_security_log_enable(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -776,6 +778,7 @@ func TestAnalyze_nap_app_protect_policy_file(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_physical_memory_util_thresholds(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -840,6 +843,7 @@ func TestAnalyze_nap_app_protect_physical_memory_util_thresholds(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_cpu_thresholds(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -904,6 +908,7 @@ func TestAnalyze_nap_app_protect_cpu_thresholds(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_failure_mode_action(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -968,6 +973,7 @@ func TestAnalyze_nap_app_protect_failure_mode_action(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_cookie_seed(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -1032,6 +1038,7 @@ func TestAnalyze_nap_app_protect_cookie_seed(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_compressed_requests_action(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -1096,6 +1103,7 @@ func TestAnalyze_nap_app_protect_compressed_requests_action(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_request_buffer_overflow_action(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -1160,6 +1168,7 @@ func TestAnalyze_nap_app_protect_request_buffer_overflow_action(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_user_defined_signatures(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -1224,6 +1233,7 @@ func TestAnalyze_nap_app_protect_user_defined_signatures(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_reconnect_period_seconds(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -2040,6 +2050,7 @@ func TestAnalyze_lua(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_mgmt(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
