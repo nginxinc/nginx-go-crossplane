@@ -261,6 +261,33 @@ func TestAnalyze_njs(t *testing.T) {
 			blockCtx{"stream"},
 			true,
 		},
+		"js_shared_dict_zone in http context ok": {
+			&Directive{
+				Directive: "js_shared_dict_zone",
+				Args:      []string{"zone=foo:1M"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"js_shared_dict_zone in stream context ok": {
+			&Directive{
+				Directive: "js_shared_dict_zone",
+				Args:      []string{"zone=foo:1M"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			false,
+		},
+		"js_shared_dict_zone not ok": {
+			&Directive{
+				Directive: "js_shared_dict_zone",
+				Args:      []string{"zone=foo:1M"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
 	}
 
 	for name, tc := range testcases {

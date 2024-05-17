@@ -2262,6 +2262,10 @@ var directives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
 	},
+	"js_shared_dict_zone": {
+		ngxHTTPMainConf | ngxConf1More,
+		ngxStreamMainConf | ngxConf1More,
+	},
 	"js_var": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake12,
