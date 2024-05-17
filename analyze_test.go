@@ -538,6 +538,7 @@ func TestAnalyze_zone_sync(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -602,6 +603,7 @@ func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_security_log_enable(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -776,6 +778,7 @@ func TestAnalyze_nap_app_protect_policy_file(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_physical_memory_util_thresholds(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -840,6 +843,7 @@ func TestAnalyze_nap_app_protect_physical_memory_util_thresholds(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_cpu_thresholds(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -904,6 +908,7 @@ func TestAnalyze_nap_app_protect_cpu_thresholds(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_failure_mode_action(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -968,6 +973,7 @@ func TestAnalyze_nap_app_protect_failure_mode_action(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_cookie_seed(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -1032,6 +1038,7 @@ func TestAnalyze_nap_app_protect_cookie_seed(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_compressed_requests_action(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -1096,6 +1103,7 @@ func TestAnalyze_nap_app_protect_compressed_requests_action(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_request_buffer_overflow_action(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -1160,6 +1168,7 @@ func TestAnalyze_nap_app_protect_request_buffer_overflow_action(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_user_defined_signatures(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -1224,6 +1233,7 @@ func TestAnalyze_nap_app_protect_user_defined_signatures(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_nap_app_protect_reconnect_period_seconds(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
@@ -2029,6 +2039,226 @@ func TestAnalyze_lua(t *testing.T) {
 				MatchFuncs: []MatchFunc{MatchLua},
 			})
 
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+//nolint:funlen
+func TestAnalyze_mgmt(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"connect_timeout in mgmt context ok": {
+			&Directive{
+				Directive: "connect_timeout",
+				Args:      []string{"15s"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"mgmt in main context ok": {
+			&Directive{
+				Directive: "mgmt",
+				Line:      5,
+			},
+			blockCtx{"main"},
+			false,
+		},
+		"read_timeout in mgmt context ok": {
+			&Directive{
+				Directive: "read_timeout",
+				Args:      []string{"60s"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"resolver in mgmt context ok": {
+			&Directive{
+				Directive: "resolver",
+				Args:      []string{"127.0.0.53:53", "valid=100s"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"resolver_timeout in mgmt context ok": {
+			&Directive{
+				Directive: "resolver_timeout",
+				Args:      []string{"30s"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"send_timeout in mgmt context ok": {
+			&Directive{
+				Directive: "send_timeout",
+				Args:      []string{"60s"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl in mgmt context ok": {
+			&Directive{
+				Directive: "ssl",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_certificate in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_certificate",
+				Args:      []string{"/etc/nginx/foo.pem"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_certificate_key in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_certificate_key",
+				Args:      []string{"/etc/nginx/foo.pem"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_ciphers in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_ciphers",
+				Args:      []string{"DEFAULT"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_crl in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_crl",
+				Args:      []string{"/etc/nginx/foo.pem"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_name in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_name",
+				Args:      []string{"15s"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_password_file in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_password_file",
+				Args:      []string{"/etc/nginx/foo.pem"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_protocols in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_protocols",
+				Args:      []string{"TLSv1 TLSv1.1 TLSv1.2 TLSv1.3"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_server_name in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_server_name",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_trusted_certificate in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_trusted_certificate",
+				Args:      []string{"/etc/nginx/foo.pem"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_verify in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_verify",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"ssl_verify_depth in mgmt context ok": {
+			&Directive{
+				Directive: "ssl_verify_depth",
+				Args:      []string{"1"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"usage_report in mgmt context ok": {
+			&Directive{
+				Directive: "usage_report",
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"uuid_file in mgmt context ok": {
+			&Directive{
+				Directive: "uuid_file",
+				Args:      []string{"logs/uuid"},
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			false,
+		},
+		"usage_report not in mgmt context not ok": {
+			&Directive{
+				Directive: "usage_report",
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"ssl_protocols in mgmt context ok but not enough arguments": {
+			&Directive{
+				Directive: "ssl_protocols",
+				Line:      5,
+			},
+			blockCtx{"mgmt"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
 			}
