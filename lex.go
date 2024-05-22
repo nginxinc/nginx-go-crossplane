@@ -113,14 +113,13 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	var la, quote string
 
 	// check if the lua token is directive, if token line is already processd, then this is not the directive
-	nextTokenIsDirective := make(map[int]tokenInfo)
+	nextTokenIsDirective := true
 
 	scanner := bufio.NewScanner(reader)
 	scanner.Split(bufio.ScanRunes)
 
 	emit := func(line int, quoted bool, err error) {
 		tokenCh <- NgxToken{Value: token.String(), Line: line, IsQuoted: quoted, Error: err}
-		nextTokenIsDirective[line] = tokenInfo{LineNumberExists: true}
 		token.Reset()
 		lexState = skipSpace
 	}
@@ -150,6 +149,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 			la = scanner.Text()
 			if isEOL(la) {
 				tokenLine++
+				nextTokenIsDirective = true
 			}
 		} else {
 			readNext = true
@@ -172,7 +172,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		if token.Len() > 0 {
 			tokenStr := token.String()
 			if ext, ok := externalLexers[tokenStr]; ok {
-				if _, exists := nextTokenIsDirective[tokenLine]; !exists {
+				if nextTokenIsDirective == true  {
 					// saving lex state before emitting tokenStr to know if we encountered start quote
 					lastLexState := lexState
 					if lexState == inQuote {
@@ -210,6 +210,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 				newToken = false
 				if la == "#" {
 					token.WriteString(la)
+					nextTokenIsDirective = false
 					lexState = inComment
 					tokenStartLine = tokenLine
 					continue
@@ -218,11 +219,13 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 
 			if isSpace(la) {
 				emit(tokenStartLine, false, nil)
+				nextTokenIsDirective = false
 				continue
 			}
 
 			// handle parameter expansion syntax (ex: "${var[@]}")
 			if token.Len() > 0 && strings.HasSuffix(token.String(), "$") && la == "{" {
+				nextTokenIsDirective = false
 				token.WriteString(la)
 				lexState = inVar
 				dupSpecialChar = false
@@ -280,6 +283,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 				token.WriteString(la)
 				// this character is a full token so emit it
 				emit(tokenStartLine, false, nil)
+				nextTokenIsDirective = true
 				continue
 			}
 
