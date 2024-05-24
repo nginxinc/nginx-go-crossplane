@@ -2725,3 +2725,29 @@ func MatchLua(directive string) ([]uint, bool) {
 	masks, matched := LuaDirectives[directive]
 	return masks, matched
 }
+
+// nginx headers_more directives
+// [https://github.com/openresty/headers-more-nginx-module]
+//
+//nolint:gochecknoglobals
+var headersMoreDirectives = map[string][]uint{
+	"more_set_headers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConf1More,
+	},
+	"more_clear_headers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConf1More,
+	},
+	"more_set_input_headers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConf1More,
+	},
+	"more_clear_input_headers": {
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConf1More,
+	},
+}
+
+// MatchHeadersMore is a match function for parsing an NGINX config that contains the
+// Headers-More module.
+func MatchHeadersMore(directive string) ([]uint, bool) {
+	masks, matched := headersMoreDirectives[directive]
+	return masks, matched
+}

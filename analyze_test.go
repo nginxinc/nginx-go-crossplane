@@ -2269,3 +2269,86 @@ func TestAnalyze_mgmt(t *testing.T) {
 		})
 	}
 }
+
+//nolint:funlen
+func TestAnalyze_headers_more(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"more_set_headers ok": {
+			&Directive{
+				Directive: "more_set_headers",
+				Args:      []string{"Server: my_server"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "location if"},
+			false,
+		},
+		"more_set_headers multiple args ok": {
+			&Directive{
+				Directive: "more_set_headers",
+				Args:      []string{"-s", "404", "-s", "500 503", "Foo: bar"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "location if"},
+			false,
+		},
+		"more_set_headers not ok": {
+			&Directive{
+				Directive: "more_set_headers",
+				Args:      []string{"Server: my_server"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"more_clear_headers ok": {
+			&Directive{
+				Directive: "more_clear_headers",
+				Args:      []string{"X-Hidden-*"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "location if"},
+			false,
+		},
+		"more_set_input_headers ok": {
+			&Directive{
+				Directive: "more_set_input_headers",
+				Args:      []string{"Authorization: $http_authorization"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "location if"},
+			false,
+		},
+		"more_clear_input_headers ok": {
+			&Directive{
+				Directive: "more_set_input_headers",
+				Args:      []string{"-t", "'text/plain'", "Foo: ", "Baz: "},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "location if"},
+			false,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				MatchFuncs: []MatchFunc{MatchHeadersMore},
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
