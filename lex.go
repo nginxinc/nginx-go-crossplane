@@ -9,6 +9,7 @@ package crossplane
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -49,6 +50,10 @@ type ExtLexer interface {
 	Lex(matchedToken string) <-chan NgxToken
 }
 
+// LexOptions allows customization of the lexing process by specifying external lexers
+// that can handle specific directives. By registering interest in particular directives,
+// external lexers can ensure that these directives are processed separately
+// from the general lexical analysis logic.
 type LexOptions struct {
 	ExternalLexers []ExtLexer
 }
@@ -99,7 +104,6 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	esc := false
 	depth := 0
 	var la, quote string
-
 	nextTokenIsDirective := true
 
 	scanner := bufio.NewScanner(reader)
@@ -123,6 +127,12 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		}
 
 		for _, d := range ext.Register(externalScanner) {
+			if _, ok := externalLexers[d]; ok {
+				// Handle the duplicate token name, emitting an error token and exit
+				tokenCh <- NgxToken{Value: "Duplicate token name", Line: tokenLine, IsQuoted: false, Error: errors.New("Duplicate token name handled")}
+				close(tokenCh)
+				return
+			}
 			externalLexers[d] = ext
 		}
 	}
