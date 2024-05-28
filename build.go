@@ -18,9 +18,15 @@ import (
 )
 
 type BuildOptions struct {
-	Indent int
-	Tabs   bool
-	Header bool
+	Indent        int
+	Tabs          bool
+	Header        bool
+	ExternalBuild []ExtBuild // handle specific directives
+}
+
+type ExtBuild interface {
+	ExtDirectives() []string
+	BuildLuaBlock(sb io.StringWriter, directive string, stmt *Directive)
 }
 
 const MaxIndent = 100
@@ -36,6 +42,44 @@ const header = `# This config was built from JSON using NGINX crossplane.
 # https://github.com/nginxinc/crossplane/issues
 
 `
+
+type LuaBuild struct{}
+
+func (lb *LuaBuild) ExtDirectives() []string {
+	return []string{
+		"init_by_lua_block",
+		"init_worker_by_lua_block",
+		"exit_worker_by_lua_block",
+		"set_by_lua_block",
+		"content_by_lua_block",
+		"server_rewrite_by_lua_block",
+		"rewrite_by_lua_block",
+		"access_by_lua_block",
+		"header_filter_by_lua_block",
+		"body_filter_by_lua_block",
+		"log_by_lua_block",
+		"balancer_by_lua_block",
+		"ssl_client_hello_by_lua_block",
+		"ssl_certificate_by_lua_block",
+		"ssl_session_fetch_by_lua_block",
+		"ssl_session_store_by_lua_block",
+	}
+}
+
+func (lb *LuaBuild) BuildLuaBlock(sb io.StringWriter, directive string, stmt *Directive) {
+	// special handling for'set_by_lua_block' directive
+	if directive == "set_by_lua_block" {
+		_, _ = sb.WriteString(" ")
+		_, _ = sb.WriteString(stmt.Args[0]) // argument for return value
+		_, _ = sb.WriteString(" {")
+		_, _ = sb.WriteString(stmt.Args[1]) // argument containing block content
+		_, _ = sb.WriteString("}")
+	} else {
+		_, _ = sb.WriteString(" {")
+		_, _ = sb.WriteString(stmt.Args[0])
+		_, _ = sb.WriteString("}")
+	}
+}
 
 // BuildFiles builds all of the config files in a crossplane.Payload and
 // writes them to disk.
@@ -132,21 +176,19 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 			directive := Enquote(stmt.Directive)
 			_, _ = sb.WriteString(directive)
 
-			switch {
-			// special handling for'set_by_lua_block' directive
-			case directive == "set_by_lua_block":
-				_, _ = sb.WriteString(" ")
-				_, _ = sb.WriteString(stmt.Args[0]) // argument for return value
-				_, _ = sb.WriteString(" {")
-				_, _ = sb.WriteString(stmt.Args[1]) // argument containing block content
-				_, _ = sb.WriteString("}")
-				// handling other lua block directives
-			case strings.Contains(directive, "_by_lua_block"):
-				_, _ = sb.WriteString(" {")
-				_, _ = sb.WriteString(stmt.Args[0])
-				_, _ = sb.WriteString("}")
+			if options.ExternalBuild != nil {
+				extDirectivesMap := make(map[string]ExtBuild)
+				for _, ext := range options.ExternalBuild {
+					directives := ext.ExtDirectives()
+					for _, d := range directives {
+						extDirectivesMap[d] = ext
+					}
 
-			default:
+					if ext, ok := extDirectivesMap[directive]; ok {
+						ext.BuildLuaBlock(sb, directive, stmt)
+					}
+				}
+			} else {
 				// special handling for if statements
 				if directive == "if" {
 					_, _ = sb.WriteString(" (")
