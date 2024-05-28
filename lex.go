@@ -87,10 +87,6 @@ func (e *extScanner) Err() error   { return e.scanner.Err() }
 func (e *extScanner) Text() string { return e.scanner.Text() }
 func (e *extScanner) Line() int    { return e.tokenLine }
 
-type tokenInfo struct {
-	LineNumberExists bool
-}
-
 //nolint:gocyclo,funlen,gocognit,maintidx
 func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	token := strings.Builder{}
@@ -129,7 +125,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		for _, d := range ext.Register(externalScanner) {
 			if _, ok := externalLexers[d]; ok {
 				// Handle the duplicate token name, emitting an error token and exit
-				tokenCh <- NgxToken{Value: "Duplicate token name", Line: tokenLine, IsQuoted: false, Error: errors.New("Duplicate token name handled")}
+				tokenCh <- NgxToken{Value: "Duplicate token name", Line: tokenLine, IsQuoted: false, Error: errors.New("duplicate token name handled")}
 				close(tokenCh)
 				return
 			}
@@ -169,7 +165,7 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		if token.Len() > 0 {
 			tokenStr := token.String()
 			if ext, ok := externalLexers[tokenStr]; ok {
-				if nextTokenIsDirective == true {
+				if nextTokenIsDirective {
 					// saving lex state before emitting tokenStr to know if we encountered start quote
 					lastLexState := lexState
 					if lexState == inQuote {
