@@ -18,7 +18,7 @@ import (
 	"strings"
 )
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var (
 	hasMagic           = regexp.MustCompile(`[*?[]`)
 	osOpen             = func(path string) (io.Reader, error) { return os.Open(path) }
@@ -29,6 +29,13 @@ type blockCtx []string
 
 func (c blockCtx) key() string {
 	return strings.Join(c, ">")
+}
+
+func (c blockCtx) getLastBlock() string {
+	if len(c) == 0 {
+		return "main"
+	}
+	return c[len(c)-1]
 }
 
 type fileCtx struct {
@@ -45,6 +52,16 @@ type parser struct {
 	includeEdges    map[string][]string
 	includeInDegree map[string]int
 }
+
+// MatchFunc is the signature of the match function used to identify NGINX directives that
+// can be encountered when parsing an NGINX configuration that references dynamic or
+// non-core modules. The argument is the name of a directive found when parsing an NGINX
+// configuration.
+//
+// The return value is a list of bitmasks that indicate the valid contexts in which the
+// directive may appear as well as the number of arguments the directive accepts. The
+// return value must contain at least one non-zero bitmask if matched is true.
+type MatchFunc func(directive string) (masks []uint, matched bool)
 
 // ParseOptions determine the behavior of an NGINX config parse.
 type ParseOptions struct {
@@ -86,6 +103,12 @@ type ParseOptions struct {
 
 	// If true, checks that directives have a valid number of arguments.
 	SkipDirectiveArgsCheck bool
+
+	// MatchFuncs are called in order when an unknown or non-core NGINX directive is
+	// encountered by the parser to determine the valid contexts and argument count of the
+	// directive. Set this option to enable parsing of directives belonging to non-core or
+	// dynamic NGINX modules that follow the usual grammar rules of an NGINX configuration.
+	MatchFuncs []MatchFunc
 }
 
 // Parse parses an NGINX configuration file.
@@ -182,7 +205,8 @@ func (p *parser) openFile(path string) (io.Reader, error) {
 }
 
 // parse Recursively parses directives from an nginx config context.
-// nolint:gocyclo,funlen,gocognit
+//
+//nolint:gocyclo,funlen,gocognit,maintidx,nonamedreturns
 func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, consume bool) (parsed Directives, err error) {
 	var tokenOk bool
 	// parse recursively by pulling from a flat stream of tokens
@@ -191,6 +215,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 			var perr *ParseError
 			if errors.As(t.Error, &perr) {
 				perr.File = &parsing.File
+				perr.BlockCtx = ctx.getLastBlock()
 				return nil, perr
 			}
 			return nil, &ParseError{
@@ -198,6 +223,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				File:        &parsing.File,
 				Line:        &t.Line,
 				originalErr: t.Error,
+				BlockCtx:    ctx.getLastBlock(),
 			}
 		}
 
@@ -249,13 +275,14 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				File:        &parsing.File,
 				Line:        &stmt.Line,
 				originalErr: ErrPrematureLexEnd,
+				BlockCtx:    ctx.getLastBlock(),
 			}
 		}
 		for t.IsQuoted || (t.Value != "{" && t.Value != ";" && t.Value != "}") {
-			if strings.HasPrefix(t.Value, "#") && !t.IsQuoted {
-				commentsInArgs = append(commentsInArgs, t.Value[1:])
-			} else {
+			if !strings.HasPrefix(t.Value, "#") || t.IsQuoted {
 				stmt.Args = append(stmt.Args, t.Value)
+			} else if p.options.ParseComments {
+				commentsInArgs = append(commentsInArgs, t.Value[1:])
 			}
 			t, tokenOk = <-tokens
 			if !tokenOk {
@@ -264,6 +291,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 					File:        &parsing.File,
 					Line:        &stmt.Line,
 					originalErr: ErrPrematureLexEnd,
+					BlockCtx:    ctx.getLastBlock(),
 				}
 			}
 		}
@@ -329,8 +357,10 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 						parsing.File,
 						stmt.Line,
 					),
-					File: &parsing.File,
-					Line: &stmt.Line,
+					File:      &parsing.File,
+					Line:      &stmt.Line,
+					Statement: stmt.String(),
+					BlockCtx:  ctx.getLastBlock(),
 				}
 			}
 
@@ -352,9 +382,11 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				// that the included file can be opened and read
 				if f, err := p.openFile(pattern); err != nil {
 					perr := &ParseError{
-						What: err.Error(),
-						File: &parsing.File,
-						Line: &stmt.Line,
+						What:      err.Error(),
+						File:      &parsing.File,
+						Line:      &stmt.Line,
+						Statement: stmt.String(),
+						BlockCtx:  ctx.getLastBlock(),
 					}
 					if !p.options.StopParsingOnError {
 						p.handleError(parsing, perr)

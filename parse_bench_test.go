@@ -12,7 +12,6 @@ import (
 	"compress/bzip2"
 	"flag"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sync"
@@ -21,7 +20,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var (
 	runBenchLocally = flag.Bool("local-parse-bench", false, "perform local parse benchmark test")
 
@@ -45,10 +44,7 @@ func getLargeConfig(b *testing.B) (string, func()) {
 	defer f.Close()
 
 	// Open output file
-	tmpdir, e := ioutil.TempDir("", "alog")
-	if e != nil {
-		b.Skip("cannot create output dir")
-	}
+	tmpdir := b.TempDir()
 	remove := func() {
 		b.Logf("removing temporary dir %s", tmpdir)
 		_ = os.RemoveAll(tmpdir)
@@ -96,12 +92,12 @@ func benchmarkParseLargeConfig(b *testing.B, sz int) {
 	}
 }
 
-func TestMain(b *testing.M) {
-	b.Run()
+func TestMain(m *testing.M) {
+	code := m.Run()
 	if rm != nil {
 		rm()
 	}
-	os.Exit(0)
+	os.Exit(code)
 }
 
 func BenchmarkParseLargeConfig_Slow_TokBuf_0(b *testing.B)   { benchmarkParseLargeConfig(b, 0) }
