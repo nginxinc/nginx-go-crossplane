@@ -32,9 +32,9 @@ type ExternalBuilder interface {
 	// RegisterExternalBuilder allows the build system to identify which NGINX directives are supported
 	// by the external builder and routes the build process of those directives to this builder.
 	RegisterExternalBuilder() []string
-	// Builder is responsible for constructing the configuration block for a specific directive.
+	// Build is responsible for constructing the configuration block for a specific directive.
 	// It is called during the configuration building process whenever a registered directive is encountered.
-	Builder(sb io.StringWriter, directive string, stmt *Directive) error
+	Build(sb io.StringWriter, stmt *Directive) error
 }
 
 const MaxIndent = 100
@@ -50,66 +50,6 @@ const header = `# This config was built from JSON using NGINX crossplane.
 # https://github.com/nginxinc/crossplane/issues
 
 `
-
-type LuaBuild struct{}
-
-func (lb *LuaBuild) RegisterExternalBuilder() []string {
-	return []string{
-		"init_by_lua_block",
-		"init_worker_by_lua_block",
-		"exit_worker_by_lua_block",
-		"set_by_lua_block",
-		"content_by_lua_block",
-		"server_rewrite_by_lua_block",
-		"rewrite_by_lua_block",
-		"access_by_lua_block",
-		"header_filter_by_lua_block",
-		"body_filter_by_lua_block",
-		"log_by_lua_block",
-		"balancer_by_lua_block",
-		"ssl_client_hello_by_lua_block",
-		"ssl_certificate_by_lua_block",
-		"ssl_session_fetch_by_lua_block",
-		"ssl_session_store_by_lua_block",
-	}
-}
-
-func (lb *LuaBuild) Builder(sb io.StringWriter, directive string, stmt *Directive) error {
-	// helper function to write to sb and check for an error
-	writeAndCheck := func(s string) error {
-		_, err := sb.WriteString(s)
-		return err
-	}
-	// special handling for'set_by_lua_block' directive
-	if directive == "set_by_lua_block" {
-		if err := writeAndCheck(" "); err != nil {
-			return err
-		}
-		if err := writeAndCheck(stmt.Args[0]); err != nil { // argument for return value
-			return err
-		}
-		if err := writeAndCheck(" {"); err != nil {
-			return err
-		}
-		if err := writeAndCheck(stmt.Args[1]); err != nil { // argument containing block content
-			return err
-		}
-		if err := writeAndCheck("}"); err != nil {
-			return err
-		}
-	} else {
-		if err := writeAndCheck(" {"); err != nil {
-			return err
-		}
-		if err := writeAndCheck(stmt.Args[0]); err != nil { // argument for return value
-			return err
-		}
-		if err := writeAndCheck("}"); err != nil {
-			return err
-		}
-	}
-	return nil
-}
 
 // BuildFiles builds all of the config files in a crossplane.Payload and
 // writes them to disk.
@@ -215,7 +155,8 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 					}
 
 					if ext, ok := extDirectivesMap[directive]; ok {
-						if err := ext.Builder(sb, directive, stmt); err != nil {
+						_, _ = sb.WriteString(" ") // space between directives and arguments
+						if err := ext.Build(sb, stmt); err != nil {
 							log.Printf("Failed to write externaller block: %v", err)
 						}
 					}

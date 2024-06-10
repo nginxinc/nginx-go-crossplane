@@ -260,7 +260,7 @@ var buildFixtures = []buildFixture{
 	},
 	{
 		name:    "lua block",
-		options: BuildOptions{ExternalBuilds: []ExternalBuilder{&LuaBuild{}}},
+		options: BuildOptions{ExternalBuilds: []ExternalBuilder{&Lua{}}},
 		parsed: Directives{
 			{
 				Directive: "content_by_lua_block",
@@ -273,7 +273,7 @@ var buildFixtures = []buildFixture{
 	},
 	{
 		name:    "set_by_lua_block",
-		options: BuildOptions{ExternalBuilds: []ExternalBuilder{&LuaBuild{}}},
+		options: BuildOptions{ExternalBuilds: []ExternalBuilder{&Lua{}}},
 		parsed: Directives{
 			{
 				Directive: "set_by_lua_block",

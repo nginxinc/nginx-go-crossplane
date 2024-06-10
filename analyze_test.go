@@ -2111,7 +2111,7 @@ func TestAnalyze_lua(t *testing.T) {
 				MatchFuncs: []MatchFunc{MatchLua},
 				LexOptions: LexOptions{
 					ExternalLexers: []ExternalLexer{
-						&LuaLexer{},
+						&Lua{},
 					},
 				},
 			})

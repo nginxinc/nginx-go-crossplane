@@ -9,7 +9,6 @@ package crossplane
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
 	"strings"
@@ -45,8 +44,17 @@ func SetTokenChanCap(size int) {
 	tokChanCap = size
 }
 
+// ExternalLexer is an interface for implementing lexers that handle external NGINX tokens during the lexical analysis phase.
 type ExternalLexer interface {
-	RegisterExternalLexer(scanner *extScanner) []string
+	// RegisterExternalLexer registers an external lexer with a given sub-scanner.
+	// This method integrates the external lexer into the lexical analysis process,
+	// enabling it to handle external token scanning. It returns a slice of strings
+	// representing the tokens that the external lexer can recognize.
+	RegisterExternalLexer(scanner *SubScanner) []string
+	// Lex processes a matched token and returns a channel of NgxToken objects.
+	// This method performs lexical analysis on the matched token and produces a stream of tokens for the parser to consume.
+	// The external lexer should close the channel once it has completed lexing the input to signal the end of tokens.
+	// Failure to close the channel will cause the receiver to wait indefinitely.
 	Lex(matchedToken string) <-chan NgxToken
 }
 
@@ -68,12 +76,12 @@ func Lex(reader io.Reader) chan NgxToken {
 	return LexWithOptions(reader, LexOptions{})
 }
 
-type extScanner struct {
+type SubScanner struct {
 	scanner   *bufio.Scanner
 	tokenLine int
 }
 
-func (e *extScanner) Scan() bool {
+func (e *SubScanner) Scan() bool {
 	if !e.scanner.Scan() {
 		return false
 	}
@@ -83,9 +91,9 @@ func (e *extScanner) Scan() bool {
 	return true
 }
 
-func (e *extScanner) Err() error   { return e.scanner.Err() }
-func (e *extScanner) Text() string { return e.scanner.Text() }
-func (e *extScanner) Line() int    { return e.tokenLine }
+func (e *SubScanner) Err() error   { return e.scanner.Err() }
+func (e *SubScanner) Text() string { return e.scanner.Text() }
+func (e *SubScanner) Line() int    { return e.tokenLine }
 
 //nolint:gocyclo,funlen,gocognit,maintidx
 func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
@@ -112,23 +120,17 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	}
 
 	var externalLexers map[string]ExternalLexer
-	var externalScanner *extScanner
+	var externalScanner *SubScanner
 	for _, ext := range options.ExternalLexers {
 		if externalLexers == nil {
 			externalLexers = make(map[string]ExternalLexer)
 		}
 
 		if externalScanner == nil {
-			externalScanner = &extScanner{scanner: scanner, tokenLine: tokenLine}
+			externalScanner = &SubScanner{scanner: scanner, tokenLine: tokenLine}
 		}
 
 		for _, d := range ext.RegisterExternalLexer(externalScanner) {
-			if _, ok := externalLexers[d]; ok {
-				// Handle the duplicate token name, emitting an error token and exit
-				tokenCh <- NgxToken{Value: "Duplicate token name", Line: tokenLine, IsQuoted: false, Error: errors.New("duplicate token name handled")}
-				close(tokenCh)
-				return
-			}
 			externalLexers[d] = ext
 		}
 	}
@@ -314,148 +316,4 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 	}
 
 	close(tokenCh)
-}
-
-type LuaLexer struct {
-	s *extScanner
-}
-
-func (ll *LuaLexer) RegisterExternalLexer(s *extScanner) []string {
-	ll.s = s
-	return []string{
-		"init_by_lua_block",
-		"init_worker_by_lua_block",
-		"exit_worker_by_lua_block",
-		"set_by_lua_block",
-		"content_by_lua_block",
-		"server_rewrite_by_lua_block",
-		"rewrite_by_lua_block",
-		"access_by_lua_block",
-		"header_filter_by_lua_block",
-		"body_filter_by_lua_block",
-		"log_by_lua_block",
-		"balancer_by_lua_block",
-		"ssl_client_hello_by_lua_block",
-		"ssl_certificate_by_lua_block",
-		"ssl_session_fetch_by_lua_block",
-		"ssl_session_store_by_lua_block",
-	}
-}
-
-//nolint:funlen,gocognit,gocyclo,nosec
-func (ll *LuaLexer) Lex(matchedToken string) <-chan NgxToken {
-	tokenCh := make(chan NgxToken)
-
-	tokenDepth := 0
-
-	go func() {
-		defer close(tokenCh)
-		var tok strings.Builder
-		var inQuotes bool
-
-		// special handling for'set_by_lua_block' directive
-		// ignore potential hardcoded credentials linter warning for "set_by_lua_block"
-		if matchedToken == "set_by_lua_block" /* #nosec G101 */ {
-			arg := ""
-			for {
-				if !ll.s.Scan() {
-					return
-				}
-				next := ll.s.Text()
-				if isSpace(next) {
-					if arg != "" {
-						tokenCh <- NgxToken{Value: arg, Line: ll.s.Line(), IsQuoted: false}
-						break
-					}
-
-					for isSpace(next) {
-						if !ll.s.Scan() {
-							return
-						}
-						next = ll.s.Text()
-					}
-				}
-				arg += next
-			}
-		}
-
-		// check that Lua block starts correctly
-		for {
-			if !ll.s.Scan() {
-				return
-			}
-			next := ll.s.Text()
-
-			if !isSpace(next) {
-				if next != "{" {
-					lineno := ll.s.Line()
-					tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: `expected "{" to start lua block`, Line: &lineno}}
-					return
-				}
-				tokenDepth++
-				break
-			}
-		}
-
-		// Grab everything in Lua block as a single token and watch for curly brace '{' in strings
-		for {
-			if !ll.s.Scan() {
-				return
-			}
-
-			next := ll.s.Text()
-			if err := ll.s.Err(); err != nil {
-				lineno := ll.s.Line()
-				tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: err.Error(), Line: &lineno}}
-			}
-
-			switch {
-			case next == "{" && !inQuotes:
-				tokenDepth++
-				if tokenDepth > 1 { // not the first open brace
-					tok.WriteString(next)
-				}
-
-			case next == "}" && !inQuotes:
-				tokenDepth--
-				if tokenDepth < 0 {
-					lineno := ll.s.Line()
-					tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: `unexpected "}"`, Line: &lineno}}
-					return
-				}
-
-				if tokenDepth > 0 { // not the last close brace for it to be 0
-					tok.WriteString(next)
-				}
-
-				if tokenDepth == 0 {
-					tokenCh <- NgxToken{Value: tok.String(), Line: ll.s.Line(), IsQuoted: true}
-					tokenCh <- NgxToken{Value: ";", Line: ll.s.Line(), IsQuoted: false} // For an end to the Lua string based on the nginx bahavior
-					// See: https://github.com/nginxinc/crossplane/blob/master/crossplane/ext/lua.py#L122C25-L122C41
-					return
-				}
-
-			case next == `"` || next == "'":
-				inQuotes = !inQuotes
-				tok.WriteString(next)
-
-			default:
-				// Expected first token encountered to be a "{" to open a Lua block. Handle any other non-whitespace
-				// character to mean we are not about to tokenize Lua
-				// ignoring everything until first open brace where tokenDepth > 0
-				if isSpace(next) && tokenDepth == 0 {
-					continue
-				}
-
-				// stricly check that first non space character is {
-				if tokenDepth == 0 {
-					tokenCh <- NgxToken{Value: next, Line: ll.s.Line(), IsQuoted: false}
-					return
-				}
-				tok.WriteString(next)
-			}
-		}
-	}()
-
-	return tokenCh
 }

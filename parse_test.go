@@ -1708,7 +1708,7 @@ var parseFixtures = []parseFixture{
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
 			ExternalLexers: []ExternalLexer{
-				&LuaLexer{},
+				&Lua{},
 			},
 		},
 	}, Payload{
@@ -1839,7 +1839,7 @@ var parseFixtures = []parseFixture{
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
 			ExternalLexers: []ExternalLexer{
-				&LuaLexer{},
+				&Lua{},
 			},
 		},
 	}, Payload{
@@ -1933,7 +1933,7 @@ var parseFixtures = []parseFixture{
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
 			ExternalLexers: []ExternalLexer{
-				&LuaLexer{},
+				&Lua{},
 			},
 		},
 	}, Payload{
