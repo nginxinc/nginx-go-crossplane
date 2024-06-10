@@ -10,6 +10,7 @@ package crossplane
 import (
 	"bytes"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,15 +19,22 @@ import (
 )
 
 type BuildOptions struct {
-	Indent        int
-	Tabs          bool
-	Header        bool
-	ExternalBuild []ExtBuild // handle specific directives
+	Indent         int
+	Tabs           bool
+	Header         bool
+	ExternalBuilds []ExternalBuilder // handle specific directives
 }
 
-type ExtBuild interface {
-	ExtDirectives() []string
-	BuildLuaBlock(sb io.StringWriter, directive string, stmt *Directive)
+// ExternalBuilder is the interface that provides an abstraction for implementing builders that
+// can handle external and custom NGINXdirectives during the build process of NGINX configurations
+// from JSON payloads.
+type ExternalBuilder interface {
+	// RegisterExternalBuilder allows the build system to identify which NGINX directives are supported
+	// by the external builder and routes the build process of those directives to this builder.
+	RegisterExternalBuilder() []string
+	// Builder is responsible for constructing the configuration block for a specific directive.
+	// It is called during the configuration building process whenever a registered directive is encountered.
+	Builder(sb io.StringWriter, directive string, stmt *Directive) error
 }
 
 const MaxIndent = 100
@@ -45,7 +53,7 @@ const header = `# This config was built from JSON using NGINX crossplane.
 
 type LuaBuild struct{}
 
-func (lb *LuaBuild) ExtDirectives() []string {
+func (lb *LuaBuild) RegisterExternalBuilder() []string {
 	return []string{
 		"init_by_lua_block",
 		"init_worker_by_lua_block",
@@ -66,19 +74,41 @@ func (lb *LuaBuild) ExtDirectives() []string {
 	}
 }
 
-func (lb *LuaBuild) BuildLuaBlock(sb io.StringWriter, directive string, stmt *Directive) {
+func (lb *LuaBuild) Builder(sb io.StringWriter, directive string, stmt *Directive) error {
+	// helper function to write to sb and check for an error
+	writeAndCheck := func(s string) error {
+		_, err := sb.WriteString(s)
+		return err
+	}
 	// special handling for'set_by_lua_block' directive
 	if directive == "set_by_lua_block" {
-		_, _ = sb.WriteString(" ")
-		_, _ = sb.WriteString(stmt.Args[0]) // argument for return value
-		_, _ = sb.WriteString(" {")
-		_, _ = sb.WriteString(stmt.Args[1]) // argument containing block content
-		_, _ = sb.WriteString("}")
+		if err := writeAndCheck(" "); err != nil {
+			return err
+		}
+		if err := writeAndCheck(stmt.Args[0]); err != nil { // argument for return value
+			return err
+		}
+		if err := writeAndCheck(" {"); err != nil {
+			return err
+		}
+		if err := writeAndCheck(stmt.Args[1]); err != nil { // argument containing block content
+			return err
+		}
+		if err := writeAndCheck("}"); err != nil {
+			return err
+		}
 	} else {
-		_, _ = sb.WriteString(" {")
-		_, _ = sb.WriteString(stmt.Args[0])
-		_, _ = sb.WriteString("}")
+		if err := writeAndCheck(" {"); err != nil {
+			return err
+		}
+		if err := writeAndCheck(stmt.Args[0]); err != nil { // argument for return value
+			return err
+		}
+		if err := writeAndCheck("}"); err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 // BuildFiles builds all of the config files in a crossplane.Payload and
@@ -152,7 +182,7 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 	return err
 }
 
-//nolint:funlen,gocognit
+//nolint:funlen,gocognit,gocyclo
 func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
 	for i, stmt := range block {
 		// if the this statement is a comment on the same line as the preview, do not emit EOL for this stmt
@@ -176,16 +206,18 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 			directive := Enquote(stmt.Directive)
 			_, _ = sb.WriteString(directive)
 
-			if options.ExternalBuild != nil {
-				extDirectivesMap := make(map[string]ExtBuild)
-				for _, ext := range options.ExternalBuild {
-					directives := ext.ExtDirectives()
+			if options.ExternalBuilds != nil {
+				extDirectivesMap := make(map[string]ExternalBuilder)
+				for _, ext := range options.ExternalBuilds {
+					directives := ext.RegisterExternalBuilder()
 					for _, d := range directives {
 						extDirectivesMap[d] = ext
 					}
 
 					if ext, ok := extDirectivesMap[directive]; ok {
-						ext.BuildLuaBlock(sb, directive, stmt)
+						if err := ext.Builder(sb, directive, stmt); err != nil {
+							log.Printf("Failed to write externaller block: %v", err)
+						}
 					}
 				}
 			} else {

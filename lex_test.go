@@ -430,7 +430,7 @@ func TestLex(t *testing.T) {
 			}
 			defer file.Close()
 			options := LexOptions{
-				ExternalLexers: []ExtLexer{
+				ExternalLexers: []ExternalLexer{
 					&LuaLexer{},
 				},
 			}

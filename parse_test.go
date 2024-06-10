@@ -1707,7 +1707,7 @@ var parseFixtures = []parseFixture{
 		ErrorOnUnknownDirectives: true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			ExternalLexers: []ExtLexer{
+			ExternalLexers: []ExternalLexer{
 				&LuaLexer{},
 			},
 		},
@@ -1838,7 +1838,7 @@ var parseFixtures = []parseFixture{
 		ErrorOnUnknownDirectives: true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			ExternalLexers: []ExtLexer{
+			ExternalLexers: []ExternalLexer{
 				&LuaLexer{},
 			},
 		},
@@ -1932,7 +1932,7 @@ var parseFixtures = []parseFixture{
 		ParseComments:            true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			ExternalLexers: []ExtLexer{
+			ExternalLexers: []ExternalLexer{
 				&LuaLexer{},
 			},
 		},

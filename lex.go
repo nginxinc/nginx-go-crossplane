@@ -45,8 +45,8 @@ func SetTokenChanCap(size int) {
 	tokChanCap = size
 }
 
-type ExtLexer interface {
-	Register(scanner *extScanner) []string
+type ExternalLexer interface {
+	RegisterExternalLexer(scanner *extScanner) []string
 	Lex(matchedToken string) <-chan NgxToken
 }
 
@@ -55,7 +55,7 @@ type ExtLexer interface {
 // external lexers can ensure that these directives are processed separately
 // from the general lexical analysis logic.
 type LexOptions struct {
-	ExternalLexers []ExtLexer
+	ExternalLexers []ExternalLexer
 }
 
 func LexWithOptions(r io.Reader, options LexOptions) chan NgxToken {
@@ -111,18 +111,18 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		lexState = skipSpace
 	}
 
-	var externalLexers map[string]ExtLexer
+	var externalLexers map[string]ExternalLexer
 	var externalScanner *extScanner
 	for _, ext := range options.ExternalLexers {
 		if externalLexers == nil {
-			externalLexers = make(map[string]ExtLexer)
+			externalLexers = make(map[string]ExternalLexer)
 		}
 
 		if externalScanner == nil {
 			externalScanner = &extScanner{scanner: scanner, tokenLine: tokenLine}
 		}
 
-		for _, d := range ext.Register(externalScanner) {
+		for _, d := range ext.RegisterExternalLexer(externalScanner) {
 			if _, ok := externalLexers[d]; ok {
 				// Handle the duplicate token name, emitting an error token and exit
 				tokenCh <- NgxToken{Value: "Duplicate token name", Line: tokenLine, IsQuoted: false, Error: errors.New("duplicate token name handled")}
@@ -164,15 +164,11 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 
 		if token.Len() > 0 {
 			tokenStr := token.String()
-			if ext, ok := externalLexers[tokenStr]; ok {
-				if nextTokenIsDirective {
+			if nextTokenIsDirective {
+				if ext, ok := externalLexers[tokenStr]; ok {
 					// saving lex state before emitting tokenStr to know if we encountered start quote
 					lastLexState := lexState
-					if lexState == inQuote {
-						emit(tokenStartLine, true, nil)
-					} else {
-						emit(tokenStartLine, false, nil)
-					}
+					emit(tokenStartLine, lexState == inQuote, nil)
 
 					externalScanner.tokenLine = tokenLine
 					extTokenCh := ext.Lex(tokenStr)
@@ -324,7 +320,7 @@ type LuaLexer struct {
 	s *extScanner
 }
 
-func (ll *LuaLexer) Register(s *extScanner) []string {
+func (ll *LuaLexer) RegisterExternalLexer(s *extScanner) []string {
 	ll.s = s
 	return []string{
 		"init_by_lua_block",

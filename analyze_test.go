@@ -2110,7 +2110,7 @@ func TestAnalyze_lua(t *testing.T) {
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
 				MatchFuncs: []MatchFunc{MatchLua},
 				LexOptions: LexOptions{
-					ExternalLexers: []ExtLexer{
+					ExternalLexers: []ExternalLexer{
 						&LuaLexer{},
 					},
 				},
