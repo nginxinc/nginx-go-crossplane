@@ -155,9 +155,9 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 	return err
 }
 
-//nolint:gocognit
 func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
 	for i, stmt := range block {
+		directive := Enquote(stmt.Directive)
 		// if the this statement is a comment on the same line as the preview, do not emit EOL for this stmt
 		if stmt.Line == lastLine && stmt.IsComment() {
 			_, _ = sb.WriteString(" #")
@@ -175,45 +175,42 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 		if stmt.IsComment() {
 			_, _ = sb.WriteString("#")
 			_, _ = sb.WriteString(*stmt.Comment)
+		} else if options.extBuilders != nil {
+			if ext, ok := options.extBuilders[directive]; ok {
+				_, _ = sb.WriteString(ext.Build(stmt))
+			}
 		} else {
-			directive := Enquote(stmt.Directive)
 			_, _ = sb.WriteString(directive)
 
-			if options.extBuilders != nil {
-				if ext, ok := options.extBuilders[directive]; ok {
-					_, _ = sb.WriteString(" ") // space between directives and arguments
-					_, _ = sb.WriteString(ext.Build(stmt))
-				}
-			} else {
-				// special handling for if statements
-				if directive == "if" {
-					_, _ = sb.WriteString(" (")
-					for i, arg := range stmt.Args {
-						if i > 0 {
-							_, _ = sb.WriteString(" ")
-						}
-						_, _ = sb.WriteString(Enquote(arg))
-					}
-					_, _ = sb.WriteString(")")
-				} else {
-					for _, arg := range stmt.Args {
+			// special handling for if statements
+			if directive == "if" {
+				_, _ = sb.WriteString(" (")
+				for i, arg := range stmt.Args {
+					if i > 0 {
 						_, _ = sb.WriteString(" ")
-						_, _ = sb.WriteString(Enquote(arg))
 					}
+					_, _ = sb.WriteString(Enquote(arg))
 				}
-
-				if !stmt.IsBlock() {
-					_, _ = sb.WriteString(";")
-				} else {
-					_, _ = sb.WriteString(" {")
-					stmt := stmt
-					buildBlock(sb, stmt, stmt.Block, depth+1, stmt.Line, options)
-					_, _ = sb.WriteString("\n")
-					_, _ = sb.WriteString(margin(options, depth))
-					_, _ = sb.WriteString("}")
+				_, _ = sb.WriteString(")")
+			} else {
+				for _, arg := range stmt.Args {
+					_, _ = sb.WriteString(" ")
+					_, _ = sb.WriteString(Enquote(arg))
 				}
 			}
+
+			if !stmt.IsBlock() {
+				_, _ = sb.WriteString(";")
+			} else {
+				_, _ = sb.WriteString(" {")
+				stmt := stmt
+				buildBlock(sb, stmt, stmt.Block, depth+1, stmt.Line, options)
+				_, _ = sb.WriteString("\n")
+				_, _ = sb.WriteString(margin(options, depth))
+				_, _ = sb.WriteString("}")
+			}
 		}
+
 		lastLine = stmt.Line
 	}
 }

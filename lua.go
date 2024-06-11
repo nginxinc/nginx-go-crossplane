@@ -156,8 +156,8 @@ func (l *Lua) RegisterBuilder() RegisterBuilder { //nolint:ireturn
 
 func (l *Lua) Build(stmt *Directive) string {
 	if stmt.Directive == "set_by_lua_block" {
-		return fmt.Sprintf("%s {%s}", stmt.Args[0], stmt.Args[1])
+		return fmt.Sprintf("%s %s {%s}", stmt.Directive, stmt.Args[0], stmt.Args[1])
 	}
 
-	return fmt.Sprintf("{%s}", stmt.Args[0])
+	return fmt.Sprintf("%s {%s}", stmt.Directive, stmt.Args[0])
 }
