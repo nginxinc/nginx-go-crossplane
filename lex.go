@@ -62,6 +62,7 @@ type LexOptions struct {
 	extLexers map[string]Lexer
 }
 
+// RegisterLexer is an option that cna be used to add a lexer to tokenize external NGINX tokens.
 type RegisterLexer interface {
 	applyLexOptions(options *LexOptions)
 }
@@ -176,15 +177,12 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		if token.Len() > 0 {
 			tokenStr := token.String()
 			if nextTokenIsDirective {
-				// if ext, ok := externalLexers[tokenStr]; ok {
 				if ext, ok := options.extLexers[tokenStr]; ok {
 					// saving lex state before emitting tokenStr to know if we encountered start quote
 					lastLexState := lexState
 					emit(tokenStartLine, lexState == inQuote, nil)
 
 					externalScanner := &SubScanner{scanner: scanner, tokenLine: tokenLine}
-
-					// externalScanner.tokenLine = tokenLine
 					extTokenCh := ext.Lex(externalScanner, tokenStr)
 					for tok := range extTokenCh {
 						tokenCh <- tok
