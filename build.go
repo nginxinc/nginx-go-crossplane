@@ -25,18 +25,29 @@ type BuildOptions struct {
 	extBuilders map[string]Builder
 }
 
-type RegisterBuilder func(*BuildOptions)
+// RegisterBuilder is an option that can be used to add a builder to build NGINX configuration for custom directives.
+type RegisterBuilder interface {
+	applyBuildOptions(options *BuildOptions)
+}
 
-func BuildWithBuilder(b Builder, stringTokens ...string) RegisterBuilder {
-	return func(o *BuildOptions) {
-		if o.extBuilders == nil {
-			o.extBuilders = make(map[string]Builder)
-		}
+type registerBuilder struct {
+	b          Builder
+	directives []string
+}
 
-		for _, s := range stringTokens {
-			o.extBuilders[s] = b
-		}
+func (rb registerBuilder) applyBuildOptions(o *BuildOptions) {
+	if o.extBuilders == nil {
+		o.extBuilders = make(map[string]Builder)
 	}
+
+	for _, s := range rb.directives {
+		o.extBuilders[s] = rb.b
+	}
+}
+
+// BuildWithBuilder registers a builder to build the NGINX configuration for the given directives.
+func BuildWithBuilder(b Builder, directives ...string) RegisterBuilder {
+	return registerBuilder{b: b, directives: directives}
 }
 
 // Builder is the interface implemented by types that can render a Directive
@@ -75,7 +86,7 @@ func BuildFiles(payload Payload, dir string, options *BuildOptions) error {
 	}
 
 	for _, o := range options.Builders {
-		o(options)
+		o.applyBuildOptions(options)
 	}
 
 	for _, config := range payload.Config {
@@ -128,7 +139,7 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 
 	if options.extBuilders == nil { // might be set if using BuildFiles
 		for _, o := range options.Builders {
-			o(options)
+			o.applyBuildOptions(options)
 		}
 	}
 
@@ -144,7 +155,7 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 	return err
 }
 
-//nolint:funlen,gocognit
+//nolint:gocognit
 func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
 	for i, stmt := range block {
 		// if the this statement is a comment on the same line as the preview, do not emit EOL for this stmt
@@ -169,18 +180,6 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 			_, _ = sb.WriteString(directive)
 
 			if options.extBuilders != nil {
-				// extDirectivesMap := make(map[string]Builder)
-				// for _, ext := range options.Builders {
-				// 	directives := ext.RegisterBuilder()
-				// 	for _, d := range directives {
-				// 		extDirectivesMap[d] = ext
-				// 	}
-
-				// 	if ext, ok := extDirectivesMap[directive]; ok {
-				// 		_, _ = sb.WriteString(" ") // space between directives and arguments
-				// 		_, _ = sb.WriteString(ext.Build(stmt))
-				// 	}
-				// }
 				if ext, ok := options.extBuilders[directive]; ok {
 					_, _ = sb.WriteString(" ") // space between directives and arguments
 					_, _ = sb.WriteString(ext.Build(stmt))

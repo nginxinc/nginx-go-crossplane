@@ -62,25 +62,34 @@ type LexOptions struct {
 	extLexers map[string]Lexer
 }
 
-type RegisterLexer func(*LexOptions)
+type RegisterLexer interface {
+	applyLexOptions(options *LexOptions)
+}
+
+type registerLexer struct {
+	l            Lexer
+	stringTokens []string
+}
+
+func (rl registerLexer) applyLexOptions(o *LexOptions) {
+	if o.extLexers == nil {
+		o.extLexers = make(map[string]Lexer)
+	}
+
+	for _, s := range rl.stringTokens {
+		o.extLexers[s] = rl.l
+	}
+}
 
 // LexWithLexer registers a Lexer that implements tokenization of an NGINX configuration after one of the given
 // stringTokens is encountered by Lex.
 func LexWithLexer(l Lexer, stringTokens ...string) RegisterLexer {
-	return func(o *LexOptions) {
-		if o.extLexers == nil {
-			o.extLexers = make(map[string]Lexer)
-		}
-
-		for _, s := range stringTokens {
-			o.extLexers[s] = l
-		}
-	}
+	return registerLexer{l: l, stringTokens: stringTokens}
 }
 
 func LexWithOptions(r io.Reader, options LexOptions) chan NgxToken {
 	for _, o := range options.Lexers {
-		o(&options)
+		o.applyLexOptions(&options)
 	}
 
 	tc := make(chan NgxToken, tokChanCap)
