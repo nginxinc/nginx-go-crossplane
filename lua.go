@@ -5,7 +5,14 @@ import (
 	"strings"
 )
 
-// Lua struct handles the encapsulation of directives related to Lua module in NGINX configurations.
+// Lua adds support for directives added to NGINX by the ngx_http_lua_module module.
+//
+// Lua implements the Lexer interface by tokenizing *_by_lua_block directives with a
+// simple Lua parser. The Lua blocks will be placed into a token to be set as an
+// argument on the Lua directive.
+//
+// Lua also implements the Builder interface by writing the *_by_lua_block
+// directive's contents into the directive's block.
 type Lua struct{}
 
 // directiveNames returns a list of Lua module directive names used in NGINX configurations.

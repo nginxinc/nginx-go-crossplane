@@ -109,7 +109,7 @@ type SubScanner struct {
 	tokenLine int
 }
 
-// Scan advances the scanner to the next token which will be availabvle though the Text method. It returns false
+// Scan advances the scanner to the next token which will be available though the Text method. It returns false
 // when the scan stops by reaching the end of input.
 func (e *SubScanner) Scan() bool {
 	if !e.scanner.Scan() {
