@@ -43,6 +43,7 @@ func getTestConfigPath(parts ...string) string {
 	return filepath.Join("testdata", "configs", filepath.Join(parts...))
 }
 
+//nolint:gochecknoglobals
 var lua = &Lua{}
 
 //nolint:gochecknoglobals,exhaustruct

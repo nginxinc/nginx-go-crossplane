@@ -46,7 +46,7 @@ func (rb registerBuilder) applyBuildOptions(o *BuildOptions) {
 }
 
 // BuildWithBuilder registers a builder to build the NGINX configuration for the given directives.
-func BuildWithBuilder(b Builder, directives ...string) RegisterBuilder {
+func BuildWithBuilder(b Builder, directives ...string) RegisterBuilder { //nolint:ireturn
 	return registerBuilder{b: b, directives: directives}
 }
 

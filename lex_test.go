@@ -430,7 +430,6 @@ func TestLex(t *testing.T) {
 			}
 			defer file.Close()
 
-			lua := &Lua{}
 			options := LexOptions{
 				Lexers: []RegisterLexer{lua.RegisterLexer()},
 			}

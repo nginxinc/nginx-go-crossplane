@@ -84,7 +84,7 @@ func (rl registerLexer) applyLexOptions(o *LexOptions) {
 
 // LexWithLexer registers a Lexer that implements tokenization of an NGINX configuration after one of the given
 // stringTokens is encountered by Lex.
-func LexWithLexer(l Lexer, stringTokens ...string) RegisterLexer {
+func LexWithLexer(l Lexer, stringTokens ...string) RegisterLexer { //nolint:ireturn
 	return registerLexer{l: l, stringTokens: stringTokens}
 }
 
