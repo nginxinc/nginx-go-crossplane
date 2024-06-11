@@ -429,10 +429,10 @@ func TestLex(t *testing.T) {
 				t.Fatal(err)
 			}
 			defer file.Close()
+
+			lua := &Lua{}
 			options := LexOptions{
-				ExternalLexers: []Lexer{
-					&Lua{},
-				},
+				Lexers: []RegisterLexer{LexWithLexer(lua, lua.DirectiveNames()...)},
 			}
 			i := 0
 

@@ -18,23 +18,34 @@ import (
 )
 
 type BuildOptions struct {
-	Indent         int
-	Tabs           bool
-	Header         bool
-	ExternalBuilds []Builder // handle specific directives
+	Indent      int
+	Tabs        bool
+	Header      bool
+	Builders    []RegisterBuilder // handle specific directives
+	extBuilders map[string]Builder
+}
+
+type RegisterBuilder func(*BuildOptions)
+
+func BuildWithBuilder(b Builder, stringTokens ...string) RegisterBuilder {
+	return func(o *BuildOptions) {
+		if o.extBuilders == nil {
+			o.extBuilders = make(map[string]Builder)
+		}
+
+		for _, s := range stringTokens {
+			o.extBuilders[s] = b
+		}
+	}
 }
 
 // Builder is the interface implemented by types that can render a Directive
 // as it appears in NGINX configuration files.
 //
-// RegisterBuilder returns the names of the directives for which the builder can
-// build NGINX configuration.
-//
 // Build writes the strings that represent the Directive and it's Block to the
 // io.StringWriter returning any error encountered that caused the write to stop
 // early. Build must not modify the Directive.
 type Builder interface {
-	RegisterBuilder() []string
 	Build(stmt *Directive) string
 }
 
@@ -61,6 +72,10 @@ func BuildFiles(payload Payload, dir string, options *BuildOptions) error {
 			return err
 		}
 		dir = cwd
+	}
+
+	for _, o := range options.Builders {
+		o(options)
 	}
 
 	for _, config := range payload.Config {
@@ -111,6 +126,12 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 		}
 	}
 
+	if options.extBuilders == nil { // might be set if using BuildFiles
+		for _, o := range options.Builders {
+			o(options)
+		}
+	}
+
 	body := strings.Builder{}
 	buildBlock(&body, nil, config.Parsed, 0, 0, options)
 
@@ -147,18 +168,22 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 			directive := Enquote(stmt.Directive)
 			_, _ = sb.WriteString(directive)
 
-			if options.ExternalBuilds != nil {
-				extDirectivesMap := make(map[string]Builder)
-				for _, ext := range options.ExternalBuilds {
-					directives := ext.RegisterBuilder()
-					for _, d := range directives {
-						extDirectivesMap[d] = ext
-					}
+			if options.extBuilders != nil {
+				// extDirectivesMap := make(map[string]Builder)
+				// for _, ext := range options.Builders {
+				// 	directives := ext.RegisterBuilder()
+				// 	for _, d := range directives {
+				// 		extDirectivesMap[d] = ext
+				// 	}
 
-					if ext, ok := extDirectivesMap[directive]; ok {
-						_, _ = sb.WriteString(" ") // space between directives and arguments
-						_, _ = sb.WriteString(ext.Build(stmt))
-					}
+				// 	if ext, ok := extDirectivesMap[directive]; ok {
+				// 		_, _ = sb.WriteString(" ") // space between directives and arguments
+				// 		_, _ = sb.WriteString(ext.Build(stmt))
+				// 	}
+				// }
+				if ext, ok := options.extBuilders[directive]; ok {
+					_, _ = sb.WriteString(" ") // space between directives and arguments
+					_, _ = sb.WriteString(ext.Build(stmt))
 				}
 			} else {
 				// special handling for if statements

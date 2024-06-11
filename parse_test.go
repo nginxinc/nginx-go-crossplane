@@ -43,6 +43,8 @@ func getTestConfigPath(parts ...string) string {
 	return filepath.Join("testdata", "configs", filepath.Join(parts...))
 }
 
+var lua = &Lua{}
+
 //nolint:gochecknoglobals,exhaustruct
 var parseFixtures = []parseFixture{
 	{"includes-regular", "", ParseOptions{}, Payload{
@@ -1707,9 +1709,7 @@ var parseFixtures = []parseFixture{
 		ErrorOnUnknownDirectives: true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			ExternalLexers: []Lexer{
-				&Lua{},
-			},
+			Lexers: []RegisterLexer{LexWithLexer(lua, lua.DirectiveNames()...)},
 		},
 	}, Payload{
 		Status: "ok",
@@ -1838,9 +1838,7 @@ var parseFixtures = []parseFixture{
 		ErrorOnUnknownDirectives: true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			ExternalLexers: []Lexer{
-				&Lua{},
-			},
+			Lexers: []RegisterLexer{LexWithLexer(lua, lua.DirectiveNames()...)},
 		},
 	}, Payload{
 		Status: "ok",
@@ -1932,9 +1930,7 @@ var parseFixtures = []parseFixture{
 		ParseComments:            true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			ExternalLexers: []Lexer{
-				&Lua{},
-			},
+			Lexers: []RegisterLexer{LexWithLexer(lua, lua.DirectiveNames()...)},
 		},
 	}, Payload{
 		Status: "ok",
