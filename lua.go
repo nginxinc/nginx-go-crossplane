@@ -5,9 +5,7 @@ import (
 	"strings"
 )
 
-type Lua struct {
-	// s *SubScanner
-}
+type Lua struct{}
 
 func (l *Lua) DirectiveNames() []string {
 	return []string{
