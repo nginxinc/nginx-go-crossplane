@@ -5,8 +5,10 @@ import (
 	"strings"
 )
 
+// Lua struct handles the encapsulation of directives related to Lua module in NGINX configurations.
 type Lua struct{}
 
+// directiveNames returns a list of Lua module directive names used in NGINX configurations.
 func (l *Lua) directiveNames() []string {
 	return []string{
 		"init_by_lua_block",
@@ -28,10 +30,14 @@ func (l *Lua) directiveNames() []string {
 	}
 }
 
+// RegisterLexer registers a lexer for parsing Lua blocks.
 func (l *Lua) RegisterLexer() RegisterLexer { //nolint:ireturn
 	return LexWithLexer(l, l.directiveNames()...)
 }
 
+// Lex lexically analyzes the Lua blocks based on directives detected.
+// It is used by the lexer to tokenize Lua content within configuration files.
+//
 //nolint:funlen,gocognit,gocyclo,nosec
 func (l *Lua) Lex(s *SubScanner, matchedToken string) <-chan NgxToken {
 	tokenCh := make(chan NgxToken)
@@ -150,10 +156,12 @@ func (l *Lua) Lex(s *SubScanner, matchedToken string) <-chan NgxToken {
 	return tokenCh
 }
 
+// RegisterBuilder registers a builder for generating Lua NGINX configuration.
 func (l *Lua) RegisterBuilder() RegisterBuilder { //nolint:ireturn
 	return BuildWithBuilder(l, l.directiveNames()...)
 }
 
+// Build generates Lua configurations based on the provided directive.
 func (l *Lua) Build(stmt *Directive) string {
 	if stmt.Directive == "set_by_lua_block" {
 		return fmt.Sprintf("%s %s {%s}", stmt.Directive, stmt.Args[0], stmt.Args[1])
