@@ -28,7 +28,7 @@ func (l *Lua) directiveNames() []string {
 	}
 }
 
-func (l *Lua) RegisterLexer() RegisterLexer {
+func (l *Lua) RegisterLexer() RegisterLexer { //nolint:ireturn
 	return LexWithLexer(l, l.directiveNames()...)
 }
 
@@ -150,7 +150,7 @@ func (l *Lua) Lex(s *SubScanner, matchedToken string) <-chan NgxToken {
 	return tokenCh
 }
 
-func (l *Lua) RegisterBuilder() RegisterBuilder {
+func (l *Lua) RegisterBuilder() RegisterBuilder { //nolint:ireturn
 	return BuildWithBuilder(l, l.directiveNames()...)
 }
 
