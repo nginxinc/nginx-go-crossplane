@@ -2,7 +2,6 @@ package crossplane
 
 import (
 	"fmt"
-	"io"
 	"strings"
 )
 
@@ -31,7 +30,7 @@ func (l *Lua) directiveNames() []string {
 	}
 }
 
-func (l *Lua) RegisterExternalLexer(s *SubScanner) []string {
+func (l *Lua) RegisterLexer(s *SubScanner) []string {
 	l.s = s
 	return l.directiveNames()
 }
@@ -154,18 +153,14 @@ func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
 	return tokenCh
 }
 
-func (l *Lua) RegisterExternalBuilder() []string {
+func (l *Lua) RegisterBuilder() []string {
 	return l.directiveNames()
 }
 
-func (l *Lua) Build(sb io.StringWriter, stmt *Directive) error {
+func (l *Lua) Build(stmt *Directive) string {
 	if stmt.Directive == "set_by_lua_block" {
-		s := fmt.Sprintf("%s {%s}", stmt.Args[0], stmt.Args[1])
-		_, err := sb.WriteString(s)
-		return err
+		return fmt.Sprintf("%s {%s}", stmt.Args[0], stmt.Args[1])
 	}
 
-	s := fmt.Sprintf("{%s}", stmt.Args[0])
-	_, err := sb.WriteString(s)
-	return err
+	return fmt.Sprintf("{%s}", stmt.Args[0])
 }

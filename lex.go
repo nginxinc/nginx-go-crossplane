@@ -44,13 +44,13 @@ func SetTokenChanCap(size int) {
 	tokChanCap = size
 }
 
-// ExternalLexer is an interface for implementing lexers that handle external NGINX tokens during the lexical analysis phase.
-type ExternalLexer interface {
-	// RegisterExternalLexer registers an external lexer with a given sub-scanner.
+// Lexer is an interface for implementing lexers that handle external NGINX tokens during the lexical analysis phase.
+type Lexer interface {
+	// RegisterLexer registers an external lexer with a given SubScanner.
 	// This method integrates the external lexer into the lexical analysis process,
 	// enabling it to handle external token scanning. It returns a slice of strings
 	// representing the tokens that the external lexer can recognize.
-	RegisterExternalLexer(scanner *SubScanner) []string
+	RegisterLexer(scanner *SubScanner) []string
 	// Lex processes a matched token and returns a channel of NgxToken objects.
 	// This method performs lexical analysis on the matched token and produces a stream of tokens for the parser to consume.
 	// The external lexer should close the channel once it has completed lexing the input to signal the end of tokens.
@@ -63,7 +63,7 @@ type ExternalLexer interface {
 // external lexers can ensure that these directives are processed separately
 // from the general lexical analysis logic.
 type LexOptions struct {
-	ExternalLexers []ExternalLexer
+	ExternalLexers []Lexer
 }
 
 func LexWithOptions(r io.Reader, options LexOptions) chan NgxToken {
@@ -119,18 +119,18 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		lexState = skipSpace
 	}
 
-	var externalLexers map[string]ExternalLexer
+	var externalLexers map[string]Lexer
 	var externalScanner *SubScanner
 	for _, ext := range options.ExternalLexers {
 		if externalLexers == nil {
-			externalLexers = make(map[string]ExternalLexer)
+			externalLexers = make(map[string]Lexer)
 		}
 
 		if externalScanner == nil {
 			externalScanner = &SubScanner{scanner: scanner, tokenLine: tokenLine}
 		}
 
-		for _, d := range ext.RegisterExternalLexer(externalScanner) {
+		for _, d := range ext.RegisterLexer(externalScanner) {
 			externalLexers[d] = ext
 		}
 	}

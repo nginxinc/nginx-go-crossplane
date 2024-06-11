@@ -10,7 +10,6 @@ package crossplane
 import (
 	"bytes"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,19 +21,21 @@ type BuildOptions struct {
 	Indent         int
 	Tabs           bool
 	Header         bool
-	ExternalBuilds []ExternalBuilder // handle specific directives
+	ExternalBuilds []Builder // handle specific directives
 }
 
-// ExternalBuilder is the interface that provides an abstraction for implementing builders that
-// can handle external and custom NGINXdirectives during the build process of NGINX configurations
-// from JSON payloads.
-type ExternalBuilder interface {
-	// RegisterExternalBuilder allows the build system to identify which NGINX directives are supported
-	// by the external builder and routes the build process of those directives to this builder.
-	RegisterExternalBuilder() []string
-	// Build is responsible for constructing the configuration block for a specific directive.
-	// It is called during the configuration building process whenever a registered directive is encountered.
-	Build(sb io.StringWriter, stmt *Directive) error
+// Builder is the interface implemented by types that can render a Directive
+// as it appears in NGINX configuration files.
+//
+// RegisterBuilder returns the names of the directives for which the builder can
+// build NGINX configuration.
+//
+// Build writes the strings that represent the Directive and it's Block to the
+// io.StringWriter returning any error encountered that caused the write to stop
+// early. Build must not modify the Directive.
+type Builder interface {
+	RegisterBuilder() []string
+	Build(stmt *Directive) string
 }
 
 const MaxIndent = 100
@@ -122,7 +123,7 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 	return err
 }
 
-//nolint:funlen,gocognit,gocyclo
+//nolint:funlen,gocognit
 func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
 	for i, stmt := range block {
 		// if the this statement is a comment on the same line as the preview, do not emit EOL for this stmt
@@ -147,18 +148,16 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 			_, _ = sb.WriteString(directive)
 
 			if options.ExternalBuilds != nil {
-				extDirectivesMap := make(map[string]ExternalBuilder)
+				extDirectivesMap := make(map[string]Builder)
 				for _, ext := range options.ExternalBuilds {
-					directives := ext.RegisterExternalBuilder()
+					directives := ext.RegisterBuilder()
 					for _, d := range directives {
 						extDirectivesMap[d] = ext
 					}
 
 					if ext, ok := extDirectivesMap[directive]; ok {
 						_, _ = sb.WriteString(" ") // space between directives and arguments
-						if err := ext.Build(sb, stmt); err != nil {
-							log.Printf("Failed to write externaller block: %v", err)
-						}
+						_, _ = sb.WriteString(ext.Build(stmt))
 					}
 				}
 			} else {
