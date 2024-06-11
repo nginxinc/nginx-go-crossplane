@@ -432,7 +432,7 @@ func TestLex(t *testing.T) {
 
 			lua := &Lua{}
 			options := LexOptions{
-				Lexers: []RegisterLexer{LexWithLexer(lua, lua.DirectiveNames()...)},
+				Lexers: []RegisterLexer{lua.RegisterLexer()},
 			}
 			i := 0
 

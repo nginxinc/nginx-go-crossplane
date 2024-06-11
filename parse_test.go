@@ -1709,7 +1709,7 @@ var parseFixtures = []parseFixture{
 		ErrorOnUnknownDirectives: true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			Lexers: []RegisterLexer{LexWithLexer(lua, lua.DirectiveNames()...)},
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
 	}, Payload{
 		Status: "ok",
@@ -1838,7 +1838,7 @@ var parseFixtures = []parseFixture{
 		ErrorOnUnknownDirectives: true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			Lexers: []RegisterLexer{LexWithLexer(lua, lua.DirectiveNames()...)},
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
 	}, Payload{
 		Status: "ok",
@@ -1930,7 +1930,7 @@ var parseFixtures = []parseFixture{
 		ParseComments:            true,
 		MatchFuncs:               []MatchFunc{MatchLua},
 		LexOptions: LexOptions{
-			Lexers: []RegisterLexer{LexWithLexer(lua, lua.DirectiveNames()...)},
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
 	}, Payload{
 		Status: "ok",

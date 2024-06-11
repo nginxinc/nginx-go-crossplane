@@ -7,7 +7,7 @@ import (
 
 type Lua struct{}
 
-func (l *Lua) DirectiveNames() []string {
+func (l *Lua) directiveNames() []string {
 	return []string{
 		"init_by_lua_block",
 		"init_worker_by_lua_block",
@@ -26,6 +26,10 @@ func (l *Lua) DirectiveNames() []string {
 		"ssl_session_fetch_by_lua_block",
 		"ssl_session_store_by_lua_block",
 	}
+}
+
+func (l *Lua) RegisterLexer() RegisterLexer {
+	return LexWithLexer(l, l.directiveNames()...)
 }
 
 //nolint:funlen,gocognit,gocyclo,nosec
@@ -146,8 +150,8 @@ func (l *Lua) Lex(s *SubScanner, matchedToken string) <-chan NgxToken {
 	return tokenCh
 }
 
-func (l *Lua) RegisterBuilder() []string {
-	return l.DirectiveNames()
+func (l *Lua) RegisterBuilder() RegisterBuilder {
+	return BuildWithBuilder(l, l.directiveNames()...)
 }
 
 func (l *Lua) Build(stmt *Directive) string {
