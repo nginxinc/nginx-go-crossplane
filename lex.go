@@ -46,16 +46,11 @@ func SetTokenChanCap(size int) {
 
 // Lexer is an interface for implementing lexers that handle external NGINX tokens during the lexical analysis phase.
 type Lexer interface {
-	// RegisterLexer registers an external lexer with a given SubScanner.
-	// This method integrates the external lexer into the lexical analysis process,
-	// enabling it to handle external token scanning. It returns a slice of strings
-	// representing the tokens that the external lexer can recognize.
-	RegisterLexer(scanner *SubScanner) []string
 	// Lex processes a matched token and returns a channel of NgxToken objects.
 	// This method performs lexical analysis on the matched token and produces a stream of tokens for the parser to consume.
 	// The external lexer should close the channel once it has completed lexing the input to signal the end of tokens.
 	// Failure to close the channel will cause the receiver to wait indefinitely.
-	Lex(matchedToken string) <-chan NgxToken
+	Lex(s *SubScanner, matchedToken string) <-chan NgxToken
 }
 
 // LexOptions allows customization of the lexing process by specifying external lexers
@@ -63,10 +58,41 @@ type Lexer interface {
 // external lexers can ensure that these directives are processed separately
 // from the general lexical analysis logic.
 type LexOptions struct {
-	ExternalLexers []Lexer
+	Lexers    []RegisterLexer
+	extLexers map[string]Lexer
+}
+
+// RegisterLexer is an option that cna be used to add a lexer to tokenize external NGINX tokens.
+type RegisterLexer interface {
+	applyLexOptions(options *LexOptions)
+}
+
+type registerLexer struct {
+	l            Lexer
+	stringTokens []string
+}
+
+func (rl registerLexer) applyLexOptions(o *LexOptions) {
+	if o.extLexers == nil {
+		o.extLexers = make(map[string]Lexer)
+	}
+
+	for _, s := range rl.stringTokens {
+		o.extLexers[s] = rl.l
+	}
+}
+
+// LexWithLexer registers a Lexer that implements tokenization of an NGINX configuration after one of the given
+// stringTokens is encountered by Lex.
+func LexWithLexer(l Lexer, stringTokens ...string) RegisterLexer {
+	return registerLexer{l: l, stringTokens: stringTokens}
 }
 
 func LexWithOptions(r io.Reader, options LexOptions) chan NgxToken {
+	for _, o := range options.Lexers {
+		o.applyLexOptions(&options)
+	}
+
 	tc := make(chan NgxToken, tokChanCap)
 	go tokenize(r, tc, options)
 	return tc
@@ -119,22 +145,6 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		lexState = skipSpace
 	}
 
-	var externalLexers map[string]Lexer
-	var externalScanner *SubScanner
-	for _, ext := range options.ExternalLexers {
-		if externalLexers == nil {
-			externalLexers = make(map[string]Lexer)
-		}
-
-		if externalScanner == nil {
-			externalScanner = &SubScanner{scanner: scanner, tokenLine: tokenLine}
-		}
-
-		for _, d := range ext.RegisterLexer(externalScanner) {
-			externalLexers[d] = ext
-		}
-	}
-
 	for {
 		if readNext {
 			if !scanner.Scan() {
@@ -167,13 +177,13 @@ func tokenize(reader io.Reader, tokenCh chan NgxToken, options LexOptions) {
 		if token.Len() > 0 {
 			tokenStr := token.String()
 			if nextTokenIsDirective {
-				if ext, ok := externalLexers[tokenStr]; ok {
+				if ext, ok := options.extLexers[tokenStr]; ok {
 					// saving lex state before emitting tokenStr to know if we encountered start quote
 					lastLexState := lexState
 					emit(tokenStartLine, lexState == inQuote, nil)
 
-					externalScanner.tokenLine = tokenLine
-					extTokenCh := ext.Lex(tokenStr)
+					externalScanner := &SubScanner{scanner: scanner, tokenLine: tokenLine}
+					extTokenCh := ext.Lex(externalScanner, tokenStr)
 					for tok := range extTokenCh {
 						tokenCh <- tok
 					}

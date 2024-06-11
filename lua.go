@@ -5,9 +5,7 @@ import (
 	"strings"
 )
 
-type Lua struct {
-	s *SubScanner
-}
+type Lua struct{}
 
 func (l *Lua) directiveNames() []string {
 	return []string{
@@ -30,13 +28,12 @@ func (l *Lua) directiveNames() []string {
 	}
 }
 
-func (l *Lua) RegisterLexer(s *SubScanner) []string {
-	l.s = s
-	return l.directiveNames()
+func (l *Lua) RegisterLexer() RegisterLexer {
+	return LexWithLexer(l, l.directiveNames()...)
 }
 
 //nolint:funlen,gocognit,gocyclo,nosec
-func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
+func (l *Lua) Lex(s *SubScanner, matchedToken string) <-chan NgxToken {
 	tokenCh := make(chan NgxToken)
 
 	tokenDepth := 0
@@ -51,21 +48,21 @@ func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
 		if matchedToken == "set_by_lua_block" /* #nosec G101 */ {
 			arg := ""
 			for {
-				if !l.s.Scan() {
+				if !s.Scan() {
 					return
 				}
-				next := l.s.Text()
+				next := s.Text()
 				if isSpace(next) {
 					if arg != "" {
-						tokenCh <- NgxToken{Value: arg, Line: l.s.Line(), IsQuoted: false}
+						tokenCh <- NgxToken{Value: arg, Line: s.Line(), IsQuoted: false}
 						break
 					}
 
 					for isSpace(next) {
-						if !l.s.Scan() {
+						if !s.Scan() {
 							return
 						}
-						next = l.s.Text()
+						next = s.Text()
 					}
 				}
 				arg += next
@@ -74,14 +71,14 @@ func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
 
 		// check that Lua block starts correctly
 		for {
-			if !l.s.Scan() {
+			if !s.Scan() {
 				return
 			}
-			next := l.s.Text()
+			next := s.Text()
 
 			if !isSpace(next) {
 				if next != "{" {
-					lineno := l.s.Line()
+					lineno := s.Line()
 					tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: `expected "{" to start lua block`, Line: &lineno}}
 					return
 				}
@@ -92,13 +89,13 @@ func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
 
 		// Grab everything in Lua block as a single token and watch for curly brace '{' in strings
 		for {
-			if !l.s.Scan() {
+			if !s.Scan() {
 				return
 			}
 
-			next := l.s.Text()
-			if err := l.s.Err(); err != nil {
-				lineno := l.s.Line()
+			next := s.Text()
+			if err := s.Err(); err != nil {
+				lineno := s.Line()
 				tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: err.Error(), Line: &lineno}}
 			}
 
@@ -112,7 +109,7 @@ func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
 			case next == "}" && !inQuotes:
 				tokenDepth--
 				if tokenDepth < 0 {
-					lineno := l.s.Line()
+					lineno := s.Line()
 					tokenCh <- NgxToken{Error: &ParseError{File: &lexerFile, What: `unexpected "}"`, Line: &lineno}}
 					return
 				}
@@ -122,8 +119,8 @@ func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
 				}
 
 				if tokenDepth == 0 {
-					tokenCh <- NgxToken{Value: tok.String(), Line: l.s.Line(), IsQuoted: true}
-					tokenCh <- NgxToken{Value: ";", Line: l.s.Line(), IsQuoted: false} // For an end to the Lua string based on the nginx bahavior
+					tokenCh <- NgxToken{Value: tok.String(), Line: s.Line(), IsQuoted: true}
+					tokenCh <- NgxToken{Value: ";", Line: s.Line(), IsQuoted: false} // For an end to the Lua string based on the nginx bahavior
 					// See: https://github.com/nginxinc/crossplane/blob/master/crossplane/ext/lua.py#L122C25-L122C41
 					return
 				}
@@ -142,7 +139,7 @@ func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
 
 				// stricly check that first non space character is {
 				if tokenDepth == 0 {
-					tokenCh <- NgxToken{Value: next, Line: l.s.Line(), IsQuoted: false}
+					tokenCh <- NgxToken{Value: next, Line: s.Line(), IsQuoted: false}
 					return
 				}
 				tok.WriteString(next)
@@ -153,8 +150,8 @@ func (l *Lua) Lex(matchedToken string) <-chan NgxToken {
 	return tokenCh
 }
 
-func (l *Lua) RegisterBuilder() []string {
-	return l.directiveNames()
+func (l *Lua) RegisterBuilder() RegisterBuilder {
+	return BuildWithBuilder(l, l.directiveNames()...)
 }
 
 func (l *Lua) Build(stmt *Directive) string {
