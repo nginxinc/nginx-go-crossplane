@@ -5,7 +5,11 @@ import (
 	"strings"
 )
 
-const setByLuaBlock = "set_by_lua_block"
+const (
+	setByLuaBlock             = "set_by_lua_block"
+	numArgsForSetByLuaBlock   = 2
+	numArgsForOtherDirectives = 1
+)
 
 // Lua adds support for directives added to NGINX by the ngx_http_lua_module module.
 //
@@ -179,12 +183,12 @@ func (l *Lua) RegisterBuilder() RegisterBuilder { //nolint:ireturn
 // Build generates Lua configurations based on the provided directive.
 func (l *Lua) Build(stmt *Directive) string {
 	if stmt.Directive == setByLuaBlock {
-		if len(stmt.Args) < 2 {
+		if len(stmt.Args) < numArgsForSetByLuaBlock {
 			return stmt.Directive
 		}
 		return fmt.Sprintf("%s %s {%s}", stmt.Directive, stmt.Args[0], stmt.Args[1])
 	}
-	if len(stmt.Args) < 1 {
+	if len(stmt.Args) < numArgsForOtherDirectives {
 		return stmt.Directive
 	}
 	return fmt.Sprintf("%s {%s}", stmt.Directive, stmt.Args[0])
