@@ -258,6 +258,44 @@ var buildFixtures = []buildFixture{
 		},
 		expected: "#comment1\nuser root; #comment2 #comment3",
 	},
+	{
+		name:    "lua block",
+		options: BuildOptions{Builders: []RegisterBuilder{lua.RegisterBuilder()}},
+		parsed: Directives{
+			{
+				Directive: "content_by_lua_block",
+				Line:      1,
+				Args:      []string{"\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            "},
+			},
+		},
+
+		expected: "content_by_lua_block {\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            }",
+	},
+	{
+		name:    "set_by_lua_block",
+		options: BuildOptions{Builders: []RegisterBuilder{lua.RegisterBuilder()}},
+		parsed: Directives{
+			{
+				Directive: "set_by_lua_block",
+				Line:      1,
+				Args: []string{"$res", " -- irregular lua block directive" +
+					"\n            local a = 32" +
+					"\n            local b = 56" +
+					"\n" +
+					"\n            ngx.var.diff = a - b;  -- write to $diff directly" +
+					"\n            return a + b;          -- return the $sum value normally" +
+					"\n        "},
+			},
+		},
+
+		expected: "set_by_lua_block $res { -- irregular lua block directive" +
+			"\n            local a = 32" +
+			"\n            local b = 56" +
+			"\n" +
+			"\n            ngx.var.diff = a - b;  -- write to $diff directly" +
+			"\n            return a + b;          -- return the $sum value normally" +
+			"\n        }",
+	},
 }
 
 func TestBuild(t *testing.T) {

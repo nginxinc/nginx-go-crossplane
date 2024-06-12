@@ -109,6 +109,7 @@ type ParseOptions struct {
 	// directive. Set this option to enable parsing of directives belonging to non-core or
 	// dynamic NGINX modules that follow the usual grammar rules of an NGINX configuration.
 	MatchFuncs []MatchFunc
+	LexOptions LexOptions
 }
 
 // Parse parses an NGINX configuration file.
@@ -165,7 +166,7 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 			return nil, err
 		}
 
-		tokens := Lex(file)
+		tokens := LexWithOptions(file, options.LexOptions)
 		config := Config{
 			File:   incl.path,
 			Status: "ok",

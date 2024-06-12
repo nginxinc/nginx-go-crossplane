@@ -43,6 +43,9 @@ func getTestConfigPath(parts ...string) string {
 	return filepath.Join("testdata", "configs", filepath.Join(parts...))
 }
 
+//nolint:gochecknoglobals
+var lua = &Lua{}
+
 //nolint:gochecknoglobals,exhaustruct
 var parseFixtures = []parseFixture{
 	{"includes-regular", "", ParseOptions{}, Payload{
@@ -1627,6 +1630,379 @@ var parseFixtures = []parseFixture{
 												Args:      []string{"http://172.29.38.211/"},
 											},
 										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"lua-basic", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		MatchFuncs:               []MatchFunc{MatchLua},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-basic", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "init_by_lua",
+								Line:      2,
+								Args:      []string{"\n        print(\"I need no extra escaping here, for example: \\r\\nblah\")\n    "},
+								Block:     Directives{},
+							},
+							{
+								Directive: "lua_shared_dict",
+								Line:      5,
+								Args:      []string{"dogs", "1m"},
+								Block:     Directives{},
+							},
+							{
+								Directive: "server",
+								Line:      6,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      7,
+										Args:      []string{"8080"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      8,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "set_by_lua",
+												Line:      9,
+												Args:      []string{"$res", " return 32 + math.cos(32) "},
+											},
+											{
+												Directive: "access_by_lua_file",
+												Line:      10,
+												Args:      []string{"/path/to/lua/access.lua"},
+												Block:     Directives{},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"lua-block-simple", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		MatchFuncs:               []MatchFunc{MatchLua},
+		LexOptions: LexOptions{
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-simple", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "init_by_lua_block",
+								Line:      2,
+								Args:      []string{"\n        print(\"Lua block code with curly brace str {\")\n    "},
+								Block:     Directives{},
+							},
+							{
+								Directive: "init_worker_by_lua_block",
+								Line:      5,
+								Args:      []string{"\n        print(\"Work that every worker\")\n    "},
+								Block:     Directives{},
+							},
+							{
+								Directive: "body_filter_by_lua_block",
+								Line:      8,
+								Args:      []string{"\n        local data, eof = ngx.arg[1], ngx.arg[2]\n    "},
+								Block:     Directives{},
+							},
+							{
+								Directive: "header_filter_by_lua_block",
+								Line:      11,
+								Args:      []string{"\n        ngx.header[\"content-length\"] = nil\n    "},
+								Block:     Directives{},
+							},
+							{
+								Directive: "server",
+								Line:      14,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      15,
+										Args:      []string{"127.0.0.1:8080"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      16,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "content_by_lua_block",
+												Line:      17,
+												Args:      []string{"\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            "},
+											},
+											{
+												Directive: "return",
+												Args:      []string{"200", "foo bar baz"},
+												Line:      20,
+											},
+										},
+									},
+									{
+										Directive: "ssl_certificate_by_lua_block",
+										Line:      22,
+										Args:      []string{"\n            print(\"About to initiate a new SSL handshake!\")\n        "},
+										Block:     Directives{},
+									},
+									{
+										Directive: "log_by_lua_block",
+										Line:      25,
+										Args:      []string{"\n            print(\"I need no extra escaping here, for example: \\r\\nblah\")\n        "},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      28,
+										Args:      []string{"/a"},
+										Block: Directives{
+											{
+												Directive: "client_max_body_size",
+												Line:      29,
+												Args:      []string{"100k"},
+											},
+											{
+												Directive: "client_body_buffer_size",
+												Line:      30,
+												Args:      []string{"100k"},
+												Block:     Directives{},
+											},
+										},
+									},
+								},
+							},
+							{
+								Directive: "upstream",
+								Line:      34,
+								Args:      []string{"foo"},
+								Block: Directives{
+									{
+										Directive: "server",
+										Line:      35,
+										Args:      []string{"127.0.0.1"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "balancer_by_lua_block",
+										Line:      36,
+										Args:      []string{"\n            -- use Lua to do something interesting here\n        "},
+										Block:     Directives{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"lua-block-larger", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		MatchFuncs:               []MatchFunc{MatchLua},
+		LexOptions: LexOptions{
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-larger", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "access_by_lua_block",
+								Line:      2,
+								Args: []string{"\n        -- check the client IP address is in our black list" +
+									"\n        if ngx.var.remote_addr == \"132.5.72.3\" then" +
+									"\n            ngx.exit(ngx.HTTP_FORBIDDEN)" +
+									"\n        end" +
+									"\n" +
+									"\n        -- check if the URI contains bad words" +
+									"\n        if ngx.var.uri and" +
+									"\n               string.match(ngx.var.request_body, \"evil\")" +
+									"\n        then" +
+									"\n            return ngx.redirect(\"/terms_of_use.html\")" +
+									"\n        end" +
+									"\n" +
+									"\n        -- tests passed" +
+									"\n    "},
+								Block: Directives{},
+							},
+							{
+								Directive: "server",
+								Line:      17,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      18,
+										Args:      []string{"127.0.0.1:8080"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      19,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "content_by_lua_block",
+												Line:      20,
+												Args: []string{"\n                ngx.req.read_body()  -- explicitly read the req body" +
+													"\n                local data = ngx.req.get_body_data()" +
+													"\n                if data then" +
+													"\n                    ngx.say(\"body data:\")" +
+													"\n                    ngx.print(data)" +
+													"\n                    return" +
+													"\n                end" +
+													"\n" +
+													"\n                -- body may get buffered in a temp file:" +
+													"\n                local file = ngx.req.get_body_file()" +
+													"\n                if file then" +
+													"\n                    ngx.say(\"body is in file \", file)" +
+													"\n                else" +
+													"\n                    ngx.say(\"no body found\")" +
+													"\n                end" +
+													"\n            "},
+												Block: Directives{},
+											},
+											{
+												Directive: "return",
+												Args:      []string{"200", "foo bar baz"},
+												Line:      37,
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"lua-block-tricky", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		ParseComments:            true,
+		MatchFuncs:               []MatchFunc{MatchLua},
+		LexOptions: LexOptions{
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-tricky", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "server",
+								Line:      2,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      3,
+										Args:      []string{"127.0.0.1:8080"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "server_name",
+										Line:      4,
+										Args:      []string{"content_by_lua_block"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "#",
+										Args:      []string{},
+										Line:      4,
+										Comment:   pStr(" make sure this doesn't trip up lexers"),
+									},
+									{
+										Directive: "set_by_lua_block",
+										Line:      5,
+										Args: []string{"$res", " -- irregular lua block directive" +
+											"\n            local a = 32" +
+											"\n            local b = 56" +
+											"\n" +
+											"\n            ngx.var.diff = a - b;  -- write to $diff directly" +
+											"\n            return a + b;          -- return the $sum value normally" +
+											"\n        "},
+										Block: Directives{},
+									},
+									{
+										Directive: "rewrite_by_lua_block",
+										Line:      12,
+										Args: []string{" -- have valid braces in Lua code and quotes around directive" +
+											"\n            do_something(\"hello, world!\\nhiya\\n\")" +
+											"\n            a = { 1, 2, 3 }" +
+											"\n            btn = iup.button({title=\"ok\"})" +
+											"\n        "},
+										Block: Directives{},
+									},
+								},
+							},
+							{
+								Directive: "upstream",
+								Line:      18,
+								Args:      []string{"content_by_lua_block"},
+								Block: Directives{
+									{
+										Directive: "#",
+										Args:      []string{},
+										Line:      19,
+										Comment:   pStr(" stuff"),
 									},
 								},
 							},
