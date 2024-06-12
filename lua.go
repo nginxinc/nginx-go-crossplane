@@ -179,8 +179,13 @@ func (l *Lua) RegisterBuilder() RegisterBuilder { //nolint:ireturn
 // Build generates Lua configurations based on the provided directive.
 func (l *Lua) Build(stmt *Directive) string {
 	if stmt.Directive == setByLuaBlock {
+		if len(stmt.Args) < 2 {
+			return fmt.Sprintf("Error: Not enough arguments for %s", stmt.Directive)
+		}
 		return fmt.Sprintf("%s %s {%s}", stmt.Directive, stmt.Args[0], stmt.Args[1])
 	}
-
+	if len(stmt.Args) < 1 {
+		return fmt.Sprintf("Error: Not enough arguments for %s", stmt.Directive)
+	}
 	return fmt.Sprintf("%s {%s}", stmt.Directive, stmt.Args[0])
 }
