@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+const setByLuaBlock = "set_by_lua_block"
+
 // Lua adds support for directives added to NGINX by the ngx_http_lua_module module.
 //
 // Lua implements the Lexer interface by tokenizing *_by_lua_block directives with a
@@ -55,10 +57,11 @@ func (l *Lua) Lex(s *SubScanner, matchedToken string) <-chan NgxToken {
 		defer close(tokenCh)
 		var tok strings.Builder
 		var inQuotes bool
+		var quoteType string
 
 		// special handling for'set_by_lua_block' directive
 		// ignore potential hardcoded credentials linter warning for "set_by_lua_block"
-		if matchedToken == "set_by_lua_block" /* #nosec G101 */ {
+		if matchedToken == setByLuaBlock /* #nosec G101 */ {
 			arg := ""
 			for {
 				if !s.Scan() {
@@ -139,7 +142,12 @@ func (l *Lua) Lex(s *SubScanner, matchedToken string) <-chan NgxToken {
 				}
 
 			case next == `"` || next == "'":
-				inQuotes = !inQuotes
+				if !inQuotes {
+					inQuotes = true
+					quoteType = next
+				} else if inQuotes && next == quoteType {
+					inQuotes = false
+				}
 				tok.WriteString(next)
 
 			default:
@@ -170,7 +178,7 @@ func (l *Lua) RegisterBuilder() RegisterBuilder { //nolint:ireturn
 
 // Build generates Lua configurations based on the provided directive.
 func (l *Lua) Build(stmt *Directive) string {
-	if stmt.Directive == "set_by_lua_block" {
+	if stmt.Directive == setByLuaBlock {
 		return fmt.Sprintf("%s %s {%s}", stmt.Directive, stmt.Args[0], stmt.Args[1])
 	}
 
