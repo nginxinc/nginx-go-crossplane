@@ -2427,3 +2427,125 @@ func TestAnalyze_headers_more(t *testing.T) {
 		})
 	}
 }
+
+//nolint:funlen
+func TestAnalyze_directiveSources(t *testing.T) {
+	t.Parallel()
+	// two self defined maps and matchFn to ensure it is a separate test
+	testDirectiveMap1 := map[string][]uint{
+		"common_dir": {ngxAnyConf | ngxConfTake1},
+		"test_dir1":  {ngxAnyConf | ngxConfTake1},
+	}
+	testSource1 := func(directive string) ([]uint, bool) {
+		masks, matched := testDirectiveMap1[directive]
+		return masks, matched
+	}
+
+	testDirectiveMap2 := map[string][]uint{
+		"common_dir": {ngxAnyConf | ngxConfTake2},
+		"test_dir2":  {ngxAnyConf | ngxConfTake2},
+	}
+	testSource2 := func(directive string) ([]uint, bool) {
+		masks, matched := testDirectiveMap2[directive]
+		return masks, matched
+	}
+
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		// The directive only found in source1 and satisfies the bitmask in it
+		"DirectiveFoundOnlyInSource1_pass": {
+			&Directive{
+				Directive: "test_dir1",
+				Args:      []string{"arg1"},
+				Line:      5,
+			},
+			blockCtx{"http", "upstream"},
+			false,
+		},
+		// The directive only found in source2 and satisfies the bitmask in it
+		"DirectiveFoundOnlyInSource2_pass": {
+			&Directive{
+				Directive: "test_dir2",
+				Args:      []string{"arg1", "arg2"},
+				Line:      5,
+			},
+			blockCtx{"http", "upstream"},
+			false,
+		},
+		// The directive only found in source2 but not satisfies the bitmask in it
+		"DirectiveFoundOnlyInsource2_fail": {
+			&Directive{
+				Directive: "test_dir2",
+				Args:      []string{"arg1"},
+				Line:      5,
+			},
+			blockCtx{"http", "upstream"},
+			true,
+		},
+		// The directive found in both sources,
+		// but only satisfies bitmasks in source1 it should still pass validation
+		"DirectiveFoundInBothSources_pass_case1": {
+			&Directive{
+				Directive: "common_dir",
+				Args:      []string{"arg1"},
+				Line:      5,
+			},
+			blockCtx{"http", "upstream"},
+			false,
+		},
+		// The directive found in both Sources,
+		// but only satisfies bitmasks in source2 it should still pass validation
+		"DirectiveFoundInBothSources_pass_case2": {
+			&Directive{
+				Directive: "common_dir",
+				Args:      []string{"arg1", "arg2"},
+				Line:      5,
+			},
+			blockCtx{"http", "upstream"},
+			false,
+		},
+		// The directive found in both sources,
+		// but doesn't satisfy bitmask in any of them
+		"DirectiveFoundInBothSources_fail": {
+			&Directive{
+				Directive: "common_dir",
+				Args:      []string{"arg1", "arg2", "arg3"},
+				Line:      5,
+			},
+			blockCtx{"http", "upstream"},
+			true,
+		},
+		// The directive not found in any source
+		"DirectiveNotFoundInAnySource_fail": {
+			&Directive{
+				Directive: "no_exist",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				DirectiveSources:         []MatchFunc{testSource1, testSource2},
+				ErrorOnUnknownDirectives: true,
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
