@@ -263,13 +263,49 @@ var buildFixtures = []buildFixture{
 		options: BuildOptions{Builders: []RegisterBuilder{lua.RegisterBuilder()}},
 		parsed: Directives{
 			{
-				Directive: "content_by_lua_block",
-				Line:      1,
-				Args:      []string{"\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            "},
+				Directive: "http",
+				Args:      []string{},
+				Block: Directives{
+					{
+						Directive: "server",
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "listen",
+								Args:      []string{"127.0.0.1:8080"},
+							},
+							{
+								Directive: "server_name",
+								Args:      []string{"default_server"},
+							},
+							{
+								Directive: "location",
+								Args:      []string{"/"},
+								Block: Directives{
+									{
+										Directive: "content_by_lua_block",
+										Line:      1,
+										Args:      []string{"\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            "},
+									},
+								},
+							},
+						},
+					},
+				},
 			},
 		},
 
-		expected: "content_by_lua_block {\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            }",
+		expected: strings.Join([]string{
+			"http {",
+			"    server {",
+			"        listen 127.0.0.1:8080;",
+			"        server_name default_server;",
+			"        location / {",
+			"            content_by_lua_block {\n                ngx.say(\"I need no extra escaping here, for example: \\r\\nblah\")\n            }",
+			"        }",
+			"    }",
+			"}",
+		}, "\n"),
 	},
 	{
 		name:    "set_by_lua_block",
