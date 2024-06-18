@@ -155,6 +155,7 @@ func Build(w io.Writer, config Config, options *BuildOptions) error {
 	return err
 }
 
+//nolint:gocognit
 func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth int, lastLine int, options *BuildOptions) {
 	for i, stmt := range block {
 		directive := Enquote(stmt.Directive)
@@ -172,13 +173,16 @@ func buildBlock(sb io.StringWriter, parent *Directive, block Directives, depth i
 
 		_, _ = sb.WriteString(margin(options, depth))
 
+		if options.extBuilders != nil {
+			if ext, ok := options.extBuilders[directive]; ok {
+				_, _ = sb.WriteString(ext.Build(stmt))
+				continue
+			}
+		}
+
 		if stmt.IsComment() {
 			_, _ = sb.WriteString("#")
 			_, _ = sb.WriteString(*stmt.Comment)
-		} else if options.extBuilders != nil {
-			if ext, ok := options.extBuilders[directive]; ok {
-				_, _ = sb.WriteString(ext.Build(stmt))
-			}
 		} else {
 			_, _ = sb.WriteString(directive)
 
