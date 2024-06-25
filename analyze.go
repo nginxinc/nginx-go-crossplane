@@ -94,13 +94,32 @@ func enterBlockCtx(stmt *Directive, ctx blockCtx) blockCtx {
 
 //nolint:gocyclo,funlen,gocognit
 func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *ParseOptions) error {
-	masks, knownDirective := directives[stmt.Directive]
-	currCtx, knownContext := contexts[ctx.key()]
+	var masks []uint
+	knownDirective := false
 
-	if !knownDirective {
-		for _, matchFn := range options.MatchFuncs {
-			if masks, knownDirective = matchFn(stmt.Directive); knownDirective {
-				break
+	currCtx, knownContext := contexts[ctx.key()]
+	directiveName := stmt.Directive
+
+	// Find all bitmasks from the sources invoker provides.
+	for _, matchFn := range options.DirectiveSources {
+		if masksInFn, found := matchFn(directiveName); found {
+			masks = append(masks, masksInFn...)
+			knownDirective = true
+		}
+	}
+
+	// If DirectiveSources was not provided, try to find the directive in legacy way.
+	// We want to use DirectiveSources to indicate the OSS/N+ version, and dynamic
+	// modules we want to include for validation. However, invokers used MatchFuncs
+	// and a directive map before. This is a transition plan. After MatchFuncs is deleted
+	// from ParseOptions, this if block should be deleted.
+	if len(options.DirectiveSources) == 0 {
+		masks, knownDirective = directives[directiveName]
+		if !knownDirective {
+			for _, matchFn := range options.MatchFuncs {
+				if masks, knownDirective = matchFn(stmt.Directive); knownDirective {
+					break
+				}
 			}
 		}
 	}
