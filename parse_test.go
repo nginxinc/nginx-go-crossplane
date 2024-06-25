@@ -1347,7 +1347,7 @@ var parseFixtures = []parseFixture{
 	{"nap-waf-v4", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		MatchFuncs:               []MatchFunc{MatchAppProtectWAFv4},
+		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 	}, Payload{
 		Status: "ok",
 		Errors: []PayloadError{},
@@ -1492,7 +1492,7 @@ var parseFixtures = []parseFixture{
 	{"nap-waf-v5", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		MatchFuncs:               []MatchFunc{MatchAppProtectWAFv5},
+		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv5DirectivesMatchFn},
 	}, Payload{
 		Status: "ok",
 		Errors: []PayloadError{},
@@ -1642,7 +1642,7 @@ var parseFixtures = []parseFixture{
 	{"lua-basic", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		MatchFuncs:               []MatchFunc{MatchLua},
+		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
 	}, Payload{
 		Status: "ok",
 		Errors: []PayloadError{},
@@ -1708,7 +1708,7 @@ var parseFixtures = []parseFixture{
 	{"lua-block-simple", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		MatchFuncs:               []MatchFunc{MatchLua},
+		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
 		LexOptions: LexOptions{
 			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
@@ -1837,7 +1837,7 @@ var parseFixtures = []parseFixture{
 	{"lua-block-larger", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		MatchFuncs:               []MatchFunc{MatchLua},
+		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
 		LexOptions: LexOptions{
 			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
@@ -1929,7 +1929,7 @@ var parseFixtures = []parseFixture{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
 		ParseComments:            true,
-		MatchFuncs:               []MatchFunc{MatchLua},
+		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
 		LexOptions: LexOptions{
 			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
