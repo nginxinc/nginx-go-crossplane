@@ -589,7 +589,7 @@ func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -654,7 +654,7 @@ func TestAnalyze_nap_app_protect_security_log_enable(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -709,7 +709,7 @@ func TestAnalyze_nap_app_protect_security_log(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -764,7 +764,7 @@ func TestAnalyze_nap_app_protect_policy_file(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -829,7 +829,7 @@ func TestAnalyze_nap_app_protect_physical_memory_util_thresholds(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -894,7 +894,7 @@ func TestAnalyze_nap_app_protect_cpu_thresholds(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -959,7 +959,7 @@ func TestAnalyze_nap_app_protect_failure_mode_action(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1024,7 +1024,7 @@ func TestAnalyze_nap_app_protect_cookie_seed(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1089,7 +1089,7 @@ func TestAnalyze_nap_app_protect_compressed_requests_action(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1154,7 +1154,7 @@ func TestAnalyze_nap_app_protect_request_buffer_overflow_action(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1219,7 +1219,7 @@ func TestAnalyze_nap_app_protect_user_defined_signatures(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1284,7 +1284,7 @@ func TestAnalyze_nap_app_protect_reconnect_period_seconds(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv4},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1944,7 +1944,7 @@ func TestAnalyze_nap_app_protect_waf_v5(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchAppProtectWAFv5},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv5DirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -2108,7 +2108,7 @@ func TestAnalyze_lua(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchLua},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
 				LexOptions: LexOptions{
 					Lexers: []RegisterLexer{lua.RegisterLexer()},
 				},
@@ -2414,7 +2414,7 @@ func TestAnalyze_headers_more(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				MatchFuncs: []MatchFunc{MatchHeadersMore},
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, HeadersMoreDirectivesMatchFn},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -2429,7 +2429,7 @@ func TestAnalyze_headers_more(t *testing.T) {
 }
 
 //nolint:funlen
-func TestAnalyze_directiveSources(t *testing.T) {
+func TestAnalyze_directiveSources_orLogic(t *testing.T) {
 	t.Parallel()
 	// two self defined maps and matchFn to ensure it is a separate test
 	testDirectiveMap1 := map[string][]uint{
@@ -2536,6 +2536,58 @@ func TestAnalyze_directiveSources(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
 				DirectiveSources:         []MatchFunc{testSource1, testSource2},
+				ErrorOnUnknownDirectives: true,
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+func TestAnalyze_directiveSources_defaultBehavior(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		// If Directivesources is not provided, DefaultDirectivesMatchFunc should
+		// be used for validation. NPlus should be contained in it.
+		"DirectiveInNPlus_pass": {
+			&Directive{
+				Directive: "health_check",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		// If Directivesources is not provided, DefaultDirectivesMatchFunc should
+		// be used for validation. NPlus should be contained in it.
+		// In this case the directive context dones't align with the bitmask definition,
+		// so it fails
+		"DirectiveInNPlus_fail": {
+			&Directive{
+				Directive: "health_check",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
 				ErrorOnUnknownDirectives: true,
 			})
 
