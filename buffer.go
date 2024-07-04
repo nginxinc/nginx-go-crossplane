@@ -32,6 +32,7 @@ func (fs *FileString) Write(b []byte) (int, error) {
 // Close makes this an io.Closer.
 func (fs *FileString) Close() error {
 	fs.w.WriteByte('\n')
+	fs.w.Reset()
 	return nil
 }
 

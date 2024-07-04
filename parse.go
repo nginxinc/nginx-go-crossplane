@@ -21,7 +21,7 @@ import (
 //nolint:gochecknoglobals
 var (
 	hasMagic           = regexp.MustCompile(`[*?[]`)
-	osOpen             = func(path string) (io.Reader, error) { return os.Open(path) }
+	osOpen             = func(path string) (io.ReadCloser, error) { return os.Open(path) }
 	ErrPrematureLexEnd = errors.New("premature end of file")
 )
 
@@ -74,7 +74,7 @@ type ParseOptions struct {
 	ErrorCallback func(error) interface{}
 
 	// If specified, use this alternative to open config files
-	Open func(path string) (io.Reader, error)
+	Open func(path string) (io.ReadCloser, error)
 
 	// Glob will return a matching list of files if specified
 	Glob func(path string) ([]string, error)
@@ -167,6 +167,8 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 			return nil, err
 		}
 
+		defer file.Close()
+		
 		tokens := LexWithOptions(file, options.LexOptions)
 		config := Config{
 			File:   incl.path,
@@ -198,7 +200,7 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 	return payload, nil
 }
 
-func (p *parser) openFile(path string) (io.Reader, error) {
+func (p *parser) openFile(path string) (io.ReadCloser, error) {
 	open := osOpen
 	if p.options.Open != nil {
 		open = p.options.Open
@@ -448,7 +450,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 }
 
 // isAcyclic performs a topological sort to check if there are cycles created by configs' includes.
-// First, it adds any files who are not being referenced by another file to a queue (in degree of 0).
+// First, it adds any files who are not bein  Fg referenced by another file to a queue (in degree of 0).
 // For every file in the queue, it will remove the reference it has towards its neighbors.
 // At the end, if the queue is empty but not all files were once in the queue,
 // then files still exist with references, and therefore, a cycle is present.
