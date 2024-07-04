@@ -168,7 +168,7 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 		}
 
 		defer file.Close()
-		
+
 		tokens := LexWithOptions(file, options.LexOptions)
 		config := Config{
 			File:   incl.path,
@@ -450,7 +450,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 }
 
 // isAcyclic performs a topological sort to check if there are cycles created by configs' includes.
-// First, it adds any files who are not bein  Fg referenced by another file to a queue (in degree of 0).
+// First, it adds any files who are not being referenced by another file to a queue (in degree of 0).
 // For every file in the queue, it will remove the reference it has towards its neighbors.
 // At the end, if the queue is empty but not all files were once in the queue,
 // then files still exist with references, and therefore, a cycle is present.
