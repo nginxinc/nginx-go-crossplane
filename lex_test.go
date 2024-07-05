@@ -460,34 +460,53 @@ func TestLex(t *testing.T) {
 	}
 }
 
-var lexToken NgxToken //nolint: gochecknoglobals // trying to avoid return value being optimzed away
-
-func BenchmarkLex(b *testing.B) {
+func benchmarkLex(b *testing.B, path string, options LexOptions) {
 	var t NgxToken
 
-	for _, bm := range lexFixtures {
-		b.Run(bm.name, func(b *testing.B) {
-			path := getTestConfigPath(bm.name, "nginx.conf")
-			file, err := os.Open(path)
-			if err != nil {
-				b.Fatal(err)
-			}
-			defer file.Close()
-			b.ResetTimer()
+	file, err := os.Open(path)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer file.Close()
+	b.ResetTimer()
 
-			for i := 0; i < b.N; i++ {
-				if _, err := file.Seek(0, 0); err != nil {
-					b.Fatal(err)
-				}
+	for i := 0; i < b.N; i++ {
+		if _, err := file.Seek(0, 0); err != nil {
+			b.Fatal(err)
+		}
 
-				for tok := range Lex(file) {
-					t = tok
-				}
-			}
-		})
+		for tok := range LexWithOptions(file, options) {
+			t = tok
+		}
 	}
 
-	lexToken = t
+	_ = t
+}
+
+func BenchmarkLex(b *testing.B) {
+	for _, bm := range lexFixtures {
+		if strings.HasPrefix(bm.name, "lua") {
+			continue
+		}
+
+		b.Run(bm.name, func(b *testing.B) {
+			path := getTestConfigPath(bm.name, "nginx.conf")
+			benchmarkLex(b, path, LexOptions{})
+		})
+	}
+}
+
+func BenchmarkLexWithLua(b *testing.B) {
+	for _, bm := range lexFixtures {
+		if !strings.HasPrefix(bm.name, "lua") {
+			continue
+		}
+
+		b.Run(bm.name, func(b *testing.B) {
+			path := getTestConfigPath(bm.name, "nginx.conf")
+			benchmarkLex(b, path, LexOptions{Lexers: []RegisterLexer{lua.RegisterLexer()}})
+		})
+	}
 }
 
 //nolint:gochecknoglobals

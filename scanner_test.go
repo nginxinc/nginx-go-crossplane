@@ -15,6 +15,7 @@ func TestScanner(t *testing.T) {
 
 	for _, f := range lexFixtures {
 		f := f
+
 		t.Run(f.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -25,7 +26,7 @@ func TestScanner(t *testing.T) {
 			}
 			defer file.Close()
 
-			s := NewScanner(file)
+			s := NewScanner(file, lua.RegisterLexer())
 
 			i := 0
 			for {
@@ -42,8 +43,8 @@ func TestScanner(t *testing.T) {
 				}
 
 				want := f.tokens[i]
-				require.Equal(t, want.value, got.Text)
-				require.Equal(t, want.line, got.Line)
+				require.Equal(t, want.value, got.Text, "got=%s", got)
+				require.Equal(t, want.line, got.Line, "got=%s", got)
 				i++
 			}
 		})
@@ -58,7 +59,7 @@ func TestScanner_unhappy(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			s := NewScanner(strings.NewReader(c))
+			s := NewScanner(strings.NewReader(c), lua.RegisterLexer())
 			for {
 				_, err := s.Scan()
 				if err == io.EOF {
@@ -83,38 +84,61 @@ func TestScanner_unhappy(t *testing.T) {
 	}
 }
 
-var t Token //nolint: gochecknoglobals // trying to avoid return value being optimzed away
+func benchmarkScanner(b *testing.B, path string, options ...ScannerOption) {
+	var t Token
 
-func BenchmarkScan(b *testing.B) {
-	for _, bm := range lexFixtures {
-		b.Run(bm.name, func(b *testing.B) {
-			path := getTestConfigPath(bm.name, "nginx.conf")
-			file, err := os.Open(path)
+	file, err := os.Open(path)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer file.Close()
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		if _, err := file.Seek(0, 0); err != nil {
+			b.Fatal(err)
+		}
+
+		s := NewScanner(file, options...)
+
+		for {
+			tok, err := s.Scan()
+			if err == io.EOF {
+				break
+			}
 			if err != nil {
 				b.Fatal(err)
 			}
-			defer file.Close()
+			t = tok
+		}
+	}
 
-			b.ResetTimer()
+	_ = t
+}
 
-			for i := 0; i < b.N; i++ {
-				if _, err := file.Seek(0, 0); err != nil {
-					b.Fatal(err)
-				}
+func BenchmarkScanner(b *testing.B) {
+	for _, bm := range lexFixtures {
+		if strings.HasPrefix(bm.name, "lua") {
+			continue
+		}
 
-				s := NewScanner(file)
+		b.Run(bm.name, func(b *testing.B) {
+			path := getTestConfigPath(bm.name, "nginx.conf")
+			benchmarkScanner(b, path)
+		})
+	}
+}
 
-				for {
-					tok, err := s.Scan()
-					if err == io.EOF {
-						break
-					}
-					if err != nil {
-						b.Fatal(err)
-					}
-					t = tok
-				}
-			}
+func BenchmarkScannerWithLua(b *testing.B) {
+	for _, bm := range lexFixtures {
+		if !strings.HasPrefix(bm.name, "lua") {
+			continue
+		}
+
+		b.Run(bm.name, func(b *testing.B) {
+			path := getTestConfigPath(bm.name, "nginx.conf")
+			benchmarkScanner(b, path, lua.RegisterLexer())
 		})
 	}
 }
