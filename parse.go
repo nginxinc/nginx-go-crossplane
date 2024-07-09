@@ -21,7 +21,7 @@ import (
 //nolint:gochecknoglobals
 var (
 	hasMagic           = regexp.MustCompile(`[*?[]`)
-	osOpen             = func(path string) (io.Reader, error) { return os.Open(path) }
+	osOpen             = func(path string) (io.ReadCloser, error) { return os.Open(path) }
 	ErrPrematureLexEnd = errors.New("premature end of file")
 )
 
@@ -74,7 +74,7 @@ type ParseOptions struct {
 	ErrorCallback func(error) interface{}
 
 	// If specified, use this alternative to open config files
-	Open func(path string) (io.Reader, error)
+	Open func(path string) (io.ReadCloser, error)
 
 	// Glob will return a matching list of files if specified
 	Glob func(path string) ([]string, error)
@@ -167,6 +167,8 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 			return nil, err
 		}
 
+		defer file.Close()
+
 		tokens := LexWithOptions(file, options.LexOptions)
 		config := Config{
 			File:   incl.path,
@@ -198,7 +200,7 @@ func Parse(filename string, options *ParseOptions) (*Payload, error) {
 	return payload, nil
 }
 
-func (p *parser) openFile(path string) (io.Reader, error) {
+func (p *parser) openFile(path string) (io.ReadCloser, error) {
 	open := osOpen
 	if p.options.Open != nil {
 		open = p.options.Open
@@ -383,6 +385,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 				// if the file pattern was explicit, nginx will check
 				// that the included file can be opened and read
 				if f, err := p.openFile(pattern); err != nil {
+					defer f.Close()
 					perr := &ParseError{
 						What:      err.Error(),
 						File:      &parsing.File,
@@ -396,9 +399,6 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 						return nil, perr
 					}
 				} else {
-					if c, ok := f.(io.Closer); ok {
-						_ = c.Close()
-					}
 					fnames = []string{pattern}
 				}
 			}
