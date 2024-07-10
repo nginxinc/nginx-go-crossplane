@@ -183,7 +183,7 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 		// use mask to check the directive's arguments
 		//nolint:gocritic
 		if ((mask>>len(stmt.Args)&1) != 0 && len(stmt.Args) <= 7) || // NOARGS to TAKE7
-			((mask&uint(ngxConfFlag)) != 0 && len(stmt.Args) == 1 && validFlag(stmt.Args[0])) ||
+			((mask&(ngxConfFlag)) != 0 && len(stmt.Args) == 1 && validFlag(stmt.Args[0])) ||
 			((mask & ngxConfAny) != 0) ||
 			((mask&ngxConf1More) != 0 && len(stmt.Args) >= 1) ||
 			((mask&ngxConf2More) != 0 && len(stmt.Args) >= 2) {
