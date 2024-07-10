@@ -26,8 +26,10 @@ github.com/stretchr/testify/require
 golang.org/x/mod/internal/lazyregexp
 golang.org/x/mod/module
 golang.org/x/mod/semver
-# golang.org/x/sys v0.7.0
-## explicit; go 1.17
+# golang.org/x/net v0.24.0
+## explicit; go 1.18
+# golang.org/x/sys v0.19.0
+## explicit; go 1.18
 golang.org/x/sys/execabs
 # golang.org/x/tools v0.8.0
 ## explicit; go 1.18
