@@ -23,10 +23,11 @@ const (
 	// ngxConfTake7  = 0x00000080 // 7 args (currently unused).
 	ngxConfBlock = 0x00000100 // followed by block
 	ngxConfExpr  = 0x00000200 // directive followed by expression in parentheses `()`
-	ngxConfFlag  = 0x00000400 // 'on' or 'off'
-	ngxConfAny   = 0x00000800 // >=0 args
-	ngxConf1More = 0x00001000 // >=1 args
-	ngxConf2More = 0x00002000 // >=2 args
+
+	ngxConfFlag  uint = 0x00000400 // 'on' or 'off'
+	ngxConfAny   uint = 0x00000001 // Example value
+	ngxConf1More uint = 0x00000002 // Example value
+	ngxConf2More uint = 0x00000004 // Example value
 
 	// some helpful argument style aliases.
 	ngxConfTake12   = ngxConfTake1 | ngxConfTake2
@@ -182,7 +183,7 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 		// use mask to check the directive's arguments
 		//nolint:gocritic
 		if ((mask>>len(stmt.Args)&1) != 0 && len(stmt.Args) <= 7) || // NOARGS to TAKE7
-			((mask&ngxConfFlag) != 0 && len(stmt.Args) == 1 && validFlag(stmt.Args[0])) ||
+			((mask&uint(ngxConfFlag)) != 0 && len(stmt.Args) == 1 && validFlag(stmt.Args[0])) ||
 			((mask & ngxConfAny) != 0) ||
 			((mask&ngxConf1More) != 0 && len(stmt.Args) >= 1) ||
 			((mask&ngxConf2More) != 0 && len(stmt.Args) >= 2) {

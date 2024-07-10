@@ -604,6 +604,53 @@ func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 }
 
 //nolint:funlen
+func TestAnalyze_limit_req_zone(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"limit_req_zone ok http": {
+			&Directive{
+				Directive: "limit_req_zone",
+				Args:      []string{"$binary_remote_addr", "zone=one:10m", "rate=1r/s", "sync"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		// "limit_req_zone ok stream": {
+		// 	&Directive{
+		// 		Directive: "limit_req_zone",
+		// 		Args:      []string{"$binary_remote_addr", "zone=one:10m", "rate=1r/s", "sync"},
+		// 		Line:      5,
+		// 	},
+		// 	blockCtx{"stream"},
+		// 	false,
+		// },
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+//nolint:funlen
 func TestAnalyze_nap_app_protect_security_log_enable(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
