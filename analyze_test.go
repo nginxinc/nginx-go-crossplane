@@ -603,7 +603,6 @@ func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 	}
 }
 
-//nolint:funlen
 func TestAnalyze_limit_req_zone(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {
