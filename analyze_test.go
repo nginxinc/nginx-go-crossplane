@@ -620,15 +620,6 @@ func TestAnalyze_limit_req_zone(t *testing.T) {
 			blockCtx{"http"},
 			false,
 		},
-		// "limit_req_zone ok stream": {
-		// 	&Directive{
-		// 		Directive: "limit_req_zone",
-		// 		Args:      []string{"$binary_remote_addr", "zone=one:10m", "rate=1r/s", "sync"},
-		// 		Line:      5,
-		// 	},
-		// 	blockCtx{"stream"},
-		// 	false,
-		// },
 	}
 
 	for name, tc := range testcases {
