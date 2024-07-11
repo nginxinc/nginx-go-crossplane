@@ -2012,6 +2012,100 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"limit-req-zone", "", ParseOptions{SingleFile: true}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("limit-req-zone", "nginx.conf"),
+				Status: "ok",
+				Errors: []ConfigError{},
+				Parsed: Directives{
+					{
+						Directive: "user",
+						Args:      []string{"nginx"},
+						Line:      1,
+						Block:     nil,
+					},
+					{
+						Directive: "worker_processes",
+						Args:      []string{"auto"},
+						Line:      2,
+						Block:     nil,
+					},
+					{
+						Directive: "error_log",
+						Args:      []string{"/var/log/nginx/error.log", "notice"},
+						Line:      4,
+						Block:     nil,
+					},
+					{
+						Directive: "pid",
+						Args:      []string{"/var/run/nginx.pid"},
+						Line:      5,
+						Block:     nil,
+					},
+					{
+						Directive: "events",
+						Args:      []string{},
+						Line:      7,
+						Block: Directives{
+							{
+								Directive: "worker_connections",
+								Args:      []string{"1024"},
+								Line:      8,
+							},
+						},
+					},
+					{
+						Directive: "http",
+						Args:      []string{},
+						Line:      11,
+						Block: Directives{
+							{
+								Directive: "include",
+								Args:      []string{"/etc/nginx/mime.types"},
+								Line:      12,
+							},
+							{
+								Directive: "default_type",
+								Args:      []string{"application/octet-stream"},
+								Line:      13,
+							},
+							{
+								Directive: "limit_req_zone",
+								Args:      []string{"$binary_remote_addr", "zone=one:10m", "rate=1r/s", "sync"},
+								Line:      15,
+							},
+							{
+								Directive: "log_format",
+								Args: []string{"main",
+									"$remote_addr - $remote_user [$time_local] \"$request\" ",
+									"$status $body_bytes_sent \"$http_referer\" ",
+									"\"$http_user_agent\" \"$http_x_forwarded_for\"",
+								},
+								Line: 17,
+							},
+							{
+								Directive: "access_log",
+								Args:      []string{"/var/log/nginx/access.log", "main"},
+								Line:      21,
+							},
+							{
+								Directive: "sendfile",
+								Args:      []string{"on"},
+								Line:      23,
+							}, {
+								Directive: "keepalive_timeout",
+								Args:      []string{"65"},
+								Line:      25,
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {
