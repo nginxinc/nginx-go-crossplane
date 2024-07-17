@@ -72,50 +72,82 @@ func getExpectedFilePath(relativePath string) (string, error) {
 //nolint:funlen,gocognit
 func TestGenSupFromSrcCode(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		name         string
+	tests := map[string]struct {
 		relativePath string
 		wantErr      bool
+		filter       map[string]struct{}
+		override     map[string][]Mask
 	}{
-		{
-			name:         "normalDirectiveDefinition_pass",
+		"normalDirectiveDefinition_pass": {
 			relativePath: "normalDefinition",
 			wantErr:      false,
 		},
-		{
-			name:         "unknownBitmask_fail",
+		"unknownBitmask_fail": {
 			relativePath: "unknownBitmask",
 			wantErr:      true,
 		},
-		{
-			name:         "noDirectivesDefinition_fail",
+		"noDirectivesDefinition_fail": {
 			relativePath: "noDirectives",
 			wantErr:      true,
 		},
 		// If one directive was defined in several files, we should keep all
 		// of the bitmask definitions
-		{
-			name:         "directiveRepeatDefine_pass",
+		"directiveRepeatDefine_pass": {
 			relativePath: "repeatDefine",
 		},
-		// If there are comments in definition, we should delete them
-		{
-			name:         "commentsInDefinition_pass",
+		// If there are comments in directive definition, we should ignore them
+		"commentsInDefinition_pass": {
 			relativePath: "commentsInDefinition",
 		},
-		// If there are comments in definition, we should delete them
-		{
-			name:         "genFromSingleFile_pass",
+		"genFromSingleFile_pass": {
 			relativePath: "single_file.c",
 		},
-		{
-			name:         "fullNgxBitmaskCover_pass",
+		"fullNgxBitmaskCover_pass": {
 			relativePath: "fullNgxBitmaskCover",
 		},
+		"testFilter_pass": {
+			relativePath: "filter",
+			filter:       map[string]struct{}{"my_directive_2": {}, "my_directive_3": {}},
+		},
+		"testOverride_pass": {
+			relativePath: "override",
+			override: map[string][]Mask{
+				"my_directive_1": {
+					Mask{"ngxHTTPMainConf", "ngxConfTake1"},
+					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+				},
+				"my_directive_3": {
+					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+					Mask{"ngxHTTPMainConf", "ngxConfTake3"},
+				},
+			},
+		},
+		"testFilterAndOverride_pass": {
+			relativePath: "filterAndOverride",
+			filter: map[string]struct{}{
+				"my_directive_1": {},
+				"my_directive_2": {},
+				"my_directive_3": {},
+			},
+			override: map[string][]Mask{
+				"my_directive_1": {
+					Mask{"ngxHTTPMainConf", "ngxConfTake1"},
+					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+				},
+				"my_directive_3": {
+					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+					Mask{"ngxHTTPMainConf", "ngxConfTake3"},
+				},
+				"my_directive_4": {
+					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+					Mask{"ngxHTTPMainConf", "ngxConfTake3"},
+				},
+			},
+		},
 	}
-	for _, tc := range tests {
+	for name, tc := range tests {
 		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
+		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			var err error
 			codePath, err := getTestSrcCodePath(tc.relativePath)
@@ -125,14 +157,12 @@ func TestGenSupFromSrcCode(t *testing.T) {
 
 			var buf bytes.Buffer
 
-			err = genFromSrcCode(codePath, "directives", "Match", &buf)
+			err = genFromSrcCode(codePath, "directives", "Match", &buf, tc.filter, tc.override)
 
-			if !tc.wantErr && err != nil {
-				t.Fatal(err)
-			}
-
-			if tc.wantErr && err == nil {
-				t.Fatal("expected error, got nil")
+			if tc.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
 			}
 
 			// If the testcase wants an error and there is an error, skip the output file validation,

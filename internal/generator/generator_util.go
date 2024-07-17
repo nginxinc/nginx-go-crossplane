@@ -20,14 +20,14 @@ import (
 	"strings"
 )
 
-// A mask is a list of string, includes several variable names,
+// A Mask is a list of string, includes several variable names,
 // which specify a behavior of a directive.
 // An example is []string{"ngxHTTPMainConf", "ngxConfFlag",}.
 // A directive can have several masks.
-type mask []string
+type Mask []string
 
 type supportFileTmplStruct struct {
-	Directive2Masks map[string][]mask
+	Directive2Masks map[string][]Mask
 	MapVariableName string
 	MatchFnName     string
 }
@@ -99,8 +99,8 @@ var ngxVarNameToGo = map[string]string{
 }
 
 //nolint:nonamedreturns
-func masksFromFile(path string) (directive2Masks map[string][]mask, err error) {
-	directive2Masks = make(map[string][]mask, 0)
+func masksFromFile(path string) (directive2Masks map[string][]Mask, err error) {
+	directive2Masks = make(map[string][]Mask, 0)
 	byteContent, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err
@@ -143,8 +143,8 @@ func masksFromFile(path string) (directive2Masks map[string][]mask, err error) {
 }
 
 //nolint:nonamedreturns
-func getMasksFromPath(path string) (directive2Masks map[string][]mask, err error) {
-	directive2Masks = make(map[string][]mask, 0)
+func getMasksFromPath(path string) (directive2Masks map[string][]Mask, err error) {
+	directive2Masks = make(map[string][]Mask, 0)
 
 	err = filepath.WalkDir(path, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -184,10 +184,27 @@ func getMasksFromPath(path string) (directive2Masks map[string][]mask, err error
 	return directive2Masks, nil
 }
 
-func genFromSrcCode(codePath string, mapVariableName string, matchFnName string, writer io.Writer) error {
+func genFromSrcCode(codePath string, mapVariableName string, matchFnName string, writer io.Writer,
+	filter map[string]struct{}, override map[string][]Mask) error {
 	directive2Masks, err := getMasksFromPath(codePath)
 	if err != nil {
 		return err
+	}
+
+	if len(filter) > 0 {
+		for d := range directive2Masks {
+			if _, found := filter[d]; found {
+				delete(directive2Masks, d)
+			}
+		}
+	}
+
+	if override != nil {
+		for d := range directive2Masks {
+			if newMasks, found := override[d]; found {
+				directive2Masks[d] = newMasks
+			}
+		}
 	}
 
 	err = supportFileTmpl.Execute(writer, supportFileTmplStruct{
