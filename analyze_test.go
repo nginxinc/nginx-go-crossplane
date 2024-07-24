@@ -294,7 +294,12 @@ func TestAnalyze_njs(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				DirectiveSources: []MatchFunc{
+					NgxPlusLatestDirectivesMatchFn,
+					NjsDirectivesMatchFn,
+				},
+			})
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
 			}
