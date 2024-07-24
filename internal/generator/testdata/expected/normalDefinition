@@ -15,7 +15,7 @@
 
 package crossplane
 
-var directives = map[string][]uint{
+var myDirectives = map[string][]uint{
     "my_directive_1": {
         ngxHTTPMainConf | ngxConfTake2,
     },
@@ -27,9 +27,8 @@ var directives = map[string][]uint{
     },
 }
 
-// Match is a matchFunc for parsing an NGINX config that contains the
-// preceding directives.
-func Match(directive string) ([]uint, bool) {
-    m, ok := directives[directive]
+
+func MyMatchFn(directive string) ([]uint, bool) {
+    m, ok := myDirectives[directive]
     return m, ok
 }

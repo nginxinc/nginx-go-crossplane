@@ -15,14 +15,20 @@
 
 package crossplane
 
-var directives = map[string][]uint{
-    "all_bitmask": {
-        ngxConfNoArgs | ngxConfTake1 | ngxConfTake2 | ngxConfTake3 | ngxConfTake4 | ngxConfTake5 | ngxConfTake6 | ngxConfTake7 | ngxConfTake12 | ngxConfTake13 | ngxConfTake23 | ngxConfTake123 | ngxConfTake1234 | ngxConfBlock | ngxConfFlag | ngxConfAny | ngxConf1More | ngxConf2More | ngxDirectConf | ngxMainConf,
+var myDirectives = map[string][]uint{
+    "my_directive_1": {
+        ngxHTTPMainConf | ngxConfTake2,
+    },
+    "my_directive_2": {
+        ngxHTTPMainConf | ngxConfFlag,
+    },
+    "my_directive_3": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfNoArgs,
     },
 }
 
-
-func Match(directive string) ([]uint, bool) {
-    m, ok := directives[directive]
+// This is a matchFunc
+func MyMatchFn(directive string) ([]uint, bool) {
+    m, ok := myDirectives[directive]
     return m, ok
 }
