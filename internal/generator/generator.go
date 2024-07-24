@@ -12,6 +12,13 @@ import (
 )
 
 type GenerateConfig struct {
+	Filter           map[string]struct{}
+	Override         map[string][]Mask
+	DirectiveMapName string
+	MatchFuncName    string
+}
+
+type GenerateConfig struct {
 	// Filter is a map used to exclude directives from generator.
 	// The key of it is the directive names.
 	Filter map[string]struct{}
