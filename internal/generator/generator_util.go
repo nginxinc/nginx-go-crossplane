@@ -30,6 +30,7 @@ type supportFileTmplStruct struct {
 	Directive2Masks map[string][]Mask
 	MapVariableName string
 	MatchFnName     string
+	MatchFnComment  string
 }
 
 var (
@@ -184,13 +185,13 @@ func getMasksFromPath(path string) (directive2Masks map[string][]Mask, err error
 	return directive2Masks, nil
 }
 
-func genFromSrcCode(codePath string, mapVariableName string, matchFnName string, writer io.Writer,
-	filter map[string]struct{}, override map[string][]Mask) error {
+func genFromSrcCode(codePath string, writer io.Writer, config GenerateConfig) error {
 	directive2Masks, err := getMasksFromPath(codePath)
 	if err != nil {
 		return err
 	}
 
+	filter := config.Filter
 	if len(filter) > 0 {
 		for d := range directive2Masks {
 			if _, found := filter[d]; found {
@@ -199,6 +200,7 @@ func genFromSrcCode(codePath string, mapVariableName string, matchFnName string,
 		}
 	}
 
+	override := config.Override
 	if override != nil {
 		for d := range directive2Masks {
 			if newMasks, found := override[d]; found {
@@ -209,8 +211,9 @@ func genFromSrcCode(codePath string, mapVariableName string, matchFnName string,
 
 	err = supportFileTmpl.Execute(writer, supportFileTmplStruct{
 		Directive2Masks: directive2Masks,
-		MapVariableName: mapVariableName,
-		MatchFnName:     matchFnName,
+		MapVariableName: config.DirectiveMapName,
+		MatchFnName:     config.MatchFuncName,
+		MatchFnComment:  config.MatchFuncComment,
 	})
 	if err != nil {
 		return err

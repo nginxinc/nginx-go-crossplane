@@ -30,8 +30,7 @@ var directives = map[string][]uint{
     },
 }
 
-// Match is a matchFunc for parsing an NGINX config that contains the
-// preceding directives.
+
 func Match(directive string) ([]uint, bool) {
     m, ok := directives[directive]
     return m, ok

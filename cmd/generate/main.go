@@ -19,12 +19,18 @@ func main() {
 	var (
 		sourceCodePath = flag.String("src-path", "",
 			"The path of source code your want to generate support from, it can be either a file or a directory. (required)")
+		directiveMapName = flag.String("directive-map-name", "", "Name of the generated map variable."+
+			" Normally it should start with lowercase to avoid export. (required)")
+		matchFuncName = flag.String("match-func-name", "", "Name of the generated matchFunc."+
+			" Normally it should start with uppercase to export. (required)")
+		matchFnComment = flag.String("match-func-comment", "", "The code comment for generated matchFunc."+
+			" You can add some explanations like which modules included in it. Normally it should start with match-func-name (optional)")
 		filterflags       filterFlag
 		directiveOverride override
 	)
 	flag.Var(&filterflags, "filter",
 		"A list of strings specifying the directives to exclude from the output. "+
-			"An example is: -filter directive1 -filter directive2...(optional)")
+			"An example is: -filter directive1 -filter directive2... (optional)")
 	flag.Var(&directiveOverride, "override",
 		"A list of strings, used to override the output. "+
 			"It should follow the format:{directive:bitmask00|bitmask01...,bitmask10|bitmask11...}"+"\n"+
@@ -33,7 +39,27 @@ func main() {
 
 	flag.Parse()
 
-	err := generator.Generate(*sourceCodePath, os.Stdout, filterflags.filter, directiveOverride)
+	if *sourceCodePath == "" {
+		log.Fatal("src-path can't be empty")
+	}
+
+	if *directiveMapName == "" {
+		log.Fatal("directive-map can't be empty")
+	}
+
+	if *matchFuncName == "" {
+		log.Fatal("match-func can't be empty")
+	}
+
+	config := generator.GenerateConfig{
+		Filter:           filterflags.filter,
+		Override:         directiveOverride,
+		DirectiveMapName: *directiveMapName,
+		MatchFuncName:    *matchFuncName,
+		MatchFuncComment: *matchFnComment,
+	}
+
+	err := generator.Generate(*sourceCodePath, os.Stdout, config)
 	if err != nil {
 		log.Fatal(err)
 	}

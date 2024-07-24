@@ -25,8 +25,7 @@ var {{.MapVariableName}} = map[string][]uint{
 {{- end}}
 }
 
-// {{.MatchFnName}} is a matchFunc for parsing an NGINX config that contains the
-// preceding directives.
+{{if ne .MatchFnComment ""}}// {{.MatchFnComment}}{{end}}
 func {{.MatchFnName}}(directive string) ([]uint, bool) {
     m, ok := {{.MapVariableName}}[directive]
     return m, ok

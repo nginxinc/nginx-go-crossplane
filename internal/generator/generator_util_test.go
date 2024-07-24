@@ -26,7 +26,7 @@ import (
 var (
 	update = flag.Bool("update", false,
 		`update the expected output of these tests, 
-only use when the expected output is outdated and you are sure your output is correct`)
+ only use when the expected output is outdated and you are sure your output is correct`)
 )
 
 func TestMain(m *testing.M) {
@@ -70,79 +70,133 @@ func getExpectedFilePath(relativePath string) (string, error) {
 }
 
 //nolint:funlen,gocognit
-func TestGenSupFromSrcCode(t *testing.T) {
+func TestGenFromSrcCode(t *testing.T) {
 	t.Parallel()
 	tests := map[string]struct {
 		relativePath string
 		wantErr      bool
-		filter       map[string]struct{}
-		override     map[string][]Mask
+		config       GenerateConfig
 	}{
 		"normalDirectiveDefinition_pass": {
 			relativePath: "normalDefinition",
-			wantErr:      false,
+			config: GenerateConfig{
+				DirectiveMapName: "myDirectives",
+				MatchFuncName:    "MyMatchFn",
+			},
+			wantErr: false,
 		},
 		"unknownBitmask_fail": {
 			relativePath: "unknownBitmask",
-			wantErr:      true,
+			config: GenerateConfig{
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
+			},
+			wantErr: true,
 		},
 		"noDirectivesDefinition_fail": {
 			relativePath: "noDirectives",
-			wantErr:      true,
+			config: GenerateConfig{
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
+			},
+			wantErr: true,
 		},
 		// If one directive was defined in several files, we should keep all
 		// of the bitmask definitions
 		"directiveRepeatDefine_pass": {
 			relativePath: "repeatDefine",
+			config: GenerateConfig{
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
+			},
+			wantErr: false,
 		},
 		// If there are comments in directive definition, we should ignore them
 		"commentsInDefinition_pass": {
 			relativePath: "commentsInDefinition",
+			config: GenerateConfig{
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
+			},
+			wantErr: false,
 		},
 		"genFromSingleFile_pass": {
 			relativePath: "single_file.c",
+			config: GenerateConfig{
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
+			},
+			wantErr: false,
 		},
 		"fullNgxBitmaskCover_pass": {
 			relativePath: "fullNgxBitmaskCover",
+			config: GenerateConfig{
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
+			},
+			wantErr: false,
 		},
 		"testFilter_pass": {
 			relativePath: "filter",
-			filter:       map[string]struct{}{"my_directive_2": {}, "my_directive_3": {}},
+			config: GenerateConfig{
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
+				Filter:           map[string]struct{}{"my_directive_2": {}, "my_directive_3": {}},
+			},
 		},
 		"testOverride_pass": {
 			relativePath: "override",
-			override: map[string][]Mask{
-				"my_directive_1": {
-					Mask{"ngxHTTPMainConf", "ngxConfTake1"},
-					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
-				},
-				"my_directive_3": {
-					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
-					Mask{"ngxHTTPMainConf", "ngxConfTake3"},
+			config: GenerateConfig{
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
+				Override: map[string][]Mask{
+					"my_directive_1": {
+						Mask{"ngxHTTPMainConf", "ngxConfTake1"},
+						Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+					},
+					"my_directive_3": {
+						Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+						Mask{"ngxHTTPMainConf", "ngxConfTake3"},
+					},
 				},
 			},
+			wantErr: false,
 		},
 		"testFilterAndOverride_pass": {
 			relativePath: "filterAndOverride",
-			filter: map[string]struct{}{
-				"my_directive_1": {},
-				"my_directive_2": {},
-				"my_directive_3": {},
+			config: GenerateConfig{
+				Filter: map[string]struct{}{
+					"my_directive_1": {},
+					"my_directive_2": {},
+					"my_directive_3": {},
+				},
+				Override: map[string][]Mask{
+					"my_directive_1": {
+						Mask{"ngxHTTPMainConf", "ngxConfTake1"},
+						Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+					},
+					"my_directive_3": {
+						Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+						Mask{"ngxHTTPMainConf", "ngxConfTake3"},
+					},
+					"my_directive_4": {
+						Mask{"ngxHTTPMainConf", "ngxConfTake2"},
+						Mask{"ngxHTTPMainConf", "ngxConfTake3"},
+					},
+				},
+				DirectiveMapName: "directives",
+				MatchFuncName:    "Match",
 			},
-			override: map[string][]Mask{
-				"my_directive_1": {
-					Mask{"ngxHTTPMainConf", "ngxConfTake1"},
-					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
-				},
-				"my_directive_3": {
-					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
-					Mask{"ngxHTTPMainConf", "ngxConfTake3"},
-				},
-				"my_directive_4": {
-					Mask{"ngxHTTPMainConf", "ngxConfTake2"},
-					Mask{"ngxHTTPMainConf", "ngxConfTake3"},
-				},
+			wantErr: false,
+		},
+		"withMatchFuncComment_pass": {
+			relativePath: "withMatchFuncComment",
+			config: GenerateConfig{
+				DirectiveMapName: "myDirectives",
+				MatchFuncName:    "MyMatchFn",
+				MatchFuncComment: "This is a matchFunc",
 			},
+			wantErr: false,
 		},
 	}
 	for name, tc := range tests {
@@ -157,7 +211,7 @@ func TestGenSupFromSrcCode(t *testing.T) {
 
 			var buf bytes.Buffer
 
-			err = genFromSrcCode(codePath, "directives", "Match", &buf, tc.filter, tc.override)
+			err = genFromSrcCode(codePath, &buf, tc.config)
 
 			if tc.wantErr {
 				require.Error(t, err)
