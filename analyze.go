@@ -7,8 +7,8 @@
 
 package crossplane
 
-//go:generate sh ./scripts/generate/normal_git_gen.sh --url https://github.com/openresty/headers-more-nginx-module.git --output-path ./analyze_headersMore_directives.gen.go --match-func HeadersMoreDirectivesMatchFn --directive-map moduleHeadersMoreDirectives
-//go:generate sh ./scripts/generate/normal_git_gen.sh --url https://github.com/nginx/njs.git --output-path ./analyze_njs_directives.gen.go --match-func NjsDirectivesMatchFn --directive-map moduleNjsDirectives
+//go:generate sh ./scripts/generate/normal_public_source_gen.sh --url https://github.com/openresty/headers-more-nginx-module.git --output-path ./analyze_headersMore_directives.gen.go --match-func-name HeadersMoreDirectivesMatchFn --directive-map-name moduleHeadersMoreDirectives
+//go:generate sh ./scripts/generate/normal_public_source_gen.sh --url https://github.com/nginx/njs.git --output-path ./analyze_njs_directives.gen.go --match-func-name NjsDirectivesMatchFn --directive-map-name moduleNjsDirectives
 
 import (
 	"fmt"

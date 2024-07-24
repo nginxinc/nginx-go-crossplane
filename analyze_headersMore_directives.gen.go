@@ -30,8 +30,7 @@ var moduleHeadersMoreDirectives = map[string][]uint{
     },
 }
 
-// HeadersMoreDirectivesMatchFn is a matchFunc for parsing an NGINX config that contains the
-// preceding directives.
+
 func HeadersMoreDirectivesMatchFn(directive string) ([]uint, bool) {
     m, ok := moduleHeadersMoreDirectives[directive]
     return m, ok

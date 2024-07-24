@@ -96,8 +96,7 @@ var moduleNjsDirectives = map[string][]uint{
     },
 }
 
-// NjsDirectivesMatchFn is a matchFunc for parsing an NGINX config that contains the
-// preceding directives.
+
 func NjsDirectivesMatchFn(directive string) ([]uint, bool) {
     m, ok := moduleNjsDirectives[directive]
     return m, ok
