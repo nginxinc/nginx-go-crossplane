@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	. "github.com/nginxinc/nginx-go-crossplane"
+	. "github.com/nginxinc/nginx-go-crossplane" //nolint: revive
 )
 
 //nolint:funlen
