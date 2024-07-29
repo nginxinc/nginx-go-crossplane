@@ -29,7 +29,7 @@ var moduleLuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxConfFlag,
 	},
 	"balancer_by_lua_block": {
-		ngxHTTPUpsConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPUpsConf | ngxStreamMainConf | ngxStreamSrvConf | ngxStreamUpsConf | ngxConfTake1,
 	},
 	"balancer_by_lua_file": {
 		ngxHTTPUpsConf | ngxConfTake1,
@@ -47,7 +47,7 @@ var moduleLuaDirectives = map[string][]uint{
 		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"content_by_lua_block": {
-		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+		ngxHTTPLocConf | ngxHTTPLifConf | ngxStreamSrvConf | ngxConfTake1,
 	},
 	"content_by_lua_file": {
 		ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
@@ -68,22 +68,22 @@ var moduleLuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
 	},
 	"init_by_lua": {
-		ngxHTTPMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake1,
 	},
 	"init_by_lua_block": {
-		ngxHTTPMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake1,
 	},
 	"init_by_lua_file": {
-		ngxHTTPMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake1,
 	},
 	"init_worker_by_lua": {
-		ngxHTTPMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake1,
 	},
 	"init_worker_by_lua_block": {
-		ngxHTTPMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake1,
 	},
 	"init_worker_by_lua_file": {
-		ngxHTTPMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake1,
 	},
 	"log_by_lua": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
@@ -125,10 +125,10 @@ var moduleLuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
 	},
 	"lua_package_cpath": {
-		ngxHTTPMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake1,
 	},
 	"lua_package_path": {
-		ngxHTTPMainConf | ngxConfTake1,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake1,
 	},
 	"lua_regex_cache_max_entries": {
 		ngxHTTPMainConf | ngxConfTake1,
@@ -140,7 +140,7 @@ var moduleLuaDirectives = map[string][]uint{
 		ngxHTTPMainConf | ngxConfFlag,
 	},
 	"lua_shared_dict": {
-		ngxHTTPMainConf | ngxConfTake2,
+		ngxHTTPMainConf | ngxStreamMainConf | ngxConfTake2,
 	},
 	"lua_socket_buffer_size": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
