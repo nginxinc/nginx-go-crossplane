@@ -40,7 +40,7 @@ func TestDirective_String(t *testing.T) {
 		},
 	} {
 		s := tf.directive.String()
-		assert.Equal(t, s, tf.expected)
+		assert.Equal(t, tf.expected, s)
 	}
 }
 
