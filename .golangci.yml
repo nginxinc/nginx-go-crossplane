@@ -40,7 +40,7 @@ linters:
 run:
   # 10 minute timeout for analysis
   timeout: 10m
-  modules-download-mode: vendor
+  modules-download-mode: mod
   skip-dirs-use-default: true
 
 # Specific linter settings
