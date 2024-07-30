@@ -1,0 +1,11 @@
+{
+    "directiveMapName":"otelDirectives",
+    "matchFuncName":"MatchOtelLatest",
+    "filter":[
+        "endpoint",
+        "interval",
+        "batch_size",
+        "batch_count"
+    ],
+    "matchFuncComment":"MatchOtelLatest is a MatchFunc for latest version of otel."
+}

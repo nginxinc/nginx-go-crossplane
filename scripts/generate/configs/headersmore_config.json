@@ -1,0 +1,5 @@
+{
+    "directiveMapName":"headersMoreDirectives",
+    "matchFuncName":"MatchHeadersMoreLatest",
+    "matchFuncComment":"MatchHeadersMoreLatest is a MatchFunc for the latest version of headersmore."
+}
