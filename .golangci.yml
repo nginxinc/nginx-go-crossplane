@@ -43,6 +43,7 @@ run:
   modules-download-mode: mod
   skip-dirs-use-default: true
 
+
 # Specific linter settings
 linters-settings:
   gocyclo:
@@ -62,6 +63,9 @@ linters-settings:
     local-prefixes: gitswarm.f5net.com/indigo,gitlab.com/f5
   errcheck:
     ignore: ^Close.*,os:^Setenv.*,fmt:.*,io/ioutil:^Read.*,github.com/spf13/viper:.*,github.com/pkg/errors:^Wrap.*
+  funclen:
+    skip-ifles:
+        - ".*\\.gen\\.go"
 
   lll:
     line-length: 140
