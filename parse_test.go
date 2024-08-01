@@ -2079,7 +2079,8 @@ var parseFixtures = []parseFixture{
 							},
 							{
 								Directive: "log_format",
-								Args: []string{"main",
+								Args: []string{
+									"main",
 									"$remote_addr - $remote_user [$time_local] \"$request\" ",
 									"$status $body_bytes_sent \"$http_referer\" ",
 									"\"$http_user_agent\" \"$http_x_forwarded_for\"",
@@ -2095,10 +2096,183 @@ var parseFixtures = []parseFixture{
 								Directive: "sendfile",
 								Args:      []string{"on"},
 								Line:      23,
-							}, {
+							},
+							{
 								Directive: "keepalive_timeout",
 								Args:      []string{"65"},
 								Line:      25,
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"geoip2", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchGeoip2Latest},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("geoip2", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "geoip2",
+								Line:      2,
+								Args:      []string{"/etc/Geo/GeoLite2-City.mmdb"},
+								Block: Directives{
+									{
+										Directive: "auto_reload",
+										Args:      []string{"5s"},
+										Line:      3,
+										Block:     Directives{},
+									},
+									{
+										Directive: "$geoip2_city_name",
+										Args:      []string{"city", "names", "en"},
+										Line:      4,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "geoip2_proxy",
+								Line:      6,
+								Args:      []string{"203.0.113.0/24"},
+								Block:     Directives{},
+							},
+							{
+								Directive: "geoip2_proxy_recursive",
+								Line:      7,
+								Args:      []string{"on"},
+								Block:     Directives{},
+							},
+							{
+								Directive: "server",
+								Line:      8,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      9,
+										Args:      []string{"80"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "server_name",
+										Line:      10,
+										Args:      []string{"localhost"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      11,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "return",
+												Line:      12,
+												Args: []string{
+													"200",
+													"Hello $geoip2_city_name",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						Directive: "stream",
+						Line:      18,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "geoip2",
+								Line:      19,
+								Args:      []string{"/etc/Geo/GeoLite2-Country.mmdb"},
+								Block: Directives{
+									{
+										Directive: "$geoip2_country_name",
+										Args:      []string{"country", "names", "en"},
+										Line:      20,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "map",
+								Line:      23,
+								Args:      []string{"$geoip2_country_name", "$backend"},
+								Block: Directives{
+									{
+										Directive: "United States",
+										Args:      []string{"us_backend"},
+										Line:      24,
+										Block:     Directives{},
+									},
+									{
+										Directive: "default",
+										Args:      []string{"default_backend"},
+										Line:      25,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "server",
+								Line:      28,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      29,
+										Args:      []string{"12345"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "proxy_pass",
+										Args:      []string{"$backend"},
+										Line:      30,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "upstream",
+								Line:      33,
+								Args:      []string{"us_backend"},
+								Block: Directives{
+									{
+										Directive: "server",
+										Line:      34,
+										Args:      []string{"192.168.0.1:12345"},
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "upstream",
+								Line:      37,
+								Args:      []string{"default_backend"},
+								Block: Directives{
+									{
+										Directive: "server",
+										Line:      39,
+										Args:      []string{"192.168.0.2:12345"},
+										Block:     Directives{},
+									},
+								},
 							},
 						},
 					},

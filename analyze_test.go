@@ -2665,3 +2665,133 @@ func TestAnalyze_limit_req_zone(t *testing.T) {
 		})
 	}
 }
+
+//nolint:funlen
+func TestAnalyze_geoip2(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"geoip2 ok": {
+			&Directive{
+				Directive: "geoip2",
+				Args:      []string{"/etc/maxmind-country.mmdb"},
+				Line:      5,
+				Block: Directives{
+					{
+						Directive: "auto_reload",
+						Args:      []string{"5s"},
+						Line:      6,
+						Block:     Directives{},
+					},
+					{
+						Directive: "$geoip2_city_name",
+						Args:      []string{"city", "names", "en"},
+						Line:      7,
+						Block:     Directives{},
+					},
+				},
+			},
+			blockCtx{"http", "stream"},
+			false,
+		},
+
+		"geoip2 not ok": {
+			&Directive{
+				Directive: "geoip2",
+				Args:      []string{"/etc/maxmind-country.mmdb"},
+				Line:      5,
+				Block: Directives{
+					{
+						Directive: "auto_reload",
+						Args:      []string{"5s"},
+						Line:      6,
+						Block:     Directives{},
+					},
+					{
+						Directive: "$geoip2_city_name",
+						Args:      []string{"city", "names", "en"},
+						Line:      7,
+						Block:     Directives{},
+					},
+				},
+			},
+			blockCtx{"mgmt"},
+			true,
+		},
+		"geoip2_proxy ok": {
+			&Directive{
+				Directive: "geoip2_proxy",
+				Args:      []string{"203.0.113.0/24"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"geoip2_proxy args not ok": {
+			&Directive{
+				Directive: "geoip2_proxy",
+				Args:      []string{"203.0.113.0/24", "172.0.0.6"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"geoip2_proxy not ok": {
+			&Directive{
+				Directive: "geoip2_proxy",
+				Args:      []string{"203.0.113.0/24"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"geoip2_proxy_recursive ok": {
+			&Directive{
+				Directive: "geoip2_proxy_recursive",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"geoip2_proxy_recursive not ok": {
+			&Directive{
+				Directive: "geoip2_proxy_recursive",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"geoip2_proxy_recursive args not ok": {
+			&Directive{
+				Directive: "geoip2_proxy_recursive",
+				Args:      []string{"on", "off"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchGeoip2Latest},
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
