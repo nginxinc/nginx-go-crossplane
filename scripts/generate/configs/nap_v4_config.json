@@ -1,0 +1,9 @@
+{
+    "directiveMapName":"appProtectWAFv4Directives",
+    "matchFuncName":"MatchAppProtectWAFv4",
+    "matchFuncComment":"MatchAppProtectWAFv4 is a MatchFunc for App Protect v4 module.",
+    "override":{
+        "app_protect_enable":[["ngxHTTPMainConf", "ngxHTTPSrvConf" , "ngxHTTPLocConf", "ngxConfFlag"]],
+        "app_protect_security_log_enable":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxConfFlag"]]
+    }
+}
