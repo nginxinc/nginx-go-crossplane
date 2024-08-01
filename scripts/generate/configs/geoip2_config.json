@@ -1,0 +1,5 @@
+{
+    "directiveMapName":"geoip2Directives",
+    "matchFuncName":"MatchGeoip2Latest",
+    "matchFuncComment":"MatchGeoip2Latest is a MatchFunc for the latest version of geoip2."
+}

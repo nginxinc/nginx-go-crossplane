@@ -38,6 +38,8 @@ package crossplane
 // NAP v5
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url $NAP_URL --config-path ./scripts/generate/configs/nap_v5_config.json --branch $NAP_V5_BRANCH --path ./src > analyze_appProtectWAFv5_directives.gen.go"
 
+// Update for geoip2
+//go:generate sh -c "sh ./scripts/generate/generate.sh --url https://github.com/leev/ngx_http_geoip2_module.git --config-path ./scripts/generate/configs/geoip2_config.json > ./analyze_geoip2_directives.gen.go"
 import (
 	"fmt"
 )
