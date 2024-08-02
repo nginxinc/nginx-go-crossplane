@@ -35,6 +35,8 @@ func isEOL(s string) bool {
 	return strings.HasSuffix(s, "\n")
 }
 
+func isSpecialChar(s string) bool { return s == "{" || s == "}" || s == ";" }
+
 func repr(s string) string {
 	q := fmt.Sprintf("%q", s)
 	for _, char := range s {
