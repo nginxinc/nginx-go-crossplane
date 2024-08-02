@@ -40,6 +40,19 @@ package crossplane
 
 // Update for geoip2
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url https://github.com/leev/ngx_http_geoip2_module.git --config-path ./scripts/generate/configs/geoip2_config.json > ./analyze_geoip2_directives.gen.go"
+
+// Update for NPlus.
+// NPlus source code is private, Please ensure you have correct access and put the url.
+// and branch of it in environment variable NPLUS_URL, NPLUS_LATEST_BRANCH, NPLUS_R31_BRANCH, and NPLUS_R30_BRANCH.
+// Filter in config is the directives not in https://nginx.org/en/docs/dirindex.html but in source code.
+// Override for NPlus R31 and latest is for mgmt directives and if.
+// Override for R30 is only the if directive. Because mgmt was introduced in R31.
+// For mgmt directives, we create ngxMgmtMainConf as context for them. ngxMgmtMainConf is not in source code.
+// For the "if" directive. We create a bitmask ngxConfExpr for it in crossplane, which is not in source code.
+//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --branch $NPLUS_LATEST_BRANCH --config-path ./scripts/generate/configs/nplus_latest_config.json > ./analyze_nplus_latest_directives.gen.go"
+//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --branch $NPLUS_R31_BRANCH --config-path ./scripts/generate/configs/nplus_R31_config.json > ./analyze_nplus_R31_directives.gen.go"
+//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --branch $NPLUS_R30_BRANCH --config-path ./scripts/generate/configs/nplus_R30_config.json > ./analyze_nplus_R30_directives.gen.go"
+
 import (
 	"fmt"
 )

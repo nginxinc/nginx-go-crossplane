@@ -1,0 +1,120 @@
+{
+    "directiveMapName":"nginxPlusLatestDirectives",
+    "matchFuncName":"MatchNginxPlusLatest",
+    "filter":[
+        "epoll_events",
+        "health_check_header",
+        "body",
+        "body_size",
+        "proxy",
+        "http2_pool_size",
+        "post_action",
+        "pcre_buffer",
+        "degrade",
+        "gzip_window",
+        "proxy_downstream_buffer",
+        "degradation",
+        "ssi_ignore_recycled_buffers",
+        "uwsgi_string",
+        "proxy_ssl_session_cache",
+        "proxy_upstream_buffer",
+        "eventport_events",
+        "expect",
+        "gzip_hash",
+        "require",
+        "proxy_keepalive",
+        "http2_streams_index_size",
+        "send",
+        "kqueue_changes",
+        "header",
+        "devpoll_events",
+        "kqueue_events",
+        "postpone_gzipping",
+        "acceptex_read",
+        "iocp_threads",
+        "devpoll_changes",
+        "post_acceptex",
+        "open_file_cache_events",
+        "gzip_no_buffer"
+    ],
+    "override":{
+        "if":[[ "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxConfBlock", "ngxConfExpr", "ngxConf1More"]],
+        "connect_timeout": [["ngxConfTake1", "ngxMgmtMainConf"]],
+        "read_timeout": [["ngxConfTake1", "ngxMgmtMainConf"]],
+        "resolver": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxConf1More"],
+            ["ngxHTTPUpsConf", "ngxConf1More"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConf1More"],
+            ["ngxConf1More", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConf1More"],
+            ["ngxStreamUpsConf", "ngxConf1More"]
+        ],
+        "resolver_timeout":[
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxConfTake1"],
+            ["ngxHTTPUpsConf", "ngxConfTake1"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"],
+            ["ngxStreamUpsConf", "ngxConfTake1"]
+        ],
+        "send_timeout": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"]
+        ],
+        "ssl": [["ngxConfFlag", "ngxMgmtMainConf"]],
+        "ssl_certificate": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ],
+        "ssl_certificate_key": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ],
+        "ssl_ciphers": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf" , "ngxConfTake1"]
+        ],
+        "ssl_crl": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ],
+        "ssl_name": [["ngxConfTake1", "ngxMgmtMainConf"]],
+        "ssl_password_file": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ],
+        "ssl_protocols": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConf1More"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConf1More"],
+            ["ngxConf1More", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConf1More"]
+        ],
+        "ssl_server_name": [["ngxConfFlag", "ngxMgmtMainConf"]],
+        "ssl_trusted_certificate": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ],
+        "ssl_verify": [["ngxConfFlag", "ngxMgmtMainConf"]],
+        "ssl_verify_depth": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
+            ["ngxConfTake1", "ngxMgmtMainConf"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ],
+        "usage_report": [["ngxConfNoArgs", "ngxConfTake12", "ngxMgmtMainConf"]],
+        "uuid_file": [["ngxConfNoArgs", "ngxConfTake1", "ngxMgmtMainConf"]]
+    },
+    "matchFuncComment":"MatchNginxPlusLatest contains directives in latest version of Nginx Plus source code(including GEOIP, Perl, and XSLT)"
+}
