@@ -1834,6 +1834,74 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"lua-block-cert-slim", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
+		LexOptions: LexOptions{
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-cert-slim", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "server",
+								Line:      2,
+								Args:      []string{},
+								Block: Directives{
+									// TODO
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"lua-block-cert-double-server", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
+		LexOptions: LexOptions{
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-cert-double-server", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "server",
+								Line:      2,
+								Args:      []string{},
+								Block: Directives{
+									// TODO
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 	{"lua-block-larger", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
