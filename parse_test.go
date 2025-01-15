@@ -1858,7 +1858,7 @@ var parseFixtures = []parseFixture{
 								Directive: "server",
 								Line:      2,
 								Args:      []string{},
-								Block: Directives{
+								Block:     Directives{
 									// TODO
 								},
 							},
@@ -1892,7 +1892,7 @@ var parseFixtures = []parseFixture{
 								Directive: "server",
 								Line:      2,
 								Args:      []string{},
-								Block: Directives{
+								Block:     Directives{
 									// TODO
 								},
 							},
