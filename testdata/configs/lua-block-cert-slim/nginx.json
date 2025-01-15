@@ -1,0 +1,34 @@
+{
+    "status": "ok",
+    "errors": [],
+    "config": [
+        {
+            "file": "testdata/configs/lua-block-cert-slim/nginx.conf",
+            "status": "ok",
+            "errors": [],
+            "parsed": [
+                {
+                    "directive": "http",
+                    "line": 1,
+                    "args": [],
+                    "block": [
+                        {
+                            "directive": "server",
+                            "line": 2,
+                            "args": [],
+                            "block": [
+                                {
+                                    "directive": "ssl_certificate_by_lua_block",
+                                    "line": 3,
+                                    "args": [
+                                        "\n            print(\"Test lua ssl certificate!\")\n        "
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
