@@ -40,6 +40,17 @@ package crossplane
 
 // Update for geoip2
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url https://github.com/leev/ngx_http_geoip2_module.git --config-path ./scripts/generate/configs/geoip2_config.json > ./analyze_geoip2_directives.gen.go"
+
+// Update for NPlus.
+// NPlus source code is private. Please ensure you have the correct access 
+// and set the URL and branch in the environment variables NPLUS_URL and NPLUS_BRANCH.
+// Filter in config is the directives not in https://nginx.org/en/docs/dirindex.html but in source code.
+// Override for NPlus R33 and the latest version is for mgmt directives and if directive.
+// For mgmt directives, we create a ngxMgmtMainConf as the context, which is not included in the source code.
+// For the "if" directive, we create a bitmask ngxConfExpr in crossplane, which is not included in the source code.
+//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_latest_config.json --branch $NPLUS_BRANCH --path ./src > ./analyze_nplus_latest_directives.gen.go"
+//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R33_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R33_directives.gen.go"
+
 import (
 	"fmt"
 )
