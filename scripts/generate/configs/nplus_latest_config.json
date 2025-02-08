@@ -118,7 +118,8 @@
         "uuid_file": [["ngxMgmtMainConf", "ngxConfNoArgs", "ngxConfTake1"]],
         "enforce_initial_report": [["ngxMgmtMainConf","ngxConfFlag"]],
         "license_token": [["ngxMgmtMainConf","ngxConfTake1"]],
-        "state_path": [["ngxMgmtMainConf","ngxConfTake1"]]
+        "state_path": [["ngxMgmtMainConf","ngxConfTake1"]],
+        "zone_sync": [["ngxStreamSrvConf","ngxConfNoArgs"]]
     },
     "matchFuncComment":"MatchNginxPlusLatest contains directives in latest version of Nginx Plus source code(including GEOIP, Perl, and XSLT)"
 }

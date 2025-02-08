@@ -470,9 +470,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     "grpc_ssl_certificate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
-    "grpc_ssl_certificate_cache": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake123,
-    },
     "grpc_ssl_certificate_key": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -690,9 +687,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     },
     "keepalive_disable": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
-    },
-    "keepalive_min_timeout": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "keepalive_requests": {
         ngxHTTPUpsConf | ngxConfTake1,
@@ -1200,10 +1194,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
-    "proxy_ssl_certificate_cache": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake123,
-        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake123,
-    },
     "proxy_ssl_certificate_key": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
@@ -1615,10 +1605,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
-    "ssl_certificate_cache": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake123,
-        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake123,
-    },
     "ssl_certificate_key": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
@@ -1672,9 +1658,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     },
     "ssl_name": {
         ngxMgmtMainConf | ngxConfTake1,
-    },
-    "ssl_object_cache_inheritable": {
-        ngxMainConf | ngxDirectConf | ngxConfFlag,
     },
     "ssl_ocsp": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
@@ -2022,9 +2005,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     "uwsgi_ssl_certificate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
-    "uwsgi_ssl_certificate_cache": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake123,
-    },
     "uwsgi_ssl_certificate_key": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -2140,7 +2120,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxStreamUpsConf | ngxConfTake12,
     },
     "zone_sync": {
-        ngxStreamSrvConf | ngxConfNoArgs | ngxConfTake1,
+        ngxStreamSrvConf | ngxConfNoArgs,
     },
     "zone_sync_buffers": {
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,

@@ -2120,7 +2120,7 @@ var nginxPlusR33Directives = map[string][]uint{
         ngxStreamUpsConf | ngxConfTake12,
     },
     "zone_sync": {
-        ngxStreamSrvConf | ngxConfNoArgs | ngxConfTake1,
+        ngxStreamSrvConf | ngxConfNoArgs,
     },
     "zone_sync_buffers": {
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
