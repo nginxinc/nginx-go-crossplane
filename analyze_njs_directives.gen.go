@@ -25,6 +25,14 @@ var njsDirectives = map[string][]uint{
     "js_content": {
         ngxHTTPLocConf | ngxHTTPLifConf | ngxHTTPLmtConf | ngxConfTake1,
     },
+    "js_context_reuse": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "js_engine": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
+    },
     "js_fetch_buffer_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
@@ -83,8 +91,8 @@ var njsDirectives = map[string][]uint{
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
     "js_set": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
-        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake23,
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake23,
     },
     "js_shared_dict_zone": {
         ngxHTTPMainConf | ngxConf1More,
