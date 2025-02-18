@@ -314,6 +314,7 @@ func (p *parser) parse(parsing *Config, tokens <-chan NgxToken, ctx blockCtx, co
 					}
 					continue
 				}
+				stmt.IsMapBlockParameter = true
 				parsed = append(parsed, stmt)
 				continue
 			}
