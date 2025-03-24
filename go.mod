@@ -1,10 +1,11 @@
 module github.com/nginxinc/nginx-go-crossplane
 
 go 1.19
+toolchain go1.24.1
 
 require (
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/maxbrunsfeld/counterfeiter/v6 v6.10.0
+	github.com/maxbrunsfeld/counterfeiter/v6 v6.11.2
 	github.com/stretchr/testify v1.10.0
 	golang.org/x/tools v0.31.0
 )
@@ -15,6 +16,6 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/sync v0.12.0 // indirect
-	golang.org/x/text v0.19.0 // indirect
+	golang.org/x/text v0.21.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
