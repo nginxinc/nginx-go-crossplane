@@ -1048,16 +1048,18 @@ var parseFixtures = []parseFixture{
 								Line:      4,
 								Block: Directives{
 									{
-										Directive: "default",
-										Args:      []string{"0"},
-										Line:      5,
-										Block:     Directives{},
+										Directive:           "default",
+										Args:                []string{"0"},
+										Line:                5,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 									{
-										Directive: "~Opera Mini",
-										Args:      []string{"1"},
-										Line:      6,
-										Block:     Directives{},
+										Directive:           "~Opera Mini",
+										Args:                []string{"1"},
+										Line:                6,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 								},
 							},
@@ -1067,16 +1069,18 @@ var parseFixtures = []parseFixture{
 								Line:      9,
 								Block: Directives{
 									{
-										Directive: "C0",
-										Args:      []string{"D18E"},
-										Line:      10,
-										Block:     Directives{},
+										Directive:           "C0",
+										Args:                []string{"D18E"},
+										Line:                10,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 									{
-										Directive: "C1",
-										Args:      []string{"D0B0"},
-										Line:      11,
-										Block:     Directives{},
+										Directive:           "C1",
+										Args:                []string{"D0B0"},
+										Line:                11,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 								},
 							},
@@ -1183,16 +1187,18 @@ var parseFixtures = []parseFixture{
 								Line:      4,
 								Block: Directives{
 									{
-										Directive: "default",
-										Args:      []string{"0"},
-										Line:      5,
-										Block:     Directives{},
+										Directive:           "default",
+										Args:                []string{"0"},
+										Line:                5,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 									{
-										Directive: "~Opera Mini",
-										Args:      []string{"1"},
-										Line:      6,
-										Block:     Directives{},
+										Directive:           "~Opera Mini",
+										Args:                []string{"1"},
+										Line:                6,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 								},
 							},
@@ -1238,28 +1244,32 @@ var parseFixtures = []parseFixture{
 								Line:      6,
 								Block: Directives{
 									{
-										Directive: "ranges",
-										Args:      []string{},
-										Line:      7,
-										Block:     Directives{},
+										Directive:           "ranges",
+										Args:                []string{},
+										Line:                7,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 									{
-										Directive: "default",
-										Args:      []string{"0"},
-										Line:      8,
-										Block:     Directives{},
+										Directive:           "default",
+										Args:                []string{"0"},
+										Line:                8,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 									{
-										Directive: "192.168.1.0/24",
-										Args:      []string{"1"},
-										Line:      9,
-										Block:     Directives{},
+										Directive:           "192.168.1.0/24",
+										Args:                []string{"1"},
+										Line:                9,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 									{
-										Directive: "127.0.0.1",
-										Args:      []string{"2"},
-										Line:      10,
-										Block:     Directives{},
+										Directive:           "127.0.0.1",
+										Args:                []string{"2"},
+										Line:                10,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 								},
 							},
@@ -1325,16 +1335,18 @@ var parseFixtures = []parseFixture{
 								Line:      2,
 								Block: Directives{
 									{
-										Directive: "text/html",
-										Args:      []string{"html", "htm", "shtml"},
-										Line:      3,
-										Block:     Directives{},
+										Directive:           "text/html",
+										Args:                []string{"html", "htm", "shtml"},
+										Line:                3,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 									{
-										Directive: "text/css",
-										Args:      []string{"css"},
-										Line:      4,
-										Block:     Directives{},
+										Directive:           "text/css",
+										Args:                []string{"css"},
+										Line:                4,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
 									},
 								},
 							},
@@ -1347,7 +1359,7 @@ var parseFixtures = []parseFixture{
 	{"nap-waf-v4", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 	}, Payload{
 		Status: "ok",
 		Errors: []PayloadError{},
@@ -1492,7 +1504,7 @@ var parseFixtures = []parseFixture{
 	{"nap-waf-v5", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv5DirectivesMatchFn},
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv5},
 	}, Payload{
 		Status: "ok",
 		Errors: []PayloadError{},
@@ -1642,7 +1654,7 @@ var parseFixtures = []parseFixture{
 	{"lua-basic", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
 	}, Payload{
 		Status: "ok",
 		Errors: []PayloadError{},
@@ -1708,7 +1720,7 @@ var parseFixtures = []parseFixture{
 	{"lua-block-simple", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
 		LexOptions: LexOptions{
 			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
@@ -1837,7 +1849,7 @@ var parseFixtures = []parseFixture{
 	{"lua-block-larger", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
 		LexOptions: LexOptions{
 			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
@@ -1929,7 +1941,7 @@ var parseFixtures = []parseFixture{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
 		ParseComments:            true,
-		DirectiveSources:         []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
 		LexOptions: LexOptions{
 			Lexers: []RegisterLexer{lua.RegisterLexer()},
 		},
@@ -2079,7 +2091,8 @@ var parseFixtures = []parseFixture{
 							},
 							{
 								Directive: "log_format",
-								Args: []string{"main",
+								Args: []string{
+									"main",
 									"$remote_addr - $remote_user [$time_local] \"$request\" ",
 									"$status $body_bytes_sent \"$http_referer\" ",
 									"\"$http_user_agent\" \"$http_x_forwarded_for\"",
@@ -2095,10 +2108,188 @@ var parseFixtures = []parseFixture{
 								Directive: "sendfile",
 								Args:      []string{"on"},
 								Line:      23,
-							}, {
+							},
+							{
 								Directive: "keepalive_timeout",
 								Args:      []string{"65"},
 								Line:      25,
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"geoip2", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchGeoip2Latest},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("geoip2", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "geoip2",
+								Line:      2,
+								Args:      []string{"/etc/Geo/GeoLite2-City.mmdb"},
+								Block: Directives{
+									{
+										Directive:           "auto_reload",
+										Args:                []string{"5s"},
+										Line:                3,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
+									},
+									{
+										Directive:           "$geoip2_city_name",
+										Args:                []string{"city", "names", "en"},
+										Line:                4,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
+									},
+								},
+							},
+							{
+								Directive: "geoip2_proxy",
+								Line:      6,
+								Args:      []string{"203.0.113.0/24"},
+								Block:     Directives{},
+							},
+							{
+								Directive: "geoip2_proxy_recursive",
+								Line:      7,
+								Args:      []string{"on"},
+								Block:     Directives{},
+							},
+							{
+								Directive: "server",
+								Line:      8,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      9,
+										Args:      []string{"80"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "server_name",
+										Line:      10,
+										Args:      []string{"localhost"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      11,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "return",
+												Line:      12,
+												Args: []string{
+													"200",
+													"Hello $geoip2_city_name",
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
+					{
+						Directive: "stream",
+						Line:      18,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "geoip2",
+								Line:      19,
+								Args:      []string{"/etc/Geo/GeoLite2-Country.mmdb"},
+								Block: Directives{
+									{
+										Directive:           "$geoip2_country_name",
+										Args:                []string{"country", "names", "en"},
+										Line:                20,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
+									},
+								},
+							},
+							{
+								Directive: "map",
+								Line:      23,
+								Args:      []string{"$geoip2_country_name", "$backend"},
+								Block: Directives{
+									{
+										Directive:           "United States",
+										Args:                []string{"us_backend"},
+										Line:                24,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
+									},
+									{
+										Directive:           "default",
+										Args:                []string{"default_backend"},
+										Line:                25,
+										Block:               Directives{},
+										IsMapBlockParameter: true,
+									},
+								},
+							},
+							{
+								Directive: "server",
+								Line:      28,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      29,
+										Args:      []string{"12345"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "proxy_pass",
+										Args:      []string{"$backend"},
+										Line:      30,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "upstream",
+								Line:      33,
+								Args:      []string{"us_backend"},
+								Block: Directives{
+									{
+										Directive: "server",
+										Line:      34,
+										Args:      []string{"192.168.0.1:12345"},
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "upstream",
+								Line:      37,
+								Args:      []string{"default_backend"},
+								Block: Directives{
+									{
+										Directive: "server",
+										Line:      39,
+										Args:      []string{"192.168.0.2:12345"},
+										Block:     Directives{},
+									},
+								},
 							},
 						},
 					},

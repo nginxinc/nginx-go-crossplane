@@ -175,6 +175,38 @@ func TestAnalyzeMapBody(t *testing.T) {
 			},
 			term: ";",
 		},
+		"invalid geoip2": {
+			mapDirective: "geoip2",
+			parameter: &Directive{
+				Directive: "$geoip2_data_city_name",
+				Args:      []string{},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term:    ";",
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "geoip2"},
+		},
+		"valid geoip2 auto_reload": {
+			mapDirective: "geoip2",
+			parameter: &Directive{
+				Directive: "auto_reload",
+				Args:      []string{"5m"},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term: ";",
+		},
+		"invalid geoip2 auto_reload": {
+			mapDirective: "geoip2",
+			parameter: &Directive{
+				Directive: "auto_reload",
+				Args:      []string{"5m", "10m"},
+				Line:      5,
+				Block:     Directives{},
+			},
+			term:    ";",
+			wantErr: &ParseError{What: "invalid number of parameters", BlockCtx: "geoip2"},
+		},
 		"valid otel_exporter": {
 			mapDirective: "otel_exporter",
 			parameter: &Directive{

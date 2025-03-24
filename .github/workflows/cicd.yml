@@ -28,7 +28,9 @@ jobs:
       - name: Lint Code
         uses: golangci/golangci-lint-action@v6
         with:
+          version: v1.64.2
           only-new-issues: true
+          verify: false
 
   unit-tests:
     name: Unit Tests
@@ -42,6 +44,6 @@ jobs:
       - name: Run Tests
         run: make test
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: ./results/crossplane-go-coverage.out

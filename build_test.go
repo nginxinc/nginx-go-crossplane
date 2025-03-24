@@ -595,7 +595,8 @@ func equalDirectives(d1, d2 *Directive) bool {
 		!equalIncludes(d1.Includes, d2.Includes) ||
 		!equalBlocks(d1.Block, d2.Block) ||
 		(d1.Comment == nil) != (d2.Comment == nil) ||
-		(d1.Comment != nil && *d1.Comment != *d2.Comment) {
+		(d1.Comment != nil && *d1.Comment != *d2.Comment) ||
+		d1.IsMapBlockParameter != d2.IsMapBlockParameter {
 		return false
 	}
 

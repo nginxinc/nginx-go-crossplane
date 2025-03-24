@@ -1,0 +1,5 @@
+{
+    "directiveMapName":"njsDirectives",
+    "matchFuncName":"MatchNjsLatest",
+    "matchFuncComment":"MatchNjsLatest is a MatchFunc for the latest version of njs."
+}

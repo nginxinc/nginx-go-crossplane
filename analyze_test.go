@@ -294,7 +294,12 @@ func TestAnalyze_njs(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				DirectiveSources: []MatchFunc{
+					MatchNginxPlusLatest,
+					MatchNjsLatest,
+				},
+			})
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
 			}
@@ -589,7 +594,7 @@ func TestAnalyze_nap_app_protect_enable(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -654,7 +659,7 @@ func TestAnalyze_nap_app_protect_security_log_enable(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -709,7 +714,7 @@ func TestAnalyze_nap_app_protect_security_log(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -764,7 +769,7 @@ func TestAnalyze_nap_app_protect_policy_file(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -829,7 +834,7 @@ func TestAnalyze_nap_app_protect_physical_memory_util_thresholds(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -894,7 +899,7 @@ func TestAnalyze_nap_app_protect_cpu_thresholds(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -959,7 +964,7 @@ func TestAnalyze_nap_app_protect_failure_mode_action(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1024,7 +1029,7 @@ func TestAnalyze_nap_app_protect_cookie_seed(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1089,7 +1094,7 @@ func TestAnalyze_nap_app_protect_compressed_requests_action(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1154,7 +1159,7 @@ func TestAnalyze_nap_app_protect_request_buffer_overflow_action(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1219,7 +1224,7 @@ func TestAnalyze_nap_app_protect_user_defined_signatures(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1284,7 +1289,7 @@ func TestAnalyze_nap_app_protect_reconnect_period_seconds(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv4DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv4},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -1944,7 +1949,7 @@ func TestAnalyze_nap_app_protect_waf_v5(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, AppProtectWAFv5DirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchAppProtectWAFv5},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -2108,7 +2113,7 @@ func TestAnalyze_lua(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, LuaDirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
 				LexOptions: LexOptions{
 					Lexers: []RegisterLexer{lua.RegisterLexer()},
 				},
@@ -2414,7 +2419,7 @@ func TestAnalyze_headers_more(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{NgxPlusLatestDirectivesMatchFn, HeadersMoreDirectivesMatchFn},
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchHeadersMoreLatest},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -2611,22 +2616,22 @@ func TestAnalyze_limit_req_zone(t *testing.T) {
 	}{
 		"limit_req_zone_4_args_nplus_latest": {
 			args:    []string{"$binary_remote_addr", "zone=one:10m", "rate=1r/s", "sync"},
-			sources: []MatchFunc{NgxPlusLatestDirectivesMatchFn},
+			sources: []MatchFunc{MatchNginxPlusLatest},
 			wantErr: false,
 		},
 		"limit_req_zone_3_args_nplus_latest": {
 			args:    []string{"$binary_remote_addr", "zone=one:10m", "rate=1r/s"},
-			sources: []MatchFunc{NgxPlusLatestDirectivesMatchFn},
+			sources: []MatchFunc{MatchNginxPlusLatest},
 			wantErr: false,
 		},
 		"limit_req_zone_4_args_oss_latest": {
 			args:    []string{"$binary_remote_addr", "zone=one:10m", "rate=1r/s", "sync"},
-			sources: []MatchFunc{OssLatestDirectivesMatchFn},
+			sources: []MatchFunc{MatchOssLatest},
 			wantErr: true,
 		},
 		"limit_req_zone_3_args_oss_latest": {
 			args:    []string{"$binary_remote_addr", "zone=one:10m", "rate=1r/s"},
-			sources: []MatchFunc{OssLatestDirectivesMatchFn},
+			sources: []MatchFunc{MatchOssLatest},
 			wantErr: false,
 		},
 		"limit_req_zone_4_args_default_sources": {
@@ -2649,6 +2654,136 @@ func TestAnalyze_limit_req_zone(t *testing.T) {
 				Line:      5,
 			}
 			err := analyze("nginx.conf", stmt, ";", blockCtx{"http"}, &ParseOptions{DirectiveSources: tc.sources})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+//nolint:funlen
+func TestAnalyze_geoip2(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"geoip2 ok": {
+			&Directive{
+				Directive: "geoip2",
+				Args:      []string{"/etc/maxmind-country.mmdb"},
+				Line:      5,
+				Block: Directives{
+					{
+						Directive: "auto_reload",
+						Args:      []string{"5s"},
+						Line:      6,
+						Block:     Directives{},
+					},
+					{
+						Directive: "$geoip2_city_name",
+						Args:      []string{"city", "names", "en"},
+						Line:      7,
+						Block:     Directives{},
+					},
+				},
+			},
+			blockCtx{"http", "stream"},
+			false,
+		},
+
+		"geoip2 not ok": {
+			&Directive{
+				Directive: "geoip2",
+				Args:      []string{"/etc/maxmind-country.mmdb"},
+				Line:      5,
+				Block: Directives{
+					{
+						Directive: "auto_reload",
+						Args:      []string{"5s"},
+						Line:      6,
+						Block:     Directives{},
+					},
+					{
+						Directive: "$geoip2_city_name",
+						Args:      []string{"city", "names", "en"},
+						Line:      7,
+						Block:     Directives{},
+					},
+				},
+			},
+			blockCtx{"mgmt"},
+			true,
+		},
+		"geoip2_proxy ok": {
+			&Directive{
+				Directive: "geoip2_proxy",
+				Args:      []string{"203.0.113.0/24"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"geoip2_proxy args not ok": {
+			&Directive{
+				Directive: "geoip2_proxy",
+				Args:      []string{"203.0.113.0/24", "172.0.0.6"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"geoip2_proxy not ok": {
+			&Directive{
+				Directive: "geoip2_proxy",
+				Args:      []string{"203.0.113.0/24"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"geoip2_proxy_recursive ok": {
+			&Directive{
+				Directive: "geoip2_proxy_recursive",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"geoip2_proxy_recursive not ok": {
+			&Directive{
+				Directive: "geoip2_proxy_recursive",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"geoip2_proxy_recursive args not ok": {
+			&Directive{
+				Directive: "geoip2_proxy_recursive",
+				Args:      []string{"on", "off"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchGeoip2Latest},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)

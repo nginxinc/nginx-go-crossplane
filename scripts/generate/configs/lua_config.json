@@ -1,0 +1,23 @@
+{
+    "directiveMapName":"luaDirectives",
+    "matchFuncName":"MatchLuaLatest",
+    "override":{
+        "content_by_lua_block":[["ngxHTTPLocConf", "ngxHTTPLifConf", "ngxConfTake1"]],
+        "rewrite_by_lua_block":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxHTTPLifConf", "ngxConfTake1"]],
+        "ssl_certificate_by_lua_block":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"]],
+        "ssl_session_fetch_by_lua_block":[["ngxHTTPMainConf", "ngxConfTake1"]],
+        "ssl_session_store_by_lua_block":[["ngxHTTPMainConf", "ngxConfTake1"]],
+        "set_by_lua_block": [["ngxHTTPSrvConf", "ngxHTTPSifConf", "ngxHTTPLocConf", "ngxHTTPLifConf", "ngxConfTake2"]],
+        "ssl_client_hello_by_lua_block":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"]],
+        "body_filter_by_lua_block":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxHTTPLifConf", "ngxConfTake1"]],
+        "init_by_lua_block":[["ngxHTTPMainConf", "ngxConfTake1"]],
+        "init_worker_by_lua_block":[["ngxHTTPMainConf","ngxConfTake1"]],
+        "header_filter_by_lua_block":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxHTTPLifConf", "ngxConfTake1"]],
+        "log_by_lua_block":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxHTTPLifConf", "ngxConfTake1"]],
+        "access_by_lua_block":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxHTTPLifConf", "ngxConfTake1"]],
+        "balancer_by_lua_block":[["ngxHTTPUpsConf", "ngxConfTake1"]],
+        "server_rewrite_by_lua_block":[["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"]],
+        "exit_worker_by_lua_block":[["ngxHTTPMainConf", "ngxConfTake1"]]
+    },
+    "matchFuncComment":"MatchLuaLatest is a MatchFunc for latest version of Lua."
+}

@@ -15,20 +15,21 @@
 
 package crossplane
 
-var myDirectives = map[string][]uint{
-    "my_directive_1": {
-        ngxHTTPMainConf | ngxConfTake2,
+var geoip2Directives = map[string][]uint{
+    "geoip2": {
+        ngxHTTPMainConf | ngxConfBlock | ngxConfTake1,
+        ngxStreamMainConf | ngxConfBlock | ngxConfTake1,
     },
-    "my_directive_2": {
+    "geoip2_proxy": {
+        ngxHTTPMainConf | ngxConfTake1,
+    },
+    "geoip2_proxy_recursive": {
         ngxHTTPMainConf | ngxConfFlag,
-    },
-    "my_directive_3": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfNoArgs,
     },
 }
 
-// This is a matchFunc
-func MyMatchFn(directive string) ([]uint, bool) {
-    m, ok := myDirectives[directive]
+// MatchGeoip2Latest is a MatchFunc for the latest version of geoip2.
+func MatchGeoip2Latest(directive string) ([]uint, bool) {
+    m, ok := geoip2Directives[directive]
     return m, ok
 }
