@@ -17,7 +17,6 @@ SHELL=/bin/bash
 init:
 	git config core.hooksPath .githooks
 	go install golang.org/x/tools/cmd/goimports
-	go install github.com/maxbrunsfeld/counterfeiter/v6
 	go install github.com/jstemmer/go-junit-report
 
 deps:

@@ -8,6 +8,5 @@ package crossplane
 
 import (
 	_ "github.com/jstemmer/go-junit-report/parser"
-	_ "github.com/maxbrunsfeld/counterfeiter/v6/generator"
 	_ "golang.org/x/tools/imports"
 )
