@@ -8,6 +8,5 @@ package tools
 
 import (
 	_ "github.com/jstemmer/go-junit-report"
-	_ "github.com/maxbrunsfeld/counterfeiter/v6"
 	_ "golang.org/x/tools/cmd/goimports"
 )
