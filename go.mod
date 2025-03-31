@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/stretchr/testify v1.9.0
+	github.com/stretchr/testify v1.10.0
 	golang.org/x/tools v0.23.0
 )
 
