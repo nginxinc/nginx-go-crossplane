@@ -247,6 +247,12 @@ func needsQuote(s string) bool {
 		return true
 	}
 
+	// if the string starts and ends with quotes, it is already quoted
+	if strings.HasPrefix(s, "\"") && strings.HasSuffix(s, "\"") ||
+		strings.HasPrefix(s, "'") && strings.HasSuffix(s, "'") {
+		return false
+	}
+
 	// lexer should throw an error when variable expansion syntax
 	// is messed up, but just wrap it in quotes for now I guess
 	var char rune
