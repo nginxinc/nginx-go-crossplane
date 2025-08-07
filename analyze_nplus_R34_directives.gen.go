@@ -15,7 +15,7 @@
 
 package crossplane
 
-var nginxPlusLatestDirectives = map[string][]uint{
+var nginxPlusR34Directives = map[string][]uint{
     "absolute_redirect": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
@@ -123,9 +123,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     "auth_request_set": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
     },
-    "auth_require": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConf1More,
-    },
     "autoindex": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
@@ -228,9 +225,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     },
     "disable_symlinks": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
-    },
-    "early_hints": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
     },
     "empty_gif": {
         ngxHTTPLocConf | ngxConfNoArgs,
@@ -831,12 +825,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     "log_subrequest": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
-    "logout_token_hint": {
-        ngxConfFlag,
-    },
-    "logout_uri": {
-        ngxConfTake1,
-    },
     "mail": {
         ngxMainConf | ngxConfBlock | ngxConfNoArgs,
     },
@@ -1019,9 +1007,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     "port_in_redirect": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
-    "post_logout_uri": {
-        ngxConfTake1,
-    },
     "postpone_output": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -1033,6 +1018,10 @@ var nginxPlusLatestDirectives = map[string][]uint{
     },
     "protocol": {
         ngxMailSrvConf | ngxConfTake1,
+    },
+    "proxy": {
+        ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
+        ngxMgmtMainConf | ngxConfTake1,
     },
     "proxy_bind": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
@@ -1148,9 +1137,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     "proxy_limit_rate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
-    "proxy_location": {
-        ngxConfTake1,
-    },
     "proxy_max_temp_file_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -1192,7 +1178,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
     "proxy_password": {
-        ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
     },
     "proxy_protocol": {
         ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
@@ -1321,7 +1307,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
     "proxy_username": {
-        ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
     },
     "queue": {
         ngxHTTPUpsConf | ngxConfTake12,
@@ -1706,6 +1692,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+        ngxConfTake1,
     },
     "ssl_dhparam": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -1816,6 +1803,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+        ngxConfTake1,
     },
     "ssl_verify": {
         ngxMgmtMainConf | ngxConfFlag,
@@ -1830,13 +1818,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
-    },
-    "ssl_verify_digests": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
-        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
-    },
-    "stall_threshold": {
-        ngxEventConf | ngxConfTake1,
     },
     "starttls": {
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
@@ -1953,9 +1934,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     },
     "userid_service": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
-    },
-    "userinfo": {
-        ngxConfTake1,
     },
     "uuid_file": {
         ngxMgmtMainConf | ngxConfNoArgs | ngxConfTake1,
@@ -2274,8 +2252,8 @@ var nginxPlusLatestDirectives = map[string][]uint{
     },
 }
 
-// MatchNginxPlusLatest contains directives in latest version of Nginx Plus source code(including GEOIP, Perl, and XSLT)
-func MatchNginxPlusLatest(directive string) ([]uint, bool) {
-    m, ok := nginxPlusLatestDirectives[directive]
+// MatchNginxPlusR34 contains directives in Nginx Plus R34 source code(including GEOIP, Perl, and XSLT)
+func MatchNginxPlusR34(directive string) ([]uint, bool) {
+    m, ok := nginxPlusR34Directives[directive]
     return m, ok
 }

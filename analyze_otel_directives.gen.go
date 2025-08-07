@@ -16,8 +16,14 @@
 package crossplane
 
 var otelDirectives = map[string][]uint{
+    "header": {
+        ngxConfTake2,
+    },
     "otel_exporter": {
         ngxHTTPMainConf | ngxConfBlock | ngxConfNoArgs,
+    },
+    "otel_resource_attr": {
+        ngxHTTPMainConf | ngxConfTake2,
     },
     "otel_service_name": {
         ngxHTTPMainConf | ngxConfTake1,
@@ -33,6 +39,9 @@ var otelDirectives = map[string][]uint{
     },
     "otel_trace_context": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "trusted_certificate": {
+        ngxConfTake1,
     },
 }
 
