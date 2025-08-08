@@ -2024,7 +2024,11 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
-	{"limit-req-zone", "", ParseOptions{SingleFile: true}, Payload{
+	{"limit-req-zone", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusR33},
+	}, Payload{
 		Status: "ok",
 		Errors: []PayloadError{},
 		Config: []Config{
@@ -2288,6 +2292,82 @@ var parseFixtures = []parseFixture{
 										Line:      39,
 										Args:      []string{"192.168.0.2:12345"},
 										Block:     Directives{},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"oidc", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusR34},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("oidc", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "oidc_provider",
+								Line:      2,
+								Args:      []string{"my_idp"},
+								Block: Directives{
+									{
+										Directive: "issuer",
+										Args:      []string{"https://provider.domain"},
+										Line:      3,
+										Block:     Directives{},
+									},
+									{
+										Directive: "client_id",
+										Args:      []string{"unique_id"},
+										Line:      4,
+										Block:     Directives{},
+									},
+									{
+										Directive: "client_secret",
+										Args:      []string{"unique_secret"},
+										Line:      5,
+										Block:     Directives{},
+									},
+								},
+							},
+							{
+								Directive: "server",
+								Line:      7,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "auth_oidc",
+										Line:      8,
+										Args:      []string{"my_idp"},
+										Block:     Directives{},
+									},
+									{
+										Directive: "location",
+										Line:      9,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "return",
+												Line:      10,
+												Args: []string{
+													"200",
+													"Hello",
+												},
+											},
+										},
 									},
 								},
 							},

@@ -2694,7 +2694,7 @@ func TestAnalyze_geoip2(t *testing.T) {
 					},
 				},
 			},
-			blockCtx{"http", "stream"},
+			blockCtx{"http"},
 			false,
 		},
 
@@ -2781,8 +2781,131 @@ func TestAnalyze_geoip2(t *testing.T) {
 		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+			terminator := ";"
+			if tc.stmt.Directive == "geoip2" {
+				terminator = "{"
+			}
+			err := analyze("nginx.conf", tc.stmt, terminator, tc.ctx, &ParseOptions{
 				DirectiveSources: []MatchFunc{MatchNginxPlusLatest, MatchGeoip2Latest},
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+//nolint:funlen
+func TestAnalyze_oidc(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"oidc ok": {
+			&Directive{
+				Directive: "oidc_provider",
+				Args:      []string{"my_idp"},
+				Line:      5,
+				Block: Directives{
+					{
+						Directive: "issuer",
+						Args:      []string{"https://provider.domain"},
+						Line:      6,
+						Block:     Directives{},
+					},
+					{
+						Directive: "client_id",
+						Args:      []string{"unique_id"},
+						Line:      7,
+						Block:     Directives{},
+					},
+					{
+						Directive: "client_secret",
+						Args:      []string{"unique_secret"},
+						Line:      8,
+						Block:     Directives{},
+					},
+				},
+			},
+			blockCtx{"http"},
+			false,
+		},
+
+		"oidc not ok": {
+			&Directive{
+				Directive: "oidc_provider",
+				Args:      []string{"my_idp"},
+				Line:      5,
+				Block: Directives{
+					{
+						Directive: "issuer",
+						Args:      []string{"https://provider.domain"},
+						Line:      6,
+						Block:     Directives{},
+					},
+					{
+						Directive: "client_id",
+						Args:      []string{"unique_id"},
+						Line:      7,
+						Block:     Directives{},
+					},
+					{
+						Directive: "client_secret",
+						Args:      []string{"unique_secret"},
+						Line:      8,
+						Block:     Directives{},
+					},
+				},
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"auth_oidc ok": {
+			&Directive{
+				Directive: "auth_oidc",
+				Args:      []string{"my_idp"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"auth_oidc args not ok": {
+			&Directive{
+				Directive: "auth_oidc",
+				Args:      []string{"my_idp", "my_realm"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"auth_oidc not ok": {
+			&Directive{
+				Directive: "auth_oidc",
+				Args:      []string{"203.0.113.0/24"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			terminator := ";"
+			if tc.stmt.Directive == "oidc_provider" {
+				terminator = "{"
+			}
+			err := analyze("nginx.conf", tc.stmt, terminator, tc.ctx, &ParseOptions{
+				DirectiveSources: []MatchFunc{MatchNginxPlusR34},
 			})
 
 			if !tc.wantErr && err != nil {

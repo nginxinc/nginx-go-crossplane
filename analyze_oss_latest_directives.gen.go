@@ -178,6 +178,9 @@ var ossLatestDirectives = map[string][]uint{
     "disable_symlinks": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
     },
+    "early_hints": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
+    },
     "empty_gif": {
         ngxHTTPLocConf | ngxConfNoArgs,
     },

@@ -181,6 +181,9 @@ var luaDirectives = map[string][]uint{
     "lua_ssl_crl": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
+    "lua_ssl_key_log": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
     "lua_ssl_protocols": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
     },

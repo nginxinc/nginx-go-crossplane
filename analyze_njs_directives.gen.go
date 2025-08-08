@@ -29,6 +29,10 @@ var njsDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
+    "js_context_reuse_max_size": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
     "js_engine": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
