@@ -172,16 +172,16 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
     },
     "client_id": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "client_max_body_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "client_secret": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "config_url": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "connect_timeout": {
         ngxMgmtMainConf | ngxConfTake1,
@@ -190,7 +190,7 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
     },
     "cookie_name": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "create_full_put_path": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -254,7 +254,7 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake12,
     },
     "extra_auth_args": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "f4f": {
         ngxHTTPLocConf | ngxConfNoArgs,
@@ -704,7 +704,7 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxHTTPUpsConf | ngxConfNoArgs,
     },
     "issuer": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "keepalive": {
         ngxHTTPUpsConf | ngxConfTake1,
@@ -1350,7 +1350,7 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
     "redirect_uri": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "referer_hash_bucket_size": {
         ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1532,7 +1532,7 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1234,
     },
     "scope": {
-        ngxConf1More,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "secure_link": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1592,10 +1592,10 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxHTTPMainConf | ngxConf2More,
     },
     "session_store": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "session_timeout": {
-        ngxConf1More,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "set": {
         ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake2,
@@ -1692,7 +1692,7 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "ssl_dhparam": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -1803,7 +1803,7 @@ var nginxPlusR34Directives = map[string][]uint{
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "ssl_verify": {
         ngxMgmtMainConf | ngxConfFlag,

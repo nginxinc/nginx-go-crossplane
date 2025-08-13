@@ -82,22 +82,23 @@ const (
 	ngxConfTake1234 = ngxConfTake123 | ngxConfTake4
 
 	// bit masks for different directive locations.
-	ngxDirectConf     = 0x00010000 // main file (not used)
-	ngxMgmtMainConf   = 0x00020000 // mgmt // unique bitmask that may not match NGINX source
-	ngxMainConf       = 0x00040000 // main context
-	ngxEventConf      = 0x00080000 // events
-	ngxMailMainConf   = 0x00100000 // mail
-	ngxMailSrvConf    = 0x00200000 // mail > server
-	ngxStreamMainConf = 0x00400000 // stream
-	ngxStreamSrvConf  = 0x00800000 // stream > server
-	ngxStreamUpsConf  = 0x01000000 // stream > upstream
-	ngxHTTPMainConf   = 0x02000000 // http
-	ngxHTTPSrvConf    = 0x04000000 // http > server
-	ngxHTTPLocConf    = 0x08000000 // http > location
-	ngxHTTPUpsConf    = 0x10000000 // http > upstream
-	ngxHTTPSifConf    = 0x20000000 // http > server > if
-	ngxHTTPLifConf    = 0x40000000 // http > location > if
-	ngxHTTPLmtConf    = 0x80000000 // http > location > limit_except
+	ngxDirectConf     = 0x000010000 // main file (not used)
+	ngxMgmtMainConf   = 0x000020000 // mgmt // unique bitmask that may not match NGINX source
+	ngxMainConf       = 0x000040000 // main context
+	ngxEventConf      = 0x000080000 // events
+	ngxMailMainConf   = 0x000100000 // mail
+	ngxMailSrvConf    = 0x000200000 // mail > server
+	ngxStreamMainConf = 0x000400000 // stream
+	ngxStreamSrvConf  = 0x000800000 // stream > server
+	ngxStreamUpsConf  = 0x001000000 // stream > upstream
+	ngxHTTPMainConf   = 0x002000000 // http
+	ngxHTTPSrvConf    = 0x004000000 // http > server
+	ngxHTTPLocConf    = 0x008000000 // http > location
+	ngxHTTPUpsConf    = 0x010000000 // http > upstream
+	ngxHTTPSifConf    = 0x020000000 // http > server > if
+	ngxHTTPLifConf    = 0x040000000 // http > location > if
+	ngxHTTPLmtConf    = 0x080000000 // http > location > limit_except
+	ngxHTTPOIDCConf   = 0x100000000 // http > oidc_provider
 )
 
 // helpful directive location alias describing "any" context
@@ -126,6 +127,7 @@ var contexts = map[string]uint{
 	blockCtx{"http", "location", "if"}.key():           ngxHTTPLifConf,
 	blockCtx{"http", "location", "limit_except"}.key(): ngxHTTPLmtConf,
 	blockCtx{"mgmt"}.key():                             ngxMgmtMainConf,
+	blockCtx{"http", "oidc_provider"}.key():            ngxHTTPOIDCConf,
 }
 
 func enterBlockCtx(stmt *Directive, ctx blockCtx) blockCtx {

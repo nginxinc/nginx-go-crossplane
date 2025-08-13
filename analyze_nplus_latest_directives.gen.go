@@ -175,16 +175,16 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
     },
     "client_id": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "client_max_body_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "client_secret": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "config_url": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "connect_timeout": {
         ngxMgmtMainConf | ngxConfTake1,
@@ -193,7 +193,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
     },
     "cookie_name": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "create_full_put_path": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -260,7 +260,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake12,
     },
     "extra_auth_args": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "f4f": {
         ngxHTTPLocConf | ngxConfNoArgs,
@@ -710,7 +710,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPUpsConf | ngxConfNoArgs,
     },
     "issuer": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "keepalive": {
         ngxHTTPUpsConf | ngxConfTake1,
@@ -1034,6 +1034,10 @@ var nginxPlusLatestDirectives = map[string][]uint{
     "protocol": {
         ngxMailSrvConf | ngxConfTake1,
     },
+    "proxy": {
+        ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
+        ngxMgmtMainConf | ngxConfTake1,
+    },
     "proxy_bind": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake12,
@@ -1148,9 +1152,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
     "proxy_limit_rate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
-    "proxy_location": {
-        ngxConfTake1,
-    },
     "proxy_max_temp_file_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -1192,7 +1193,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
     "proxy_password": {
-        ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
     },
     "proxy_protocol": {
         ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
@@ -1321,7 +1322,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
     "proxy_username": {
-        ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
     },
     "queue": {
         ngxHTTPUpsConf | ngxConfTake12,
@@ -1364,7 +1365,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
     "redirect_uri": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "referer_hash_bucket_size": {
         ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1546,7 +1547,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1234,
     },
     "scope": {
-        ngxConf1More,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "secure_link": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1606,10 +1607,10 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxConf2More,
     },
     "session_store": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "session_timeout": {
-        ngxConf1More,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "set": {
         ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake2,
@@ -1706,6 +1707,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "ssl_dhparam": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -1816,6 +1818,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "ssl_verify": {
         ngxMgmtMainConf | ngxConfFlag,

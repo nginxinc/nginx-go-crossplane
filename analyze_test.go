@@ -2894,6 +2894,42 @@ func TestAnalyze_oidc(t *testing.T) {
 			blockCtx{"stream"},
 			true,
 		},
+		"client_id args not ok": {
+			&Directive{
+				Directive: "client_id",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			true,
+		},
+		"client_id args ok": {
+			&Directive{
+				Directive: "client_id",
+				Args:      []string{"unique_id"},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			false,
+		},
+		"client_id context not ok": {
+			&Directive{
+				Directive: "client_id",
+				Args:      []string{"unique_id"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"client_id context ok": {
+			&Directive{
+				Directive: "client_id",
+				Args:      []string{"unique_id"},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			false,
+		},
 	}
 
 	for name, tc := range testcases {

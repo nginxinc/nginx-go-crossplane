@@ -86,7 +86,7 @@
             ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
             ["ngxMgmtMainConf", "ngxConfTake1"],
             ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"],
-            ["ngxConfTake1"]
+            ["ngxHTTPOIDCConf", "ngxConfTake1"]
         ],
         "ssl_name": [["ngxMgmtMainConf", "ngxConfTake1"]],
         "ssl_password_file": [
@@ -107,7 +107,7 @@
             ["ngxMailMainConf", "ngxMailSrvConf", "ngxConfTake1"],
             ["ngxMgmtMainConf", "ngxConfTake1"],
             ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"],
-            ["ngxConfTake1"]
+            ["ngxHTTPOIDCConf", "ngxConfTake1"]
         ],
         "ssl_verify": [["ngxMgmtMainConf", "ngxConfFlag"]],
         "ssl_verify_depth": [
@@ -127,7 +127,18 @@
             ["ngxMgmtMainConf","ngxConfTake1"]
         ],
         "proxy_username": [["ngxMgmtMainConf","ngxConfTake1"]],
-        "proxy_password": [["ngxMgmtMainConf","ngxConfTake1"]]
+        "proxy_password": [["ngxMgmtMainConf","ngxConfTake1"]],
+        "client_id": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "client_secret": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "issuer": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "config_url": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "cookie_name": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "extra_auth_args": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "redirect_uri": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "scope": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "session_store": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "session_timeout": [["ngxHTTPOIDCConf", "ngxConfTake1"]]
+
     },
 
     "matchFuncComment":"MatchNginxPlusR34 contains directives in Nginx Plus R34 source code(including GEOIP, Perl, and XSLT)"
