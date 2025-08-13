@@ -284,6 +284,38 @@ func TestDirective_Equal(t *testing.T) {
 			b:     nil,
 			equal: true,
 		},
+		{
+			a: &Directive{
+				Directive:           "location",
+				IsMapBlockParameter: false,
+			},
+			b: &Directive{
+				Directive:           "location",
+				IsMapBlockParameter: true,
+			},
+			equal: false,
+		},
+		{
+			a: &Directive{
+				Directive: "location",
+				Block: []*Directive{
+					{
+						Directive: "root",
+						Args:      []string{"/data/images"},
+					},
+				},
+			},
+			b: &Directive{
+				Directive: "location",
+				Block: []*Directive{
+					{
+						Directive: "root",
+						Args:      []string{"/other"},
+					},
+				},
+			},
+			equal: false,
+		},
 	} {
 		eq := ef.a.Equal(ef.b)
 		if eq != ef.equal {
