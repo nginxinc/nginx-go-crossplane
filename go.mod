@@ -1,10 +1,10 @@
 module github.com/nginxinc/nginx-go-crossplane
 
-go 1.19
+go 1.23.0
 
 require (
 	github.com/jstemmer/go-junit-report v1.0.0
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.0
 	golang.org/x/tools v0.32.0
 )
 
