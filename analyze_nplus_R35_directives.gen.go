@@ -15,7 +15,7 @@
 
 package crossplane
 
-var ossLatestDirectives = map[string][]uint{
+var nginxPlusR35Directives = map[string][]uint{
     "absolute_redirect": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
@@ -63,6 +63,9 @@ var ossLatestDirectives = map[string][]uint{
     "ancient_browser_value": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
+    "api": {
+        ngxHTTPLocConf | ngxConfNoArgs | ngxConfTake1,
+    },
     "auth_basic": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
     },
@@ -84,11 +87,44 @@ var ossLatestDirectives = map[string][]uint{
     "auth_http_timeout": {
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
     },
+    "auth_jwt": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake12,
+    },
+    "auth_jwt_claim_set": {
+        ngxHTTPMainConf | ngxConf2More,
+    },
+    "auth_jwt_header_set": {
+        ngxHTTPMainConf | ngxConf2More,
+    },
+    "auth_jwt_key_cache": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
+    },
+    "auth_jwt_key_file": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
+    },
+    "auth_jwt_key_request": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
+    },
+    "auth_jwt_leeway": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
+    },
+    "auth_jwt_require": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConf1More,
+    },
+    "auth_jwt_type": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConfTake1,
+    },
+    "auth_oidc": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
     "auth_request": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "auth_request_set": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+    },
+    "auth_require": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLmtConf | ngxConf1More,
     },
     "autoindex": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -138,11 +174,26 @@ var ossLatestDirectives = map[string][]uint{
     "client_header_timeout": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
     },
+    "client_id": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
     "client_max_body_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
+    "client_secret": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
+    "config_url": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
+    "connect_timeout": {
+        ngxMgmtMainConf | ngxConfTake1,
+    },
     "connection_pool_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+    },
+    "cookie_name": {
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "create_full_put_path": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -184,6 +235,9 @@ var ossLatestDirectives = map[string][]uint{
     "empty_gif": {
         ngxHTTPLocConf | ngxConfNoArgs,
     },
+    "enforce_initial_report": {
+        ngxMgmtMainConf | ngxConfFlag,
+    },
     "env": {
         ngxMainConf | ngxDirectConf | ngxConfTake1,
     },
@@ -204,6 +258,15 @@ var ossLatestDirectives = map[string][]uint{
     },
     "expires": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake12,
+    },
+    "extra_auth_args": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
+    "f4f": {
+        ngxHTTPLocConf | ngxConfNoArgs,
+    },
+    "f4f_buffer_size": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "fastcgi_bind": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
@@ -252,6 +315,9 @@ var ossLatestDirectives = map[string][]uint{
     },
     "fastcgi_cache_path": {
         ngxHTTPMainConf | ngxConf2More,
+    },
+    "fastcgi_cache_purge": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
     },
     "fastcgi_cache_revalidate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -443,6 +509,9 @@ var ossLatestDirectives = map[string][]uint{
     "grpc_ssl_crl": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
+    "grpc_ssl_key_log": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
     "grpc_ssl_name": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -506,6 +575,31 @@ var ossLatestDirectives = map[string][]uint{
     "hash": {
         ngxHTTPUpsConf | ngxConfTake12,
         ngxStreamUpsConf | ngxConfTake12,
+    },
+    "health_check": {
+        ngxHTTPLocConf | ngxConfAny,
+        ngxStreamSrvConf | ngxConfAny,
+    },
+    "health_check_timeout": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "hls": {
+        ngxHTTPLocConf | ngxConfNoArgs,
+    },
+    "hls_buffers": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
+    },
+    "hls_forward_args": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
+    },
+    "hls_fragment": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "hls_mp4_buffer_size": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "hls_mp4_max_buffer_size": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "http": {
         ngxMainConf | ngxConfBlock | ngxConfNoArgs,
@@ -609,8 +703,14 @@ var ossLatestDirectives = map[string][]uint{
     "internal": {
         ngxHTTPLocConf | ngxConfNoArgs,
     },
+    "internal_redirect": {
+        ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
     "ip_hash": {
         ngxHTTPUpsConf | ngxConfNoArgs,
+    },
+    "issuer": {
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "keepalive": {
         ngxHTTPUpsConf | ngxConfTake1,
@@ -633,12 +733,27 @@ var ossLatestDirectives = map[string][]uint{
         ngxHTTPUpsConf | ngxConfTake1,
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
     },
+    "keyval": {
+        ngxHTTPMainConf | ngxConfTake3 | ngxConfTake4,
+        ngxStreamMainConf | ngxConfTake3 | ngxConfTake4,
+    },
+    "keyval_zone": {
+        ngxHTTPMainConf | ngxConf1More,
+        ngxStreamMainConf | ngxConf1More,
+    },
     "large_client_header_buffers": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake2,
     },
     "least_conn": {
         ngxHTTPUpsConf | ngxConfNoArgs,
         ngxStreamUpsConf | ngxConfNoArgs,
+    },
+    "least_time": {
+        ngxHTTPUpsConf | ngxConfTake12,
+        ngxStreamUpsConf | ngxConfTake12,
+    },
+    "license_token": {
+        ngxMgmtMainConf | ngxConfTake1,
     },
     "limit_conn": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
@@ -681,7 +796,7 @@ var ossLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "limit_req_zone": {
-        ngxHTTPMainConf | ngxConfTake3,
+        ngxHTTPMainConf | ngxConfTake3 | ngxConfTake4,
     },
     "lingering_close": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -716,6 +831,12 @@ var ossLatestDirectives = map[string][]uint{
     "log_subrequest": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
+    "logout_token_hint": {
+        ngxHTTPOIDCConf | ngxConfFlag,
+    },
+    "logout_uri": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
     "mail": {
         ngxMainConf | ngxConfBlock | ngxConfNoArgs,
     },
@@ -733,6 +854,10 @@ var ossLatestDirectives = map[string][]uint{
     },
     "master_process": {
         ngxMainConf | ngxDirectConf | ngxConfFlag,
+    },
+    "match": {
+        ngxHTTPMainConf | ngxConfBlock | ngxConfTake12,
+        ngxStreamMainConf | ngxConfBlock | ngxConfTake1,
     },
     "max_errors": {
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
@@ -776,6 +901,9 @@ var ossLatestDirectives = map[string][]uint{
     "merge_slashes": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
     },
+    "mgmt": {
+        ngxMainConf | ngxDirectConf | ngxConfBlock | ngxConfNoArgs,
+    },
     "min_delete_depth": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -797,11 +925,32 @@ var ossLatestDirectives = map[string][]uint{
     "mp4_buffer_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
+    "mp4_limit_rate": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "mp4_limit_rate_after": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
     "mp4_max_buffer_size": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "mp4_start_key_frame": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
+    },
+    "mqtt": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+    },
+    "mqtt_buffers": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
+    },
+    "mqtt_preread": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+    },
+    "mqtt_rewrite_buffer_size": {
+        ngxStreamSrvConf | ngxConfFlag,
+    },
+    "mqtt_set_connect": {
+        ngxStreamSrvConf | ngxConfTake2,
     },
     "msie_padding": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -811,6 +960,12 @@ var ossLatestDirectives = map[string][]uint{
     },
     "multi_accept": {
         ngxEventConf | ngxConfFlag,
+    },
+    "ntlm": {
+        ngxHTTPUpsConf | ngxConfNoArgs,
+    },
+    "oidc_provider": {
+        ngxHTTPMainConf | ngxConfBlock | ngxConfTake1,
     },
     "open_file_cache": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
@@ -864,6 +1019,9 @@ var ossLatestDirectives = map[string][]uint{
     "port_in_redirect": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
+    "post_logout_uri": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
     "postpone_output": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -875,6 +1033,10 @@ var ossLatestDirectives = map[string][]uint{
     },
     "protocol": {
         ngxMailSrvConf | ngxConfTake1,
+    },
+    "proxy": {
+        ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
+        ngxMgmtMainConf | ngxConfTake1,
     },
     "proxy_bind": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
@@ -931,6 +1093,9 @@ var ossLatestDirectives = map[string][]uint{
     },
     "proxy_cache_path": {
         ngxHTTPMainConf | ngxConf2More,
+    },
+    "proxy_cache_purge": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
     },
     "proxy_cache_revalidate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -1027,6 +1192,9 @@ var ossLatestDirectives = map[string][]uint{
     "proxy_pass_trailers": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
+    "proxy_password": {
+        ngxMgmtMainConf | ngxConfTake1,
+    },
     "proxy_protocol": {
         ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
@@ -1054,6 +1222,9 @@ var ossLatestDirectives = map[string][]uint{
     },
     "proxy_send_timeout": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "proxy_session_drop": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
     },
     "proxy_set_body": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1092,6 +1263,10 @@ var ossLatestDirectives = map[string][]uint{
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
     },
     "proxy_ssl_crl": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "proxy_ssl_key_log": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
@@ -1146,6 +1321,12 @@ var ossLatestDirectives = map[string][]uint{
     "proxy_upload_rate": {
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
+    "proxy_username": {
+        ngxMgmtMainConf | ngxConfTake1,
+    },
+    "queue": {
+        ngxHTTPUpsConf | ngxConfTake12,
+    },
     "quic_active_connection_id_limit": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
     },
@@ -1171,6 +1352,9 @@ var ossLatestDirectives = map[string][]uint{
     "read_ahead": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
+    "read_timeout": {
+        ngxMgmtMainConf | ngxConfTake1,
+    },
     "real_ip_header": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -1179,6 +1363,9 @@ var ossLatestDirectives = map[string][]uint{
     },
     "recursive_error_pages": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
+    },
+    "redirect_uri": {
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "referer_hash_bucket_size": {
         ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1196,6 +1383,7 @@ var ossLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
         ngxHTTPUpsConf | ngxConf1More,
         ngxMailMainConf | ngxMailSrvConf | ngxConf1More,
+        ngxMgmtMainConf | ngxConf1More,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
         ngxStreamUpsConf | ngxConf1More,
     },
@@ -1203,6 +1391,7 @@ var ossLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
         ngxHTTPUpsConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
         ngxStreamUpsConf | ngxConfTake1,
     },
@@ -1269,6 +1458,9 @@ var ossLatestDirectives = map[string][]uint{
     },
     "scgi_cache_path": {
         ngxHTTPMainConf | ngxConf2More,
+    },
+    "scgi_cache_purge": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
     },
     "scgi_cache_revalidate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -1354,6 +1546,9 @@ var ossLatestDirectives = map[string][]uint{
     "scgi_temp_path": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1234,
     },
+    "scope": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
     "secure_link": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -1368,6 +1563,7 @@ var ossLatestDirectives = map[string][]uint{
     },
     "send_timeout": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
     },
     "sendfile": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfFlag,
@@ -1400,6 +1596,21 @@ var ossLatestDirectives = map[string][]uint{
     },
     "server_tokens": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "session_log": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "session_log_format": {
+        ngxHTTPMainConf | ngxConf2More,
+    },
+    "session_log_zone": {
+        ngxHTTPMainConf | ngxConf2More,
+    },
+    "session_store": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
+    "session_timeout": {
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "set": {
         ngxHTTPSrvConf | ngxHTTPSifConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake2,
@@ -1450,6 +1661,9 @@ var ossLatestDirectives = map[string][]uint{
     "ssi_value_length": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
+    "ssl": {
+        ngxMgmtMainConf | ngxConfFlag,
+    },
     "ssl_alpn": {
         ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
     },
@@ -1459,25 +1673,23 @@ var ossLatestDirectives = map[string][]uint{
     "ssl_certificate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
     "ssl_certificate_cache": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake123,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake123,
     },
-    "ssl_certificate_compression": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
-        ngxMailMainConf | ngxMailSrvConf | ngxConfFlag,
-        ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
-    },
     "ssl_certificate_key": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
     "ssl_ciphers": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
     "ssl_client_certificate": {
@@ -1493,7 +1705,9 @@ var ossLatestDirectives = map[string][]uint{
     "ssl_crl": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "ssl_dhparam": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -1514,6 +1728,13 @@ var ossLatestDirectives = map[string][]uint{
     "ssl_handshake_timeout": {
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
+    "ssl_key_log": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "ssl_name": {
+        ngxMgmtMainConf | ngxConfTake1,
+    },
     "ssl_object_cache_inheritable": {
         ngxMainConf | ngxDirectConf | ngxConfFlag,
     },
@@ -1532,6 +1753,7 @@ var ossLatestDirectives = map[string][]uint{
     "ssl_password_file": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
     "ssl_prefer_server_ciphers": {
@@ -1545,11 +1767,15 @@ var ossLatestDirectives = map[string][]uint{
     "ssl_protocols": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConf1More,
         ngxMailMainConf | ngxMailSrvConf | ngxConf1More,
+        ngxMgmtMainConf | ngxConf1More,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
     },
     "ssl_reject_handshake": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+    },
+    "ssl_server_name": {
+        ngxMgmtMainConf | ngxConfFlag,
     },
     "ssl_session_cache": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake12,
@@ -1590,7 +1816,12 @@ var ossLatestDirectives = map[string][]uint{
     "ssl_trusted_certificate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
+    "ssl_verify": {
+        ngxMgmtMainConf | ngxConfFlag,
     },
     "ssl_verify_client": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
@@ -1600,10 +1831,32 @@ var ossLatestDirectives = map[string][]uint{
     "ssl_verify_depth": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+        ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "stall_threshold": {
+        ngxEventConf | ngxConfTake1,
     },
     "starttls": {
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
+    },
+    "state": {
+        ngxHTTPUpsConf | ngxConfTake1,
+        ngxStreamUpsConf | ngxConfTake1,
+    },
+    "state_path": {
+        ngxMgmtMainConf | ngxConfTake1,
+    },
+    "status": {
+        ngxConf1More,
+    },
+    "status_zone": {
+        ngxHTTPSrvConf | ngxConfTake1,
+        ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
+        ngxStreamSrvConf | ngxConfTake1,
+    },
+    "sticky": {
+        ngxHTTPUpsConf | ngxConf2More,
     },
     "stream": {
         ngxMainConf | ngxConfBlock | ngxConfNoArgs,
@@ -1664,6 +1917,9 @@ var ossLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxConfBlock | ngxConfTake1,
         ngxStreamMainConf | ngxConfBlock | ngxConfTake1,
     },
+    "usage_report": {
+        ngxMgmtMainConf | ngxConfNoArgs | ngxConfTake12,
+    },
     "use": {
         ngxEventConf | ngxConfTake1,
     },
@@ -1696,6 +1952,12 @@ var ossLatestDirectives = map[string][]uint{
     },
     "userid_service": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "userinfo": {
+        ngxHTTPOIDCConf | ngxConfTake1,
+    },
+    "uuid_file": {
+        ngxMgmtMainConf | ngxConfNoArgs | ngxConfTake1,
     },
     "uwsgi_bind": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake12,
@@ -1744,6 +2006,9 @@ var ossLatestDirectives = map[string][]uint{
     },
     "uwsgi_cache_path": {
         ngxHTTPMainConf | ngxConf2More,
+    },
+    "uwsgi_cache_purge": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConf1More,
     },
     "uwsgi_cache_revalidate": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
@@ -1839,6 +2104,9 @@ var ossLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake2,
     },
     "uwsgi_ssl_crl": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
+    },
+    "uwsgi_ssl_key_log": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "uwsgi_ssl_name": {
@@ -1940,10 +2208,73 @@ var ossLatestDirectives = map[string][]uint{
         ngxHTTPUpsConf | ngxConfTake12,
         ngxStreamUpsConf | ngxConfTake12,
     },
+    "zone_sync": {
+        ngxStreamSrvConf | ngxConfNoArgs,
+    },
+    "zone_sync_buffers": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
+    },
+    "zone_sync_connect_retry_interval": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_connect_timeout": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_interval": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_recv_buffer_size": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_server": {
+        ngxStreamSrvConf | ngxConfTake12,
+    },
+    "zone_sync_ssl": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+    },
+    "zone_sync_ssl_certificate": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_ssl_certificate_key": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_ssl_ciphers": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_ssl_conf_command": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake2,
+    },
+    "zone_sync_ssl_crl": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_ssl_name": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_ssl_password_file": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_ssl_protocols": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConf1More,
+    },
+    "zone_sync_ssl_server_name": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+    },
+    "zone_sync_ssl_trusted_certificate": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_ssl_verify": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfFlag,
+    },
+    "zone_sync_ssl_verify_depth": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
+    "zone_sync_timeout": {
+        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
+    },
 }
 
-// MatchOssLatest contains directives in latest version of OSS source code(including GEOIP, Perl, and XSLT)
-func MatchOssLatest(directive string) ([]uint, bool) {
-    m, ok := ossLatestDirectives[directive]
+// MatchNginxPlusR35 contains directives in Nginx Plus R35 source code(including GEOIP, Perl, and XSLT)
+func MatchNginxPlusR35(directive string) ([]uint, bool) {
+    m, ok := nginxPlusR35Directives[directive]
     return m, ok
 }

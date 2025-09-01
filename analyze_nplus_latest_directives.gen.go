@@ -832,10 +832,10 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
     "logout_token_hint": {
-        ngxConfFlag,
+        ngxHTTPOIDCConf | ngxConfFlag,
     },
     "logout_uri": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "mail": {
         ngxMainConf | ngxConfBlock | ngxConfNoArgs,
@@ -1020,7 +1020,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
     "post_logout_uri": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "postpone_output": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
@@ -1834,10 +1834,6 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxMgmtMainConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
-    "ssl_verify_digests": {
-        ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
-        ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
-    },
     "stall_threshold": {
         ngxEventConf | ngxConfTake1,
     },
@@ -1958,7 +1954,7 @@ var nginxPlusLatestDirectives = map[string][]uint{
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
     "userinfo": {
-        ngxConfTake1,
+        ngxHTTPOIDCConf | ngxConfTake1,
     },
     "uuid_file": {
         ngxMgmtMainConf | ngxConfNoArgs | ngxConfTake1,
