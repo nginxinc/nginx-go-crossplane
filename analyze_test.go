@@ -2930,6 +2930,33 @@ func TestAnalyze_oidc(t *testing.T) {
 			blockCtx{"http", "oidc_provider"},
 			false,
 		},
+		"logout_uri context ok": {
+			&Directive{
+				Directive: "logout_uri",
+				Args:      []string{"https://logout.domain"},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			false,
+		},
+		"user_info args ok": {
+			&Directive{
+				Directive: "userinfo",
+				Args:      []string{"off"},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			false,
+		},
+		"user_info args not ok": {
+			&Directive{
+				Directive: "userinfo",
+				Args:      []string{"on", "off"},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			true,
+		},
 	}
 
 	for name, tc := range testcases {
@@ -2941,8 +2968,61 @@ func TestAnalyze_oidc(t *testing.T) {
 				terminator = "{"
 			}
 			err := analyze("nginx.conf", tc.stmt, terminator, tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{MatchNginxPlusR34},
+				DirectiveSources: []MatchFunc{MatchNginxPlusR35},
 			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+func TestAnalyze_auth_require(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"auth_require ok": {
+			&Directive{
+				Directive: "auth_require",
+				Args:      []string{"$value1", "$value2"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "limit_except"},
+			false,
+		},
+		"auth_require with error code ok": {
+			&Directive{
+				Directive: "auth_require",
+				Args:      []string{"$value1", "$value2", "error=403"},
+				Line:      5,
+			},
+			blockCtx{"http", "location", "limit_except"},
+			false,
+		},
+		"auth_require not ok": {
+			&Directive{
+				Directive: "auth_require",
+				Args:      []string{"$value"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
