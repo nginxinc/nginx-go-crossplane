@@ -22,7 +22,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Setup Golang Environment
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
         with:
           go-version-file: go.mod
       - name: Lint Code
@@ -40,7 +40,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Setup Golang Environment
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v6
       - name: Run Tests
         run: make test
       - name: Upload coverage to Codecov
