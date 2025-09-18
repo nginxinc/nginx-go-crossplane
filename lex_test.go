@@ -415,6 +415,20 @@ var lexFixtures = []lexFixture{
 		{"}", 20},
 		{"}", 21},
 	}},
+	{"comments-between-args", []tokenLine{
+		{"http", 1},
+		{"{", 1},
+		{"#comment 1", 1},
+		{"log_format", 2},
+		{"#comment 2", 2},
+		{"\\#arg\\ 1", 3},
+		{"#comment 3", 3},
+		{"#arg 2", 4},
+		{"#comment 4", 4},
+		{"#comment 5", 5},
+		{";", 6},
+		{"}", 7},
+	}},
 }
 
 func TestLex(t *testing.T) {
@@ -446,22 +460,72 @@ func TestLex(t *testing.T) {
 	}
 }
 
+func benchmarkLex(b *testing.B, path string, options LexOptions) {
+	var t NgxToken
+
+	file, err := os.Open(path)
+	if err != nil {
+		b.Fatal(err)
+	}
+	defer file.Close()
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		if _, err := file.Seek(0, 0); err != nil {
+			b.Fatal(err)
+		}
+
+		for tok := range LexWithOptions(file, options) {
+			t = tok
+		}
+	}
+
+	_ = t
+}
+
+func BenchmarkLex(b *testing.B) {
+	for _, bm := range lexFixtures {
+		if strings.HasPrefix(bm.name, "lua") {
+			continue
+		}
+
+		b.Run(bm.name, func(b *testing.B) {
+			path := getTestConfigPath(bm.name, "nginx.conf")
+			benchmarkLex(b, path, LexOptions{})
+		})
+	}
+}
+
+func BenchmarkLexWithLua(b *testing.B) {
+	for _, bm := range lexFixtures {
+		if !strings.HasPrefix(bm.name, "lua") {
+			continue
+		}
+
+		b.Run(bm.name, func(b *testing.B) {
+			path := getTestConfigPath(bm.name, "nginx.conf")
+			benchmarkLex(b, path, LexOptions{Lexers: []RegisterLexer{lua.RegisterLexer()}})
+		})
+	}
+}
+
+//nolint:gochecknoglobals
+var unhappyFixtures = map[string]string{
+	"unbalanced open brance":                  `http {{}`,
+	"unbalanced closing brace":                `http {}}`,
+	"multiple open braces":                    `http {{server {}}`,
+	"multiple closing braces after block end": `http {server {}}}`,
+	"multiple semicolons":                     `server { listen 80;; }`,
+	"semicolon afer closing brace":            `server { listen 80; };`,
+	"open brace after semicolon":              `server { listen 80; {}`,
+	"braces with no directive":                `http{}{}`,
+	"missing final brace":                     `http{`,
+}
+
 func TestLex_unhappy(t *testing.T) {
 	t.Parallel()
 
-	testcases := map[string]string{
-		"unbalanced open brance":                  `http {{}`,
-		"unbalanced closing brace":                `http {}}`,
-		"multiple open braces":                    `http {{server {}}`,
-		"multiple closing braces after block end": `http {server {}}}`,
-		"multiple semicolons":                     `server { listen 80;; }`,
-		"semicolon afer closing brace":            `server { listen 80; };`,
-		"open brace after semicolon":              `server { listen 80; {}`,
-		"braces with no directive":                `http{}{}`,
-		"missing final brace":                     `http{`,
-	}
-
-	for name, c := range testcases {
+	for name, c := range unhappyFixtures {
 		c := c
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
