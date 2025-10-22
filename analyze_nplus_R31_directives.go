@@ -1634,7 +1634,7 @@ var nginxPlusR31Directives = map[string][]uint{
 		ngxConfTake1 | ngxMgmtMainConf,
 	},
 	"ssl_ocsp": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
 	"ssl_ocsp_cache": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,

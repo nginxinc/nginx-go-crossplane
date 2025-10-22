@@ -1612,7 +1612,7 @@ var nginxPlusR30Directives = map[string][]uint{
 		ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
 	},
 	"ssl_ocsp": {
-		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfFlag,
+		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
 	},
 	"ssl_ocsp_cache": {
 		ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
