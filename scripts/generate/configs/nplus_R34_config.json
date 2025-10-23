@@ -137,8 +137,11 @@
         "redirect_uri": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
         "scope": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
         "session_store": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
-        "session_timeout": [["ngxHTTPOIDCConf", "ngxConfTake1"]]
-
+        "session_timeout": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "ssl_ocsp": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ]
     },
 
     "matchFuncComment":"MatchNginxPlusR34 contains directives in Nginx Plus R34 source code(including GEOIP, Perl, and XSLT)"
