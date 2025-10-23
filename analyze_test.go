@@ -3198,6 +3198,7 @@ func TestAnalyze_ssl_ocsp(t *testing.T) {
 	}
 
 	for name, tc := range testcases {
+		tc := tc
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			for _, ctx := range tc.ctx {
