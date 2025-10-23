@@ -38,7 +38,8 @@
         "gzip_no_buffer"
     ],
     "override":{
-        "if":[[ "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxConfBlock", "ngxConfExpr", "ngxConf1More"]]
+        "if":[[ "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxConfBlock", "ngxConfExpr", "ngxConf1More"]],
+        "ssl_ocsp": [["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"]]
     },
     "matchFuncComment":"MatchOss126 contains directives in OSS 1.2.6 source code(including GEOIP, Perl, and XSLT)"
 }

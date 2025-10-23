@@ -119,7 +119,11 @@
         "enforce_initial_report": [["ngxMgmtMainConf","ngxConfFlag"]],
         "license_token": [["ngxMgmtMainConf","ngxConfTake1"]],
         "state_path": [["ngxMgmtMainConf","ngxConfTake1"]],
-        "zone_sync": [["ngxStreamSrvConf","ngxConfNoArgs"]]
+        "zone_sync": [["ngxStreamSrvConf","ngxConfNoArgs"]],
+        "ssl_ocsp": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ]
     },
 
     "matchFuncComment":"MatchNginxPlusR33 contains directives in Nginx Plus R33 source code(including GEOIP, Perl, and XSLT)"

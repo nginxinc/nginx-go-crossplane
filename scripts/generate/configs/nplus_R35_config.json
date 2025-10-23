@@ -142,9 +142,12 @@
         "logout_token_hint": [["ngxHTTPOIDCConf", "ngxConfFlag"]],
         "logout_uri": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
         "post_logout_uri": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
-        "userinfo": [["ngxHTTPOIDCConf", "ngxConfTake1"]]
-
-    },
+        "userinfo": [["ngxHTTPOIDCConf", "ngxConfTake1"]],
+        "ssl_ocsp": [
+            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
+            ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
+        ]
+},
 
     "matchFuncComment":"MatchNginxPlusR35 contains directives in Nginx Plus R35 source code(including GEOIP, Perl, and XSLT)"
 }
