@@ -3199,6 +3199,7 @@ func TestAnalyze_ssl_ocsp(t *testing.T) {
 
 	for name, tc := range testcases {
 		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 			for _, ctx := range tc.ctx {
 				err := analyze("nginx.conf", tc.stmt, ";", ctx, &ParseOptions{
 					DirectiveSources: []MatchFunc{tc.matchFunc},
