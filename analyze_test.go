@@ -3034,3 +3034,183 @@ func TestAnalyze_auth_require(t *testing.T) {
 		})
 	}
 }
+
+func TestAnalyze_ssl_ocsp(t *testing.T) {
+
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt      *Directive
+		ctx       []blockCtx
+		matchFunc MatchFunc
+		wantErr   bool
+	}{
+		"ssl_ocsp ok in OS 1.24": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}},
+			MatchOss124,
+			false,
+		},
+		"ssl_ocsp ok in OS 1.26": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}},
+			MatchOss126,
+			false,
+		},
+		"ssl_ocsp ok in OS latest": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}, {"stream"}, {"stream", "server"}},
+			MatchOssLatest,
+			false,
+		},
+		"ssl_ocsp ok in R30": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}},
+			MatchNginxPlusR30,
+			false,
+		},
+		"ssl_ocsp ok in R31": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}},
+			MatchNginxPlusR31,
+			false,
+		},
+		"ssl_ocsp ok in R33": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}, {"stream"}, {"stream", "server"}},
+			MatchNginxPlusR33,
+			false,
+		},
+		"ssl_ocsp ok in R34": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}, {"stream"}, {"stream", "server"}},
+			MatchNginxPlusR34,
+			false,
+		},
+		"ssl_ocsp ok in R35": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}, {"stream"}, {"stream", "server"}},
+			MatchNginxPlusR35,
+			false,
+		},
+		"ssl_ocsp ok in Plus latest": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}, {"stream"}, {"stream", "server"}},
+			MatchNginxPlusLatest,
+			false,
+		},
+		"ssl_ocsp not ok in OS 1.24 wrong context": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"stream"}, {"stream", "server"}},
+			MatchOss124,
+			true,
+		},
+		"ssl_ocsp not ok in OS 1.26 wrong context": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"stream"}, {"stream", "server"}},
+			MatchOss126,
+			true,
+		},
+		"ssl_ocsp not ok in OS latest wrong parameters": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"on", "leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}, {"stream"}, {"stream", "server"}},
+			MatchOssLatest,
+			true,
+		},
+		"ssl_ocsp not ok in Plus R30 wrong context": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"stream"}, {"stream", "server"}},
+			MatchNginxPlusR30,
+			true,
+		},
+		"ssl_ocsp not ok in Plus R31 wrong context": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"stream"}, {"stream", "server"}},
+			MatchNginxPlusR31,
+			true,
+		},
+		"ssl_ocsp not ok in Plus latest wrong parameters": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"on", "leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"stream"}, {"stream", "server"}},
+			MatchNginxPlusLatest,
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		t.Run(name, func(t *testing.T) {
+			for _, ctx := range tc.ctx {
+				err := analyze("nginx.conf", tc.stmt, ";", ctx, &ParseOptions{
+					DirectiveSources: []MatchFunc{tc.matchFunc},
+				})
+
+				if !tc.wantErr && err != nil {
+					t.Fatal(err)
+				}
+
+				if tc.wantErr && err == nil {
+					t.Fatal("expected error, got nil")
+				}
+			}
+		})
+	}
+}
