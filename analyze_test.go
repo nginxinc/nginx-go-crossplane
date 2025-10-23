@@ -3035,6 +3035,7 @@ func TestAnalyze_auth_require(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_ssl_ocsp(t *testing.T) {
 
 	t.Parallel()
