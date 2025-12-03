@@ -1846,6 +1846,144 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"lua-block-cert-slim", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
+		LexOptions: LexOptions{
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("lua-block-cert-slim", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "server",
+								Line:      2,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "ssl_certificate_by_lua_block",
+										Line:      3,
+										Args:      []string{"\n            print(\"Test lua ssl certificate!\")\n        "},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
+	{"lua-block-cert-double-server", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchLuaLatest},
+		LexOptions: LexOptions{
+			Lexers: []RegisterLexer{lua.RegisterLexer()},
+		},
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   "testdata/configs/lua-block-cert-double-server/nginx.conf",
+				Status: "ok",
+				Errors: []ConfigError{},
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "server",
+								Line:      2,
+								Args:      []string{},
+								Block: Directives{
+									{
+										Directive: "listen",
+										Line:      3,
+										Args:      []string{"443", "ssl"},
+									},
+									{
+										Directive: "server_name",
+										Line:      4,
+										Args:      []string{"lua.example.com"},
+									},
+									{
+										Directive: "location",
+										Line:      6,
+										Args:      []string{"/"},
+										Block: Directives{
+											{
+												Directive: "root",
+												Line:      7,
+												Args:      []string{"/usr/share/nginx/html"},
+											},
+											{
+												Directive: "index",
+												Line:      8,
+												Args:      []string{"index.html", "index.htm"},
+											},
+										},
+									},
+									{
+										Directive: "error_page",
+										Line:      11,
+										Args:      []string{"500", "502", "503", "504", "/50x.html"},
+									},
+									{
+										Directive: "location",
+										Line:      12,
+										Args:      []string{"=", "/50x.html"},
+										Block: Directives{
+											{
+												Directive: "root",
+												Line:      13,
+												Args:      []string{"/usr/share/nginx/html"},
+											},
+										},
+									},
+									{
+										Directive: "ssl_certificate",
+										Line:      16,
+										Args:      []string{"/etc/nginx/ssl/cert1.crt"},
+									},
+									{
+										Directive: "ssl_certificate_key",
+										Line:      17,
+										Args:      []string{"/etc/nginx/ssl/key1.key"},
+									},
+									{
+										Directive: "ssl_certificate_by_lua_block",
+										Line:      19,
+										Args: []string{
+											"\n            print(\"Test lua ssl certificate!\")\n        ",
+										},
+									},
+								},
+							},
+							{
+								Directive: "server",
+								Line:      24,
+								Args:      []string{},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 	{"lua-block-larger", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
