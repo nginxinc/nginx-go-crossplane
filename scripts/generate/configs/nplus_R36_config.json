@@ -1,6 +1,6 @@
 {
-    "directiveMapName":"nginxPlusLatestDirectives",
-    "matchFuncName":"MatchNginxPlusLatest",
+    "directiveMapName":"nginxPlusR36Directives",
+    "matchFuncName":"MatchNginxPlusR36",
     "filter":[
         "epoll_events",
         "health_check_header",
@@ -150,5 +150,6 @@
             ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
         ]
 },
-    "matchFuncComment":"MatchNginxPlusLatest contains directives in latest version of Nginx Plus source code(including GEOIP, Perl, and XSLT)"
+
+    "matchFuncComment":"MatchNginxPlusR36 contains directives in Nginx Plus R36 source code(including GEOIP, Perl, and XSLT)"
 }

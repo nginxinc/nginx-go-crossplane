@@ -2304,7 +2304,7 @@ var parseFixtures = []parseFixture{
 	{"oidc", "", ParseOptions{
 		SingleFile:               true,
 		ErrorOnUnknownDirectives: true,
-		DirectiveSources:         []MatchFunc{MatchNginxPlusR34},
+		DirectiveSources:         []MatchFunc{MatchNginxPlusR36},
 	}, Payload{
 		Status: "ok",
 		Errors: []PayloadError{},
