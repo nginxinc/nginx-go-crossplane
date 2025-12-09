@@ -49,7 +49,8 @@ package crossplane
 // For mgmt directives, we create a ngxMgmtMainConf as the context, which is not included in the source code.
 // For the "if" directive, we create a bitmask ngxConfExpr in crossplane, which is not included in the source code.
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_latest_config.json --branch $NPLUS_BRANCH --path ./src > ./analyze_nplus_latest_directives.gen.go"
-//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R36_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R36_directives.gen.go"
+//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R33_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R33_directives.gen.go"
+//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R34_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R34_directives.gen.go"
 
 import (
 	"fmt"
