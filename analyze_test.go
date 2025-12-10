@@ -2957,6 +2957,60 @@ func TestAnalyze_oidc(t *testing.T) {
 			blockCtx{"http", "oidc_provider"},
 			true,
 		},
+		"frontchannel_logout_uri context ok": {
+			&Directive{
+				Directive: "frontchannel_logout_uri",
+				Args:      []string{"https://logout.example.com"},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			false,
+		},
+		"frontchannel_logout_uri context not ok": {
+			&Directive{
+				Directive: "frontchannel_logout_uri",
+				Args:      []string{"https://logout.example.com"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"frontchannel_logout_uri args not ok": {
+			&Directive{
+				Directive: "frontchannel_logout_uri",
+				Args:      []string{},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			true,
+		},
+		"pkce context ok": {
+			&Directive{
+				Directive: "pkce",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			false,
+		},
+		"pkce context not ok": {
+			&Directive{
+				Directive: "pkce",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			true,
+		},
+		"pkce args not ok": {
+			&Directive{
+				Directive: "pkce",
+				Args:      []string{"on", "off"},
+				Line:      5,
+			},
+			blockCtx{"http", "oidc_provider"},
+			true,
+		},
 	}
 
 	for name, tc := range testcases {
@@ -2968,7 +3022,7 @@ func TestAnalyze_oidc(t *testing.T) {
 				terminator = "{"
 			}
 			err := analyze("nginx.conf", tc.stmt, terminator, tc.ctx, &ParseOptions{
-				DirectiveSources: []MatchFunc{MatchNginxPlusR35},
+				DirectiveSources: []MatchFunc{MatchNginxPlusR36},
 			})
 
 			if !tc.wantErr && err != nil {
@@ -3023,6 +3077,201 @@ func TestAnalyze_auth_require(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}
+
+//nolint:funlen
+func TestAnalyze_R36_directives(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"tunnel_pass ok": {
+			&Directive{
+				Directive: "tunnel_pass",
+				Args:      []string{"backend"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"tunnel_pass not ok": {
+			&Directive{
+				Directive: "tunnel_pass",
+				Args:      []string{"backend"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"tunnel_bind_dynamic ok": {
+			&Directive{
+				Directive: "tunnel_bind_dynamic",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"tunnel_bind_dynamic not ok": {
+			&Directive{
+				Directive: "tunnel_bind_dynamic",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"num_map ok in http": {
+			&Directive{
+				Directive: "num_map",
+				Args:      []string{"$variable", "$result"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"num_map ok in stream": {
+			&Directive{
+				Directive: "num_map",
+				Args:      []string{"$variable", "$result"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			false,
+		},
+		"num_map not ok": {
+			&Directive{
+				Directive: "num_map",
+				Args:      []string{"$variable", "$result"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"early_hints ok": {
+			&Directive{
+				Directive: "early_hints",
+				Args:      []string{"Link", "</style.css>; rel=preload; as=style"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"early_hints not ok": {
+			&Directive{
+				Directive: "early_hints",
+				Args:      []string{"Link", "</style.css>; rel=preload; as=style"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"ssl_certificate_compression ok in http": {
+			&Directive{
+				Directive: "ssl_certificate_compression",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"ssl_certificate_compression ok in stream": {
+			&Directive{
+				Directive: "ssl_certificate_compression",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"ssl_certificate_compression ok in mail": {
+			&Directive{
+				Directive: "ssl_certificate_compression",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"mail", "server"},
+			false,
+		},
+		"proxy_request_dynamic ok": {
+			&Directive{
+				Directive: "proxy_request_dynamic",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"proxy_request_dynamic not ok": {
+			&Directive{
+				Directive: "proxy_request_dynamic",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+		"fastcgi_bind_dynamic ok": {
+			&Directive{
+				Directive: "fastcgi_bind_dynamic",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"grpc_allow_upstream ok": {
+			&Directive{
+				Directive: "grpc_allow_upstream",
+				Args:      []string{"127.0.0.1"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"add_header_inherit ok": {
+			&Directive{
+				Directive: "add_header_inherit",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+		"add_trailer_inherit ok": {
+			&Directive{
+				Directive: "add_trailer_inherit",
+				Args:      []string{"on"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			false,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			terminator := ";"
+			if tc.stmt.Directive == "num_map" {
+				terminator = "{"
+			}
+			err := analyze("nginx.conf", tc.stmt, terminator, tc.ctx, &ParseOptions{
+				DirectiveSources: []MatchFunc{MatchNginxPlusR36},
+			})
 
 			if !tc.wantErr && err != nil {
 				t.Fatal(err)
@@ -3122,6 +3371,16 @@ func TestAnalyze_ssl_ocsp(t *testing.T) {
 			},
 			[]blockCtx{{"http"}, {"http", "server"}, {"stream"}, {"stream", "server"}},
 			MatchNginxPlusR35,
+			false,
+		},
+		"ssl_ocsp ok in R36": {
+			&Directive{
+				Directive: "ssl_ocsp",
+				Args:      []string{"leaf"},
+				Line:      5,
+			},
+			[]blockCtx{{"http"}, {"http", "server"}, {"stream"}, {"stream", "server"}},
+			MatchNginxPlusR36,
 			false,
 		},
 		"ssl_ocsp ok in Plus latest": {
