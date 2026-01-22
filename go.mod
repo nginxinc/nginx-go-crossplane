@@ -1,6 +1,6 @@
 module github.com/nginxinc/nginx-go-crossplane
 
-go 1.19
+go 1.23.0
 
 require (
 	github.com/jstemmer/go-junit-report v1.0.0
