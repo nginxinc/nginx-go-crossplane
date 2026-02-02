@@ -1,0 +1,5 @@
+{
+  "directiveMapName": "customDirectives",
+  "matchFuncName": "MatchCustomDirectives",
+  "matchFuncComment": "MatchCustomDirectives contains custom directives specific to NGINXaaS use cases."
+}

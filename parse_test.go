@@ -2377,6 +2377,47 @@ var parseFixtures = []parseFixture{
 			},
 		},
 	}},
+	{"custom_directives", "", ParseOptions{
+		SingleFile:               true,
+		ErrorOnUnknownDirectives: true,
+		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchCustomDirectives},
+		SkipDirectiveContextCheck: true,
+	}, Payload{
+		Status: "ok",
+		Errors: []PayloadError{},
+		Config: []Config{
+			{
+				File:   getTestConfigPath("custom_directives", "nginx.conf"),
+				Status: "ok",
+				Parsed: Directives{
+					{
+						Directive: "http",
+						Line:      1,
+						Args:      []string{},
+						Block: Directives{
+							{
+								Directive: "upstream",
+								Line:      2,
+								Args:      []string{"my-upstream"},
+								Block: Directives{
+									{
+										Directive: "nginxaas-scaling-group",
+										Line:      3,
+										Args:      []string{"/subscriptions/123/resourceGroups/abc/providers/Microsoft.Network/loadBalancers/myNLB"},
+									},
+									{
+										Directive: "nginxaas-scaling-group-opts",
+										Line:      4,
+										Args:      []string{"max_conns=0", "max_fails=1", "fail_timeout=10s"},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}},
 }
 
 func TestParse(t *testing.T) {

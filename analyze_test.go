@@ -3475,3 +3475,83 @@ func TestAnalyze_ssl_ocsp(t *testing.T) {
 		})
 	}
 }
+
+func TestAnalyze_custom_directives(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"nginxaas-scaling-group ok": {
+			stmt: &Directive{
+				Directive: "nginxaas-scaling-group",
+				Args:      []string{"/subscriptions/123/resourceGroups/abc/providers/Microsoft.Network/loadBalancers/myNLB"},
+				Line:      5,
+			},
+			ctx:     blockCtx{"http", "upstream"},
+			wantErr: false,
+		},
+		"nginxaas-scaling-group wrong context": {
+			stmt: &Directive{
+				Directive: "nginxaas-scaling-group",
+				Args:      []string{"/subscriptions/123/resourceGroups/abc/providers/Microsoft.Network/loadBalancers/myNLB"},
+				Line:      5,
+			},
+			ctx:     blockCtx{"http", "server"},
+			wantErr: true,
+		},
+		"nginxaas-scaling-group-opts ok": {
+			stmt: &Directive{
+				Directive: "nginxaas-scaling-group-opts",
+				Args:      []string{"max_conns=0", "max_fails=1", "fail_timeout=10s"},
+				Line:      5,
+			},
+			ctx:     blockCtx{"http", "upstream"},
+			wantErr: false,
+		},
+		"nginxaas-scaling-group-opts one arg ok": {
+			stmt: &Directive{
+				Directive: "nginxaas-scaling-group-opts",
+				Args:      []string{"max_conns=0"},
+				Line:      5,
+			},
+			ctx:     blockCtx{"http", "upstream"},
+			wantErr: false,
+		},
+		"nginxaas-scaling-group-opts wrong context": {
+			stmt: &Directive{
+				Directive: "nginxaas-scaling-group-opts",
+				Args:      []string{"max_conns=0", "max_fails=1", "fail_timeout=10s"},
+				Line:      5,
+			},
+			ctx:     blockCtx{"http", "server"},
+			wantErr: true,
+		},
+		"nginxaas-scaling-group-opts zero args": {
+			stmt: &Directive{
+				Directive: "nginxaas-scaling-group-opts",
+				Args:      []string{},
+				Line:      5,
+			},
+			ctx:     blockCtx{"http", "upstream"},
+			wantErr: true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}

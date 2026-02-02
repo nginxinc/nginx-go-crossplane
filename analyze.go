@@ -52,6 +52,9 @@ package crossplane
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R33_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R33_directives.gen.go"
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R34_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R34_directives.gen.go"
 
+// Update for custom pseudo directives
+//go:generate sh -c "go run ./cmd/generate --src-path ./scripts/generate/directives/custom_directives.c --config-path ./scripts/generate/configs/custom_directives_config.json --directive-map-name customDirectives --match-func-name MatchCustomDirectives --match-func-comment 'MatchCustomDirectives contains user-defined custom directives.' > ./analyze_custom_directives.gen.go"
+
 import (
 	"fmt"
 )
@@ -263,10 +266,10 @@ func unionBitmaskMaps(maps ...map[string][]uint) map[string][]uint {
 }
 
 // A default map for directives, used when ParseOptions.DirectiveSources is
-// not provided. It is union of latest Nplus, Njs, and Otel.
+// not provided. It is union of latest Nplus, Njs, Otel, and optionally custom directives.
 //
 //nolint:gochecknoglobals
-var defaultDirectives = unionBitmaskMaps(nginxPlusLatestDirectives, njsDirectives, otelDirectives)
+var defaultDirectives = unionBitmaskMaps(nginxPlusLatestDirectives, njsDirectives, otelDirectives, customDirectives)
 
 func DefaultDirectivesMatchFunc(directive string) ([]uint, bool) {
 	masks, matched := defaultDirectives[directive]
