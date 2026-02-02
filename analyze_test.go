@@ -3476,6 +3476,7 @@ func TestAnalyze_ssl_ocsp(t *testing.T) {
 	}
 }
 
+//nolint:funlen
 func TestAnalyze_custom_directives(t *testing.T) {
 	t.Parallel()
 	testcases := map[string]struct {

@@ -2378,9 +2378,9 @@ var parseFixtures = []parseFixture{
 		},
 	}},
 	{"custom_directives", "", ParseOptions{
-		SingleFile:               true,
-		ErrorOnUnknownDirectives: true,
-		DirectiveSources:         []MatchFunc{MatchNginxPlusLatest, MatchCustomDirectives},
+		SingleFile:                true,
+		ErrorOnUnknownDirectives:  true,
+		DirectiveSources:          []MatchFunc{MatchNginxPlusLatest, MatchCustomDirectives},
 		SkipDirectiveContextCheck: true,
 	}, Payload{
 		Status: "ok",
