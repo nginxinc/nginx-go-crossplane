@@ -743,6 +743,9 @@ var ossLatestDirectives = map[string][]uint{
     "max_errors": {
         ngxMailMainConf | ngxMailSrvConf | ngxConfTake1,
     },
+    "max_headers": {
+        ngxHTTPMainConf | ngxHTTPSrvConf | ngxConfTake1,
+    },
     "max_ranges": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
