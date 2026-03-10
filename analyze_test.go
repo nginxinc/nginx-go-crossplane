@@ -2437,20 +2437,20 @@ func TestAnalyze_headers_more(t *testing.T) {
 func TestAnalyze_directiveSources_orLogic(t *testing.T) {
 	t.Parallel()
 	// two self defined maps and matchFn to ensure it is a separate test
-	testDirectiveMap1 := map[string][]uint{
+	testDirectiveMap1 := map[string][]uint64{
 		"common_dir": {ngxAnyConf | ngxConfTake1},
 		"test_dir1":  {ngxAnyConf | ngxConfTake1},
 	}
-	testSource1 := func(directive string) ([]uint, bool) {
+	testSource1 := func(directive string) ([]uint64, bool) {
 		masks, matched := testDirectiveMap1[directive]
 		return masks, matched
 	}
 
-	testDirectiveMap2 := map[string][]uint{
+	testDirectiveMap2 := map[string][]uint64{
 		"common_dir": {ngxAnyConf | ngxConfTake2},
 		"test_dir2":  {ngxAnyConf | ngxConfTake2},
 	}
-	testSource2 := func(directive string) ([]uint, bool) {
+	testSource2 := func(directive string) ([]uint64, bool) {
 		masks, matched := testDirectiveMap2[directive]
 		return masks, matched
 	}

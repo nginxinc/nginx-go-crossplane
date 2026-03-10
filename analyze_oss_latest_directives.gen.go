@@ -15,7 +15,7 @@
 
 package crossplane
 
-var ossLatestDirectives = map[string][]uint{
+var ossLatestDirectives = map[string][]uint64{
     "absolute_redirect": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
@@ -1953,7 +1953,7 @@ var ossLatestDirectives = map[string][]uint{
 }
 
 // MatchOssLatest contains directives in latest version of OSS source code(including GEOIP, Perl, and XSLT)
-func MatchOssLatest(directive string) ([]uint, bool) {
+func MatchOssLatest(directive string) ([]uint64, bool) {
     m, ok := ossLatestDirectives[directive]
     return m, ok
 }

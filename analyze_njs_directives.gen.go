@@ -15,7 +15,7 @@
 
 package crossplane
 
-var njsDirectives = map[string][]uint{
+var njsDirectives = map[string][]uint64{
     "js_access": {
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
@@ -129,7 +129,7 @@ var njsDirectives = map[string][]uint{
 }
 
 // MatchNjsLatest is a MatchFunc for the latest version of njs.
-func MatchNjsLatest(directive string) ([]uint, bool) {
+func MatchNjsLatest(directive string) ([]uint64, bool) {
     m, ok := njsDirectives[directive]
     return m, ok
 }

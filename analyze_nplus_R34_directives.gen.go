@@ -15,7 +15,7 @@
 
 package crossplane
 
-var nginxPlusR34Directives = map[string][]uint{
+var nginxPlusR34Directives = map[string][]uint64{
     "absolute_redirect": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
@@ -2253,7 +2253,7 @@ var nginxPlusR34Directives = map[string][]uint{
 }
 
 // MatchNginxPlusR34 contains directives in Nginx Plus R34 source code(including GEOIP, Perl, and XSLT)
-func MatchNginxPlusR34(directive string) ([]uint, bool) {
+func MatchNginxPlusR34(directive string) ([]uint64, bool) {
     m, ok := nginxPlusR34Directives[directive]
     return m, ok
 }

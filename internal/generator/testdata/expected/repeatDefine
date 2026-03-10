@@ -15,7 +15,7 @@
 
 package crossplane
 
-var directives = map[string][]uint{
+var directives = map[string][]uint64{
     "my_directive_1": {
         ngxHTTPMainConf | ngxConfTake2,
         ngxHTTPMainConf | ngxConfTake1,
@@ -31,7 +31,7 @@ var directives = map[string][]uint{
 }
 
 
-func Match(directive string) ([]uint, bool) {
+func Match(directive string) ([]uint64, bool) {
     m, ok := directives[directive]
     return m, ok
 }

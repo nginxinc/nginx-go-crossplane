@@ -15,7 +15,7 @@
 
 package crossplane
 
-var oss124Directives = map[string][]uint{
+var oss124Directives = map[string][]uint64{
     "absolute_redirect": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfFlag,
     },
@@ -1868,7 +1868,7 @@ var oss124Directives = map[string][]uint{
 }
 
 // MatchOss124 contains directives in OSS 1.2.4 source code(including GEOIP, Perl, and XSLT)
-func MatchOss124(directive string) ([]uint, bool) {
+func MatchOss124(directive string) ([]uint64, bool) {
     m, ok := oss124Directives[directive]
     return m, ok
 }

@@ -15,7 +15,7 @@
 
 package crossplane
 
-var luaDirectives = map[string][]uint{
+var luaDirectives = map[string][]uint64{
     "access_by_lua": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConfTake1,
     },
@@ -268,7 +268,7 @@ var luaDirectives = map[string][]uint{
 }
 
 // MatchLuaLatest is a MatchFunc for latest version of Lua.
-func MatchLuaLatest(directive string) ([]uint, bool) {
+func MatchLuaLatest(directive string) ([]uint64, bool) {
     m, ok := luaDirectives[directive]
     return m, ok
 }

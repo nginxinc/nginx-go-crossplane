@@ -15,7 +15,7 @@
 
 package crossplane
 
-var otelDirectives = map[string][]uint{
+var otelDirectives = map[string][]uint64{
     "header": {
         ngxConfTake2,
     },
@@ -46,7 +46,7 @@ var otelDirectives = map[string][]uint{
 }
 
 // MatchOtelLatest is a MatchFunc for latest version of otel.
-func MatchOtelLatest(directive string) ([]uint, bool) {
+func MatchOtelLatest(directive string) ([]uint64, bool) {
     m, ok := otelDirectives[directive]
     return m, ok
 }
