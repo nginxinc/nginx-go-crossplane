@@ -3475,3 +3475,122 @@ func TestAnalyze_ssl_ocsp(t *testing.T) {
 		})
 	}
 }
+
+//nolint:funlen
+func TestAnalyze_R37_directives(t *testing.T) {
+	t.Parallel()
+	testcases := map[string]struct {
+		stmt    *Directive
+		ctx     blockCtx
+		wantErr bool
+	}{
+		"ssl_ech_file ok in http server": {
+			&Directive{
+				Directive: "ssl_ech_file",
+				Args:      []string{"/etc/nginx/ech.pem"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"ssl_ech_file ok in stream server": {
+			&Directive{
+				Directive: "ssl_ech_file",
+				Args:      []string{"/etc/nginx/ech.pem"},
+				Line:      5,
+			},
+			blockCtx{"stream", "server"},
+			false,
+		},
+		"ssl_ech_file not ok in location": {
+			&Directive{
+				Directive: "ssl_ech_file",
+				Args:      []string{"/etc/nginx/ech.pem"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"max_headers ok in http": {
+			&Directive{
+				Directive: "max_headers",
+				Args:      []string{"100"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"max_headers ok in http server": {
+			&Directive{
+				Directive: "max_headers",
+				Args:      []string{"100"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"max_headers not ok in location": {
+			&Directive{
+				Directive: "max_headers",
+				Args:      []string{"100"},
+				Line:      5,
+			},
+			blockCtx{"http", "location"},
+			true,
+		},
+		"error_log_tag ok in http": {
+			&Directive{
+				Directive: "error_log_tag",
+				Args:      []string{"request_id", "$request_id"},
+				Line:      5,
+			},
+			blockCtx{"http"},
+			false,
+		},
+		"error_log_tag ok in http server": {
+			&Directive{
+				Directive: "error_log_tag",
+				Args:      []string{"request_id", "$request_id"},
+				Line:      5,
+			},
+			blockCtx{"http", "server"},
+			false,
+		},
+		"error_log_tag ok in http location": {
+			&Directive{
+				Directive: "error_log_tag",
+				Args:      []string{"request_id", "$request_id"},
+				Line:      5,
+			},
+			blockCtx{"http", "server", "location"},
+			false,
+		},
+		"error_log_tag not ok in stream": {
+			&Directive{
+				Directive: "error_log_tag",
+				Args:      []string{"request_id", "$request_id"},
+				Line:      5,
+			},
+			blockCtx{"stream"},
+			true,
+		},
+	}
+
+	for name, tc := range testcases {
+		tc := tc
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			err := analyze("nginx.conf", tc.stmt, ";", tc.ctx, &ParseOptions{
+				DirectiveSources: []MatchFunc{MatchNginxPlusR37},
+			})
+
+			if !tc.wantErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tc.wantErr && err == nil {
+				t.Fatal("expected error, got nil")
+			}
+		})
+	}
+}

@@ -51,7 +51,6 @@ package crossplane
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_latest_config.json --branch $NPLUS_BRANCH --path ./src > ./analyze_nplus_latest_directives.gen.go"
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R33_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R33_directives.gen.go"
 //go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R34_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R34_directives.gen.go"
-//go:generate sh -c "sh ./scripts/generate/generate.sh --url $NPLUS_URL --config-path ./scripts/generate/configs/nplus_R37_config.json --branch $NPLUS_BRANCH --path ./src > analyze_nplus_R37_directives.gen.go"
 
 import (
 	"fmt"
