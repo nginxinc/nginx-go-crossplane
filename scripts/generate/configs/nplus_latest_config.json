@@ -148,9 +148,6 @@
         "ssl_ocsp": [
             ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxConfTake1"],
             ["ngxStreamMainConf", "ngxStreamSrvConf", "ngxConfTake1"]
-        ],
-        "error_log_tag": [
-            ["ngxHTTPMainConf", "ngxHTTPSrvConf", "ngxHTTPLocConf", "ngxConfTake2"]
         ]
 },
     "matchFuncComment":"MatchNginxPlusLatest contains directives in latest version of Nginx Plus source code(including GEOIP, Perl, and XSLT)"
