@@ -17,6 +17,7 @@ package crossplane
 
 var njsDirectives = map[string][]uint{
     "js_access": {
+        ngxHTTPLocConf | ngxHTTPLifConf | ngxHTTPLmtConf | ngxConfTake1,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake1,
     },
     "js_body_filter": {
@@ -98,6 +99,12 @@ var njsDirectives = map[string][]uint{
     "js_import": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake13,
         ngxStreamMainConf | ngxStreamSrvConf | ngxConfTake13,
+    },
+    "js_load_http_native_module": {
+        ngxMainConf | ngxDirectConf | ngxConfTake13,
+    },
+    "js_load_stream_native_module": {
+        ngxMainConf | ngxDirectConf | ngxConfTake13,
     },
     "js_path": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
