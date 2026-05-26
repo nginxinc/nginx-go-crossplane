@@ -15,7 +15,7 @@
 
 package crossplane
 
-var geoip2Directives = map[string][]uint{
+var geoip2Directives = map[string][]uint64{
     "geoip2": {
         ngxHTTPMainConf | ngxConfBlock | ngxConfTake1,
         ngxStreamMainConf | ngxConfBlock | ngxConfTake1,
@@ -29,7 +29,7 @@ var geoip2Directives = map[string][]uint{
 }
 
 // MatchGeoip2Latest is a MatchFunc for the latest version of geoip2.
-func MatchGeoip2Latest(directive string) ([]uint, bool) {
+func MatchGeoip2Latest(directive string) ([]uint64, bool) {
     m, ok := geoip2Directives[directive]
     return m, ok
 }

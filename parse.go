@@ -61,7 +61,7 @@ type parser struct {
 // The return value is a list of bitmasks that indicate the valid contexts in which the
 // directive may appear as well as the number of arguments the directive accepts. The
 // return value must contain at least one non-zero bitmask if matched is true.
-type MatchFunc func(directive string) (masks []uint, matched bool)
+type MatchFunc func(directive string) (masks []uint64, matched bool)
 
 // ParseOptions determine the behavior of an NGINX config parse.
 type ParseOptions struct {

@@ -15,7 +15,7 @@
 
 package crossplane
 
-var headersMoreDirectives = map[string][]uint{
+var headersMoreDirectives = map[string][]uint64{
     "more_clear_headers": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxHTTPLifConf | ngxConf1More,
     },
@@ -31,7 +31,7 @@ var headersMoreDirectives = map[string][]uint{
 }
 
 // MatchHeadersMoreLatest is a MatchFunc for the latest version of headersmore.
-func MatchHeadersMoreLatest(directive string) ([]uint, bool) {
+func MatchHeadersMoreLatest(directive string) ([]uint64, bool) {
     m, ok := headersMoreDirectives[directive]
     return m, ok
 }

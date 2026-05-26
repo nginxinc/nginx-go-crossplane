@@ -15,7 +15,7 @@
 
 package crossplane
 
-var {{.MapVariableName}} = map[string][]uint{
+var {{.MapVariableName}} = map[string][]uint64{
 {{- range $name, $bitDefs := .Directive2Masks}}
     "{{$name}}": {{"{"}}
     {{- range $bitDef := $bitDefs}}
@@ -26,7 +26,7 @@ var {{.MapVariableName}} = map[string][]uint{
 }
 
 {{if ne .MatchFnComment ""}}// {{.MatchFnComment}}{{end}}
-func {{.MatchFnName}}(directive string) ([]uint, bool) {
+func {{.MatchFnName}}(directive string) ([]uint64, bool) {
     m, ok := {{.MapVariableName}}[directive]
     return m, ok
 }

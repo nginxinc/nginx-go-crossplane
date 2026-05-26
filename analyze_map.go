@@ -12,8 +12,8 @@ import "fmt"
 // mapParameterMasks holds bit masks that define the behavior of the body of map-like directives.
 // Some map directives have "special parameter" with different behaviors than the default.
 type mapParameterMasks struct {
-	specialParameterMasks map[string]uint
-	defaultMasks          uint
+	specialParameterMasks map[string]uint64
+	defaultMasks          uint64
 }
 
 //nolint:gochecknoglobals
@@ -22,11 +22,11 @@ var mapBodies = map[string]mapParameterMasks{
 		defaultMasks: ngxConfTake1,
 	},
 	"geo": {
-		specialParameterMasks: map[string]uint{"ranges": ngxConfNoArgs, "proxy_recursive": ngxConfNoArgs},
+		specialParameterMasks: map[string]uint64{"ranges": ngxConfNoArgs, "proxy_recursive": ngxConfNoArgs},
 		defaultMasks:          ngxConfTake1,
 	},
 	"map": {
-		specialParameterMasks: map[string]uint{"volatile": ngxConfNoArgs, "hostnames": ngxConfNoArgs},
+		specialParameterMasks: map[string]uint64{"volatile": ngxConfNoArgs, "hostnames": ngxConfNoArgs},
 		defaultMasks:          ngxConfTake1,
 	},
 	"match": {
@@ -39,7 +39,7 @@ var mapBodies = map[string]mapParameterMasks{
 		defaultMasks: ngxConfTake1,
 	},
 	"geoip2": {
-		specialParameterMasks: map[string]uint{"auto_reload": ngxConfTake1},
+		specialParameterMasks: map[string]uint64{"auto_reload": ngxConfTake1},
 		defaultMasks: ngxConf1More,
 	},
 	"otel_exporter": {
@@ -96,7 +96,7 @@ func analyzeMapBody(fname string, parameter *Directive, term string, mapCtx stri
 	}
 }
 
-func hasValidArguments(mask uint, args []string) bool {
+func hasValidArguments(mask uint64, args []string) bool {
 	return ((mask>>len(args)&1) != 0 && len(args) <= 7) || // NOARGS to TAKE7
 		((mask&ngxConfFlag) != 0 && len(args) == 1 && validFlag(args[0])) ||
 		((mask & ngxConfAny) != 0) ||

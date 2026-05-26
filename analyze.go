@@ -111,7 +111,7 @@ const ngxAnyConf = ngxMainConf | ngxEventConf | ngxMailMainConf | ngxMailSrvConf
 // map for getting bitmasks from certain context tuples
 //
 //nolint:gochecknoglobals
-var contexts = map[string]uint{
+var contexts = map[string]uint64{
 	blockCtx{}.key():                                   ngxMainConf,
 	blockCtx{"events"}.key():                           ngxEventConf,
 	blockCtx{"mail"}.key():                             ngxMailMainConf,
@@ -141,7 +141,7 @@ func enterBlockCtx(stmt *Directive, ctx blockCtx) blockCtx {
 
 //nolint:gocyclo,funlen,gocognit
 func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *ParseOptions) error {
-	var masks []uint
+	var masks []uint64
 	knownDirective := false
 
 	currCtx, knownContext := contexts[ctx.key()]
@@ -179,7 +179,7 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 	}
 
 	// if this directive can't be used in this context then throw an error
-	var ctxMasks []uint
+	var ctxMasks []uint64
 	if options.SkipDirectiveContextCheck {
 		ctxMasks = masks
 	} else {
@@ -250,8 +250,8 @@ func analyze(fname string, stmt *Directive, term string, ctx blockCtx, options *
 	}
 }
 
-func unionBitmaskMaps(maps ...map[string][]uint) map[string][]uint {
-	union := make(map[string][]uint)
+func unionBitmaskMaps(maps ...map[string][]uint64) map[string][]uint64 {
+	union := make(map[string][]uint64)
 
 	for _, m := range maps {
 		for key, value := range m {
@@ -268,7 +268,7 @@ func unionBitmaskMaps(maps ...map[string][]uint) map[string][]uint {
 //nolint:gochecknoglobals
 var defaultDirectives = unionBitmaskMaps(nginxPlusLatestDirectives, njsDirectives, otelDirectives)
 
-func DefaultDirectivesMatchFunc(directive string) ([]uint, bool) {
+func DefaultDirectivesMatchFunc(directive string) ([]uint64, bool) {
 	masks, matched := defaultDirectives[directive]
 	return masks, matched
 }

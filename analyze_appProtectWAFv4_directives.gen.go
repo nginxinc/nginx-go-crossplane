@@ -15,7 +15,7 @@
 
 package crossplane
 
-var appProtectWAFv4Directives = map[string][]uint{
+var appProtectWAFv4Directives = map[string][]uint64{
     "app_protect_app_name": {
         ngxHTTPMainConf | ngxHTTPSrvConf | ngxHTTPLocConf | ngxConfTake1,
     },
@@ -82,7 +82,7 @@ var appProtectWAFv4Directives = map[string][]uint{
 }
 
 // MatchAppProtectWAFv4 is a MatchFunc for App Protect v4 module.
-func MatchAppProtectWAFv4(directive string) ([]uint, bool) {
+func MatchAppProtectWAFv4(directive string) ([]uint64, bool) {
     m, ok := appProtectWAFv4Directives[directive]
     return m, ok
 }
