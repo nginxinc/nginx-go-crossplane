@@ -1,0 +1,93 @@
+{
+    "status": "ok",
+    "errors": [],
+    "config": [
+        {
+            "file": "testdata/configs/lua-block-cert-double-server/nginx.conf",
+            "status": "ok",
+            "errors": [],
+            "parsed": [
+                {
+                    "directive": "http",
+                    "line": 1,
+                    "args": [],
+                    "block": [
+                        {
+                            "directive": "server",
+                            "line": 2,
+                            "args": [],
+                            "block": [
+                                {
+                                    "directive": "listen",
+                                    "line": 3,
+                                    "args": ["443", "ssl"]
+                                },
+                                {
+                                    "directive": "server_name",
+                                    "line": 4,
+                                    "args": ["lua.example.com"]
+                                },
+                                {
+                                    "directive": "location",
+                                    "line": 6,
+                                    "args": ["/"],
+                                    "block": [
+                                        {
+                                            "directive": "root",
+                                            "line": 7,
+                                            "args": ["/usr/share/nginx/html"]
+                                        },
+                                        {
+                                            "directive": "index",
+                                            "line": 8,
+                                            "args": ["index.html", "index.htm"]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "directive": "error_page",
+                                    "line": 11,
+                                    "args": ["500", "502", "503", "504", "/50x.html"]
+                                },
+                                {
+                                    "directive": "location",
+                                    "line": 12,
+                                    "args": ["=", "/50x.html"],
+                                    "block": [
+                                        {
+                                            "directive": "root",
+                                            "line": 13,
+                                            "args": ["/usr/share/nginx/html"]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "directive": "ssl_certificate",
+                                    "line": 16,
+                                    "args": ["/etc/nginx/ssl/cert1.crt"]
+                                },
+                                {
+                                    "directive": "ssl_certificate_key",
+                                    "line": 17,
+                                    "args": ["/etc/nginx/ssl/key1.key"]
+                                },
+                                {
+                                    "directive": "ssl_certificate_by_lua_block",
+                                    "line": 19,
+                                    "args": [
+                                        "\n            print(\"Test lua ssl certificate!\")\n        "
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "directive": "server",
+                            "line": 24,
+                            "args": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
